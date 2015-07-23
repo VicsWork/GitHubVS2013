@@ -13,6 +13,13 @@ namespace powercal
     {
         public string meter_type = "34401A";
 
+        public bool WaitForDsrHolding
+        {
+            get { return _waitForDsrHolding; }
+            set { _waitForDsrHolding = value; }
+        }
+
+        private bool _waitForDsrHolding = true;
         private string _portName;
         private SerialPort _serialPort = new SerialPort();
         private string _value_txt = "";
@@ -57,9 +64,9 @@ namespace powercal
             int n = 0;
             while (_value_txt == "")
             {
-                Thread.Sleep(250);
+                Thread.Sleep(100);
                 n++;
-                if (n > 10)
+                if (n > 5)
                 {
                     break;
                 }
@@ -87,12 +94,16 @@ namespace powercal
         public void writeLine(string cmd)
         {
             int n = 0;
-            while (!_serialPort.DsrHolding)
+
+            if (_waitForDsrHolding)
             {
-                Thread.Sleep(250);
-                n++;
-                if (n > 20)
-                    throw new Exception("Multimeter not responding to serial commands.  Make sure multi-meter is on and serial cable connected");
+                while (!_serialPort.DsrHolding)
+                {
+                    Thread.Sleep(250);
+                    n++;
+                    if (n > 20)
+                        throw new Exception("Multimeter not responding to serial commands.  Make sure multi-meter is on and serial cable connected");
+                }
             }
 
             _serialPort.WriteLine(cmd);

@@ -48,8 +48,48 @@ namespace powercal
                 comboBoxBoardTypes.SelectedIndex = 0;
             }
 
+            autoDetectMeterCOMPort();
+            string msg = string.Format("Cirrus Logic comunications port = {0}", Properties.Settings.Default.CS_COM_Port_Name);
+            updateOutputStatus(msg);
+
+
         }
 
+        void autoDetectMeterCOMPort()
+        {
+            bool detected = false;
+            string[] ports = SerialPort.GetPortNames();
+            foreach (string portname in ports)
+            {
+                MultiMeter meter = new MultiMeter(portname);
+                try
+                {
+                    meter.WaitForDsrHolding = false;
+                    meter.OpenComPort();
+                    string idn = meter.IDN();
+                    if (idn.StartsWith("HEWLETT-PACKARD,34401A"))
+                    {
+                        detected = true;
+                        Properties.Settings.Default.Meter_COM_Port_Name = portname;
+                        string msg = string.Format("Multimetter '{0}' comunications port autodetected at {1}", idn.TrimEnd('\n'), Properties.Settings.Default.Meter_COM_Port_Name);
+                        updateOutputStatus(msg);
+                        break;
+                    }
+
+                }
+                catch (Exception ex)
+                {
+                    string msgx = ex.Message;
+                }
+                meter.CloseSerialPort();
+            }
+            if (!detected)
+            {
+                string msg = string.Format("Unable to detect Multimetter comunications port. Using {0}", Properties.Settings.Default.Meter_COM_Port_Name);
+                updateOutputStatus(msg);
+            }
+
+        }
         void initLogFile()
         {
             string dir = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.UserProfile), ".calibration");
