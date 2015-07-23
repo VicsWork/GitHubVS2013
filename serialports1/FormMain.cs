@@ -455,5 +455,18 @@ namespace powercal
             dlg.ShowDialog();
         }
 
+        private void settingsToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            FormSettings dlg = new FormSettings();
+            dlg.textBoxCirrusCOM.Text = Properties.Settings.Default.CS_COM_Port_Name;
+            dlg.textBoxMeterCOM.Text = Properties.Settings.Default.Meter_COM_Port_Name;
+            DialogResult rc = dlg.ShowDialog();
+            if (rc == DialogResult.OK)
+            {
+
+            }
+        }
+
+
     }
 }

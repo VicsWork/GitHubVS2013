@@ -28,9 +28,9 @@
         /// </summary>
         private void InitializeComponent()
         {
-            this.textBox1 = new System.Windows.Forms.TextBox();
+            this.textBoxCirrusCOM = new System.Windows.Forms.TextBox();
             this.label1 = new System.Windows.Forms.Label();
-            this.textBox2 = new System.Windows.Forms.TextBox();
+            this.textBoxMeterCOM = new System.Windows.Forms.TextBox();
             this.label2 = new System.Windows.Forms.Label();
             this.groupBox1 = new System.Windows.Forms.GroupBox();
             this.buttonOK = new System.Windows.Forms.Button();
@@ -38,12 +38,13 @@
             this.groupBox1.SuspendLayout();
             this.SuspendLayout();
             // 
-            // textBox1
+            // textBoxCirrusCOM
             // 
-            this.textBox1.Location = new System.Drawing.Point(91, 23);
-            this.textBox1.Name = "textBox1";
-            this.textBox1.Size = new System.Drawing.Size(58, 20);
-            this.textBox1.TabIndex = 3;
+            this.textBoxCirrusCOM.Location = new System.Drawing.Point(91, 23);
+            this.textBoxCirrusCOM.Name = "textBoxCirrusCOM";
+            this.textBoxCirrusCOM.Size = new System.Drawing.Size(58, 20);
+            this.textBoxCirrusCOM.TabIndex = 3;
+            this.textBoxCirrusCOM.WordWrap = false;
             // 
             // label1
             // 
@@ -54,12 +55,13 @@
             this.label1.TabIndex = 2;
             this.label1.Text = "Cirrus port";
             // 
-            // textBox2
+            // textBoxMeterCOM
             // 
-            this.textBox2.Location = new System.Drawing.Point(91, 59);
-            this.textBox2.Name = "textBox2";
-            this.textBox2.Size = new System.Drawing.Size(58, 20);
-            this.textBox2.TabIndex = 5;
+            this.textBoxMeterCOM.Location = new System.Drawing.Point(91, 59);
+            this.textBoxMeterCOM.Name = "textBoxMeterCOM";
+            this.textBoxMeterCOM.Size = new System.Drawing.Size(58, 20);
+            this.textBoxMeterCOM.TabIndex = 5;
+            this.textBoxMeterCOM.WordWrap = false;
             // 
             // label2
             // 
@@ -73,8 +75,8 @@
             // groupBox1
             // 
             this.groupBox1.Controls.Add(this.label1);
-            this.groupBox1.Controls.Add(this.textBox2);
-            this.groupBox1.Controls.Add(this.textBox1);
+            this.groupBox1.Controls.Add(this.textBoxMeterCOM);
+            this.groupBox1.Controls.Add(this.textBoxCirrusCOM);
             this.groupBox1.Controls.Add(this.label2);
             this.groupBox1.Location = new System.Drawing.Point(96, 21);
             this.groupBox1.Name = "groupBox1";
@@ -124,12 +126,12 @@
 
         #endregion
 
-        private System.Windows.Forms.TextBox textBox1;
         private System.Windows.Forms.Label label1;
-        private System.Windows.Forms.TextBox textBox2;
         private System.Windows.Forms.Label label2;
         private System.Windows.Forms.GroupBox groupBox1;
         private System.Windows.Forms.Button buttonOK;
         private System.Windows.Forms.Button buttonCancel;
+        public System.Windows.Forms.TextBox textBoxCirrusCOM;
+        public System.Windows.Forms.TextBox textBoxMeterCOM;
     }
 }

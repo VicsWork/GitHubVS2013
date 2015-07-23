@@ -41,6 +41,7 @@
             this.digitalOutputToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.aboutToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.textBoxRunStatus = new System.Windows.Forms.TextBox();
+            this.settingsToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.contextMenuStatusTextBox.SuspendLayout();
             this.menuStripMain.SuspendLayout();
             this.SuspendLayout();
@@ -106,6 +107,7 @@
             // menuStripMain
             // 
             this.menuStripMain.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
+            this.settingsToolStripMenuItem,
             this.testToolStripMenuItem,
             this.aboutToolStripMenuItem});
             this.menuStripMain.Location = new System.Drawing.Point(0, 0);
@@ -126,14 +128,14 @@
             // serialToolStripMenuItem
             // 
             this.serialToolStripMenuItem.Name = "serialToolStripMenuItem";
-            this.serialToolStripMenuItem.Size = new System.Drawing.Size(149, 22);
+            this.serialToolStripMenuItem.Size = new System.Drawing.Size(152, 22);
             this.serialToolStripMenuItem.Text = "Serial Port";
             this.serialToolStripMenuItem.Click += new System.EventHandler(this.serialToolStripMenuItem_Click);
             // 
             // digitalOutputToolStripMenuItem
             // 
             this.digitalOutputToolStripMenuItem.Name = "digitalOutputToolStripMenuItem";
-            this.digitalOutputToolStripMenuItem.Size = new System.Drawing.Size(149, 22);
+            this.digitalOutputToolStripMenuItem.Size = new System.Drawing.Size(152, 22);
             this.digitalOutputToolStripMenuItem.Text = "Digital Output";
             this.digitalOutputToolStripMenuItem.Click += new System.EventHandler(this.digitalOutputToolStripMenuItem_Click);
             // 
@@ -154,6 +156,13 @@
             this.textBoxRunStatus.TabIndex = 10;
             this.textBoxRunStatus.Text = "test";
             this.textBoxRunStatus.WordWrap = false;
+            // 
+            // settingsToolStripMenuItem
+            // 
+            this.settingsToolStripMenuItem.Name = "settingsToolStripMenuItem";
+            this.settingsToolStripMenuItem.Size = new System.Drawing.Size(61, 20);
+            this.settingsToolStripMenuItem.Text = "&Settings";
+            this.settingsToolStripMenuItem.Click += new System.EventHandler(this.settingsToolStripMenuItem_Click);
             // 
             // FormMain
             // 
@@ -192,6 +201,7 @@
         private System.Windows.Forms.ToolStripMenuItem serialToolStripMenuItem;
         private System.Windows.Forms.TextBox textBoxRunStatus;
         private System.Windows.Forms.ToolStripMenuItem digitalOutputToolStripMenuItem;
+        private System.Windows.Forms.ToolStripMenuItem settingsToolStripMenuItem;
     }
 }
 
