@@ -463,7 +463,10 @@ namespace powercal
             DialogResult rc = dlg.ShowDialog();
             if (rc == DialogResult.OK)
             {
+                Properties.Settings.Default.CS_COM_Port_Name = dlg.textBoxCirrusCOM.Text;
+                Properties.Settings.Default.Meter_COM_Port_Name = dlg.textBoxMeterCOM.Text;
 
+                Properties.Settings.Default.Save();
             }
         }
 
