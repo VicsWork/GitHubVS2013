@@ -29,6 +29,7 @@ namespace powercal
 
         delegate void SetTextCallback();
 
+
         public FormMain()
         {
             InitializeComponent();
@@ -37,19 +38,34 @@ namespace powercal
 
             initTextBoxRunStatus();
 
-            // Set the title to match assembly
+            // Set the title to match assembly info from About dlg
             AboutBox1 aboutdlg = new AboutBox1();
             this.Text = aboutdlg.AssemblyTitle;
             aboutdlg.Dispose();
 
+            // Make sure we have a selection for board types
             this.comboBoxBoardTypes.Items.AddRange(Enum.GetNames(typeof(CSSequencer.BoardTypes)));
             if (comboBoxBoardTypes.Items.Count > 0)
             {
                 comboBoxBoardTypes.SelectedIndex = 0;
             }
 
+            // Report COM ports found in system
+            string[] ports = SerialPort.GetPortNames();
+            string msg = "";
+            foreach (string portname in ports)
+            {
+                msg += string.Format("{0}, ", portname);
+            }
+            if (msg != "")
+            {
+                msg = msg.TrimEnd(new char[] { ' ', ',' });
+                msg = string.Format("System serial ports: {0}", msg);
+                updateOutputStatus(msg);
+            }
+
             autoDetectMeterCOMPort();
-            string msg = string.Format("Cirrus Logic comunications port = {0}", Properties.Settings.Default.CS_COM_Port_Name);
+            msg = string.Format("Cirrus Logic comunications port = {0}", Properties.Settings.Default.CS_COM_Port_Name);
             updateOutputStatus(msg);
 
 
@@ -458,13 +474,29 @@ namespace powercal
         private void settingsToolStripMenuItem_Click(object sender, EventArgs e)
         {
             FormSettings dlg = new FormSettings();
-            dlg.textBoxCirrusCOM.Text = Properties.Settings.Default.CS_COM_Port_Name;
-            dlg.textBoxMeterCOM.Text = Properties.Settings.Default.Meter_COM_Port_Name;
+
+            // COM ports
+            dlg.TextBoxCirrusCOM.Text = Properties.Settings.Default.CS_COM_Port_Name;
+            dlg.TextBoxMeterCOM.Text = Properties.Settings.Default.Meter_COM_Port_Name;
+
+            // DIO line assigment
+            dlg.NumericUpDownACPower.Value = Properties.Settings.Default.DIO_ACPower_LineNum;
+            dlg.NumericUpDownLoad.Value = Properties.Settings.Default.DIO_Load_LinNum;
+            dlg.NumericUpDownReset.Value = Properties.Settings.Default.DIO_Reset_LineNum;
+            dlg.NumericUpDownOutput.Value = Properties.Settings.Default.DIO_Output_LineNum;
+
             DialogResult rc = dlg.ShowDialog();
             if (rc == DialogResult.OK)
             {
-                Properties.Settings.Default.CS_COM_Port_Name = dlg.textBoxCirrusCOM.Text;
-                Properties.Settings.Default.Meter_COM_Port_Name = dlg.textBoxMeterCOM.Text;
+                // COM ports
+                Properties.Settings.Default.CS_COM_Port_Name = dlg.TextBoxCirrusCOM.Text;
+                Properties.Settings.Default.Meter_COM_Port_Name = dlg.TextBoxMeterCOM.Text;
+
+                // DIO line assigment
+                Properties.Settings.Default.DIO_ACPower_LineNum = (int)dlg.NumericUpDownACPower.Value;
+                Properties.Settings.Default.DIO_Load_LinNum = (int)dlg.NumericUpDownLoad.Value;
+                Properties.Settings.Default.DIO_Reset_LineNum = (int)dlg.NumericUpDownReset.Value;
+                Properties.Settings.Default.DIO_Output_LineNum = (int)dlg.NumericUpDownOutput.Value;
 
                 Properties.Settings.Default.Save();
             }

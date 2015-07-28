@@ -12,11 +12,15 @@ namespace powercal
 {
     public partial class FormDigitalPortTest : Form
     {
+        RelayControler _relayCtrl = new RelayControler();
+
         public FormDigitalPortTest()
         {
             InitializeComponent();
 
             initphysicalChannelComboBox();
+
+            refreshNumericUpDownValue();
         }
 
         void initphysicalChannelComboBox()
@@ -32,6 +36,16 @@ namespace powercal
 
                 writeButton.Enabled = false;
             }
+        }
+
+        private void refreshNumericUpDownValue()
+        {
+            // Reads all values from DIO and updates the numeric up and down control
+            NumericUpDownACPower.Value = Convert.ToDecimal(_relayCtrl.AC_Power);
+            NumericUpDownLoad.Value = Convert.ToDecimal(_relayCtrl.Load);
+            NumericUpDownReset.Value = Convert.ToDecimal(_relayCtrl.Reset);
+            NumericUpDownOutput.Value = Convert.ToDecimal(_relayCtrl.Output);
+
         }
 
         private void writeButton_Click(object sender, EventArgs e)
@@ -50,6 +64,9 @@ namespace powercal
                     DigitalSingleChannelWriter writer = new DigitalSingleChannelWriter(digitalWriteTask.Stream);
                     writer.WriteSingleSamplePort(true, (UInt32)dataToWriteNumericUpDown.Value);
                 }
+
+                refreshNumericUpDownValue();
+
             }
             catch (Exception ex)
             {
@@ -59,6 +76,31 @@ namespace powercal
             {
                 Cursor.Current = Cursors.Default;
             }
+        }
+
+        private void NumericUpDownACPower_ValueChanged(object sender, EventArgs e)
+        {
+            NumericUpDown num = (NumericUpDown)sender;
+            _relayCtrl.AC_Power = Convert.ToBoolean(num.Value);
+        }
+
+        private void NumericUpDownLoad_ValueChanged(object sender, EventArgs e)
+        {
+            NumericUpDown num = (NumericUpDown)sender;
+            _relayCtrl.Load = Convert.ToBoolean(num.Value);
+        }
+
+        private void NumericUpDownReset_ValueChanged(object sender, EventArgs e)
+        {
+            NumericUpDown num = (NumericUpDown)sender;
+            _relayCtrl.Reset = Convert.ToBoolean(num.Value);
+        }
+
+        private void NumericUpDownOutput_ValueChanged(object sender, EventArgs e)
+        {
+            NumericUpDown num = (NumericUpDown)sender;
+            _relayCtrl.Output = Convert.ToBoolean(num.Value);
+
         }
     }
 }

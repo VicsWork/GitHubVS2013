@@ -58,5 +58,53 @@ namespace powercal.Properties {
                 this["Manual_Relay_Control"] = value;
             }
         }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("0")]
+        public int DIO_ACPower_LineNum {
+            get {
+                return ((int)(this["DIO_ACPower_LineNum"]));
+            }
+            set {
+                this["DIO_ACPower_LineNum"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("1")]
+        public int DIO_Load_LinNum {
+            get {
+                return ((int)(this["DIO_Load_LinNum"]));
+            }
+            set {
+                this["DIO_Load_LinNum"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("2")]
+        public int DIO_Reset_LineNum {
+            get {
+                return ((int)(this["DIO_Reset_LineNum"]));
+            }
+            set {
+                this["DIO_Reset_LineNum"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("3")]
+        public int DIO_Output_LineNum {
+            get {
+                return ((int)(this["DIO_Output_LineNum"]));
+            }
+            set {
+                this["DIO_Output_LineNum"] = value;
+            }
+        }
     }
 }

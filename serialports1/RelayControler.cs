@@ -8,47 +8,77 @@ namespace powercal
 {
     class RelayControler
     {
+        string _acPowerLbl = "AC Power";
+        string _loadLbl = "Load";
+        string _resetLbl = "Reset";
+        string _outputLbl = "Output";
+
         private void _initDicLines()
         {
+            // Dic to store line numbers
             _dic_lines.Clear();
-            _dic_lines.Add("AC Power", 1);
-            _dic_lines.Add("Load", 2);
-            _dic_lines.Add("Reset", 3);
-            _dic_lines.Add("Output ", 4);
+            _dic_lines.Add(_acPowerLbl, 1);
+            _dic_lines.Add(_loadLbl, 2);
+            _dic_lines.Add(_resetLbl, 3);
+            _dic_lines.Add(_outputLbl, 4);
 
+            // Dic to store line state (true = ON, false = OFF)
             _dic_values.Clear();
-            _dic_values.Add("AC Power", false);
-            _dic_values.Add("Load", false);
-            _dic_values.Add("Reset", false);
-            _dic_values.Add("Output ", false);
+            _dic_values.Add(_acPowerLbl, false);
+            _dic_values.Add(_loadLbl, false);
+            _dic_values.Add(_resetLbl, false);
+            _dic_values.Add(_outputLbl, false);
 
         }
 
         public bool AC_Power
         {
-            get { return ReadLine("AC Power"); }
-            set { WriteLine("AC Power", value); }
+            get { return ReadLine(_acPowerLbl); }
+            set { WriteLine(_acPowerLbl, value); }
+        }
+        public int AC_Power_LineNum
+        {
+            get { return _dic_lines[_acPowerLbl]; }
+            set { _dic_lines[_acPowerLbl] = value; }
         }
 
         public bool Reset
         {
-            get { return ReadLine("Reset"); }
-            set { WriteLine("Reset", value); }
+            get { return ReadLine(_resetLbl); }
+            set { WriteLine(_resetLbl, value); }
+        }
+        public int Reset_LineNum
+        {
+            get { return _dic_lines[_resetLbl]; }
+            set { _dic_lines[_resetLbl] = value; }
         }
 
         public bool Load
         {
-            get { return ReadLine("Load"); }
-            set { WriteLine("Load", value); }
+            get { return ReadLine(_loadLbl); }
+            set { WriteLine(_loadLbl, value); }
+        }
+        public int Load_LineNum
+        {
+            get { return _dic_lines[_loadLbl]; }
+            set { _dic_lines[_loadLbl] = value; }
         }
 
         public bool Output
         {
-            get { return ReadLine("Output"); }
-            set { WriteLine("Output", value); }
+            get { return ReadLine(_outputLbl); }
+            set { WriteLine(_outputLbl, value); }
+        }
+        public int Output_LineNum
+        {
+            get { return _dic_lines[_outputLbl]; }
+            set { _dic_lines[_outputLbl] = value; }
         }
 
+
+        // Dic to store line numbers
         private Dictionary<string, int> _dic_lines = new Dictionary<string, int>();
+        // Dic to store line state (true = ON, false = OFF)
         private Dictionary<string, bool> _dic_values = new Dictionary<string, bool>();
 
         public string DevPort
