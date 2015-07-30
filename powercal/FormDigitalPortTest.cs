@@ -40,11 +40,19 @@ namespace powercal
 
         private void refreshNumericUpDownValue()
         {
-            // Reads all values from DIO and updates the numeric up and down control
-            NumericUpDownACPower.Value = Convert.ToDecimal(_relayCtrl.AC_Power);
-            NumericUpDownLoad.Value = Convert.ToDecimal(_relayCtrl.Load);
-            NumericUpDownReset.Value = Convert.ToDecimal(_relayCtrl.Reset);
-            NumericUpDownOutput.Value = Convert.ToDecimal(_relayCtrl.Output);
+            try
+            {
+
+                // Reads all values from DIO and updates the numeric up and down control
+                NumericUpDownACPower.Value = Convert.ToDecimal(_relayCtrl.AC_Power);
+                NumericUpDownLoad.Value = Convert.ToDecimal(_relayCtrl.Load);
+                NumericUpDownReset.Value = Convert.ToDecimal(_relayCtrl.Reset);
+                NumericUpDownOutput.Value = Convert.ToDecimal(_relayCtrl.Output);
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show(ex.Message, "Unhandled Exception");
+            }
 
         }
 
