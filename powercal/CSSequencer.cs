@@ -53,14 +53,13 @@ namespace powercal
             _cscommander.Send(tx_data);
         }
 
-        public void DisableHiPassFilter()
+        public void EnableHiPassFilter()
         {
-            byte[] tx_data = StrToBytes("90 40 08 20 10"); //Disable High pass filter
+            // 90 Select Page 16
+            // 40 Write to register 0 (Config2)
+            // 08 = Sets IFLT[1:0] = 01 = High-pass filter (HPF) on current channel
+            byte[] tx_data = StrToBytes("90 40 08 20 10"); //Enable High pass filter
             _cscommander.Send(tx_data);
-
-            tx_data = StrToBytes("D5"); //Start Continuous Convertion
-            _cscommander.Send(tx_data);
-
         }
 
         public void StartContinuousConvertion()
@@ -71,7 +70,7 @@ namespace powercal
 
         public double GetIRMS()
         {
-            DisableHiPassFilter();
+            EnableHiPassFilter();
             StartContinuousConvertion();
 
             byte[] tx_data = StrToBytes("90 06"); //Page 16 select, reads IRMS register
@@ -104,14 +103,12 @@ namespace powercal
             byte[] tx_data = StrToBytes("90 79 D0 07 00"); //Set Tsettle to 2000ms
             _cscommander.Send(tx_data);
 
-            tx_data = StrToBytes("90 40 08 20 10"); //Enable High pass filter
-            _cscommander.Send(tx_data);
+            EnableHiPassFilter();
 
             tx_data = StrToBytes("90 65 00 00 00"); //Page 16 select, set ACOffset to 0
             _cscommander.Send(tx_data);
 
-            tx_data = StrToBytes("D5"); //Start Continuous Convertion
-            _cscommander.Send(tx_data);
+            StartContinuousConvertion();
 
             tx_data = StrToBytes("90 25");
             rx_data = _cscommander.Send_Receive_Bytes(tx_data); //Page 16 select, read IACOffset register
@@ -130,14 +127,12 @@ namespace powercal
             byte[] tx_data = StrToBytes("90 79 D0 07 00"); //Set Tsettle to 2000ms
             _cscommander.Send(tx_data);
 
-            tx_data = StrToBytes("90 40 08 20 10"); //Enable High pass filter
-            _cscommander.Send(tx_data);
+            EnableHiPassFilter();
 
             tx_data = StrToBytes("90 65 00 00 00"); //Page 16 select, set ACOffset to 0
             _cscommander.Send(tx_data);
 
-            tx_data = StrToBytes("D5"); //Start Continuous Convertion
-            _cscommander.Send(tx_data);
+            StartContinuousConvertion();
 
             tx_data = StrToBytes("90 06"); //Page 16 select, read IRMS register
             rx_data = _cscommander.Send_Receive_Bytes(tx_data);

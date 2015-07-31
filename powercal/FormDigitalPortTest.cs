@@ -18,7 +18,7 @@ namespace powercal
         {
             InitializeComponent();
 
-            initphysicalChannelComboBox();
+            initPhysicalChannelComboBox();
 
             // Add line numbers to labels
             int linenum = Properties.Settings.Default.DIO_ACPower_LineNum;
@@ -42,7 +42,7 @@ namespace powercal
             refreshNumericUpDownValue();
         }
 
-        void initphysicalChannelComboBox()
+        void initPhysicalChannelComboBox()
         {
             physicalChannelComboBox.Items.AddRange(DaqSystem.Local.GetPhysicalChannels(PhysicalChannelTypes.DOPort, PhysicalChannelAccess.External));
             if (physicalChannelComboBox.Items.Count > 0)
@@ -54,6 +54,8 @@ namespace powercal
                 physicalChannelComboBox.Enabled = false;
 
                 writeButton.Enabled = false;
+
+                setLineEnablement(false);
             }
         }
 
@@ -71,8 +73,20 @@ namespace powercal
             catch (Exception ex)
             {
                 MessageBox.Show(ex.Message, "Unhandled Exception");
+                setLineEnablement(false);
             }
 
+        }
+
+        private void setLineEnablement(bool enable)
+        {
+            foreach (Control ctrl in groupBoxDIOLines.Controls)
+            {
+                if (ctrl.GetType() == typeof(NumericUpDown))
+                {
+                    ctrl.Enabled = enable;
+                }
+            }
         }
 
         private void writeButton_Click(object sender, EventArgs e)

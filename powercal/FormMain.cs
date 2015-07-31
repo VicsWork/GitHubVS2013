@@ -257,20 +257,26 @@ namespace powercal
 
         private void calibrate()
         {
+
+            bool manual_measure = true;
+
             string msg;
             updateOutputStatus("===============================Start Calibration==============================");
             string csPortName = Properties.Settings.Default.CS_COM_Port_Name;
             CSSequencer.BoardTypes board = (CSSequencer.BoardTypes)Enum.Parse(typeof(CSSequencer.BoardTypes), comboBoxBoardTypes.Text);
             _sq = new CSSequencer(csPortName, board);
 
-            // Setup multi-meter
-            updateRunStatus("Setup multi-meter");
-            string meterPortName = Properties.Settings.Default.Meter_COM_Port_Name;
-            _meter = new MultiMeter(meterPortName);
-            _meter.OpenComPort();
-            _meter.SetToRemote();
-            _meter.ClearError();
-            string idn = _meter.IDN();
+            if (!manual_measure)
+            {
+                // Setup multi-meter
+                updateRunStatus("Setup multi-meter");
+                string meterPortName = Properties.Settings.Default.Meter_COM_Port_Name;
+                _meter = new MultiMeter(meterPortName);
+                _meter.OpenComPort();
+                _meter.SetToRemote();
+                _meter.ClearError();
+                string idn = _meter.IDN();
+            }
 
             // IOffsetPre_Cal
             updateRunStatus("IOffsetPre_Cal");
@@ -329,18 +335,38 @@ namespace powercal
 
             // IRMSMeasure
             updateRunStatus("IRMSMeasure");
-            _meter.SetupForIAC();
-            string iac_measurement = _meter.Measure();
-            double iRMSMeasure = Double.Parse(iac_measurement);
+            double iRMSMeasure = 0;
+            if (manual_measure)
+            {
+                // Enter measurement
+                FormEnterMeasurement dlg = new FormEnterMeasurement();
+                iRMSMeasure = dlg.GetMeasurement("Irms:");
+            }
+            else
+            {
+                _meter.SetupForIAC();
+                string iac_measurement = _meter.Measure();
+                iRMSMeasure = Double.Parse(iac_measurement);
+                Thread.Sleep(1000);
+            }
             updateOutputStatus(string.Format("IrmsMeasure = {0:F8}", iRMSMeasure));
 
-            Thread.Sleep(1000);
 
             // VRMSMeasure
             updateRunStatus("VRMSMeasure");
-            _meter.SetupForVAC();
-            string vac_measurement = _meter.Measure();
-            double vRMSMeasure = Double.Parse(vac_measurement);
+            double vRMSMeasure = 0;
+            if (manual_measure)
+            {
+                // Enter measurement
+                FormEnterMeasurement dlg = new FormEnterMeasurement();
+                vRMSMeasure = dlg.GetMeasurement("Vrms:");
+            }
+            else
+            {
+                _meter.SetupForVAC();
+                string vac_measurement = _meter.Measure();
+                vRMSMeasure = Double.Parse(vac_measurement);
+            }
             updateOutputStatus(string.Format("VrmsMeasure = {0:F8}", vRMSMeasure));
 
             // IGainCal
@@ -378,7 +404,6 @@ namespace powercal
 
             // IRMSAfter_Cal
             updateRunStatus("IRMSAfter_Cal");
-
             double iRMSAfterCal = _sq.GetIRMS();
             updateOutputStatus(string.Format("IrmsAfterCal = {0:F8}", iRMSAfterCal));
             double delta = iRMSMeasure * 0.03;
@@ -479,6 +504,9 @@ namespace powercal
             dlg.TextBoxCirrusCOM.Text = Properties.Settings.Default.CS_COM_Port_Name;
             dlg.TextBoxMeterCOM.Text = Properties.Settings.Default.Meter_COM_Port_Name;
 
+            // DIO Disable
+            dlg.checkBoxDisableDIO.Checked = Properties.Settings.Default.Manual_Relay_Control;
+
             // DIO line assigment
             dlg.NumericUpDownACPower.Value = Properties.Settings.Default.DIO_ACPower_LineNum;
             dlg.NumericUpDownLoad.Value = Properties.Settings.Default.DIO_Load_LinNum;
@@ -491,6 +519,9 @@ namespace powercal
                 // COM ports
                 Properties.Settings.Default.CS_COM_Port_Name = dlg.TextBoxCirrusCOM.Text;
                 Properties.Settings.Default.Meter_COM_Port_Name = dlg.TextBoxMeterCOM.Text;
+
+                // DIO Disable
+                Properties.Settings.Default.Manual_Relay_Control = dlg.checkBoxDisableDIO.Checked;
 
                 // DIO line assigment
                 Properties.Settings.Default.DIO_ACPower_LineNum = (int)dlg.NumericUpDownACPower.Value;

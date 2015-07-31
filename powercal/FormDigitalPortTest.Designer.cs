@@ -34,7 +34,7 @@
             this.writeButton = new System.Windows.Forms.Button();
             this.dataLabel = new System.Windows.Forms.Label();
             this.NumericUpDowndataToWrite = new System.Windows.Forms.NumericUpDown();
-            this.groupBox2 = new System.Windows.Forms.GroupBox();
+            this.groupBoxDIOLines = new System.Windows.Forms.GroupBox();
             this.labelOutput = new System.Windows.Forms.Label();
             this.NumericUpDownOutput = new System.Windows.Forms.NumericUpDown();
             this.labelReset = new System.Windows.Forms.Label();
@@ -46,7 +46,7 @@
             this.label1 = new System.Windows.Forms.Label();
             this.channelParametersGroupBox.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.NumericUpDowndataToWrite)).BeginInit();
-            this.groupBox2.SuspendLayout();
+            this.groupBoxDIOLines.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.NumericUpDownOutput)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.NumericUpDownReset)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.NumericUpDownLoad)).BeginInit();
@@ -85,7 +85,7 @@
             // writeButton
             // 
             this.writeButton.FlatStyle = System.Windows.Forms.FlatStyle.System;
-            this.writeButton.Location = new System.Drawing.Point(107, 118);
+            this.writeButton.Location = new System.Drawing.Point(93, 118);
             this.writeButton.Name = "writeButton";
             this.writeButton.Size = new System.Drawing.Size(75, 23);
             this.writeButton.TabIndex = 4;
@@ -111,7 +111,7 @@
             0,
             0});
             this.NumericUpDowndataToWrite.Name = "NumericUpDowndataToWrite";
-            this.NumericUpDowndataToWrite.Size = new System.Drawing.Size(54, 20);
+            this.NumericUpDowndataToWrite.Size = new System.Drawing.Size(40, 20);
             this.NumericUpDowndataToWrite.TabIndex = 7;
             this.NumericUpDowndataToWrite.Value = new decimal(new int[] {
             255,
@@ -119,22 +119,22 @@
             0,
             0});
             // 
-            // groupBox2
+            // groupBoxDIOLines
             // 
-            this.groupBox2.Controls.Add(this.labelOutput);
-            this.groupBox2.Controls.Add(this.NumericUpDownOutput);
-            this.groupBox2.Controls.Add(this.labelReset);
-            this.groupBox2.Controls.Add(this.NumericUpDownReset);
-            this.groupBox2.Controls.Add(this.labelLoad);
-            this.groupBox2.Controls.Add(this.NumericUpDownLoad);
-            this.groupBox2.Controls.Add(this.labelACPower);
-            this.groupBox2.Controls.Add(this.NumericUpDownACPower);
-            this.groupBox2.Location = new System.Drawing.Point(26, 171);
-            this.groupBox2.Name = "groupBox2";
-            this.groupBox2.Size = new System.Drawing.Size(149, 120);
-            this.groupBox2.TabIndex = 10;
-            this.groupBox2.TabStop = false;
-            this.groupBox2.Text = "DIO Line Values";
+            this.groupBoxDIOLines.Controls.Add(this.labelOutput);
+            this.groupBoxDIOLines.Controls.Add(this.NumericUpDownOutput);
+            this.groupBoxDIOLines.Controls.Add(this.labelReset);
+            this.groupBoxDIOLines.Controls.Add(this.NumericUpDownReset);
+            this.groupBoxDIOLines.Controls.Add(this.labelLoad);
+            this.groupBoxDIOLines.Controls.Add(this.NumericUpDownLoad);
+            this.groupBoxDIOLines.Controls.Add(this.labelACPower);
+            this.groupBoxDIOLines.Controls.Add(this.NumericUpDownACPower);
+            this.groupBoxDIOLines.Location = new System.Drawing.Point(26, 171);
+            this.groupBoxDIOLines.Name = "groupBoxDIOLines";
+            this.groupBoxDIOLines.Size = new System.Drawing.Size(149, 120);
+            this.groupBoxDIOLines.TabIndex = 10;
+            this.groupBoxDIOLines.TabStop = false;
+            this.groupBoxDIOLines.Text = "DIO Line Values";
             // 
             // labelOutput
             // 
@@ -227,7 +227,7 @@
             // label1
             // 
             this.label1.AutoSize = true;
-            this.label1.Location = new System.Drawing.Point(23, 122);
+            this.label1.Location = new System.Drawing.Point(26, 123);
             this.label1.Name = "label1";
             this.label1.Size = new System.Drawing.Size(18, 13);
             this.label1.TabIndex = 11;
@@ -239,7 +239,7 @@
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Dpi;
             this.ClientSize = new System.Drawing.Size(235, 348);
             this.Controls.Add(this.label1);
-            this.Controls.Add(this.groupBox2);
+            this.Controls.Add(this.groupBoxDIOLines);
             this.Controls.Add(this.channelParametersGroupBox);
             this.Controls.Add(this.writeButton);
             this.Controls.Add(this.dataLabel);
@@ -251,8 +251,8 @@
             this.Text = "Write to Digital Port";
             this.channelParametersGroupBox.ResumeLayout(false);
             ((System.ComponentModel.ISupportInitialize)(this.NumericUpDowndataToWrite)).EndInit();
-            this.groupBox2.ResumeLayout(false);
-            this.groupBox2.PerformLayout();
+            this.groupBoxDIOLines.ResumeLayout(false);
+            this.groupBoxDIOLines.PerformLayout();
             ((System.ComponentModel.ISupportInitialize)(this.NumericUpDownOutput)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this.NumericUpDownReset)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this.NumericUpDownLoad)).EndInit();
@@ -270,7 +270,7 @@
         private System.Windows.Forms.Button writeButton;
         private System.Windows.Forms.Label dataLabel;
         private System.Windows.Forms.NumericUpDown NumericUpDowndataToWrite;
-        private System.Windows.Forms.GroupBox groupBox2;
+        private System.Windows.Forms.GroupBox groupBoxDIOLines;
         private System.Windows.Forms.Label labelOutput;
         public System.Windows.Forms.NumericUpDown NumericUpDownOutput;
         private System.Windows.Forms.Label labelReset;

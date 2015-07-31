@@ -97,6 +97,12 @@
     <Compile Include="CSCommander.cs" />
     <Compile Include="CSSequencer.cs" />
     <Compile Include="Ember.cs" />
+    <Compile Include="FormEnterMeasurement.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="FormEnterMeasurement.Designer.cs">
+      <DependentUpon>FormEnterMeasurement.cs</DependentUpon>
+    </Compile>
     <Compile Include="FormSettings.cs">
       <SubType>Form</SubType>
     </Compile>
@@ -127,6 +133,9 @@
     <Compile Include="RelayControler.cs" />
     <EmbeddedResource Include="AboutBox1.resx">
       <DependentUpon>AboutBox1.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="FormEnterMeasurement.resx">
+      <DependentUpon>FormEnterMeasurement.cs</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="FormSettings.resx">
       <DependentUpon>FormSettings.cs</DependentUpon>

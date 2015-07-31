@@ -21,5 +21,21 @@ namespace powercal
         {
             this.Close();
         }
+
+        private void setLineEnablement(bool enable)
+        {
+            foreach (Control ctrl in groupBoxDIO.Controls)
+            {
+                if (ctrl.GetType() == typeof(NumericUpDown))
+                {
+                    ctrl.Enabled = enable;
+                }
+            }
+        }
+
+        private void checkBoxDisableDIO_CheckedChanged(object sender, EventArgs e)
+        {
+            setLineEnablement(!checkBoxDisableDIO.Checked);
+        }
     }
 }
