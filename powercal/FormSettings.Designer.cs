@@ -37,6 +37,7 @@
             this.buttonOK = new System.Windows.Forms.Button();
             this.buttonCancel = new System.Windows.Forms.Button();
             this.groupBoxDIO = new System.Windows.Forms.GroupBox();
+            this.checkBoxDisableDIO = new System.Windows.Forms.CheckBox();
             this.label6 = new System.Windows.Forms.Label();
             this.NumericUpDownOutput = new System.Windows.Forms.NumericUpDown();
             this.label5 = new System.Windows.Forms.Label();
@@ -45,8 +46,8 @@
             this.NumericUpDownLoad = new System.Windows.Forms.NumericUpDown();
             this.label3 = new System.Windows.Forms.Label();
             this.NumericUpDownACPower = new System.Windows.Forms.NumericUpDown();
-            this.checkBoxDisableDIO = new System.Windows.Forms.CheckBox();
             this.toolTip1 = new System.Windows.Forms.ToolTip(this.components);
+            this.CheckBoxManualMultiMeter = new System.Windows.Forms.CheckBox();
             this.groupBox1.SuspendLayout();
             this.groupBoxDIO.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.NumericUpDownOutput)).BeginInit();
@@ -91,13 +92,14 @@
             // 
             // groupBox1
             // 
+            this.groupBox1.Controls.Add(this.CheckBoxManualMultiMeter);
             this.groupBox1.Controls.Add(this.label1);
             this.groupBox1.Controls.Add(this.TextBoxMeterCOM);
             this.groupBox1.Controls.Add(this.TextBoxCirrusCOM);
             this.groupBox1.Controls.Add(this.label2);
-            this.groupBox1.Location = new System.Drawing.Point(41, 12);
+            this.groupBox1.Location = new System.Drawing.Point(12, 12);
             this.groupBox1.Name = "groupBox1";
-            this.groupBox1.Size = new System.Drawing.Size(183, 95);
+            this.groupBox1.Size = new System.Drawing.Size(230, 138);
             this.groupBox1.TabIndex = 6;
             this.groupBox1.TabStop = false;
             this.groupBox1.Text = "Comunications";
@@ -138,6 +140,18 @@
             this.groupBoxDIO.TabIndex = 9;
             this.groupBoxDIO.TabStop = false;
             this.groupBoxDIO.Text = "DIO Line";
+            // 
+            // checkBoxDisableDIO
+            // 
+            this.checkBoxDisableDIO.AutoSize = true;
+            this.checkBoxDisableDIO.Location = new System.Drawing.Point(19, 25);
+            this.checkBoxDisableDIO.Name = "checkBoxDisableDIO";
+            this.checkBoxDisableDIO.Size = new System.Drawing.Size(61, 17);
+            this.checkBoxDisableDIO.TabIndex = 8;
+            this.checkBoxDisableDIO.Text = "Disable";
+            this.toolTip1.SetToolTip(this.checkBoxDisableDIO, "Disable to go into manual mode ");
+            this.checkBoxDisableDIO.UseVisualStyleBackColor = true;
+            this.checkBoxDisableDIO.CheckedChanged += new System.EventHandler(this.checkBoxDisableDIO_CheckedChanged);
             // 
             // label6
             // 
@@ -223,17 +237,16 @@
             this.NumericUpDownACPower.Size = new System.Drawing.Size(31, 20);
             this.NumericUpDownACPower.TabIndex = 0;
             // 
-            // checkBoxDisableDIO
+            // CheckBoxManualMultiMeter
             // 
-            this.checkBoxDisableDIO.AutoSize = true;
-            this.checkBoxDisableDIO.Location = new System.Drawing.Point(19, 25);
-            this.checkBoxDisableDIO.Name = "checkBoxDisableDIO";
-            this.checkBoxDisableDIO.Size = new System.Drawing.Size(61, 17);
-            this.checkBoxDisableDIO.TabIndex = 8;
-            this.checkBoxDisableDIO.Text = "Disable";
-            this.toolTip1.SetToolTip(this.checkBoxDisableDIO, "Disable to go into manual mode ");
-            this.checkBoxDisableDIO.UseVisualStyleBackColor = true;
-            this.checkBoxDisableDIO.CheckedChanged += new System.EventHandler(this.checkBoxDisableDIO_CheckedChanged);
+            this.CheckBoxManualMultiMeter.AutoSize = true;
+            this.CheckBoxManualMultiMeter.Location = new System.Drawing.Point(156, 61);
+            this.CheckBoxManualMultiMeter.Name = "CheckBoxManualMultiMeter";
+            this.CheckBoxManualMultiMeter.Size = new System.Drawing.Size(61, 17);
+            this.CheckBoxManualMultiMeter.TabIndex = 6;
+            this.CheckBoxManualMultiMeter.Text = "Manual";
+            this.CheckBoxManualMultiMeter.UseVisualStyleBackColor = true;
+            this.CheckBoxManualMultiMeter.CheckedChanged += new System.EventHandler(this.CheckBoxManualMultiMeter_CheckedChanged);
             // 
             // FormSettings
             // 
@@ -250,6 +263,7 @@
             this.MaximizeBox = false;
             this.Name = "FormSettings";
             this.Text = "Settings";
+            this.Load += new System.EventHandler(this.FormSettings_Load);
             this.groupBox1.ResumeLayout(false);
             this.groupBox1.PerformLayout();
             this.groupBoxDIO.ResumeLayout(false);
@@ -282,5 +296,6 @@
         public System.Windows.Forms.NumericUpDown NumericUpDownACPower;
         public System.Windows.Forms.CheckBox checkBoxDisableDIO;
         private System.Windows.Forms.ToolTip toolTip1;
+        public System.Windows.Forms.CheckBox CheckBoxManualMultiMeter;
     }
 }

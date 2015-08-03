@@ -53,9 +53,15 @@ namespace powercal
             // Report COM ports found in system
             string[] ports = SerialPort.GetPortNames();
             string msg = "";
+            bool detected_cs = false;
             foreach (string portname in ports)
             {
                 msg += string.Format("{0}, ", portname);
+
+                if (portname == Properties.Settings.Default.CS_COM_Port_Name)
+                {
+                    detected_cs = true;
+                }
             }
             if (msg != "")
             {
@@ -64,14 +70,21 @@ namespace powercal
                 updateOutputStatus(msg);
             }
 
-            autoDetectMeterCOMPort();
+            bool detected_meter = autoDetectMeterCOMPort();
+
+            if (!detected_cs && !detected_meter && ports.Length > 0)
+            {
+                Properties.Settings.Default.CS_COM_Port_Name = ports[0];
+                Properties.Settings.Default.Save();
+            }
+
             msg = string.Format("Cirrus Logic comunications port = {0}", Properties.Settings.Default.CS_COM_Port_Name);
             updateOutputStatus(msg);
 
 
         }
 
-        void autoDetectMeterCOMPort()
+        bool autoDetectMeterCOMPort()
         {
             bool detected = false;
             string[] ports = SerialPort.GetPortNames();
@@ -101,9 +114,15 @@ namespace powercal
             }
             if (!detected)
             {
-                string msg = string.Format("Unable to detect Multimetter comunications port. Using {0}", Properties.Settings.Default.Meter_COM_Port_Name);
+                string msg = string.Format("Unable to detect Multimetter comunications port. Using {0}.  Measurements set to manual mode", Properties.Settings.Default.Meter_COM_Port_Name);
+
+                Properties.Settings.Default.Meter_Manual_Measurement = true;
+                Properties.Settings.Default.Save();
+
                 updateOutputStatus(msg);
             }
+
+            return detected;
 
         }
         void initLogFile()
@@ -258,7 +277,7 @@ namespace powercal
         private void calibrate()
         {
 
-            bool manual_measure = true;
+            bool manual_measure = false;
 
             string msg;
             updateOutputStatus("===============================Start Calibration==============================");
@@ -502,7 +521,10 @@ namespace powercal
 
             // COM ports
             dlg.TextBoxCirrusCOM.Text = Properties.Settings.Default.CS_COM_Port_Name;
+            
             dlg.TextBoxMeterCOM.Text = Properties.Settings.Default.Meter_COM_Port_Name;
+            dlg.CheckBoxManualMultiMeter.Checked = Properties.Settings.Default.Meter_Manual_Measurement;
+
 
             // DIO Disable
             dlg.checkBoxDisableDIO.Checked = Properties.Settings.Default.Manual_Relay_Control;
@@ -518,7 +540,9 @@ namespace powercal
             {
                 // COM ports
                 Properties.Settings.Default.CS_COM_Port_Name = dlg.TextBoxCirrusCOM.Text;
+
                 Properties.Settings.Default.Meter_COM_Port_Name = dlg.TextBoxMeterCOM.Text;
+                Properties.Settings.Default.Meter_Manual_Measurement = dlg.CheckBoxManualMultiMeter.Checked;
 
                 // DIO Disable
                 Properties.Settings.Default.Manual_Relay_Control = dlg.checkBoxDisableDIO.Checked;

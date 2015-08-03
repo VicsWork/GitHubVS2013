@@ -37,5 +37,22 @@ namespace powercal
         {
             setLineEnablement(!checkBoxDisableDIO.Checked);
         }
+
+        private void FormSettings_Load(object sender, EventArgs e)
+        {
+        }
+
+        private void CheckBoxManualMultiMeter_CheckedChanged(object sender, EventArgs e)
+        {
+            if (CheckBoxManualMultiMeter.Checked)
+            {
+                TextBoxMeterCOM.Enabled = false;
+            }
+            else
+            {
+                TextBoxMeterCOM.Enabled = true;
+            }
+
+        }
     }
 }
