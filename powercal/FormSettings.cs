@@ -54,5 +54,15 @@ namespace powercal
             }
 
         }
+
+        private void buttonEmberBinPathBrowse_Click(object sender, EventArgs e)
+        {
+            FolderBrowserDialog dlg = new FolderBrowserDialog();
+            dlg.SelectedPath = TextBoxEmberBinPath.Text;
+            if (dlg.ShowDialog() == System.Windows.Forms.DialogResult.OK)
+            {
+                TextBoxEmberBinPath.Text = dlg.SelectedPath;
+            }
+        }
     }
 }

@@ -33,8 +33,8 @@ namespace powercal
             _relayCtrl.Reset_LineNum = linenum;
             labelReset.Text += string.Format("({0})", linenum);
 
-            linenum = Properties.Settings.Default.DIO_Output_LineNum;
-            _relayCtrl.Output_LineNum = linenum;
+            linenum = Properties.Settings.Default.DIO_Ember_LineNum;
+            _relayCtrl.Ember_LineNum = linenum;
             labelOutput.Text += string.Format("({0})", linenum);
 
             NumericUpDowndataToWrite.Value = rearPort();
@@ -68,7 +68,7 @@ namespace powercal
                 NumericUpDownACPower.Value = Convert.ToDecimal(_relayCtrl.AC_Power);
                 NumericUpDownLoad.Value = Convert.ToDecimal(_relayCtrl.Load);
                 NumericUpDownReset.Value = Convert.ToDecimal(_relayCtrl.Reset);
-                NumericUpDownOutput.Value = Convert.ToDecimal(_relayCtrl.Output);
+                NumericUpDownOutput.Value = Convert.ToDecimal(_relayCtrl.Ember);
             }
             catch (Exception ex)
             {
@@ -172,7 +172,7 @@ namespace powercal
         private void NumericUpDownOutput_ValueChanged(object sender, EventArgs e)
         {
             NumericUpDown num = (NumericUpDown)sender;
-            _relayCtrl.Output = Convert.ToBoolean(num.Value);
+            _relayCtrl.Ember = Convert.ToBoolean(num.Value);
             NumericUpDowndataToWrite.Value = rearPort();
         }
     }

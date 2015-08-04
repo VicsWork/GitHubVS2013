@@ -13,6 +13,7 @@ namespace powercal
     {
         public string BatchFilePath { get { return _batch_file; } set { _batch_file = value; } }
         public string EmberBinPath { get { return _ember_bin_path; } set { _ember_bin_path = value; } }
+        public string EmberExe { get { return _ember_exe; } set { _ember_exe = value; } }
 
         string _batch_file;
         private string _ember_exe = "em3xx_load";

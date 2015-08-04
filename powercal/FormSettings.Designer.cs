@@ -34,12 +34,13 @@
             this.TextBoxMeterCOM = new System.Windows.Forms.TextBox();
             this.label2 = new System.Windows.Forms.Label();
             this.groupBox1 = new System.Windows.Forms.GroupBox();
+            this.CheckBoxManualMultiMeter = new System.Windows.Forms.CheckBox();
             this.buttonOK = new System.Windows.Forms.Button();
             this.buttonCancel = new System.Windows.Forms.Button();
             this.groupBoxDIO = new System.Windows.Forms.GroupBox();
             this.checkBoxDisableDIO = new System.Windows.Forms.CheckBox();
             this.label6 = new System.Windows.Forms.Label();
-            this.NumericUpDownOutput = new System.Windows.Forms.NumericUpDown();
+            this.NumericUpDownEmber = new System.Windows.Forms.NumericUpDown();
             this.label5 = new System.Windows.Forms.Label();
             this.NumericUpDownReset = new System.Windows.Forms.NumericUpDown();
             this.label4 = new System.Windows.Forms.Label();
@@ -47,10 +48,12 @@
             this.label3 = new System.Windows.Forms.Label();
             this.NumericUpDownACPower = new System.Windows.Forms.NumericUpDown();
             this.toolTip1 = new System.Windows.Forms.ToolTip(this.components);
-            this.CheckBoxManualMultiMeter = new System.Windows.Forms.CheckBox();
+            this.TextBoxEmberBinPath = new System.Windows.Forms.TextBox();
+            this.label7 = new System.Windows.Forms.Label();
+            this.buttonEmberBinPathBrowse = new System.Windows.Forms.Button();
             this.groupBox1.SuspendLayout();
             this.groupBoxDIO.SuspendLayout();
-            ((System.ComponentModel.ISupportInitialize)(this.NumericUpDownOutput)).BeginInit();
+            ((System.ComponentModel.ISupportInitialize)(this.NumericUpDownEmber)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.NumericUpDownReset)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.NumericUpDownLoad)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.NumericUpDownACPower)).BeginInit();
@@ -104,10 +107,21 @@
             this.groupBox1.TabStop = false;
             this.groupBox1.Text = "Comunications";
             // 
+            // CheckBoxManualMultiMeter
+            // 
+            this.CheckBoxManualMultiMeter.AutoSize = true;
+            this.CheckBoxManualMultiMeter.Location = new System.Drawing.Point(156, 61);
+            this.CheckBoxManualMultiMeter.Name = "CheckBoxManualMultiMeter";
+            this.CheckBoxManualMultiMeter.Size = new System.Drawing.Size(61, 17);
+            this.CheckBoxManualMultiMeter.TabIndex = 6;
+            this.CheckBoxManualMultiMeter.Text = "Manual";
+            this.CheckBoxManualMultiMeter.UseVisualStyleBackColor = true;
+            this.CheckBoxManualMultiMeter.CheckedChanged += new System.EventHandler(this.CheckBoxManualMultiMeter_CheckedChanged);
+            // 
             // buttonOK
             // 
             this.buttonOK.DialogResult = System.Windows.Forms.DialogResult.OK;
-            this.buttonOK.Location = new System.Drawing.Point(155, 174);
+            this.buttonOK.Location = new System.Drawing.Point(154, 211);
             this.buttonOK.Name = "buttonOK";
             this.buttonOK.Size = new System.Drawing.Size(75, 23);
             this.buttonOK.TabIndex = 7;
@@ -117,7 +131,7 @@
             // buttonCancel
             // 
             this.buttonCancel.DialogResult = System.Windows.Forms.DialogResult.Cancel;
-            this.buttonCancel.Location = new System.Drawing.Point(236, 174);
+            this.buttonCancel.Location = new System.Drawing.Point(235, 211);
             this.buttonCancel.Name = "buttonCancel";
             this.buttonCancel.Size = new System.Drawing.Size(75, 23);
             this.buttonCancel.TabIndex = 8;
@@ -127,7 +141,7 @@
             // 
             this.groupBoxDIO.Controls.Add(this.checkBoxDisableDIO);
             this.groupBoxDIO.Controls.Add(this.label6);
-            this.groupBoxDIO.Controls.Add(this.NumericUpDownOutput);
+            this.groupBoxDIO.Controls.Add(this.NumericUpDownEmber);
             this.groupBoxDIO.Controls.Add(this.label5);
             this.groupBoxDIO.Controls.Add(this.NumericUpDownReset);
             this.groupBoxDIO.Controls.Add(this.label4);
@@ -158,21 +172,21 @@
             this.label6.AutoSize = true;
             this.label6.Location = new System.Drawing.Point(26, 119);
             this.label6.Name = "label6";
-            this.label6.Size = new System.Drawing.Size(39, 13);
+            this.label6.Size = new System.Drawing.Size(37, 13);
             this.label6.TabIndex = 7;
-            this.label6.Text = "Output";
+            this.label6.Text = "Ember";
             // 
-            // NumericUpDownOutput
+            // NumericUpDownEmber
             // 
-            this.NumericUpDownOutput.Location = new System.Drawing.Point(86, 118);
-            this.NumericUpDownOutput.Maximum = new decimal(new int[] {
+            this.NumericUpDownEmber.Location = new System.Drawing.Point(86, 118);
+            this.NumericUpDownEmber.Maximum = new decimal(new int[] {
             7,
             0,
             0,
             0});
-            this.NumericUpDownOutput.Name = "NumericUpDownOutput";
-            this.NumericUpDownOutput.Size = new System.Drawing.Size(31, 20);
-            this.NumericUpDownOutput.TabIndex = 6;
+            this.NumericUpDownEmber.Name = "NumericUpDownEmber";
+            this.NumericUpDownEmber.Size = new System.Drawing.Size(31, 20);
+            this.NumericUpDownEmber.TabIndex = 6;
             // 
             // label5
             // 
@@ -237,16 +251,31 @@
             this.NumericUpDownACPower.Size = new System.Drawing.Size(31, 20);
             this.NumericUpDownACPower.TabIndex = 0;
             // 
-            // CheckBoxManualMultiMeter
+            // TextBoxEmberBinPath
             // 
-            this.CheckBoxManualMultiMeter.AutoSize = true;
-            this.CheckBoxManualMultiMeter.Location = new System.Drawing.Point(156, 61);
-            this.CheckBoxManualMultiMeter.Name = "CheckBoxManualMultiMeter";
-            this.CheckBoxManualMultiMeter.Size = new System.Drawing.Size(61, 17);
-            this.CheckBoxManualMultiMeter.TabIndex = 6;
-            this.CheckBoxManualMultiMeter.Text = "Manual";
-            this.CheckBoxManualMultiMeter.UseVisualStyleBackColor = true;
-            this.CheckBoxManualMultiMeter.CheckedChanged += new System.EventHandler(this.CheckBoxManualMultiMeter_CheckedChanged);
+            this.TextBoxEmberBinPath.Location = new System.Drawing.Point(99, 173);
+            this.TextBoxEmberBinPath.Name = "TextBoxEmberBinPath";
+            this.TextBoxEmberBinPath.Size = new System.Drawing.Size(258, 20);
+            this.TextBoxEmberBinPath.TabIndex = 10;
+            // 
+            // label7
+            // 
+            this.label7.AutoSize = true;
+            this.label7.Location = new System.Drawing.Point(12, 176);
+            this.label7.Name = "label7";
+            this.label7.Size = new System.Drawing.Size(81, 13);
+            this.label7.TabIndex = 11;
+            this.label7.Text = "Ember bin path:";
+            // 
+            // buttonEmberBinPathBrowse
+            // 
+            this.buttonEmberBinPathBrowse.Location = new System.Drawing.Point(363, 171);
+            this.buttonEmberBinPathBrowse.Name = "buttonEmberBinPathBrowse";
+            this.buttonEmberBinPathBrowse.Size = new System.Drawing.Size(75, 23);
+            this.buttonEmberBinPathBrowse.TabIndex = 12;
+            this.buttonEmberBinPathBrowse.Text = "&Browse";
+            this.buttonEmberBinPathBrowse.UseVisualStyleBackColor = true;
+            this.buttonEmberBinPathBrowse.Click += new System.EventHandler(this.buttonEmberBinPathBrowse_Click);
             // 
             // FormSettings
             // 
@@ -254,7 +283,10 @@
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.CancelButton = this.buttonCancel;
-            this.ClientSize = new System.Drawing.Size(466, 227);
+            this.ClientSize = new System.Drawing.Size(466, 253);
+            this.Controls.Add(this.buttonEmberBinPathBrowse);
+            this.Controls.Add(this.label7);
+            this.Controls.Add(this.TextBoxEmberBinPath);
             this.Controls.Add(this.groupBoxDIO);
             this.Controls.Add(this.buttonCancel);
             this.Controls.Add(this.buttonOK);
@@ -268,11 +300,12 @@
             this.groupBox1.PerformLayout();
             this.groupBoxDIO.ResumeLayout(false);
             this.groupBoxDIO.PerformLayout();
-            ((System.ComponentModel.ISupportInitialize)(this.NumericUpDownOutput)).EndInit();
+            ((System.ComponentModel.ISupportInitialize)(this.NumericUpDownEmber)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this.NumericUpDownReset)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this.NumericUpDownLoad)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this.NumericUpDownACPower)).EndInit();
             this.ResumeLayout(false);
+            this.PerformLayout();
 
         }
 
@@ -290,12 +323,15 @@
         private System.Windows.Forms.Label label5;
         private System.Windows.Forms.Label label4;
         private System.Windows.Forms.Label label3;
-        public System.Windows.Forms.NumericUpDown NumericUpDownOutput;
+        public System.Windows.Forms.NumericUpDown NumericUpDownEmber;
         public System.Windows.Forms.NumericUpDown NumericUpDownReset;
         public System.Windows.Forms.NumericUpDown NumericUpDownLoad;
         public System.Windows.Forms.NumericUpDown NumericUpDownACPower;
         public System.Windows.Forms.CheckBox checkBoxDisableDIO;
         private System.Windows.Forms.ToolTip toolTip1;
         public System.Windows.Forms.CheckBox CheckBoxManualMultiMeter;
+        private System.Windows.Forms.Label label7;
+        public System.Windows.Forms.TextBox TextBoxEmberBinPath;
+        private System.Windows.Forms.Button buttonEmberBinPathBrowse;
     }
 }

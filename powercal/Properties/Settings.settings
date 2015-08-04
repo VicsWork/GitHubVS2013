@@ -20,11 +20,14 @@
     <Setting Name="DIO_Reset_LineNum" Type="System.Int32" Scope="User">
       <Value Profile="(Default)">2</Value>
     </Setting>
-    <Setting Name="DIO_Output_LineNum" Type="System.Int32" Scope="User">
+    <Setting Name="DIO_Ember_LineNum" Type="System.Int32" Scope="User">
       <Value Profile="(Default)">3</Value>
     </Setting>
     <Setting Name="Meter_Manual_Measurement" Type="System.Boolean" Scope="User">
       <Value Profile="(Default)">False</Value>
+    </Setting>
+    <Setting Name="Ember_BinPath" Type="System.String" Scope="User">
+      <Value Profile="(Default)">C:\Program Files (x86)\Ember\ISA3 Utilities\bin</Value>
     </Setting>
   </Settings>
 </SettingsFile>

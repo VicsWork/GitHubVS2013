@@ -11,7 +11,7 @@ namespace powercal
         string _acPowerLbl = "AC Power";
         string _loadLbl = "Load";
         string _resetLbl = "Reset";
-        string _outputLbl = "Output";
+        string _emberLbl = "Ember";
 
         private void _initDicLines()
         {
@@ -20,14 +20,14 @@ namespace powercal
             _dic_lines.Add(_acPowerLbl, 1);
             _dic_lines.Add(_loadLbl, 2);
             _dic_lines.Add(_resetLbl, 3);
-            _dic_lines.Add(_outputLbl, 4);
+            _dic_lines.Add(_emberLbl, 4);
 
             // Dic to store line state (true = ON, false = OFF)
             _dic_values.Clear();
             _dic_values.Add(_acPowerLbl, false);
             _dic_values.Add(_loadLbl, false);
             _dic_values.Add(_resetLbl, false);
-            _dic_values.Add(_outputLbl, false);
+            _dic_values.Add(_emberLbl, false);
 
         }
 
@@ -64,15 +64,15 @@ namespace powercal
             set { _dic_lines[_loadLbl] = value; }
         }
 
-        public bool Output
+        public bool Ember
         {
-            get { return ReadLine(_outputLbl); }
-            set { WriteLine(_outputLbl, value); }
+            get { return ReadLine(_emberLbl); }
+            set { WriteLine(_emberLbl, value); }
         }
-        public int Output_LineNum
+        public int Ember_LineNum
         {
-            get { return _dic_lines[_outputLbl]; }
-            set { _dic_lines[_outputLbl] = value; }
+            get { return _dic_lines[_emberLbl]; }
+            set { _dic_lines[_emberLbl] = value; }
         }
 
 

@@ -78,9 +78,19 @@ namespace powercal
                 Properties.Settings.Default.Save();
             }
 
+            // Ember path
             msg = string.Format("Cirrus Logic comunications port = {0}", Properties.Settings.Default.CS_COM_Port_Name);
             updateOutputStatus(msg);
 
+            if (!Directory.Exists(Properties.Settings.Default.Ember_BinPath))
+            {
+                msg = string.Format("Unable to find Ember bin path \"{0}\"", Properties.Settings.Default.Ember_BinPath);
+            }
+            else
+            {
+                msg = string.Format("Ember bin path set at\"{0}\"", Properties.Settings.Default.Ember_BinPath);
+            }
+            updateOutputStatus(msg);
 
         }
 
@@ -256,7 +266,7 @@ namespace powercal
                 if (manual_relay)
                     _relay_ctrl.Disable = true;
                 _relay_ctrl.AC_Power = false;
-                _relay_ctrl.Output = false;
+                _relay_ctrl.Ember = false;
                 _relay_ctrl.Load = false;
                 _relay_ctrl.Reset = false;
                 relaysSet(_relay_ctrl);
@@ -304,7 +314,7 @@ namespace powercal
                 _relay_ctrl.Disable = true;
             _relay_ctrl.AC_Power = true;
             _relay_ctrl.Reset = true;
-            _relay_ctrl.Output = true;
+            _relay_ctrl.Ember = true;
             _relay_ctrl.Load = false;
             relaysSet(_relay_ctrl);
             Thread.Sleep(1000);
@@ -467,14 +477,14 @@ namespace powercal
             // PatchingGain
             updateRunStatus("PatchingGain");
             _relay_ctrl.AC_Power = false;
-            _relay_ctrl.Output = false;
+            _relay_ctrl.Ember = false;
             _relay_ctrl.Load = false;
             _relay_ctrl.Reset = false;
             relaysSet(_relay_ctrl);
 
             Ember ember = new Ember();
+            ember.EmberBinPath = Properties.Settings.Default.Ember_BinPath;
             ember.CreateCalibrationPachBath(vAdjustInt, iAdjustInt);
-            ember.CreateCalibrationPachBath(0x7D3012, 0x35D6FF);
             string coding_output = "";
             try
             {
@@ -521,7 +531,7 @@ namespace powercal
 
             // COM ports
             dlg.TextBoxCirrusCOM.Text = Properties.Settings.Default.CS_COM_Port_Name;
-            
+
             dlg.TextBoxMeterCOM.Text = Properties.Settings.Default.Meter_COM_Port_Name;
             dlg.CheckBoxManualMultiMeter.Checked = Properties.Settings.Default.Meter_Manual_Measurement;
 
@@ -533,7 +543,10 @@ namespace powercal
             dlg.NumericUpDownACPower.Value = Properties.Settings.Default.DIO_ACPower_LineNum;
             dlg.NumericUpDownLoad.Value = Properties.Settings.Default.DIO_Load_LinNum;
             dlg.NumericUpDownReset.Value = Properties.Settings.Default.DIO_Reset_LineNum;
-            dlg.NumericUpDownOutput.Value = Properties.Settings.Default.DIO_Output_LineNum;
+            dlg.NumericUpDownEmber.Value = Properties.Settings.Default.DIO_Ember_LineNum;
+
+            // Ember
+            dlg.TextBoxEmberBinPath.Text = Properties.Settings.Default.Ember_BinPath;
 
             DialogResult rc = dlg.ShowDialog();
             if (rc == DialogResult.OK)
@@ -551,7 +564,10 @@ namespace powercal
                 Properties.Settings.Default.DIO_ACPower_LineNum = (int)dlg.NumericUpDownACPower.Value;
                 Properties.Settings.Default.DIO_Load_LinNum = (int)dlg.NumericUpDownLoad.Value;
                 Properties.Settings.Default.DIO_Reset_LineNum = (int)dlg.NumericUpDownReset.Value;
-                Properties.Settings.Default.DIO_Output_LineNum = (int)dlg.NumericUpDownOutput.Value;
+                Properties.Settings.Default.DIO_Ember_LineNum = (int)dlg.NumericUpDownEmber.Value;
+
+                // Ember
+                Properties.Settings.Default.Ember_BinPath = dlg.TextBoxEmberBinPath.Text;
 
                 Properties.Settings.Default.Save();
             }

@@ -98,12 +98,12 @@ namespace powercal.Properties {
         [global::System.Configuration.UserScopedSettingAttribute()]
         [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
         [global::System.Configuration.DefaultSettingValueAttribute("3")]
-        public int DIO_Output_LineNum {
+        public int DIO_Ember_LineNum {
             get {
-                return ((int)(this["DIO_Output_LineNum"]));
+                return ((int)(this["DIO_Ember_LineNum"]));
             }
             set {
-                this["DIO_Output_LineNum"] = value;
+                this["DIO_Ember_LineNum"] = value;
             }
         }
         
@@ -116,6 +116,18 @@ namespace powercal.Properties {
             }
             set {
                 this["Meter_Manual_Measurement"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("C:\\Program Files (x86)\\Ember\\ISA3 Utilities\\bin")]
+        public string Ember_BinPath {
+            get {
+                return ((string)(this["Ember_BinPath"]));
+            }
+            set {
+                this["Ember_BinPath"] = value;
             }
         }
     }
