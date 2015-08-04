@@ -10,7 +10,7 @@ namespace powercal
 {
     class CSSequencer
     {
-        public enum BoardTypes { Hooktooth, Milkshark };
+        public enum BoardTypes { Humpback, Hooktooth, Milkshark };
         private CSCommander _cscommander;
         private int _currentFactor;
         private double _iref, _vref;
@@ -24,6 +24,7 @@ namespace powercal
             _cscommander = new CSCommander(portName);
             switch (boardType)
             {
+                case BoardTypes.Humpback:
                 case BoardTypes.Hooktooth:
                     _currentFactor = 100;
                     _iref = 0.8542;
