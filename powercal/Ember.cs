@@ -15,10 +15,17 @@ namespace powercal
         public string EmberBinPath { get { return _ember_bin_path; } set { _ember_bin_path = value; } }
         public string EmberExe { get { return _ember_exe; } set { _ember_exe = value; } }
 
+        public int VAdress { get { return _vAddress; } set { _vAddress = value; } }
+        public int IAdress { get { return _iAddress; } set { _iAddress = value; } }
+        public int ACOffsetAdress { get { return _acOffsetAddress; } set { _acOffsetAddress = value; } }
+
+
         string _batch_file = "C:\\patchit.bat";
         private string _ember_exe = "em3xx_load";
         private string _ember_bin_path = "C:\\Program Files (x86)\\Ember\\ISA3 Utilities\\bin";
+
         private int _usb_port = 0;
+        
         private int _vAddress = 0x08040980;
         private int _iAddress = 0x08040984;
         private int _acOffsetAddress = 0x080409CC;

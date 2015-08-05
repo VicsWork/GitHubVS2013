@@ -500,6 +500,21 @@ namespace powercal
             Ember ember = new Ember();
             ember.EmberBinPath = Properties.Settings.Default.Ember_BinPath;
             ember.BatchFilePath = _ember_batchfile_path;
+            string boardType = this.comboBoxBoardTypes.SelectedText;
+            switch (boardType)
+            {
+                case "Humpback":
+                    ember.VAdress = 0x08840980;
+                    ember.IAdress = 0x08840984;
+                    ember.ACOffsetAdress = 0x088409CC;
+                    break;
+                case "Hooktooth":
+                case "Milkshark":
+                    ember.VAdress = 0x08040980;
+                    ember.IAdress = 0x08040984;
+                    ember.ACOffsetAdress = 0x080409CC;
+                    break;
+            }
             ember.CreateCalibrationPachBath(vAdjustInt, iAdjustInt);
 
             bool patchit_fail = false;
@@ -552,9 +567,9 @@ namespace powercal
 
             updateOutputStatus("================================End Calibration===============================");
 
-            if(_sq != null)
+            if (_sq != null)
                 _sq.CloseSerialPort();
-            if(_meter != null)
+            if (_meter != null)
                 _meter.CloseSerialPort();
 
 
