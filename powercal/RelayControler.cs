@@ -44,7 +44,7 @@ namespace powercal
         public string AC_Power_Label
         {
             get { return _acPowerLbl; }
-            set { _dic_lines[_acPowerLbl] = value; }
+            set { _acPowerLbl = value; }
         }
         public bool Reset
         {

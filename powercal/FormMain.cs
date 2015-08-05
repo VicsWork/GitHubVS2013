@@ -25,7 +25,10 @@ namespace powercal
         MultiMeter _meter = null;
         RelayControler _relay_ctrl = new RelayControler();
 
-        string _log_file = Environment.GetFolderPath(Environment.SpecialFolder.UserProfile);
+        static string _app_data_dir = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.UserProfile), ".calibration");
+
+        string _log_file = Path.Combine(_app_data_dir, "runlog.txt");
+        string _ember_batchfile_path = Path.Combine(_app_data_dir, "patchit.bat");
 
         delegate void SetTextCallback();
 
@@ -34,6 +37,10 @@ namespace powercal
         {
             InitializeComponent();
 
+            if (!Directory.Exists(_app_data_dir))
+            {
+                Directory.CreateDirectory(_app_data_dir);
+            }
             initLogFile();
 
             initTextBoxRunStatus();
@@ -135,15 +142,17 @@ namespace powercal
             return detected;
 
         }
+
+        /// <summary>
+        /// Inits the log file.  
+        /// Creates folder loction...
+        /// </summary>
         void initLogFile()
         {
-            string dir = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.UserProfile), ".calibration");
-            if (!Directory.Exists(dir))
+            if (!Directory.Exists(_app_data_dir))
             {
-                Directory.CreateDirectory(dir);
+                Directory.CreateDirectory(_app_data_dir);
             }
-
-            _log_file = Path.Combine(dir, "runlog.txt");
             if (!File.Exists(_log_file))
             {
                 using (StreamWriter sw = File.CreateText(_log_file))
@@ -177,6 +186,10 @@ namespace powercal
             }
         }
 
+        /// <summary>
+        /// Updates the output status text box and log file
+        /// </summary>
+        /// <param name="txt"></param>
         private void updateOutputStatus(string txt)
         {
             string line = string.Format("{0:G}: {1}\r\n", DateTime.Now, txt);
@@ -228,7 +241,7 @@ namespace powercal
                     on_off_str = "ON";
                 msg_dlg += string.Format("{0} = {1}\r\n", key, on_off_str);
 
-                key = "Output";
+                key = "Ember";
                 value = _relay_ctrl.ReadLine(key);
                 on_off_str = "OFF";
                 if (value)
@@ -289,7 +302,7 @@ namespace powercal
         private void calibrate()
         {
 
-            bool manual_measure = false;
+            bool manual_measure = Properties.Settings.Default.Meter_Manual_Measurement;
 
             string msg;
             updateOutputStatus("===============================Start Calibration==============================");
@@ -297,12 +310,12 @@ namespace powercal
             CSSequencer.BoardTypes board = (CSSequencer.BoardTypes)Enum.Parse(typeof(CSSequencer.BoardTypes), comboBoxBoardTypes.Text);
             _sq = new CSSequencer(csPortName, board);
 
+            // Setup multi-meter
+            string meterPortName = Properties.Settings.Default.Meter_COM_Port_Name;
+            _meter = new MultiMeter(meterPortName);
             if (!manual_measure)
             {
-                // Setup multi-meter
                 updateRunStatus("Setup multi-meter");
-                string meterPortName = Properties.Settings.Default.Meter_COM_Port_Name;
-                _meter = new MultiMeter(meterPortName);
                 _meter.OpenComPort();
                 _meter.SetToRemote();
                 _meter.ClearError();
@@ -321,7 +334,7 @@ namespace powercal
             relaysSet(_relay_ctrl);
             Thread.Sleep(1000);
 
-            _sq.openSerialPort();
+            _sq.OpenSerialPort();
 
             _sq.SoftReset();
             Thread.Sleep(500);
@@ -486,31 +499,63 @@ namespace powercal
 
             Ember ember = new Ember();
             ember.EmberBinPath = Properties.Settings.Default.Ember_BinPath;
+            ember.BatchFilePath = _ember_batchfile_path;
             ember.CreateCalibrationPachBath(vAdjustInt, iAdjustInt);
+
+            bool patchit_fail = false;
+            string exception_msg = "";
             string coding_output = "";
-            try
+            while (true)
             {
-                string output = ember.RunCalibrationPatchBatch();
-                if (output.Contains("ERROR:"))
+                patchit_fail = false;
+                exception_msg = "";
+                coding_output = "";
+                try
                 {
-                    msg = "Patching error detected:\r\n";
-                    msg += output;
-                    throw new Exception(msg);
+                    string output = ember.RunCalibrationPatchBatch();
+                    if (output.Contains("ERROR:"))
+                    {
+                        patchit_fail = true;
+                        exception_msg = "Patching error detected:\r\n";
+                        exception_msg += output;
+                    }
+                    coding_output = output;
                 }
-                coding_output = output;
+                catch (Exception e)
+                {
+                    patchit_fail = true;
+                    exception_msg = "Patching exception detected:\r\n";
+                    exception_msg += e.Message;
+                }
+
+                if (patchit_fail)
+                {
+                    string retry_err_msg = exception_msg;
+                    int max_len = 1000;
+                    if (retry_err_msg.Length > max_len)
+                        retry_err_msg = retry_err_msg.Substring(0, max_len) + "...";
+                    DialogResult dlg_rc = MessageBox.Show(retry_err_msg, "Patching fail", MessageBoxButtons.RetryCancel);
+                    if (dlg_rc == System.Windows.Forms.DialogResult.Cancel)
+                        break;
+                }
+                else
+                {
+                    break;
+                }
+
             }
-            catch (Exception e)
+            if (patchit_fail)
             {
-                msg = "Patching exception detected:\r\n";
-                msg += e.Message;
-                throw new Exception(msg);
+                throw new Exception(exception_msg);
             }
-            this.updateOutputStatus(coding_output);
+            updateOutputStatus(coding_output);
 
             updateOutputStatus("================================End Calibration===============================");
 
-            _sq.CloseSerialPort();
-            _meter.CloseSerialPort();
+            if(_sq != null)
+                _sq.CloseSerialPort();
+            if(_meter != null)
+                _meter.CloseSerialPort();
 
 
             if (true)
@@ -521,12 +566,22 @@ namespace powercal
             }
         }
 
+        /// <summary>
+        /// Invokes the DIO test dialog
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
         private void digitalOutputToolStripMenuItem_Click(object sender, EventArgs e)
         {
             FormDigitalPortTest dlg = new FormDigitalPortTest();
             dlg.ShowDialog();
         }
 
+        /// <summary>
+        /// Invikes the settings dialog
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
         private void settingsToolStripMenuItem_Click(object sender, EventArgs e)
         {
             FormSettings dlg = new FormSettings();

@@ -8,6 +8,14 @@ using System.Diagnostics;
 
 namespace powercal
 {
+    /// <summary>
+    /// Class used for calibration.  
+    /// Sends specific commands (page selects, read/write register, etc) sequences to a CS54xx chip 
+    /// and calculates measurement values for different board types (i.e. Humpback, Hooktooth, etc)
+    /// 
+    /// Note this class is just a proff of concept ported from work done by Edgard Lerma at Jabil
+    /// 
+    /// </summary>
     class CSSequencer
     {
         public enum BoardTypes { Humpback, Hooktooth, Milkshark };
@@ -15,10 +23,15 @@ namespace powercal
         private int _currentFactor;
         private double _iref, _vref;
         public double IRef { get { return _iref; } }
-        public double VRef { get { return _vref; } } 
+        public double VRef { get { return _vref; } }
 
         private static TraceSource _source = new TraceSource("PowerCalTraceSource");
 
+        /// <summary>
+        /// Constructor
+        /// </summary>
+        /// <param name="portName">Physical serial (UART) port name connected to CS54xx chip</param>
+        /// <param name="boardType">The board type (i.e. Humpback).  Different boards use different current factors, etc.</param>
         public CSSequencer(string portName, BoardTypes boardType)
         {
             _cscommander = new CSCommander(portName);
@@ -38,22 +51,35 @@ namespace powercal
             }
         }
 
-        public SerialPort openSerialPort()
+        /// <summary>
+        /// Opens the serial comunications
+        /// </summary>
+        /// <returns></returns>
+        public SerialPort OpenSerialPort()
         {
             return _cscommander.openComPort();
         }
 
+        /// <summary>
+        /// Closes the serial port
+        /// </summary>
         public void CloseSerialPort()
         {
             _cscommander.CloseSerialPort();
         }
 
+        /// <summary>
+        /// Sends a software reset instruction
+        /// </summary>
         public void SoftReset()
         {
             byte[] tx_data = StrToBytes("C1"); //Soft reset
             _cscommander.Send(tx_data);
         }
 
+        /// <summary>
+        /// Enables the HPF
+        /// </summary>
         public void EnableHiPassFilter()
         {
             // 90 Select Page 16
@@ -63,12 +89,28 @@ namespace powercal
             _cscommander.Send(tx_data);
         }
 
+        /// <summary>
+        /// Starts continues conversion
+        /// </summary>
         public void StartContinuousConvertion()
         {
             byte[] tx_data = StrToBytes("D5"); //Start Continuous Convertion
             _cscommander.Send(tx_data);
         }
 
+        /// <summary>
+        /// Sets AC Offset to 0
+        /// </summary>
+        public void SetACOffsetToZero()
+        {
+            byte[] tx_data = StrToBytes("90 65 00 00 00"); //Page 16 select, set ACOffset to 0
+            _cscommander.Send(tx_data);
+        }
+
+        /// <summary>
+        /// Reads the Irms register
+        /// </summary>
+        /// <returns>Irms value</returns>
         public double GetIRMS()
         {
             EnableHiPassFilter();
@@ -83,6 +125,10 @@ namespace powercal
             return value;
         }
 
+        /// <summary>
+        /// Reads the Vrms register
+        /// </summary>
+        /// <returns>Vrms value</returns>
         public double GetVRMS()
         {
             byte[] rx_data = new byte[0];
@@ -97,6 +143,10 @@ namespace powercal
             return value;
         }
 
+        /// <summary>
+        /// Sets AC offset to 0 and then reads I AC offset
+        /// </summary>
+        /// <returns>I AC offset</returns>
         public double GetIOffset()
         {
             byte[] rx_data = new byte[0];
@@ -105,10 +155,7 @@ namespace powercal
             _cscommander.Send(tx_data);
 
             EnableHiPassFilter();
-
-            tx_data = StrToBytes("90 65 00 00 00"); //Page 16 select, set ACOffset to 0
-            _cscommander.Send(tx_data);
-
+            SetACOffsetToZero();
             StartContinuousConvertion();
 
             tx_data = StrToBytes("90 25");
@@ -121,6 +168,10 @@ namespace powercal
             return value;
         }
 
+        /// <summary>
+        /// Sets AC offset to 0 and then reads Irms
+        /// </summary>
+        /// <returns>I AC offset</returns>
         public double IRMSNoLoad()
         {
             byte[] rx_data = new byte[0];
@@ -129,10 +180,7 @@ namespace powercal
             _cscommander.Send(tx_data);
 
             EnableHiPassFilter();
-
-            tx_data = StrToBytes("90 65 00 00 00"); //Page 16 select, set ACOffset to 0
-            _cscommander.Send(tx_data);
-
+            SetACOffsetToZero();
             StartContinuousConvertion();
 
             tx_data = StrToBytes("90 06"); //Page 16 select, read IRMS register
@@ -145,6 +193,10 @@ namespace powercal
 
         }
 
+        /// <summary>
+        /// Modifies I gain
+        /// </summary>
+        /// <param name="iRMSGain"></param>
         public void IGainCal(int iRMSGain)
         {
             byte[] rx_data = new byte[0];
@@ -154,8 +206,8 @@ namespace powercal
 
             tx_data = new byte[5];
             int i = 0;
-            tx_data[i++]= 0x90;
-            tx_data[i++]= 0x61;
+            tx_data[i++] = 0x90;
+            tx_data[i++] = 0x61;
             tx_data[i++] = (byte)(iRMSGain & 0xFF);
             tx_data[i++] = (byte)(iRMSGain >> 8);
             tx_data[i++] = (byte)(iRMSGain >> 16);
@@ -168,6 +220,10 @@ namespace powercal
             _cscommander.Send(tx_data); //Modify IGain
         }
 
+        /// <summary>
+        /// Modifies V gain
+        /// </summary>
+        /// <param name="vRMSGain"></param>
         public void VGainCal(int vRMSGain)
         {
             byte[] rx_data = new byte[0];
@@ -191,6 +247,11 @@ namespace powercal
             _cscommander.Send(tx_data); //Modify VGain
         }
 
+        /// <summary>
+        /// Converts a 24bit hex (3 bytes) CS register value to a double
+        /// </summary>
+        /// <param name="rx_data"></param>
+        /// <returns></returns>
         private double RegHex_ToDouble(byte[] rx_data)
         {
             double reg_value = (double)(rx_data[2] << 16 | rx_data[1] << 8 | rx_data[0]);
@@ -198,6 +259,11 @@ namespace powercal
             return value;
         }
 
+        /// <summary>
+        /// Converts a string to byte array
+        /// </summary>
+        /// <param name="txt"></param>
+        /// <returns></returns>
         public byte[] StrToBytes(string txt)
         {
             string[] hexValuesSplit;

@@ -27,7 +27,6 @@ namespace powercal
         public MultiMeter(string portName)
         {
             this._portName = portName;
-
         }
 
         public SerialPort OpenComPort()

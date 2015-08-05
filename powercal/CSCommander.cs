@@ -9,6 +9,9 @@ using System.Diagnostics;
 
 namespace powercal
 {
+    /// <summary>
+    /// Class use for serial (UART) comunications with CS54xx chips
+    /// </summary>
     class CSCommander
     {
         private string _portName;
@@ -18,11 +21,19 @@ namespace powercal
         Queue<byte> _rx_byte_queue = new Queue<byte>();
         private int _wait_ms = 250;  //   time to wait before we read
 
+        /// <summary>
+        /// Constructor
+        /// </summary>
+        /// <param name="portName">Name of the phisical serial port (i.e. "COM1")</param>
         public CSCommander(string portName)
         {
             this._portName = portName;
         }
 
+        /// <summary>
+        /// Opens the serial port for comunications
+        /// </summary>
+        /// <returns>The serial port</returns>
         public SerialPort openComPort()
         {
             if (_serialPort != null && _serialPort.IsOpen)
@@ -42,6 +53,10 @@ namespace powercal
             return _serialPort;
         }
 
+        /// <summary>
+        /// Opens the serial port if it is not already opened
+        /// </summary>
+        /// <returns>The serial port</returns>
         public SerialPort openComPortIfNotOpened()
         {
             if (this._serialPort == null || !this._serialPort.IsOpen)
@@ -54,6 +69,9 @@ namespace powercal
             }
         }
 
+        /// <summary>
+        /// Clears the queue used to save incoming serial data and the serial port in and out buffers
+        /// </summary>
         public void ClearSerialBuffer()
         {
             this._rx_byte_queue.Clear();
@@ -61,6 +79,11 @@ namespace powercal
             this._serialPort.DiscardOutBuffer();
         }
 
+        /// <summary>
+        /// Sends specified bytes and waits to recieve at least 3 bytes
+        /// </summary>
+        /// <param name="bytesToSend"></param>
+        /// <returns>Serial port bytes received after the send</returns>
         public byte[] Send_Receive_Bytes(byte[] bytesToSend)
         {
             _traceSource.TraceEvent(TraceEventType.Information, -1, "Send_Recive_Bytes");
@@ -76,7 +99,6 @@ namespace powercal
                 presend_data = new byte[_serialPort.BytesToRead];
                 _serialPort.Read(presend_data, 0, len);
                 Debug.WriteLine("Send_Receive_Bytes: BytesToRead > 0 before send!!!");
-
             }
 
             _serialPort.Write(bytesToSend, 0, bytesToSend.Length);
@@ -90,19 +112,20 @@ namespace powercal
                 n++;
                 if (n > 5)
                 {
-                    throw new Exception("Could not comunicate with CS5490.  Please check Ember in reset");
-                    //Debug.WriteLine("Send_Receive_Bytes did not get 3 bytes!!!");
-                    //break;
+                    throw new Exception("Could not comunicate with CS54xx.  Please make sure Ember is in reset");
                 }
             }
 
             len = _serialPort.BytesToRead;
             byte[] rx_bytes = new byte[len];
             _serialPort.Read(rx_bytes, 0, len);
-            return rx_bytes;
 
+            return rx_bytes;
         }
 
+        /// <summary>
+        /// Waits for the serial port to finish writing data
+        /// </summary>
         public void WaitForWriteDone()
         {
             int n = 0;
@@ -118,12 +141,21 @@ namespace powercal
             }
         }
 
+        /// <summary>
+        /// Writes the specified bytes to the serial port
+        /// </summary>
+        /// <param name="bytesToSend"></param>
         public void Send(byte[] bytesToSend)
         {
             _traceSource.TraceEvent(TraceEventType.Information, -1, "Send");
             _serialPort.Write(bytesToSend, 0, bytesToSend.Length);
         }
 
+        /// <summary>
+        /// Recives serial data and places it in the queue
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
         void _serialPort_DataReceived(object sender, SerialDataReceivedEventArgs e)
         {
             SerialPort port = (SerialPort)sender;
@@ -138,6 +170,9 @@ namespace powercal
             }
         }
 
+        /// <summary>
+        /// Closes the serial port
+        /// </summary>
         public void CloseSerialPort()
         {
             this._serialPort.Close();

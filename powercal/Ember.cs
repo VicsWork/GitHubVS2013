@@ -15,7 +15,7 @@ namespace powercal
         public string EmberBinPath { get { return _ember_bin_path; } set { _ember_bin_path = value; } }
         public string EmberExe { get { return _ember_exe; } set { _ember_exe = value; } }
 
-        string _batch_file;
+        string _batch_file = "C:\\patchit.bat";
         private string _ember_exe = "em3xx_load";
         private string _ember_bin_path = "C:\\Program Files (x86)\\Ember\\ISA3 Utilities\\bin";
         private int _usb_port = 0;
@@ -72,9 +72,6 @@ namespace powercal
 
         public void CreateCalibrationPachBath(int vrms, int irms)
         {
-            if (_batch_file == null)
-                _batch_file = "C:\\patchit.bat";
-
             using (StreamWriter writer = File.CreateText(_batch_file))
             {
                 string txt = string.Format("pushd \"{0}\"", _ember_bin_path);
