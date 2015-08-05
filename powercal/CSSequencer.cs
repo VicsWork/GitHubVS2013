@@ -250,12 +250,22 @@ namespace powercal
         /// <summary>
         /// Converts a 24bit hex (3 bytes) CS register value to a double
         /// </summary>
-        /// <param name="rx_data"></param>
+        /// <example>
+        /// byte[] rx_data = new byte[3];
+        /// rx_data[2] = 0x5c;
+        /// rx_data[1] = 0x28;
+        /// rx_data[0] = 0xf6;
+        /// Should return =~ 0.36
+        /// </example>
+        /// <param name="rx_data">data byte array byte[2] <=> MSB ... byte[0] <=> LSB</param>
         /// <returns></returns>
         private double RegHex_ToDouble(byte[] rx_data)
         {
+            // Maximum 1 = 0xFFFFFF
+            // Max rms 0.6 = 0x999999
+            // Half rms 0.36 0x5C28F6
             double reg_value = (double)(rx_data[2] << 16 | rx_data[1] << 8 | rx_data[0]);
-            double value = (double)(reg_value / 0x1000000); // 2^24
+            double value = (double)(reg_value / (0x1000000 - 0x1)); // 2^24 - 1
             return value;
         }
 
