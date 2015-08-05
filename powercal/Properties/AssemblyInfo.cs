@@ -6,7 +6,7 @@ using System.Runtime.InteropServices;
 // set of attributes. Change these attribute values to modify the information
 // associated with an assembly.
 [assembly: AssemblyTitle("Power Calibration")]
-[assembly: AssemblyDescription("Calibrates by adjusting offset and gain on CS5490 integrated circuit")]
+[assembly: AssemblyDescription("Calibrates by adjusting offset and gain on CS54xx integrated circuit")]
 [assembly: AssemblyConfiguration("")]
 [assembly: AssemblyCompany("Centralite")]
 [assembly: AssemblyProduct("Power Calibration")]

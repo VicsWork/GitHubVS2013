@@ -9,7 +9,7 @@
     <AppDesignerFolder>Properties</AppDesignerFolder>
     <RootNamespace>powercal</RootNamespace>
     <AssemblyName>powercal</AssemblyName>
-    <TargetFrameworkVersion>v4.0</TargetFrameworkVersion>
+    <TargetFrameworkVersion>v4.5</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
     <PublishUrl>publish\</PublishUrl>
     <Install>true</Install>
@@ -37,6 +37,7 @@
     <DefineConstants>DEBUG;TRACE</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
+    <Prefer32Bit>false</Prefer32Bit>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
     <PlatformTarget>x86</PlatformTarget>
@@ -46,6 +47,7 @@
     <DefineConstants>TRACE</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
+    <Prefer32Bit>false</Prefer32Bit>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Debug|x86'">
     <DebugSymbols>true</DebugSymbols>
@@ -192,19 +194,8 @@
     </BootstrapperPackage>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
-  <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
-       Other similar extension points exist, see Microsoft.Common.targets.
   <Target Name="BeforeBuild">
   </Target>
   <Target Name="AfterBuild">
-  <ItemGroup>
-    <CefBinaries Include="$(SolutionDir)CEF\$(UnmanagedPlatform)\*.*" />
-    <LocaleFiles Include="$(SolutionDir)CEF\locales\*.*" />
-    <SubProcessFiles Include="$(SolutionDir)$(UnmanagedPlatform)\$(Configuration)\CefSharp.BrowserSubprocess.exe" />
-  </ItemGroup>
-  <Copy SourceFiles="@(CefBinaries)" DestinationFolder="$(TargetDir)" />
-  <Copy SourceFiles="@(LocaleFiles)" DestinationFolder="$(TargetDir)locales" />
-  <Copy SourceFiles="@(SubProcessFiles)" DestinationFolder="$(TargetDir)" />
   </Target>
-  -->
 </Project>

@@ -249,6 +249,7 @@ namespace powercal
 
         private void buttonRun_Click(object sender, EventArgs e)
         {
+            this.buttonRun.Enabled = false;
             this.textBoxOutputStatus.Clear();
             initTextBoxRunStatus();
             try
@@ -277,6 +278,7 @@ namespace powercal
                 if (_meter != null)
                     _meter.CloseSerialPort();
             }
+            this.buttonRun.Enabled = true;
         }
 
         private void clearToolStripMenuItem_Click(object sender, EventArgs e)
