@@ -435,7 +435,7 @@ namespace powercal
             // VGainCal
             updateRunStatus("VGainCal");
             double vRMSGain = vRMSMeasure / vRMSPreCal;
-            int vRMSGainInt = (int)(iRMSGain * 0x400000);
+            int vRMSGainInt = (int)(vRMSGain * 0x400000);
             updateOutputStatus(string.Format("VrmsGain = {0:F8} (0x{1:X})", vRMSGain, vRMSGainInt));
             _sq.VGainCal(vRMSGainInt);
 
@@ -655,6 +655,12 @@ namespace powercal
 
                 Properties.Settings.Default.Save();
             }
+        }
+
+        private void calculatorToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            FormCalculator dlg = new FormCalculator();
+            dlg.ShowDialog();
         }
 
 
