@@ -515,7 +515,7 @@ namespace powercal
                     ember.ACOffsetAdress = 0x080409CC;
                     break;
             }
-            ember.CreateCalibrationPachBath(vAdjustInt, iAdjustInt);
+            ember.CreateCalibrationPatchBath(vAdjustInt, iAdjustInt);
 
             bool patchit_fail = false;
             string exception_msg = "";

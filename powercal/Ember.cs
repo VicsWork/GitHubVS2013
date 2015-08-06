@@ -77,7 +77,7 @@ namespace powercal
             return output;
         }
 
-        public void CreateCalibrationPachBath(int vrms, int irms)
+        public void CreateCalibrationPatchBath(int vrms, int irms)
         {
             using (StreamWriter writer = File.CreateText(_batch_file))
             {
