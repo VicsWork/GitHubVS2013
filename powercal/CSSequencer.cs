@@ -208,7 +208,7 @@ namespace powercal
             int i = 0;
             tx_data[i++] = 0x90;
             tx_data[i++] = 0x61;
-            tx_data[i++] = (byte)(iRMSGain & 0xFF);
+            tx_data[i++] = (byte)(iRMSGain);
             tx_data[i++] = (byte)(iRMSGain >> 8);
             tx_data[i++] = (byte)(iRMSGain >> 16);
 
@@ -235,7 +235,7 @@ namespace powercal
             int i = 0;
             tx_data[i++] = 0x90;
             tx_data[i++] = 0x63;
-            tx_data[i++] = (byte)(vRMSGain & 0xFF);
+            tx_data[i++] = (byte)(vRMSGain);
             tx_data[i++] = (byte)(vRMSGain >> 8);
             tx_data[i++] = (byte)(vRMSGain >> 16);
 
@@ -255,17 +255,17 @@ namespace powercal
         /// rx_data[2] = 0x5c;
         /// rx_data[1] = 0x28;
         /// rx_data[0] = 0xf6;
-        /// Should return =~ 0.36
+        /// Should return midrange =~ 0.36
         /// </example>
         /// <param name="rx_data">data byte array byte[2] <=> MSB ... byte[0] <=> LSB</param>
-        /// <returns></returns>
+        /// <returns>range 0 <= value < 1.0</returns>
         private double RegHex_ToDouble(byte[] rx_data)
         {
-            // Maximum 1 = 0xFFFFFF
-            // Max rms 0.6 = 0x999999
-            // Half rms 0.36 0x5C28F6
+            // Maximum 1 =~ 0xFFFFFF
+            // Max rms 0.6 =~ 0x999999
+            // Half rms 0.36 =~ 0x5C28F6
             double reg_value = (double)(rx_data[2] << 16 | rx_data[1] << 8 | rx_data[0]);
-            double value = (double)(reg_value/0xFFFFFF); // 2^24 - 1
+            double value = reg_value/0x1000000; // 2^24
             return value;
         }
 

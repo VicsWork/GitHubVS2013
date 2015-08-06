@@ -11,8 +11,6 @@ namespace powercal
 {
     class MultiMeter
     {
-        public string meter_type = "34401A";
-
         public bool WaitForDsrHolding
         {
             get { return _waitForDsrHolding; }
@@ -24,11 +22,19 @@ namespace powercal
         private SerialPort _serialPort = new SerialPort();
         private string _value_txt = "";
 
+        /// <summary>
+        /// Constructor
+        /// </summary>
+        /// <param name="portName"></param>
         public MultiMeter(string portName)
         {
             this._portName = portName;
         }
 
+        /// <summary>
+        /// Open serial port
+        /// </summary>
+        /// <returns></returns>
         public SerialPort OpenComPort()
         {
             //if (_serialPort != null && _serialPort.IsOpen)
@@ -50,6 +56,11 @@ namespace powercal
             return _serialPort;
         }
 
+        /// <summary>
+        /// Handle data recieved
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
         void _serialPort_DataReceived(object sender, SerialDataReceivedEventArgs e)
         {
             lock (_value_txt)
@@ -58,6 +69,10 @@ namespace powercal
             }
         }
 
+        /// <summary>
+        /// Waits for data
+        /// </summary>
+        /// <returns></returns>
         string waitForData()
         {
             int n = 0;
@@ -84,12 +99,19 @@ namespace powercal
             return _value_txt;
         }
 
+        /// <summary>
+        /// Clears our data holder
+        /// </summary>
         void clearData()
         {
             lock (_value_txt)
                 _value_txt = "";
         }
 
+        /// <summary>
+        /// Writes to meter
+        /// </summary>
+        /// <param name="cmd"></param>
         public void writeLine(string cmd)
         {
             int n = 0;
@@ -118,16 +140,26 @@ namespace powercal
             }
         }
 
+        /// <summary>
+        /// Clears the meters error status
+        /// </summary>
         public void ClearError()
         {
             writeLine("*CLS");
         }
 
+        /// <summary>
+        /// Sets meter to remote mode
+        /// </summary>
         public void SetToRemote()
         {
             writeLine("SYST:REM");
         }
 
+        /// <summary>
+        /// Gets the meter id
+        /// </summary>
+        /// <returns>meter id string</returns>
         public string IDN()
         {
             clearData();
@@ -136,18 +168,28 @@ namespace powercal
             return data;
         }
 
+        /// <summary>
+        /// Sets up the meter for V AC measurement
+        /// </summary>
         public void SetupForVAC()
         {
             writeLine(":CONF:VOLT:AC 1000,0.01");
             writeLine(":TRIG:SOUR BUS");
         }
 
+        /// <summary>
+        /// Sets up the meter for I AC measurement
+        /// </summary>
         public void SetupForIAC()
         {
             writeLine(":CONF:CURR:AC 1,0.000001");
             writeLine(":TRIG:SOUR BUS");
         }
 
+        /// <summary>
+        /// Trigers meter and returns measurement
+        /// </summary>
+        /// <returns>measurement</returns>
         public string Measure()
         {
             clearData();
@@ -157,6 +199,10 @@ namespace powercal
             string data = waitForData();
             return data;
         }
+
+        /// <summary>
+        /// Closes the serial port
+        /// </summary>
         public void CloseSerialPort()
         {
             this._serialPort.Close();

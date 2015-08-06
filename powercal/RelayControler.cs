@@ -6,6 +6,9 @@ using NationalInstruments.DAQmx;
 
 namespace powercal
 {
+    /// <summary>
+    /// Class to control the DIO lines connecte dto the different relays
+    /// </summary>
     class RelayControler
     {
         string _acPowerLbl = "AC Power";
@@ -13,6 +16,9 @@ namespace powercal
         string _resetLbl = "Reset";
         string _emberLbl = "Ember";
 
+        /// <summary>
+        /// Inits internal dictionary that holds line number and state info
+        /// </summary>
         private void _initDicLines()
         {
             // Dic to store line numbers
@@ -80,11 +86,18 @@ namespace powercal
         }
 
 
-        // Dic to store line numbers
+        /// <summary>
+        /// Dic to store line numbers
+        /// </summary>
         private Dictionary<string, int> _dic_lines = new Dictionary<string, int>();
-        // Dic to store line state (true = ON, false = OFF)
+        /// <summary>
+        /// Dic to store line state (true = ON, false = OFF)
+        /// </summary>
         private Dictionary<string, bool> _dic_values = new Dictionary<string, bool>();
 
+        /// <summary>
+        /// The DIO port info
+        /// </summary>
         public string DevPort
         {
             get { return _dev_port; }
@@ -92,19 +105,28 @@ namespace powercal
         }
         private string _dev_port;
 
+        /// <summary>
+        /// Constructor
+        /// </summary>
         public RelayControler()
         {
             initDevPort();
             _initDicLines();
         }
 
-        private bool _disable = false;
+        /// <summary>
+        /// When disable we only store values.  This is usualfuul when running in manual mode
+        /// </summary>
         public bool Disable
         {
             get { return _disable; }
             set { _disable = value; }
         }
+        private bool _disable = false;
 
+        /// <summary>
+        /// Inits the DIO to be the first port found
+        /// </summary>
         private void initDevPort()
         {
             if (_dev_port == null)
@@ -117,6 +139,11 @@ namespace powercal
             }
         }
 
+        /// <summary>
+        /// Writes to the specified line name
+        /// </summary>
+        /// <param name="linename"></param>
+        /// <param name="value"></param>
         public void WriteLine(string linename, bool value)
         {
             if (Disable)
@@ -130,6 +157,11 @@ namespace powercal
             }
         }
 
+        /// <summary>
+        /// Writes to the specified line number
+        /// </summary>
+        /// <param name="linenum"></param>
+        /// <param name="value"></param>
         public void WriteLine(int linenum, bool value)
         {
             if (Disable)
@@ -153,6 +185,11 @@ namespace powercal
             }
         }
 
+        /// <summary>
+        /// Reads the specified line name
+        /// </summary>
+        /// <param name="linename"></param>
+        /// <returns></returns>
         public bool ReadLine(string linename)
         {
             if (Disable)
@@ -166,6 +203,11 @@ namespace powercal
             }
         }
 
+        /// <summary>
+        /// Gets the specified line number's name
+        /// </summary>
+        /// <param name="linenum"></param>
+        /// <returns></returns>
         public string GetName(int linenum)
         {
             string name = null;
@@ -182,6 +224,12 @@ namespace powercal
             return name;
 
         }
+
+        /// <summary>
+        /// Reads the specified line number
+        /// </summary>
+        /// <param name="linenum"></param>
+        /// <returns></returns>
         public bool ReadLine(int linenum)
         {
             if (Disable)
@@ -205,6 +253,10 @@ namespace powercal
 
         }
 
+        /// <summary>
+        /// Returs the status of all lines
+        /// </summary>
+        /// <returns></returns>
         public string[] ToStrArray()
         {
 
@@ -223,6 +275,10 @@ namespace powercal
 
         }
 
+        /// <summary>
+        /// Retuns the status of all lines formated to display
+        /// </summary>
+        /// <returns></returns>
         public string ToDlgText()
         {
             string[] msg_array = this.ToStrArray();
@@ -235,6 +291,10 @@ namespace powercal
             return msg_dlg;
         }
 
+        /// <summary>
+        /// Returs the status of all lines a text
+        /// </summary>
+        /// <returns></returns>
         public string ToStatusText()
         {
             string[] msg_array = this.ToStrArray();

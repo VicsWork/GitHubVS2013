@@ -101,6 +101,16 @@ namespace powercal
 
         }
 
+        private double bit24_ToDouble(int data)
+        {
+            // Maximum 1 =~ 0xFFFFFF
+            // Max rms 0.6 =~ 0x999999
+            // Half rms 0.36 =~ 0x5C28F6
+            double value = (double)(data)/0x1000000; // 2^24
+            return value;
+        }
+
+
         bool autoDetectMeterCOMPort()
         {
             bool detected = false;
@@ -113,6 +123,8 @@ namespace powercal
                     meter.WaitForDsrHolding = false;
                     meter.OpenComPort();
                     string idn = meter.IDN();
+                    meter.CloseSerialPort();
+
                     if (idn.StartsWith("HEWLETT-PACKARD,34401A"))
                     {
                         detected = true;

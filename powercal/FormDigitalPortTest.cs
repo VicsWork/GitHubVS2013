@@ -14,6 +14,9 @@ namespace powercal
     {
         RelayControler _relayCtrl = new RelayControler();
 
+        /// <summary>
+        /// Class use to performe tests on DIO board
+        /// </summary>
         public FormDigitalPortTest()
         {
             InitializeComponent();
@@ -42,6 +45,9 @@ namespace powercal
             refreshNumericUpDownValue();
         }
 
+        /// <summary>
+        /// Gets the dev and ports avilable and updates combobox
+        /// </summary>
         void initPhysicalChannelComboBox()
         {
             physicalChannelComboBox.Items.AddRange(DaqSystem.Local.GetPhysicalChannels(PhysicalChannelTypes.DOPort, PhysicalChannelAccess.External));
@@ -59,11 +65,13 @@ namespace powercal
             }
         }
 
+        /// <summary>
+        /// Reads the DIO lines and updates the corresponding numeric updown controls
+        /// </summary>
         private void refreshNumericUpDownValue()
         {
             try
             {
-
                 // Reads all values from DIO and updates the numeric up and down control
                 NumericUpDownACPower.Value = Convert.ToDecimal(_relayCtrl.AC_Power);
                 NumericUpDownLoad.Value = Convert.ToDecimal(_relayCtrl.Load);
@@ -78,6 +86,10 @@ namespace powercal
 
         }
 
+        /// <summary>
+        /// Controls the enablement of all numeric up-down controls within the DIO lines group
+        /// </summary>
+        /// <param name="enable"></param>
         private void setLineEnablement(bool enable)
         {
             foreach (Control ctrl in groupBoxDIOLines.Controls)
@@ -89,6 +101,11 @@ namespace powercal
             }
         }
 
+        /// <summary>
+        /// Writes the specified byte to the dev/port
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
         private void writeButton_Click(object sender, EventArgs e)
         {
             Cursor.Current = Cursors.WaitCursor;
@@ -119,6 +136,10 @@ namespace powercal
             }
         }
 
+        /// <summary>
+        /// Reads the port
+        /// </summary>
+        /// <returns></returns>
         private byte rearPort()
         {
             Cursor.Current = Cursors.WaitCursor;
@@ -127,7 +148,6 @@ namespace powercal
             {
                 using (Task digitalReadTask = new Task())
                 {
-
                     //  Create an Digital Output channel and name it.
                     digitalReadTask.DOChannels.CreateChannel(physicalChannelComboBox.Text, "port0", ChannelLineGrouping.OneChannelForAllLines);
 

@@ -9,6 +9,9 @@ using System.Threading;
 
 namespace powercal
 {
+    /// <summary>
+    /// Creates and runs batch file to patch calibration tokens at specified addresses
+    /// </summary>
     class Ember
     {
         public string BatchFilePath { get { return _batch_file; } set { _batch_file = value; } }
@@ -30,6 +33,10 @@ namespace powercal
         private int _iAddress = 0x08040984;
         private int _acOffsetAddress = 0x080409CC;
 
+        /// <summary>
+        /// Runs a calibartion batch file
+        /// </summary>
+        /// <returns></returns>
         public string RunCalibrationPatchBatch()
         {
             Process p = new Process();
@@ -77,6 +84,11 @@ namespace powercal
             return output;
         }
 
+        /// <summary>
+        /// Creates a calibration batch file
+        /// </summary>
+        /// <param name="vrms">Vrms gain</param>
+        /// <param name="irms">Irms gain</param>
         public void CreateCalibrationPatchBath(int vrms, int irms)
         {
             using (StreamWriter writer = File.CreateText(_batch_file))
@@ -134,6 +146,11 @@ namespace powercal
             }
         }
 
+        /// <summary>
+        /// Breaks an int into 3 bytes
+        /// </summary>
+        /// <param name="value"></param>
+        /// <returns>The last 3 bytes of int value</returns>
         byte[] bit24IntToByteArray(int value)
         {
             // Converts a 24bit value to a 3 byte array
