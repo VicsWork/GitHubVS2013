@@ -265,7 +265,7 @@ namespace powercal
             // Max rms 0.6 = 0x999999
             // Half rms 0.36 0x5C28F6
             double reg_value = (double)(rx_data[2] << 16 | rx_data[1] << 8 | rx_data[0]);
-            double value = (double)(reg_value / (0x1000000 - 0x1)); // 2^24 - 1
+            double value = (double)(reg_value/0xFFFFFF); // 2^24 - 1
             return value;
         }
 

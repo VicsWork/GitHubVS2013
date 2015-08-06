@@ -504,9 +504,9 @@ namespace powercal
             switch (boardType)
             {
                 case "Humpback":
-                    ember.VAdress = 0x08840980;
-                    ember.IAdress = 0x08840984;
-                    ember.ACOffsetAdress = 0x088409CC;
+                    ember.VAdress = 0x08080980;
+                    ember.IAdress = 0x08080984;
+                    ember.ACOffsetAdress = 0x080809CC;
                     break;
                 case "Hooktooth":
                 case "Milkshark":
