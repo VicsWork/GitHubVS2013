@@ -139,6 +139,13 @@ namespace powercal
             }
         }
 
+        public void WriteAll(bool value)
+        {
+            foreach (string key in _dic_lines.Keys)
+            {
+                WriteLine(key, value);
+            }
+        }
         /// <summary>
         /// Writes to the specified line name
         /// </summary>

@@ -5,7 +5,6 @@ using System.Data;
 using System.Drawing;
 using System.Linq;
 using System.Text;
-using System.Threading.Tasks;
 using System.Windows.Forms;
 using System.Diagnostics;
 using System.IO;
@@ -35,20 +34,26 @@ namespace powercal
 
         public FormMain()
         {
+            // All dio port 0 lines to 0
+            dio_write(0);
+
             InitializeComponent();
 
+            // Create the app data folder
             if (!Directory.Exists(_app_data_dir))
             {
                 Directory.CreateDirectory(_app_data_dir);
             }
+            // Init the log file
             initLogFile();
-
-            initTextBoxRunStatus();
 
             // Set the title to match assembly info from About dlg
             AboutBox1 aboutdlg = new AboutBox1();
             this.Text = aboutdlg.AssemblyTitle;
             aboutdlg.Dispose();
+
+            // Init the status text box
+            initTextBoxRunStatus();
 
             // Make sure we have a selection for board types
             this.comboBoxBoardTypes.Items.AddRange(Enum.GetNames(typeof(CSSequencer.BoardTypes)));
@@ -77,8 +82,8 @@ namespace powercal
                 updateOutputStatus(msg);
             }
 
+            // Detect whether meter is connected to on eof the ports
             bool detected_meter = autoDetectMeterCOMPort();
-
             if (!detected_cs && !detected_meter && ports.Length > 0)
             {
                 Properties.Settings.Default.CS_COM_Port_Name = ports[0];
@@ -101,16 +106,11 @@ namespace powercal
 
         }
 
-        private double bit24_ToDouble(int data)
-        {
-            // Maximum 1 =~ 0xFFFFFF
-            // Max rms 0.6 =~ 0x999999
-            // Half rms 0.36 =~ 0x5C28F6
-            double value = (double)(data)/0x1000000; // 2^24
-            return value;
-        }
-
-
+        /// <summary>
+        /// Detects whether the metter is ON and connected to one of the COM ports
+        /// If one is found, the serial port setting is changed automatically
+        /// </summary>
+        /// <returns>Whether a meter was detected connected to the system</returns>
         bool autoDetectMeterCOMPort()
         {
             bool detected = false;
@@ -175,6 +175,9 @@ namespace powercal
             }
         }
 
+        /// <summary>
+        /// Inits the run status text box
+        /// </summary>
         void initTextBoxRunStatus()
         {
             this.textBoxRunStatus.BackColor = Color.White;
@@ -214,24 +217,42 @@ namespace powercal
             }
         }
 
+        /// <summary>
+        /// Updates the run status text box
+        /// </summary>
+        /// <param name="txt"></param>
         private void updateRunStatus(string txt)
         {
             this.textBoxRunStatus.Text = txt;
             this.textBoxRunStatus.Update();
         }
 
+        /// <summary>
+        /// Invokes Serial test gld
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
         private void serialToolStripMenuItem_Click(object sender, EventArgs e)
         {
             FormSerialTest dlg = new FormSerialTest();
             DialogResult result = dlg.ShowDialog();
         }
 
+        /// <summary>
+        /// Invokes About dialog
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
         private void aboutToolStripMenuItem_Click(object sender, EventArgs e)
         {
             AboutBox1 dlg = new AboutBox1();
             DialogResult result = dlg.ShowDialog();
         }
 
+        /// <summary>
+        /// Shows dialog with relays sates defined in the RelayControler when in manual mode
+        /// </summary>
+        /// <param name="relay_ctrl"></param>
         private void relaysSet(RelayControler relay_ctrl)
         {
 
@@ -272,6 +293,28 @@ namespace powercal
 
         }
 
+        private void dio_write(int value)
+        {
+            try
+            {
+                string[] channels = DaqSystem.Local.GetPhysicalChannels(PhysicalChannelTypes.DOPort, PhysicalChannelAccess.External);
+                if (channels.Length > 0)
+                {
+                    using (Task digitalWriteTask = new Task())
+                    {
+                        digitalWriteTask.DOChannels.CreateChannel(channels[0], "port0", ChannelLineGrouping.OneChannelForAllLines);
+                        DigitalSingleChannelWriter writer = new DigitalSingleChannelWriter(digitalWriteTask.Stream);
+                        writer.WriteSingleSamplePort(true, (UInt32)value);
+                    }
+                }
+
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show(ex.Message);
+            }
+        }
+
         private void buttonRun_Click(object sender, EventArgs e)
         {
             this.buttonRun.Enabled = false;
@@ -291,8 +334,8 @@ namespace powercal
                 bool manual_relay = Properties.Settings.Default.Manual_Relay_Control;
                 if (manual_relay)
                     _relay_ctrl.Disable = true;
-                _relay_ctrl.AC_Power = false;
                 _relay_ctrl.Ember = false;
+                _relay_ctrl.AC_Power = false;
                 _relay_ctrl.Load = false;
                 _relay_ctrl.Reset = false;
                 relaysSet(_relay_ctrl);
@@ -339,10 +382,10 @@ namespace powercal
             bool manual_relay = Properties.Settings.Default.Manual_Relay_Control;
             if (manual_relay)
                 _relay_ctrl.Disable = true;
-            _relay_ctrl.AC_Power = true;
-            _relay_ctrl.Reset = true;
-            _relay_ctrl.Ember = true;
+            _relay_ctrl.Ember = false;
             _relay_ctrl.Load = false;
+            _relay_ctrl.Reset = true;
+            _relay_ctrl.AC_Power = true;
             relaysSet(_relay_ctrl);
             Thread.Sleep(1000);
 
@@ -366,6 +409,8 @@ namespace powercal
 
             // IRMSPre_Cal
             updateRunStatus("IRMSPre_Cal");
+
+            // Connect the load
             _relay_ctrl.Load = true;
             relaysSet(_relay_ctrl);
             Thread.Sleep(1000);
@@ -407,7 +452,6 @@ namespace powercal
             }
             updateOutputStatus(string.Format("IrmsMeasure = {0:F8}", iRMSMeasure));
 
-
             // VRMSMeasure
             updateRunStatus("VRMSMeasure");
             double vRMSMeasure = 0;
@@ -440,6 +484,8 @@ namespace powercal
             _sq.VGainCal(vRMSGainInt);
 
             // IRMSNoLoad
+
+            // Disconnect the load
             _relay_ctrl.Load = false;
             relaysSet(_relay_ctrl);
             Thread.Sleep(1000);
@@ -454,6 +500,7 @@ namespace powercal
                 throw new Exception(msg);
             }
 
+            // Connect the load
             _relay_ctrl.Load = true;
             relaysSet(_relay_ctrl);
             Thread.Sleep(1000);
@@ -504,10 +551,11 @@ namespace powercal
             // PatchingGain
             updateRunStatus("PatchingGain");
             _relay_ctrl.AC_Power = false;
-            _relay_ctrl.Ember = false;
             _relay_ctrl.Load = false;
             _relay_ctrl.Reset = false;
+            _relay_ctrl.Ember = true;
             relaysSet(_relay_ctrl);
+            Thread.Sleep(1000);
 
             Ember ember = new Ember();
             ember.EmberBinPath = Properties.Settings.Default.Ember_BinPath;
@@ -532,6 +580,7 @@ namespace powercal
             bool patchit_fail = false;
             string exception_msg = "";
             string coding_output = "";
+            // Retry patch loop if fail
             while (true)
             {
                 patchit_fail = false;
@@ -571,6 +620,9 @@ namespace powercal
                 }
 
             }
+            // Disconnect Ember
+            _relay_ctrl.Ember = false;
+
             if (patchit_fail)
             {
                 throw new Exception(exception_msg);
