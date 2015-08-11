@@ -328,7 +328,15 @@ namespace powercal
             initTextBoxRunStatus();
             try
             {
+                Stopwatch stopWatch = new Stopwatch();
+                stopWatch.Start();
                 calibrate();
+                stopWatch.Stop();
+                TimeSpan ts = stopWatch.Elapsed;
+                // Format and display the TimeSpan value. 
+                string elapsedTime = String.Format("Elaspsed time {0:00} seconds", ts.Seconds);
+                updateOutputStatus(elapsedTime);
+
             }
             catch (Exception ex)
             {
@@ -518,7 +526,7 @@ namespace powercal
             // Disconnect the load
             _relay_ctrl.Load = false;
             relaysSet(_relay_ctrl);
-            Thread.Sleep(1000);
+            Thread.Sleep(2000);
 
             updateRunStatus("IRMSNoLoad");
 
@@ -590,16 +598,15 @@ namespace powercal
             Ember ember = new Ember();
             ember.EmberBinPath = Properties.Settings.Default.Ember_BinPath;
             ember.BatchFilePath = _ember_batchfile_path;
-            string boardType = this.comboBoxBoardTypes.SelectedText;
-            switch (boardType)
+            switch (board)
             {
-                case "Humpback":
+                case(CSSequencer.BoardTypes.Humpback):
                     ember.VAdress = 0x08080980;
                     ember.IAdress = 0x08080984;
                     ember.ACOffsetAdress = 0x080809CC;
                     break;
-                case "Hooktooth":
-                case "Milkshark":
+                case (CSSequencer.BoardTypes.Hooktooth):
+                case (CSSequencer.BoardTypes.Milkshark):
                     ember.VAdress = 0x08040980;
                     ember.IAdress = 0x08040984;
                     ember.ACOffsetAdress = 0x080409CC;
