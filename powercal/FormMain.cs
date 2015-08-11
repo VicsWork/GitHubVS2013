@@ -235,7 +235,8 @@ namespace powercal
         private void serialToolStripMenuItem_Click(object sender, EventArgs e)
         {
             FormSerialTest dlg = new FormSerialTest();
-            DialogResult result = dlg.ShowDialog();
+            //DialogResult result = dlg.ShowDialog();
+            dlg.Show();
         }
 
         /// <summary>
@@ -290,6 +291,11 @@ namespace powercal
 
                 MessageBox.Show(msg_dlg);
             }
+            else
+            {
+                string status = _relay_ctrl.ToStatusText();
+                updateOutputStatus(status);
+            }
 
         }
 
@@ -317,7 +323,7 @@ namespace powercal
 
         private void buttonRun_Click(object sender, EventArgs e)
         {
-            this.buttonRun.Enabled = false;
+            //this.buttonRun.Enabled = false;
             this.textBoxOutputStatus.Clear();
             initTextBoxRunStatus();
             try
@@ -413,12 +419,24 @@ namespace powercal
             // Connect the load
             _relay_ctrl.Load = true;
             relaysSet(_relay_ctrl);
-            Thread.Sleep(1000);
+            Thread.Sleep(2000);
 
             double iRMSPreCal = _sq.GetIRMS();
-            if (iRMSPreCal < 0.17 || iRMSPreCal > 0.3)
+            // for hooktooth iRMSPreCal < 0.17 || iRMSPreCal > 0.3
+            double lowlimit = 0.17;
+            double highlimit = 0.3;
+            switch (board)
             {
-                // With 500 Ohms load and 120VAC this value should be around 0.24
+                case(CSSequencer.BoardTypes.Humpback):
+                    lowlimit = 0.09;
+                    highlimit = 0.18;
+                    break;
+            }
+
+            if (iRMSPreCal < lowlimit || iRMSPreCal > highlimit)
+            {
+                // With 500 Ohms load and 120VAC this value should be around 0.240 mA
+                // With 2k Ohms load and 240VAC this value should be around 0.120 mA
                 msg = string.Format("Bad IrmsPreCal value:{0:F8}", iRMSPreCal);
                 throw new Exception(msg);
             }
@@ -428,7 +446,19 @@ namespace powercal
             updateRunStatus("VRMSPre_Cal");
             double vRMSPreCal = _sq.GetVRMS();
             updateOutputStatus(string.Format("VrmsPreCal = {0:F8}", vRMSPreCal));
-            if (vRMSPreCal < 100 || vRMSPreCal > 150)
+
+            // Hooktooth (vRMSPreCal < 100 || vRMSPreCal > 150)
+            lowlimit = 100;
+            highlimit = 150;
+            switch (board)
+            {
+                case (CSSequencer.BoardTypes.Humpback):
+                    lowlimit = 230;
+                    highlimit = 250;
+                    break;
+            }
+
+            if (vRMSPreCal < lowlimit || vRMSPreCal > highlimit)
             {
                 msg = string.Format("Bad VrmsPreCal value:{0:F}", vRMSPreCal);
                 throw new Exception(msg);
@@ -503,15 +533,15 @@ namespace powercal
             // Connect the load
             _relay_ctrl.Load = true;
             relaysSet(_relay_ctrl);
-            Thread.Sleep(1000);
+            Thread.Sleep(2000);
 
             // IRMSAfter_Cal
             updateRunStatus("IRMSAfter_Cal");
             double iRMSAfterCal = _sq.GetIRMS();
             updateOutputStatus(string.Format("IrmsAfterCal = {0:F8}", iRMSAfterCal));
             double delta = iRMSMeasure * 0.03;
-            double lowlimit = iRMSMeasure - delta;
-            double highlimit = iRMSMeasure + delta;
+            lowlimit = iRMSMeasure - delta;
+            highlimit = iRMSMeasure + delta;
             if (iRMSAfterCal < lowlimit || iRMSAfterCal > highlimit)
             {
                 msg = string.Format("IrmsAfterCal not within limits values: {0:F8} < {1:F8} < {2:F8}", lowlimit, iRMSAfterCal, highlimit);
@@ -653,7 +683,8 @@ namespace powercal
         private void digitalOutputToolStripMenuItem_Click(object sender, EventArgs e)
         {
             FormDigitalPortTest dlg = new FormDigitalPortTest();
-            dlg.ShowDialog();
+            //dlg.ShowDialog();
+            dlg.Show();
         }
 
         /// <summary>

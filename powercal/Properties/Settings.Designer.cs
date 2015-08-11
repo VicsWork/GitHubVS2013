@@ -49,7 +49,7 @@ namespace powercal.Properties {
         
         [global::System.Configuration.UserScopedSettingAttribute()]
         [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
-        [global::System.Configuration.DefaultSettingValueAttribute("True")]
+        [global::System.Configuration.DefaultSettingValueAttribute("False")]
         public bool Manual_Relay_Control {
             get {
                 return ((bool)(this["Manual_Relay_Control"]));
@@ -61,7 +61,7 @@ namespace powercal.Properties {
         
         [global::System.Configuration.UserScopedSettingAttribute()]
         [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
-        [global::System.Configuration.DefaultSettingValueAttribute("0")]
+        [global::System.Configuration.DefaultSettingValueAttribute("1")]
         public int DIO_ACPower_LineNum {
             get {
                 return ((int)(this["DIO_ACPower_LineNum"]));
@@ -73,7 +73,7 @@ namespace powercal.Properties {
         
         [global::System.Configuration.UserScopedSettingAttribute()]
         [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
-        [global::System.Configuration.DefaultSettingValueAttribute("1")]
+        [global::System.Configuration.DefaultSettingValueAttribute("2")]
         public int DIO_Load_LinNum {
             get {
                 return ((int)(this["DIO_Load_LinNum"]));
@@ -85,7 +85,7 @@ namespace powercal.Properties {
         
         [global::System.Configuration.UserScopedSettingAttribute()]
         [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
-        [global::System.Configuration.DefaultSettingValueAttribute("2")]
+        [global::System.Configuration.DefaultSettingValueAttribute("3")]
         public int DIO_Reset_LineNum {
             get {
                 return ((int)(this["DIO_Reset_LineNum"]));
@@ -97,7 +97,7 @@ namespace powercal.Properties {
         
         [global::System.Configuration.UserScopedSettingAttribute()]
         [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
-        [global::System.Configuration.DefaultSettingValueAttribute("3")]
+        [global::System.Configuration.DefaultSettingValueAttribute("4")]
         public int DIO_Ember_LineNum {
             get {
                 return ((int)(this["DIO_Ember_LineNum"]));

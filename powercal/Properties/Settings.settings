@@ -9,19 +9,19 @@
       <Value Profile="(Default)">COM4</Value>
     </Setting>
     <Setting Name="Manual_Relay_Control" Type="System.Boolean" Scope="User">
-      <Value Profile="(Default)">True</Value>
+      <Value Profile="(Default)">False</Value>
     </Setting>
     <Setting Name="DIO_ACPower_LineNum" Type="System.Int32" Scope="User">
-      <Value Profile="(Default)">0</Value>
-    </Setting>
-    <Setting Name="DIO_Load_LinNum" Type="System.Int32" Scope="User">
       <Value Profile="(Default)">1</Value>
     </Setting>
-    <Setting Name="DIO_Reset_LineNum" Type="System.Int32" Scope="User">
+    <Setting Name="DIO_Load_LinNum" Type="System.Int32" Scope="User">
       <Value Profile="(Default)">2</Value>
     </Setting>
-    <Setting Name="DIO_Ember_LineNum" Type="System.Int32" Scope="User">
+    <Setting Name="DIO_Reset_LineNum" Type="System.Int32" Scope="User">
       <Value Profile="(Default)">3</Value>
+    </Setting>
+    <Setting Name="DIO_Ember_LineNum" Type="System.Int32" Scope="User">
+      <Value Profile="(Default)">4</Value>
     </Setting>
     <Setting Name="Meter_Manual_Measurement" Type="System.Boolean" Scope="User">
       <Value Profile="(Default)">False</Value>

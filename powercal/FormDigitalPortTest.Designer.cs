@@ -141,9 +141,9 @@
             this.labelOutput.AutoSize = true;
             this.labelOutput.Location = new System.Drawing.Point(7, 89);
             this.labelOutput.Name = "labelOutput";
-            this.labelOutput.Size = new System.Drawing.Size(39, 13);
+            this.labelOutput.Size = new System.Drawing.Size(37, 13);
             this.labelOutput.TabIndex = 7;
-            this.labelOutput.Text = "Output";
+            this.labelOutput.Text = "Ember";
             // 
             // NumericUpDownOutput
             // 
