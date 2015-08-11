@@ -657,14 +657,16 @@ namespace powercal
                 }
 
             }
-            // Disconnect Ember
-            _relay_ctrl.Ember = false;
 
             if (patchit_fail)
             {
                 throw new Exception(exception_msg);
             }
             updateOutputStatus(coding_output);
+
+            // Disconnect Ember
+            _relay_ctrl.Ember = false;
+            relaysSet(_relay_ctrl);
 
             updateOutputStatus("================================End Calibration===============================");
 
