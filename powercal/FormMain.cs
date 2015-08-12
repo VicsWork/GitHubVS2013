@@ -427,7 +427,30 @@ namespace powercal
             // Connect the load
             _relay_ctrl.Load = true;
             relaysSet(_relay_ctrl);
-            Thread.Sleep(2000);
+
+            _sq.EnableHiPassFilter();
+            _sq.StartContinuousConvertion();
+            
+            Thread.Sleep(1000);
+
+            if (!manual_measure)
+            {
+                _meter.SetupForVAC();
+
+                for (int i = 0; i < 3; i++)
+                {
+                    string vac_measurement = _meter.Measure();
+                    double meter_vrms = Double.Parse(vac_measurement);
+                    updateOutputStatus(string.Format("Meter Vrms{0} = {1:F8}", i, meter_vrms));
+                }
+            }
+
+            for (int i = 0; i < 5; i++) {
+                double iPreCal = _sq.GetIRMS();
+                updateOutputStatus(string.Format("IrmsPreCal{0} = {1:F8}", i, iPreCal));
+                Thread.Sleep(250);
+            }
+
 
             double iRMSPreCal = _sq.GetIRMS();
             // for hooktooth iRMSPreCal < 0.17 || iRMSPreCal > 0.3
@@ -436,8 +459,8 @@ namespace powercal
             switch (board)
             {
                 case(CSSequencer.BoardTypes.Humpback):
-                    lowlimit = 0.09;
-                    highlimit = 0.18;
+                    lowlimit = 0.08;
+                    highlimit = 0.19;
                     break;
             }
 
@@ -452,6 +475,14 @@ namespace powercal
 
             // VRMSPre_Cal
             updateRunStatus("VRMSPre_Cal");
+
+            for (int i = 0; i < 5; i++)
+            {
+                double vPreCal = _sq.GetVRMS();
+                updateOutputStatus(string.Format("VrmsPreCal = {0:F8}", vPreCal));
+                Thread.Sleep(250);
+            }
+
             double vRMSPreCal = _sq.GetVRMS();
             updateOutputStatus(string.Format("VrmsPreCal = {0:F8}", vRMSPreCal));
 
@@ -461,8 +492,8 @@ namespace powercal
             switch (board)
             {
                 case (CSSequencer.BoardTypes.Humpback):
-                    lowlimit = 230;
-                    highlimit = 250;
+                    lowlimit = 200;
+                    highlimit = 260;
                     break;
             }
 
@@ -484,6 +515,13 @@ namespace powercal
             else
             {
                 _meter.SetupForIAC();
+                for (int i = 0; i < 3; i++)
+                {
+                    string iac_str = _meter.Measure();
+                    double meter_irms = Double.Parse(iac_str);
+                    updateOutputStatus(string.Format("Meter Irms{0} = {1:F8}", i, meter_irms));
+                }
+
                 string iac_measurement = _meter.Measure();
                 iRMSMeasure = Double.Parse(iac_measurement);
                 Thread.Sleep(1000);
@@ -502,6 +540,14 @@ namespace powercal
             else
             {
                 _meter.SetupForVAC();
+
+                for (int i = 0; i < 3; i++)
+                {
+                    string vac_str = _meter.Measure();
+                    double meter_vrms = Double.Parse(vac_str);
+                    updateOutputStatus(string.Format("Meter Irms{0} = {1:F8}", i, meter_vrms));
+                }
+
                 string vac_measurement = _meter.Measure();
                 vRMSMeasure = Double.Parse(vac_measurement);
             }

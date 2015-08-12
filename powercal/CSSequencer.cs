@@ -113,8 +113,8 @@ namespace powercal
         /// <returns>Irms value</returns>
         public double GetIRMS()
         {
-            EnableHiPassFilter();
-            StartContinuousConvertion();
+            //EnableHiPassFilter();
+            //StartContinuousConvertion();
 
             byte[] tx_data = StrToBytes("90 06"); //Page 16 select, reads IRMS register
             byte[] rx_data = _cscommander.Send_Receive_Bytes(tx_data);
@@ -154,9 +154,9 @@ namespace powercal
             byte[] tx_data = StrToBytes("90 79 D0 07 00"); //Set Tsettle to 2000ms
             _cscommander.Send(tx_data);
 
-            EnableHiPassFilter();
+            //EnableHiPassFilter();
             SetACOffsetToZero();
-            StartContinuousConvertion();
+            //StartContinuousConvertion();
 
             tx_data = StrToBytes("90 25");
             rx_data = _cscommander.Send_Receive_Bytes(tx_data); //Page 16 select, read IACOffset register
@@ -179,9 +179,9 @@ namespace powercal
             byte[] tx_data = StrToBytes("90 79 D0 07 00"); //Set Tsettle to 2000ms
             _cscommander.Send(tx_data);
 
-            EnableHiPassFilter();
+            //EnableHiPassFilter();
             SetACOffsetToZero();
-            StartContinuousConvertion();
+            //StartContinuousConvertion();
 
             tx_data = StrToBytes("90 06"); //Page 16 select, read IRMS register
             rx_data = _cscommander.Send_Receive_Bytes(tx_data);
