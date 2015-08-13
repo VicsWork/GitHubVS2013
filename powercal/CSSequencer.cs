@@ -38,6 +38,10 @@ namespace powercal
             switch (boardType)
             {
                 case BoardTypes.Humpback:
+                    _currentFactor = 100;
+                    _iref = 1.00;
+                    _vref = 1.00;
+                    break;
                 case BoardTypes.Hooktooth:
                     _currentFactor = 100;
                     _iref = 0.8542;

@@ -40,9 +40,10 @@
             this.testToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.serialToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.digitalOutputToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.calculatorToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.aboutToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.textBoxRunStatus = new System.Windows.Forms.TextBox();
-            this.calculatorToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.toolStripMenuItemPowerMeter = new System.Windows.Forms.ToolStripMenuItem();
             this.contextMenuStatusTextBox.SuspendLayout();
             this.menuStripMain.SuspendLayout();
             this.SuspendLayout();
@@ -129,7 +130,8 @@
             this.testToolStripMenuItem.DropDownItems.AddRange(new System.Windows.Forms.ToolStripItem[] {
             this.serialToolStripMenuItem,
             this.digitalOutputToolStripMenuItem,
-            this.calculatorToolStripMenuItem});
+            this.calculatorToolStripMenuItem,
+            this.toolStripMenuItemPowerMeter});
             this.testToolStripMenuItem.Name = "testToolStripMenuItem";
             this.testToolStripMenuItem.Size = new System.Drawing.Size(48, 20);
             this.testToolStripMenuItem.Text = "Tools";
@@ -147,6 +149,13 @@
             this.digitalOutputToolStripMenuItem.Size = new System.Drawing.Size(152, 22);
             this.digitalOutputToolStripMenuItem.Text = "Digital Output";
             this.digitalOutputToolStripMenuItem.Click += new System.EventHandler(this.digitalOutputToolStripMenuItem_Click);
+            // 
+            // calculatorToolStripMenuItem
+            // 
+            this.calculatorToolStripMenuItem.Name = "calculatorToolStripMenuItem";
+            this.calculatorToolStripMenuItem.Size = new System.Drawing.Size(152, 22);
+            this.calculatorToolStripMenuItem.Text = "&Calculator";
+            this.calculatorToolStripMenuItem.Click += new System.EventHandler(this.calculatorToolStripMenuItem_Click);
             // 
             // aboutToolStripMenuItem
             // 
@@ -166,12 +175,11 @@
             this.textBoxRunStatus.Text = "test";
             this.textBoxRunStatus.WordWrap = false;
             // 
-            // calculatorToolStripMenuItem
+            // toolStripMenuItemPowerMeter
             // 
-            this.calculatorToolStripMenuItem.Name = "calculatorToolStripMenuItem";
-            this.calculatorToolStripMenuItem.Size = new System.Drawing.Size(152, 22);
-            this.calculatorToolStripMenuItem.Text = "&Calculator";
-            this.calculatorToolStripMenuItem.Click += new System.EventHandler(this.calculatorToolStripMenuItem_Click);
+            this.toolStripMenuItemPowerMeter.Name = "toolStripMenuItemPowerMeter";
+            this.toolStripMenuItemPowerMeter.Size = new System.Drawing.Size(152, 22);
+            this.toolStripMenuItemPowerMeter.Text = "Power Meter";
             // 
             // FormMain
             // 
@@ -212,6 +220,7 @@
         private System.Windows.Forms.ToolStripMenuItem digitalOutputToolStripMenuItem;
         private System.Windows.Forms.ToolStripMenuItem settingsToolStripMenuItem;
         private System.Windows.Forms.ToolStripMenuItem calculatorToolStripMenuItem;
+        private System.Windows.Forms.ToolStripMenuItem toolStripMenuItemPowerMeter;
     }
 }
 

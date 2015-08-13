@@ -34,6 +34,7 @@ namespace powercal
 
         public FormMain()
         {
+
             // All dio port 0 lines to 0
             dio_write(0);
 
@@ -631,6 +632,18 @@ namespace powercal
             int vAdjustInt = (int)(vRMSAdjust * 0x400000);
             updateOutputStatus(string.Format("VrmsAdjust = {0:F8} (0x{1:X})", vRMSAdjust, vAdjustInt));
 
+            int n = 0;
+            while (this.toolStripMenuItemPowerMeter.CheckState == CheckState.Checked)
+            {
+                double v_cs = _sq.GetVRMS();
+                double i_cs = _sq.GetIRMS();
+                double power = v_cs * i_cs;
+
+                updateOutputStatus(string.Format("{0:F8} V * {1:F8} A = {2:F8} W", v_cs, i_cs, power));
+
+                if (n > 100)
+                    break;
+            }
 
             // PatchingGain
             updateRunStatus("PatchingGain");
@@ -646,10 +659,16 @@ namespace powercal
             ember.BatchFilePath = _ember_batchfile_path;
             switch (board)
             {
-                case(CSSequencer.BoardTypes.Humpback):
+                case (CSSequencer.BoardTypes.Humpback):
                     ember.VAdress = 0x08080980;
                     ember.IAdress = 0x08080984;
+                    ember.RefereceAdress = 0x08080988;
                     ember.ACOffsetAdress = 0x080809CC;
+
+                    // TODO:  Need to do the same for 120 V (Hookt0oth)
+                    ember.VRefereceValue = 0xF0; // 240 V
+                    ember.IRefereceValue = 0x0F; // 15 A
+
                     break;
                 case (CSSequencer.BoardTypes.Hooktooth):
                 case (CSSequencer.BoardTypes.Milkshark):

@@ -20,8 +20,11 @@ namespace powercal
 
         public int VAdress { get { return _vAddress; } set { _vAddress = value; } }
         public int IAdress { get { return _iAddress; } set { _iAddress = value; } }
+        public int RefereceAdress { get { return _refAddress; } set { _refAddress = value; } }
         public int ACOffsetAdress { get { return _acOffsetAddress; } set { _acOffsetAddress = value; } }
 
+        public int VRefereceValue { get { return _vRefValue; } set { _vRefValue = value; } }
+        public int IRefereceValue { get { return _iRefValue; } set { _iRefValue = value; } }
 
         string _batch_file = "C:\\patchit.bat";
         private string _ember_exe = "em3xx_load";
@@ -31,7 +34,14 @@ namespace powercal
         
         private int _vAddress = 0x08040980;
         private int _iAddress = 0x08040984;
+        private int _refAddress = 0x08040988;
         private int _acOffsetAddress = 0x080409CC;
+
+        // For Humpback:
+        //To set the VREF to 240, the patch contains "@08080988=F0 @08080989=00"
+        //To set the IREF to 15, the patch contains "@0808098A=0F @0808098B=00"
+        private int _vRefValue = 0x0;
+        private int _iRefValue = 0x0;
 
         /// <summary>
         /// Runs a calibartion batch file
@@ -124,6 +134,23 @@ namespace powercal
                 }
                 txt += string.Format("@{0:X8}=", start_addr);
                 txt += string.Format("{0:X2} ", 0); // null
+
+                // referece
+                if (_vRefValue != 0x0)
+                {
+                    start_addr = _refAddress;
+                    // vref
+                    txt += string.Format("@{0:X8}=", start_addr++);
+                    txt += string.Format("{0:X2} ", _vRefValue);
+                    txt += string.Format("@{0:X8}=", start_addr++);
+                    txt += string.Format("00 ");
+
+                    // iref
+                    txt += string.Format("@{0:X8}=", start_addr++);
+                    txt += string.Format("{0:X2} ", _iRefValue);
+                    txt += string.Format("@{0:X8}=", start_addr++);
+                    txt += string.Format("00 ");
+                }
 
                 // ac offset
                 start_addr = _acOffsetAddress;
