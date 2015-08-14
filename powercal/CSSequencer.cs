@@ -18,41 +18,20 @@ namespace powercal
     /// </summary>
     class CSSequencer
     {
-        public enum BoardTypes { Humpback, Hooktooth, Milkshark };
         private CSCommander _cscommander;
-        private int _currentFactor;
-        private double _iref, _vref;
-        public double IRef { get { return _iref; } }
-        public double VRef { get { return _vref; } }
-
-        private static TraceSource _source = new TraceSource("PowerCalTraceSource");
+        private double _full_scale_current, _full_scale_voltage;
+        public double FullScaleCurrent { get { return _full_scale_current; } }
+        public double FullScaleVoltage { get { return _full_scale_voltage; } }
 
         /// <summary>
         /// Constructor
         /// </summary>
         /// <param name="portName">Physical serial (UART) port name connected to CS54xx chip</param>
-        /// <param name="boardType">The board type (i.e. Humpback).  Different boards use different current factors, etc.</param>
-        public CSSequencer(string portName, BoardTypes boardType)
+        public CSSequencer(string portName)
         {
             _cscommander = new CSCommander(portName);
-            switch (boardType)
-            {
-                case BoardTypes.Humpback:
-                    _currentFactor = 100;
-                    _iref = 1.00;
-                    _vref = 1.00;
-                    break;
-                case BoardTypes.Hooktooth:
-                    _currentFactor = 100;
-                    _iref = 0.8542;
-                    _vref = 1.9840;
-                    break;
-                case BoardTypes.Milkshark:
-                    _currentFactor = 25;
-                    _iref = 0.9490;
-                    _vref = 2.0219;
-                    break;
-            }
+            _full_scale_current = 15;
+            _full_scale_voltage = 240;
         }
 
         /// <summary>
@@ -82,15 +61,19 @@ namespace powercal
         }
 
         /// <summary>
-        /// Enables the HPF
+        /// Init the Cs54xx for calibration
         /// </summary>
-        public void EnableHiPassFilter()
+        public void Init()
         {
+            byte[] tx_data = StrToBytes("80 40 20 20 C0");   // I gain 50X
+            _cscommander.Send(tx_data);
+
             // 90 Select Page 16
             // 40 Write to register 0 (Config2)
-            // 08 = Sets IFLT[1:0] = 01 = High-pass filter (HPF) on current channel
-            byte[] tx_data = StrToBytes("90 40 08 20 10"); //Enable High pass filter
+            // 0A = Sets IFLT[1:0] and VFLT[1:0] to 01 = High-pass filter (HPF) on current and voltage channels
+            tx_data = StrToBytes("90 40 0A 02 10");  // AFC mode, IFLT 
             _cscommander.Send(tx_data);
+
         }
 
         /// <summary>
@@ -124,7 +107,7 @@ namespace powercal
             byte[] rx_data = _cscommander.Send_Receive_Bytes(tx_data);
 
             double value = RegHex_ToDouble(rx_data);
-            value *= _currentFactor;
+            value = (value * FullScaleCurrent) / 0.6;
 
             return value;
         }
@@ -141,8 +124,7 @@ namespace powercal
             rx_data = _cscommander.Send_Receive_Bytes(tx_data);
 
             double value = RegHex_ToDouble(rx_data);
-            value *= 1691 * 2.4; //1691 = sum of all input resistors, 2.4 reference voltage
-            value /= 10; //10 = CS5490 input gain
+            value = (value * FullScaleVoltage) / 0.6;
 
             return value;
         }
@@ -158,16 +140,14 @@ namespace powercal
             byte[] tx_data = StrToBytes("90 79 D0 07 00"); //Set Tsettle to 2000ms
             _cscommander.Send(tx_data);
 
-            //EnableHiPassFilter();
             SetACOffsetToZero();
-            //StartContinuousConvertion();
 
             tx_data = StrToBytes("90 25");
             rx_data = _cscommander.Send_Receive_Bytes(tx_data); //Page 16 select, read IACOffset register
 
             // 0 <= value < 1.0
             double value = RegHex_ToDouble(rx_data);
-            value *= _currentFactor;
+            value = (value * FullScaleCurrent) / 0.6;
 
             return value;
         }
@@ -183,18 +163,15 @@ namespace powercal
             byte[] tx_data = StrToBytes("90 79 D0 07 00"); //Set Tsettle to 2000ms
             _cscommander.Send(tx_data);
 
-            //EnableHiPassFilter();
             SetACOffsetToZero();
-            //StartContinuousConvertion();
 
             tx_data = StrToBytes("90 06"); //Page 16 select, read IRMS register
             rx_data = _cscommander.Send_Receive_Bytes(tx_data);
 
             double value = RegHex_ToDouble(rx_data);
-            value *= _currentFactor;
+            value = (value * FullScaleCurrent) / 0.6;
 
             return value;
-
         }
 
         /// <summary>

@@ -18,6 +18,8 @@ using NationalInstruments.DAQmx;
 
 namespace powercal
 {
+    enum BoardTypes { Humpback, Hooktooth, Milkshark };
+
     public partial class FormMain : Form
     {
         CSSequencer _sq = null;
@@ -57,7 +59,7 @@ namespace powercal
             initTextBoxRunStatus();
 
             // Make sure we have a selection for board types
-            this.comboBoxBoardTypes.Items.AddRange(Enum.GetNames(typeof(CSSequencer.BoardTypes)));
+            this.comboBoxBoardTypes.Items.AddRange(Enum.GetNames(typeof(powercal.BoardTypes)));
             if (comboBoxBoardTypes.Items.Count > 0)
             {
                 comboBoxBoardTypes.SelectedIndex = 0;
@@ -377,8 +379,8 @@ namespace powercal
             string msg;
             updateOutputStatus("===============================Start Calibration==============================");
             string csPortName = Properties.Settings.Default.CS_COM_Port_Name;
-            CSSequencer.BoardTypes board = (CSSequencer.BoardTypes)Enum.Parse(typeof(CSSequencer.BoardTypes), comboBoxBoardTypes.Text);
-            _sq = new CSSequencer(csPortName, board);
+            powercal.BoardTypes board = (powercal.BoardTypes)Enum.Parse(typeof(powercal.BoardTypes), comboBoxBoardTypes.Text);
+            _sq = new CSSequencer(csPortName);
 
             // Setup multi-meter
             string meterPortName = Properties.Settings.Default.Meter_COM_Port_Name;
@@ -408,6 +410,20 @@ namespace powercal
 
             _sq.SoftReset();
             Thread.Sleep(500);
+            _sq.Init();
+
+            // Set gain to 1
+            // IGainCal
+            //updateRunStatus("IGainCal Default");
+            //int iRMSGainInt = 0x400000;
+            //updateOutputStatus(string.Format("IrmsGain = (0x{0:X})", iRMSGainInt));
+            //_sq.IGainCal(iRMSGainInt);
+
+            //// VGainCal
+            //updateRunStatus("VGainCal");
+            //int vRMSGainInt = 0x400000;
+            //updateOutputStatus(string.Format("VrmsGain = (0x{0:X})", vRMSGainInt));
+            //_sq.VGainCal(vRMSGainInt);
 
             double acOffsetPre_Cal = _sq.GetIOffset();
             updateOutputStatus(string.Format("ACOffsetPre_Cal = {0:F8}", acOffsetPre_Cal));
@@ -422,44 +438,34 @@ namespace powercal
             }
             updateOutputStatus(string.Format("IrmsNoLoad = {0:F8}", iRMSNoLoad));
 
-            // IRMSPre_Cal
-            updateRunStatus("IRMSPre_Cal");
 
             // Connect the load
             _relay_ctrl.Load = true;
             relaysSet(_relay_ctrl);
 
-            _sq.EnableHiPassFilter();
             _sq.StartContinuousConvertion();
-            
+
             Thread.Sleep(1000);
 
             if (!manual_measure)
             {
                 _meter.SetupForVAC();
-
-                for (int i = 0; i < 3; i++)
-                {
-                    string vac_measurement = _meter.Measure();
-                    double meter_vrms = Double.Parse(vac_measurement);
-                    updateOutputStatus(string.Format("Meter Vrms{0} = {1:F8}", i, meter_vrms));
-                }
-            }
-
-            for (int i = 0; i < 5; i++) {
-                double iPreCal = _sq.GetIRMS();
-                updateOutputStatus(string.Format("IrmsPreCal{0} = {1:F8}", i, iPreCal));
-                Thread.Sleep(250);
+                string meter_load_voltage_str = _meter.Measure();
+                meter_load_voltage_str = _meter.Measure();
+                double meter_load_voltage = Double.Parse(meter_load_voltage_str);
+                updateOutputStatus(string.Format("Meter Load Voltage at {0:F8} V", meter_load_voltage));
             }
 
 
+            // IRMSPre_Cal
+            updateRunStatus("IRMSPre_Cal");
             double iRMSPreCal = _sq.GetIRMS();
-            // for hooktooth iRMSPreCal < 0.17 || iRMSPreCal > 0.3
+            // for hooktooth iRMSPreCal < 0.17 || iRMSPreCal > 0.4
             double lowlimit = 0.17;
-            double highlimit = 0.3;
+            double highlimit = 0.4;
             switch (board)
             {
-                case(CSSequencer.BoardTypes.Humpback):
+                case (powercal.BoardTypes.Humpback):
                     lowlimit = 0.08;
                     highlimit = 0.19;
                     break;
@@ -476,14 +482,6 @@ namespace powercal
 
             // VRMSPre_Cal
             updateRunStatus("VRMSPre_Cal");
-
-            for (int i = 0; i < 5; i++)
-            {
-                double vPreCal = _sq.GetVRMS();
-                updateOutputStatus(string.Format("VrmsPreCal = {0:F8}", vPreCal));
-                Thread.Sleep(250);
-            }
-
             double vRMSPreCal = _sq.GetVRMS();
             updateOutputStatus(string.Format("VrmsPreCal = {0:F8}", vRMSPreCal));
 
@@ -492,17 +490,17 @@ namespace powercal
             highlimit = 150;
             switch (board)
             {
-                case (CSSequencer.BoardTypes.Humpback):
+                case (powercal.BoardTypes.Humpback):
                     lowlimit = 200;
                     highlimit = 260;
                     break;
             }
-
             if (vRMSPreCal < lowlimit || vRMSPreCal > highlimit)
             {
                 msg = string.Format("Bad VrmsPreCal value:{0:F}", vRMSPreCal);
                 throw new Exception(msg);
             }
+            updateOutputStatus(string.Format("Power before calibration = {0:F8}", vRMSPreCal * iRMSPreCal));
 
             // IRMSMeasure
             updateRunStatus("IRMSMeasure");
@@ -516,16 +514,9 @@ namespace powercal
             else
             {
                 _meter.SetupForIAC();
-                for (int i = 0; i < 3; i++)
-                {
-                    string iac_str = _meter.Measure();
-                    double meter_irms = Double.Parse(iac_str);
-                    updateOutputStatus(string.Format("Meter Irms{0} = {1:F8}", i, meter_irms));
-                }
-
                 string iac_measurement = _meter.Measure();
+                iac_measurement = _meter.Measure();
                 iRMSMeasure = Double.Parse(iac_measurement);
-                Thread.Sleep(1000);
             }
             updateOutputStatus(string.Format("IrmsMeasure = {0:F8}", iRMSMeasure));
 
@@ -541,31 +532,25 @@ namespace powercal
             else
             {
                 _meter.SetupForVAC();
-
-                for (int i = 0; i < 3; i++)
-                {
-                    string vac_str = _meter.Measure();
-                    double meter_vrms = Double.Parse(vac_str);
-                    updateOutputStatus(string.Format("Meter Irms{0} = {1:F8}", i, meter_vrms));
-                }
-
                 string vac_measurement = _meter.Measure();
+                vac_measurement = _meter.Measure();
                 vRMSMeasure = Double.Parse(vac_measurement);
             }
             updateOutputStatus(string.Format("VrmsMeasure = {0:F8}", vRMSMeasure));
+            updateOutputStatus(string.Format("Power measured = {0:F8}", vRMSMeasure * iRMSMeasure));
 
             // IGainCal
             updateRunStatus("IGainCal");
-            double iRMSGain = iRMSMeasure / iRMSPreCal;
-            int iRMSGainInt = (int)(iRMSGain * 0x400000);
-            updateOutputStatus(string.Format("IrmsGain = {0:F8} (0x{1:X})", iRMSGain, iRMSGainInt));
+            double iGain = iRMSMeasure / iRMSPreCal;
+            int iRMSGainInt = (int)(iGain * 0x400000);
+            updateOutputStatus(string.Format("IrmsGain = {0:F8} (0x{1:X})", iGain, iRMSGainInt));
             _sq.IGainCal(iRMSGainInt);
 
             // VGainCal
             updateRunStatus("VGainCal");
-            double vRMSGain = vRMSMeasure / vRMSPreCal;
-            int vRMSGainInt = (int)(vRMSGain * 0x400000);
-            updateOutputStatus(string.Format("VrmsGain = {0:F8} (0x{1:X})", vRMSGain, vRMSGainInt));
+            double vGain = vRMSMeasure / vRMSPreCal;
+            int vRMSGainInt = (int)(vGain * 0x400000);
+            updateOutputStatus(string.Format("VrmsGain = {0:F8} (0x{1:X})", vGain, vRMSGainInt));
             _sq.VGainCal(vRMSGainInt);
 
             // IRMSNoLoad
@@ -604,8 +589,6 @@ namespace powercal
                 throw new Exception(msg);
             }
 
-            Thread.Sleep(1000);
-
             // VRMSAfter_Cal
             updateRunStatus("VRMSAfter_Cal");
             double vRMSAfterCal = _sq.GetVRMS();
@@ -619,31 +602,17 @@ namespace powercal
                 Debug.WriteLine(msg);
                 throw new Exception(msg);
             }
+            updateOutputStatus(string.Format("Power after calibration = {0:F8}", vRMSAfterCal * iRMSAfterCal));
 
-            // IGainAdj
-            updateRunStatus("IGainAdj");
-            double iRMSAdjust = iRMSGain * _sq.IRef;
-            int iAdjustInt = (int)(iRMSAdjust * 0x400000);
-            updateOutputStatus(string.Format("IrmsAdjust = {0:F8} (0x{1:X})", iRMSAdjust, iAdjustInt));
+            // IGain
+            updateRunStatus("IGain");
+            int iGaintInt = (int)(iGain * 0x400000);
+            updateOutputStatus(string.Format("IrmsAdjust = {0:F8} (0x{1:X})", iGain, iGaintInt));
 
-            // VGainAdj
+            // VGain
             updateRunStatus("VGainAdj");
-            double vRMSAdjust = vRMSGain * _sq.VRef;
-            int vAdjustInt = (int)(vRMSAdjust * 0x400000);
-            updateOutputStatus(string.Format("VrmsAdjust = {0:F8} (0x{1:X})", vRMSAdjust, vAdjustInt));
-
-            int n = 0;
-            while (this.toolStripMenuItemPowerMeter.CheckState == CheckState.Checked)
-            {
-                double v_cs = _sq.GetVRMS();
-                double i_cs = _sq.GetIRMS();
-                double power = v_cs * i_cs;
-
-                updateOutputStatus(string.Format("{0:F8} V * {1:F8} A = {2:F8} W", v_cs, i_cs, power));
-
-                if (n > 100)
-                    break;
-            }
+            int vGainInt = (int)(vGain * 0x400000);
+            updateOutputStatus(string.Format("VrmsAdjust = {0:F8} (0x{1:X})", vGain, vGainInt));
 
             // PatchingGain
             updateRunStatus("PatchingGain");
@@ -659,7 +628,7 @@ namespace powercal
             ember.BatchFilePath = _ember_batchfile_path;
             switch (board)
             {
-                case (CSSequencer.BoardTypes.Humpback):
+                case (powercal.BoardTypes.Humpback):
                     ember.VAdress = 0x08080980;
                     ember.IAdress = 0x08080984;
                     ember.RefereceAdress = 0x08080988;
@@ -670,14 +639,14 @@ namespace powercal
                     ember.IRefereceValue = 0x0F; // 15 A
 
                     break;
-                case (CSSequencer.BoardTypes.Hooktooth):
-                case (CSSequencer.BoardTypes.Milkshark):
+                case (powercal.BoardTypes.Hooktooth):
+                case (powercal.BoardTypes.Milkshark):
                     ember.VAdress = 0x08040980;
                     ember.IAdress = 0x08040984;
                     ember.ACOffsetAdress = 0x080409CC;
                     break;
             }
-            ember.CreateCalibrationPatchBath(vAdjustInt, iAdjustInt);
+            ember.CreateCalibrationPatchBath(vGainInt, iGaintInt);
 
             bool patchit_fail = false;
             string exception_msg = "";
@@ -819,7 +788,6 @@ namespace powercal
             FormCalculator dlg = new FormCalculator();
             dlg.ShowDialog();
         }
-
 
     }
 }
