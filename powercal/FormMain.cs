@@ -789,5 +789,11 @@ namespace powercal
             dlg.ShowDialog();
         }
 
+        private void toolStripMenuItemPowerMeter_Click(object sender, EventArgs e)
+        {
+            FormPowerMeter dlg = new FormPowerMeter();
+            dlg.Show();
+        }
+
     }
 }

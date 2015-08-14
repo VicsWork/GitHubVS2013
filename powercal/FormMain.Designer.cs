@@ -41,9 +41,9 @@
             this.serialToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.digitalOutputToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.calculatorToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.toolStripMenuItemPowerMeter = new System.Windows.Forms.ToolStripMenuItem();
             this.aboutToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.textBoxRunStatus = new System.Windows.Forms.TextBox();
-            this.toolStripMenuItemPowerMeter = new System.Windows.Forms.ToolStripMenuItem();
             this.contextMenuStatusTextBox.SuspendLayout();
             this.menuStripMain.SuspendLayout();
             this.SuspendLayout();
@@ -157,6 +157,13 @@
             this.calculatorToolStripMenuItem.Text = "&Calculator";
             this.calculatorToolStripMenuItem.Click += new System.EventHandler(this.calculatorToolStripMenuItem_Click);
             // 
+            // toolStripMenuItemPowerMeter
+            // 
+            this.toolStripMenuItemPowerMeter.Name = "toolStripMenuItemPowerMeter";
+            this.toolStripMenuItemPowerMeter.Size = new System.Drawing.Size(152, 22);
+            this.toolStripMenuItemPowerMeter.Text = "Power Meter";
+            this.toolStripMenuItemPowerMeter.Click += new System.EventHandler(this.toolStripMenuItemPowerMeter_Click);
+            // 
             // aboutToolStripMenuItem
             // 
             this.aboutToolStripMenuItem.Name = "aboutToolStripMenuItem";
@@ -174,12 +181,6 @@
             this.textBoxRunStatus.TabIndex = 10;
             this.textBoxRunStatus.Text = "test";
             this.textBoxRunStatus.WordWrap = false;
-            // 
-            // toolStripMenuItemPowerMeter
-            // 
-            this.toolStripMenuItemPowerMeter.Name = "toolStripMenuItemPowerMeter";
-            this.toolStripMenuItemPowerMeter.Size = new System.Drawing.Size(152, 22);
-            this.toolStripMenuItemPowerMeter.Text = "Power Meter";
             // 
             // FormMain
             // 

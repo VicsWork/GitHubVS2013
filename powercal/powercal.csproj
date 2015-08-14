@@ -112,6 +112,12 @@
     <Compile Include="FormEnterMeasurement.Designer.cs">
       <DependentUpon>FormEnterMeasurement.cs</DependentUpon>
     </Compile>
+    <Compile Include="FormPowerMeter.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="FormPowerMeter.Designer.cs">
+      <DependentUpon>FormPowerMeter.cs</DependentUpon>
+    </Compile>
     <Compile Include="FormSettings.cs">
       <SubType>Form</SubType>
     </Compile>
@@ -148,6 +154,9 @@
     </EmbeddedResource>
     <EmbeddedResource Include="FormEnterMeasurement.resx">
       <DependentUpon>FormEnterMeasurement.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="FormPowerMeter.resx">
+      <DependentUpon>FormPowerMeter.cs</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="FormSettings.resx">
       <DependentUpon>FormSettings.cs</DependentUpon>
