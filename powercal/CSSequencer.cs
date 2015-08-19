@@ -65,6 +65,7 @@ namespace powercal
         /// </summary>
         public void Init()
         {
+            // Read Page 0 Addr 0 (80 00) deault value = C0 20 00
             byte[] tx_data = StrToBytes("80 40 20 20 C0");   // I gain 50X
             _cscommander.Send(tx_data);
 

@@ -130,5 +130,17 @@ namespace powercal.Properties {
                 this["Ember_BinPath"] = value;
             }
         }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("True")]
+        public bool Calibrate_With_Ember {
+            get {
+                return ((bool)(this["Calibrate_With_Ember"]));
+            }
+            set {
+                this["Calibrate_With_Ember"] = value;
+            }
+        }
     }
 }

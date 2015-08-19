@@ -18,7 +18,7 @@ using NationalInstruments.DAQmx;
 
 namespace powercal
 {
-    enum BoardTypes { Humpback, Hooktooth, Milkshark };
+    enum BoardTypes { Zebrashark, Humpback, Hooktooth, Milkshark };
 
     public partial class FormMain : Form
     {
@@ -30,6 +30,14 @@ namespace powercal
 
         string _log_file = Path.Combine(_app_data_dir, "runlog.txt");
         string _ember_batchfile_path = Path.Combine(_app_data_dir, "patchit.bat");
+
+        double _voltage_low_limit = 0.0;
+        double _voltage_high_limit = 0.0;
+        double _voltage_reference = 0.0;
+        double _current_reference = 0.0;
+
+        string _cmd_prefix;
+
 
         delegate void SetTextCallback();
 
@@ -333,7 +341,7 @@ namespace powercal
             {
                 Stopwatch stopWatch = new Stopwatch();
                 stopWatch.Start();
-                calibrate();
+                calibrate_using_cirrus();
                 stopWatch.Stop();
                 TimeSpan ts = stopWatch.Elapsed;
                 // Format and display the TimeSpan value. 
@@ -371,15 +379,48 @@ namespace powercal
             this.textBoxOutputStatus.Clear();
         }
 
-        private void calibrate()
+        private void set_board_calibration_values()
         {
+            powercal.BoardTypes board_type = (powercal.BoardTypes)Enum.Parse(typeof(powercal.BoardTypes), comboBoxBoardTypes.Text);
+            switch (board_type)
+            {
+                case BoardTypes.Humpback:
+                    _voltage_high_limit = 260;
+                    _voltage_low_limit = 200;
+                    _voltage_reference = 240;
+                    _current_reference = 15;
+                    _cmd_prefix = "cs5490";
+                    break;
+                case BoardTypes.Zebrashark:
+                    _voltage_high_limit = 130;
+                    _voltage_low_limit = 80;
+                    _voltage_reference = 120;
+                    _current_reference = 15;
+                    _cmd_prefix = "cs5480";
+                    break;
+                default:
+                    _cmd_prefix = "cs5490";
+                    _voltage_high_limit = 130;
+                    _voltage_low_limit = 80;
+                    _voltage_reference = 120;
+                    _current_reference = 15;
+                    break;
+            }
+
+
+        }
+
+        private void calibrate_using_cirrus()
+        {
+
+            set_board_calibration_values();
 
             bool manual_measure = Properties.Settings.Default.Meter_Manual_Measurement;
 
             string msg;
             updateOutputStatus("===============================Start Calibration==============================");
             string csPortName = Properties.Settings.Default.CS_COM_Port_Name;
-            powercal.BoardTypes board = (powercal.BoardTypes)Enum.Parse(typeof(powercal.BoardTypes), comboBoxBoardTypes.Text);
+            powercal.BoardTypes board_type = (powercal.BoardTypes)Enum.Parse(typeof(powercal.BoardTypes), comboBoxBoardTypes.Text);
             _sq = new CSSequencer(csPortName);
 
             // Setup multi-meter
@@ -463,7 +504,7 @@ namespace powercal
             // for hooktooth iRMSPreCal < 0.17 || iRMSPreCal > 0.4
             double lowlimit = 0.17;
             double highlimit = 0.4;
-            switch (board)
+            switch (board_type)
             {
                 case (powercal.BoardTypes.Humpback):
                     lowlimit = 0.08;
@@ -485,17 +526,7 @@ namespace powercal
             double vRMSPreCal = _sq.GetVRMS();
             updateOutputStatus(string.Format("VrmsPreCal = {0:F8}", vRMSPreCal));
 
-            // Hooktooth (vRMSPreCal < 100 || vRMSPreCal > 150)
-            lowlimit = 100;
-            highlimit = 150;
-            switch (board)
-            {
-                case (powercal.BoardTypes.Humpback):
-                    lowlimit = 200;
-                    highlimit = 260;
-                    break;
-            }
-            if (vRMSPreCal < lowlimit || vRMSPreCal > highlimit)
+            if (vRMSPreCal < _voltage_low_limit || vRMSPreCal > _voltage_high_limit)
             {
                 msg = string.Format("Bad VrmsPreCal value:{0:F}", vRMSPreCal);
                 throw new Exception(msg);
@@ -626,7 +657,7 @@ namespace powercal
             Ember ember = new Ember();
             ember.EmberBinPath = Properties.Settings.Default.Ember_BinPath;
             ember.BatchFilePath = _ember_batchfile_path;
-            switch (board)
+            switch (board_type)
             {
                 case (powercal.BoardTypes.Humpback):
                     ember.VAdress = 0x08080980;
@@ -634,16 +665,20 @@ namespace powercal
                     ember.RefereceAdress = 0x08080988;
                     ember.ACOffsetAdress = 0x080809CC;
 
-                    // TODO:  Need to do the same for 120 V (Hookt0oth)
                     ember.VRefereceValue = 0xF0; // 240 V
                     ember.IRefereceValue = 0x0F; // 15 A
 
                     break;
+                case (powercal.BoardTypes.Zebrashark):
                 case (powercal.BoardTypes.Hooktooth):
                 case (powercal.BoardTypes.Milkshark):
                     ember.VAdress = 0x08040980;
                     ember.IAdress = 0x08040984;
                     ember.ACOffsetAdress = 0x080409CC;
+
+                    ember.VRefereceValue = 0x78; // 120 V
+                    ember.IRefereceValue = 0x0F; // 15 A
+
                     break;
             }
             ember.CreateCalibrationPatchBath(vGainInt, iGaintInt);
@@ -718,6 +753,53 @@ namespace powercal
             }
         }
 
+
+        private void calibrate_using_ember()
+        {
+            // Set power to external on ember
+            set_board_calibration_values();
+
+            bool manual_measure = Properties.Settings.Default.Meter_Manual_Measurement;
+
+            string msg;
+            updateOutputStatus("===============================Start Calibration==============================");
+            powercal.BoardTypes board = (powercal.BoardTypes)Enum.Parse(typeof(powercal.BoardTypes), comboBoxBoardTypes.Text);
+
+            // Setup multi-meter
+            string meterPortName = Properties.Settings.Default.Meter_COM_Port_Name;
+            _meter = new MultiMeter(meterPortName);
+            if (!manual_measure)
+            {
+                updateRunStatus("Setup multi-meter");
+                _meter.OpenComPort();
+                _meter.SetToRemote();
+                _meter.ClearError();
+                string idn = _meter.IDN();
+            }
+
+            //create a new telnet connection
+            TelnetConnection tc = new TelnetConnection("localhost", 4900);
+            string datain = tc.Read();
+
+            bool manual_relay = Properties.Settings.Default.Manual_Relay_Control;
+            if (manual_relay)
+                _relay_ctrl.Disable = true;
+            _relay_ctrl.Ember = true;
+            _relay_ctrl.Load = false;
+            _relay_ctrl.Reset = false;
+            _relay_ctrl.AC_Power = true;
+            relaysSet(_relay_ctrl);
+            Thread.Sleep(1000);
+
+
+
+            // Set gain to 1
+            string msg = patch(board_type, 0x400000, 0x400000);
+            Thread.Sleep(2000);
+            datain = tc.Read();
+
+        }
+
         /// <summary>
         /// Invokes the DIO test dialog
         /// </summary>
@@ -740,6 +822,8 @@ namespace powercal
             FormSettings dlg = new FormSettings();
 
             // COM ports
+            dlg.checkBoxUseEmber.Checked = Properties.Settings.Default.Calibrate_With_Ember;
+
             dlg.TextBoxCirrusCOM.Text = Properties.Settings.Default.CS_COM_Port_Name;
 
             dlg.TextBoxMeterCOM.Text = Properties.Settings.Default.Meter_COM_Port_Name;
@@ -762,6 +846,8 @@ namespace powercal
             if (rc == DialogResult.OK)
             {
                 // COM ports
+                Properties.Settings.Default.Calibrate_With_Ember = dlg.checkBoxUseEmber.Checked;
+
                 Properties.Settings.Default.CS_COM_Port_Name = dlg.TextBoxCirrusCOM.Text;
 
                 Properties.Settings.Default.Meter_COM_Port_Name = dlg.TextBoxMeterCOM.Text;

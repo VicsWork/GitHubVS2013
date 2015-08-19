@@ -51,6 +51,7 @@
             this.TextBoxEmberBinPath = new System.Windows.Forms.TextBox();
             this.label7 = new System.Windows.Forms.Label();
             this.buttonEmberBinPathBrowse = new System.Windows.Forms.Button();
+            this.checkBoxUseEmber = new System.Windows.Forms.CheckBox();
             this.groupBox1.SuspendLayout();
             this.groupBoxDIO.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.NumericUpDownEmber)).BeginInit();
@@ -95,6 +96,7 @@
             // 
             // groupBox1
             // 
+            this.groupBox1.Controls.Add(this.checkBoxUseEmber);
             this.groupBox1.Controls.Add(this.CheckBoxManualMultiMeter);
             this.groupBox1.Controls.Add(this.label1);
             this.groupBox1.Controls.Add(this.TextBoxMeterCOM);
@@ -277,6 +279,16 @@
             this.buttonEmberBinPathBrowse.UseVisualStyleBackColor = true;
             this.buttonEmberBinPathBrowse.Click += new System.EventHandler(this.buttonEmberBinPathBrowse_Click);
             // 
+            // checkBoxUseEmber
+            // 
+            this.checkBoxUseEmber.AutoSize = true;
+            this.checkBoxUseEmber.Location = new System.Drawing.Point(156, 25);
+            this.checkBoxUseEmber.Name = "checkBoxUseEmber";
+            this.checkBoxUseEmber.Size = new System.Drawing.Size(56, 17);
+            this.checkBoxUseEmber.TabIndex = 7;
+            this.checkBoxUseEmber.Text = "Ember";
+            this.checkBoxUseEmber.UseVisualStyleBackColor = true;
+            // 
             // FormSettings
             // 
             this.AcceptButton = this.buttonOK;
@@ -333,5 +345,6 @@
         private System.Windows.Forms.Label label7;
         public System.Windows.Forms.TextBox TextBoxEmberBinPath;
         private System.Windows.Forms.Button buttonEmberBinPathBrowse;
+        public System.Windows.Forms.CheckBox checkBoxUseEmber;
     }
 }

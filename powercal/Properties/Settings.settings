@@ -29,5 +29,8 @@
     <Setting Name="Ember_BinPath" Type="System.String" Scope="User">
       <Value Profile="(Default)">C:\Program Files (x86)\Ember\ISA3 Utilities\bin</Value>
     </Setting>
+    <Setting Name="Calibrate_With_Ember" Type="System.Boolean" Scope="User">
+      <Value Profile="(Default)">True</Value>
+    </Setting>
   </Settings>
 </SettingsFile>
