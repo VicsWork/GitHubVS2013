@@ -12,13 +12,13 @@ using System.IO.Ports;
 using System.Collections;
 using System.Threading;
 
-
+using MinimalisticTelnet;
 using NationalInstruments;
 using NationalInstruments.DAQmx;
 
 namespace powercal
 {
-    enum BoardTypes { Zebrashark, Humpback, Hooktooth, Milkshark };
+    enum BoardTypes { Humpback, Hooktooth, Milkshark, Zebrashark };
 
     public partial class FormMain : Form
     {
@@ -39,7 +39,7 @@ namespace powercal
         string _cmd_prefix;
 
 
-        delegate void SetTextCallback();
+        delegate void SetTextCallback(string txt);
 
 
         public FormMain()
@@ -196,19 +196,24 @@ namespace powercal
             this.textBoxRunStatus.Clear();
         }
 
-        private void setText()
+        /// <summary>
+        /// Make thread safe call to update status text box
+        /// </summary>
+        /// <param name="txt"></param>
+        private void setOutputStatus(string txt)
         {
             if (this.textBoxOutputStatus.InvokeRequired)
             {
-                SetTextCallback d = new SetTextCallback(setText);
+                SetTextCallback d = new SetTextCallback(setOutputStatus);
                 try
                 {
-                    this.Invoke(d);
+                    this.Invoke(d, new object[]{txt});
                 }
                 catch { }
             }
             else
             {
+                updateOutputStatus(txt);
             }
         }
 
@@ -341,7 +346,16 @@ namespace powercal
             {
                 Stopwatch stopWatch = new Stopwatch();
                 stopWatch.Start();
-                calibrate_using_cirrus();
+
+                bool run_using_ember = Properties.Settings.Default.Calibrate_With_Ember;
+                if (run_using_ember)
+                {
+                    calibrate_using_ember();
+                }
+                else
+                {
+                    calibrate_using_cirrus();
+                }
                 stopWatch.Stop();
                 TimeSpan ts = stopWatch.Elapsed;
                 // Format and display the TimeSpan value. 
@@ -758,12 +772,11 @@ namespace powercal
         {
             // Set power to external on ember
             set_board_calibration_values();
-
             bool manual_measure = Properties.Settings.Default.Meter_Manual_Measurement;
+            powercal.BoardTypes board_type = (powercal.BoardTypes)Enum.Parse(typeof(powercal.BoardTypes), comboBoxBoardTypes.Text);
 
             string msg;
             updateOutputStatus("===============================Start Calibration==============================");
-            powercal.BoardTypes board = (powercal.BoardTypes)Enum.Parse(typeof(powercal.BoardTypes), comboBoxBoardTypes.Text);
 
             // Setup multi-meter
             string meterPortName = Properties.Settings.Default.Meter_COM_Port_Name;
@@ -777,6 +790,60 @@ namespace powercal
                 string idn = _meter.IDN();
             }
 
+            updateRunStatus("Setup Ember usb id");
+            Process p_ember_usb = new Process()
+            {
+                StartInfo = new ProcessStartInfo()
+                {
+                    FileName = Path.Combine(Properties.Settings.Default.Ember_BinPath, "em3xx_load.exe"),
+                    Arguments = "--usb 0",
+
+                    UseShellExecute = false,
+                    CreateNoWindow = true,
+                    RedirectStandardInput = true,
+                    RedirectStandardOutput = true,
+                    RedirectStandardError = true,
+                }
+            };
+
+            p_ember_usb.Start();
+            p_ember_usb.WaitForExit();
+            string output = p_ember_usb.StandardOutput.ReadToEnd();
+            int rc = p_ember_usb.ExitCode;
+            if (rc != 0)
+            {
+                msg = string.Format("{0} [1} returned {2}\r\n", p_ember_usb.StartInfo.FileName, p_ember_usb.StartInfo.Arguments, rc);
+                string error = p_ember_usb.StandardError.ReadToEnd();
+                msg += error;
+                throw new Exception(msg);
+            }
+            p_ember_usb.Dispose();
+            updateOutputStatus(output);
+
+            updateRunStatus("Sart Ember isachan");
+            Process p_ember_isachan = new Process()
+            {
+                StartInfo = new ProcessStartInfo()
+                {
+                    FileName = Path.Combine(Properties.Settings.Default.Ember_BinPath, "em3xx_load.exe"),
+                    Arguments = "--isachan=all",
+
+                    UseShellExecute = false,
+                    CreateNoWindow = true,
+                    RedirectStandardOutput = true,
+                    RedirectStandardError = true,
+                }
+            };
+
+            p_ember_isachan.EnableRaisingEvents = true;
+            p_ember_isachan.OutputDataReceived += p_ember_isachan_OutputDataReceived;
+            p_ember_isachan.ErrorDataReceived += p_ember_isachan_ErrorDataReceived;
+            p_ember_isachan.Start();
+            p_ember_isachan.BeginOutputReadLine();
+            p_ember_isachan.BeginErrorReadLine();
+
+
+            updateRunStatus("Start telnet");
             //create a new telnet connection
             TelnetConnection tc = new TelnetConnection("localhost", 4900);
             string datain = tc.Read();
@@ -791,15 +858,124 @@ namespace powercal
             relaysSet(_relay_ctrl);
             Thread.Sleep(1000);
 
-
-
             // Set gain to 1
-            string msg = patch(board_type, 0x400000, 0x400000);
+            updateRunStatus("Patch Gain to 1");
+            msg = patch(board_type, 0x400000, 0x400000);
+            updateOutputStatus(msg);
             Thread.Sleep(2000);
             datain = tc.Read();
+            updateOutputStatus(datain);
+
+            updateRunStatus("Close telnet");
+            tc.Close();
+
+            updateRunStatus("Close Ember isachan");
+            p_ember_isachan.Close();
 
         }
 
+        void p_ember_isachan_ErrorDataReceived(object sender, DataReceivedEventArgs e)
+        {
+            string str = "Error: " + e.Data;
+            setOutputStatus(str);
+        }
+
+        void p_ember_isachan_OutputDataReceived(object sender, DataReceivedEventArgs e)
+        {
+            string str = e.Data;
+            setOutputStatus(str);
+
+        }
+
+        /// <summary>
+        /// Patches the flash with calibration tokens
+        /// </summary>
+        /// <param name="board_type"></param>
+        /// <param name="voltage_gain"></param>
+        /// <param name="current_gain"></param>
+        /// <returns></returns>
+        string patch(BoardTypes board_type, int voltage_gain, int current_gain)
+        {
+            Ember ember = new Ember();
+            ember.EmberBinPath = Properties.Settings.Default.Ember_BinPath;
+            ember.BatchFilePath = _ember_batchfile_path;
+            switch (board_type)
+            {
+                case (powercal.BoardTypes.Humpback):
+                    ember.VAdress = 0x08080980;
+                    ember.IAdress = 0x08080984;
+                    ember.RefereceAdress = 0x08080988;
+                    ember.ACOffsetAdress = 0x080809CC;
+
+                    ember.VRefereceValue = 0xF0; // 240 V
+                    ember.IRefereceValue = 0x0F; // 15 A
+
+                    break;
+                case (powercal.BoardTypes.Zebrashark):
+                case (powercal.BoardTypes.Hooktooth):
+                case (powercal.BoardTypes.Milkshark):
+                    ember.VAdress = 0x08040980;
+                    ember.IAdress = 0x08040984;
+                    ember.ACOffsetAdress = 0x080409CC;
+
+                    ember.VRefereceValue = 0x78; // 120 V
+                    ember.IRefereceValue = 0x0F; // 15 A
+
+                    break;
+            }
+            ember.CreateCalibrationPatchBath(voltage_gain, current_gain);
+
+            bool patchit_fail = false;
+            string exception_msg = "";
+            string coding_output = "";
+            // Retry patch loop if fail
+            while (true)
+            {
+                patchit_fail = false;
+                exception_msg = "";
+                coding_output = "";
+                try
+                {
+                    string output = ember.RunCalibrationPatchBatch();
+                    if (output.Contains("ERROR:"))
+                    {
+                        patchit_fail = true;
+                        exception_msg = "Patching error detected:\r\n";
+                        exception_msg += output;
+                    }
+                    coding_output = output;
+                }
+                catch (Exception e)
+                {
+                    patchit_fail = true;
+                    exception_msg = "Patching exception detected:\r\n";
+                    exception_msg += e.Message;
+                }
+
+                if (patchit_fail)
+                {
+                    string retry_err_msg = exception_msg;
+                    int max_len = 1000;
+                    if (retry_err_msg.Length > max_len)
+                        retry_err_msg = retry_err_msg.Substring(0, max_len) + "...";
+                    DialogResult dlg_rc = MessageBox.Show(retry_err_msg, "Patching fail", MessageBoxButtons.RetryCancel);
+                    if (dlg_rc == System.Windows.Forms.DialogResult.Cancel)
+                        break;
+                }
+                else
+                {
+                    break;
+                }
+
+            }
+
+            if (patchit_fail)
+            {
+                throw new Exception(exception_msg);
+            }
+
+            return coding_output;
+        }
         /// <summary>
         /// Invokes the DIO test dialog
         /// </summary>

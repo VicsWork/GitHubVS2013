@@ -34,6 +34,7 @@
             this.TextBoxMeterCOM = new System.Windows.Forms.TextBox();
             this.label2 = new System.Windows.Forms.Label();
             this.groupBox1 = new System.Windows.Forms.GroupBox();
+            this.checkBoxUseEmber = new System.Windows.Forms.CheckBox();
             this.CheckBoxManualMultiMeter = new System.Windows.Forms.CheckBox();
             this.buttonOK = new System.Windows.Forms.Button();
             this.buttonCancel = new System.Windows.Forms.Button();
@@ -51,7 +52,6 @@
             this.TextBoxEmberBinPath = new System.Windows.Forms.TextBox();
             this.label7 = new System.Windows.Forms.Label();
             this.buttonEmberBinPathBrowse = new System.Windows.Forms.Button();
-            this.checkBoxUseEmber = new System.Windows.Forms.CheckBox();
             this.groupBox1.SuspendLayout();
             this.groupBoxDIO.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.NumericUpDownEmber)).BeginInit();
@@ -109,6 +109,16 @@
             this.groupBox1.TabStop = false;
             this.groupBox1.Text = "Comunications";
             // 
+            // checkBoxUseEmber
+            // 
+            this.checkBoxUseEmber.AutoSize = true;
+            this.checkBoxUseEmber.Location = new System.Drawing.Point(156, 25);
+            this.checkBoxUseEmber.Name = "checkBoxUseEmber";
+            this.checkBoxUseEmber.Size = new System.Drawing.Size(56, 17);
+            this.checkBoxUseEmber.TabIndex = 7;
+            this.checkBoxUseEmber.Text = "Ember";
+            this.checkBoxUseEmber.UseVisualStyleBackColor = true;
+            // 
             // CheckBoxManualMultiMeter
             // 
             this.CheckBoxManualMultiMeter.AutoSize = true;
@@ -160,6 +170,8 @@
             // checkBoxDisableDIO
             // 
             this.checkBoxDisableDIO.AutoSize = true;
+            this.checkBoxDisableDIO.Checked = true;
+            this.checkBoxDisableDIO.CheckState = System.Windows.Forms.CheckState.Checked;
             this.checkBoxDisableDIO.Location = new System.Drawing.Point(19, 25);
             this.checkBoxDisableDIO.Name = "checkBoxDisableDIO";
             this.checkBoxDisableDIO.Size = new System.Drawing.Size(61, 17);
@@ -278,16 +290,6 @@
             this.buttonEmberBinPathBrowse.Text = "&Browse";
             this.buttonEmberBinPathBrowse.UseVisualStyleBackColor = true;
             this.buttonEmberBinPathBrowse.Click += new System.EventHandler(this.buttonEmberBinPathBrowse_Click);
-            // 
-            // checkBoxUseEmber
-            // 
-            this.checkBoxUseEmber.AutoSize = true;
-            this.checkBoxUseEmber.Location = new System.Drawing.Point(156, 25);
-            this.checkBoxUseEmber.Name = "checkBoxUseEmber";
-            this.checkBoxUseEmber.Size = new System.Drawing.Size(56, 17);
-            this.checkBoxUseEmber.TabIndex = 7;
-            this.checkBoxUseEmber.Text = "Ember";
-            this.checkBoxUseEmber.UseVisualStyleBackColor = true;
             // 
             // FormSettings
             // 
