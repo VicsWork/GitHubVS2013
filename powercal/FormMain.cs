@@ -11,6 +11,7 @@ using System.IO;
 using System.IO.Ports;
 using System.Collections;
 using System.Threading;
+using System.Text.RegularExpressions;
 
 using MinimalisticTelnet;
 using NationalInstruments;
@@ -36,8 +37,17 @@ namespace powercal
         double _voltage_reference = 0.0;
         double _current_reference = 0.0;
 
-        string _cmd_prefix;
+        public struct CS_Current_Voltage
+        {
+            public double Current;
+            public double Voltage;
 
+            public CS_Current_Voltage(double i, double v)
+            {
+                Current = i;
+                Voltage = v;
+            }
+        }
 
         delegate void SetTextCallback(string txt);
 
@@ -207,7 +217,7 @@ namespace powercal
                 SetTextCallback d = new SetTextCallback(setOutputStatus);
                 try
                 {
-                    this.Invoke(d, new object[]{txt});
+                    this.Invoke(d, new object[] { txt });
                 }
                 catch { }
             }
@@ -362,6 +372,13 @@ namespace powercal
                 string elapsedTime = String.Format("Elaspsed time {0:00} seconds", ts.Seconds);
                 updateOutputStatus(elapsedTime);
 
+                if (_sq != null)
+                    _sq.CloseSerialPort();
+
+                if (_meter != null)
+                    _meter.CloseSerialPort();
+
+
             }
             catch (Exception ex)
             {
@@ -403,25 +420,20 @@ namespace powercal
                     _voltage_low_limit = 200;
                     _voltage_reference = 240;
                     _current_reference = 15;
-                    _cmd_prefix = "cs5490";
                     break;
                 case BoardTypes.Zebrashark:
                     _voltage_high_limit = 130;
                     _voltage_low_limit = 80;
                     _voltage_reference = 120;
                     _current_reference = 15;
-                    _cmd_prefix = "cs5480";
                     break;
                 default:
-                    _cmd_prefix = "cs5490";
                     _voltage_high_limit = 130;
                     _voltage_low_limit = 80;
                     _voltage_reference = 120;
                     _current_reference = 15;
                     break;
             }
-
-
         }
 
         private void calibrate_using_cirrus()
@@ -817,7 +829,7 @@ namespace powercal
                 msg += error;
                 throw new Exception(msg);
             }
-            p_ember_usb.Dispose();
+            p_ember_usb.Close();
             updateOutputStatus(output);
 
             updateRunStatus("Sart Ember isachan");
@@ -866,13 +878,134 @@ namespace powercal
             datain = tc.Read();
             updateOutputStatus(datain);
 
+            // Close UUT relay
+            updateRunStatus("Close UUT Relay");
+            tc.WriteLine("write 1 6 0 1 0x10 {01}");
+            Thread.Sleep(1000);
+            datain = tc.Read();
+            updateOutputStatus(datain);
+
+            int i = 0;
+            while (true)
+            {
+                CS_Current_Voltage cv = ember_parse_pinfo_registers(tc, board_type);
+                msg = string.Format("Cirrus I = {0:F8}, V = {1:F8}, P = {2:F8}", cv.Current, cv.Voltage, cv.Current * cv.Voltage);
+                updateOutputStatus(msg);
+                i++;
+                if (i > 10)
+                    break;
+            }
+
+            if (_meter != null)
+                _meter.CloseSerialPort();
+
             updateRunStatus("Close telnet");
             tc.Close();
 
             updateRunStatus("Close Ember isachan");
             p_ember_isachan.Close();
 
+
         }
+
+        CS_Current_Voltage ember_parse_pinfo_registers(TelnetConnection tc, BoardTypes board_type)
+        {
+            string cmd_prefix = "cs5490"; // UART interface
+            switch (board_type)
+            {
+                case BoardTypes.Humpback:
+                case BoardTypes.Hooktooth:
+                case BoardTypes.Milkshark:
+                    cmd_prefix = "cs5490"; // UART interface
+                    break;
+                case BoardTypes.Zebrashark:
+                    cmd_prefix = "cs5480";  // SPI interface
+                    break;
+            }
+
+            string rawCurrentPattern = "Raw IRMS: ([0-9,A-F]{8})";
+            string rawVoltagePattern = "Raw VRMS: ([0-9,A-F]{8})";
+            double current_cs = 0.0;
+            double voltage_cs = 0.0;
+
+            tc.WriteLine(string.Format("cu {0}_pload", cmd_prefix));
+            Thread.Sleep(500);
+            string datain = tc.Read();
+            Debug.WriteLine(datain);
+            string msg;
+            if (datain.Length > 0)
+            {
+                Match on_off_match = Regex.Match(datain, "Changing OnOff .*");
+                if (on_off_match.Success)
+                {
+                    msg = on_off_match.Value;
+                    updateOutputStatus(msg);
+                }
+
+                Match match = Regex.Match(datain, rawCurrentPattern);
+                if (match.Groups.Count != 2)
+                {
+                    msg = string.Format("Unable to parse pinfo for current.  Output was:{0}", datain);
+                    throw new Exception(msg);
+                }
+
+                string current_hexstr = match.Groups[1].Value;
+                int current_int = Convert.ToInt32(current_hexstr, 16);
+                current_cs = RegHex_ToDouble(current_int);
+                current_cs = current_cs * _current_reference / 0.6;
+
+                voltage_cs = 0.0;
+                match = Regex.Match(datain, rawVoltagePattern);
+                if (match.Groups.Count != 2)
+                {
+                    msg = string.Format("Unable to parse pinfo for voltage.  Output was:{0}", datain);
+                    throw new Exception(msg);
+                }
+
+                string voltage_hexstr = match.Groups[1].Value;
+                int volatge_int = Convert.ToInt32(voltage_hexstr, 16);
+                voltage_cs = RegHex_ToDouble(volatge_int);
+                voltage_cs = voltage_cs * _voltage_reference / 0.6;
+
+            }
+
+            CS_Current_Voltage current_voltage = new CS_Current_Voltage(current_cs, voltage_cs);
+            return current_voltage;
+        }
+
+        /// <summary>
+        /// Converts a 24bit hex (3 bytes) CS register value to a double
+        /// </summary>
+        /// <example>
+        /// byte[] rx_data = new byte[3];
+        /// rx_data[2] = 0x5c;
+        /// rx_data[1] = 0x28;
+        /// rx_data[0] = 0xf6;
+        /// Should return midrange =~ 0.36
+        /// </example>
+        /// <param name="rx_data">data byte array byte[2] <=> MSB ... byte[0] <=> LSB</param>
+        /// <returns>range 0 <= value < 1.0</returns>
+        private static double RegHex_ToDouble(int data)
+        {
+            // Maximum 1 =~ 0xFFFFFF
+            // Max rms 0.6 =~ 0x999999
+            // Half rms 0.36 =~ 0x5C28F6
+            double value = ((double)data) / 0x1000000; // 2^24
+            return value;
+        }
+
+        /// <summary>
+        /// Converts a hex string (3 bytes) CS register vaue to a double
+        /// </summary>
+        /// <param name="hexstr"></param>
+        /// <returns>range 0 <= value < 1.0</returns>
+        /// <seealso cref="double RegHex_ToDouble(int data)"/>
+        private static double RegHex_ToDouble(string hexstr)
+        {
+            int val_int = Convert.ToInt32(hexstr, 16);
+            return RegHex_ToDouble(val_int); ;
+        }
+
 
         void p_ember_isachan_ErrorDataReceived(object sender, DataReceivedEventArgs e)
         {
