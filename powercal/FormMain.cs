@@ -39,7 +39,9 @@ namespace powercal
         double _voltage_reference = 0.0;
         double _current_reference = 0.0;
 
-        string _cmd_prefix; 
+        string _cmd_prefix;
+
+        Process _p_ember_isachan;
 
 
         public struct CS_Current_Voltage
@@ -393,6 +395,14 @@ namespace powercal
                 if (_meter != null)
                     _meter.CloseSerialPort();
 
+                if (_p_ember_isachan != null)
+                    _p_ember_isachan.Close();
+
+                Process[] processes = System.Diagnostics.Process.GetProcessesByName("em3xx_load");
+                foreach (Process process in processes)
+                {
+                    process.Kill();
+                }
 
             }
             catch (Exception ex)
@@ -447,7 +457,7 @@ namespace powercal
                     voltage_load = 240;
                     current_load = voltage_load/2000; // 2K Ohms
                     voltage_delta = voltage_load * 0.3;
-                    current_delta = current_load * 0.3;
+                    current_delta = current_load * 0.4;
                     break;
                 case BoardTypes.Zebrashark:
                     _cmd_prefix = "cs5480";  // SPI interface
@@ -864,38 +874,38 @@ namespace powercal
             relaysSet(_relay_ctrl);
 
             // I'm not sure we need to do this all the time
-            updateRunStatus("Setup Ember usb id");
-            Process p_ember_usb = new Process()
-            {
-                StartInfo = new ProcessStartInfo()
-                {
-                    FileName = Path.Combine(Properties.Settings.Default.Ember_BinPath, "em3xx_load.exe"),
-                    Arguments = "--usb 0",
+            //updateRunStatus("Setup Ember usb id");
+            //Process p_ember_usb = new Process()
+            //{
+            //    StartInfo = new ProcessStartInfo()
+            //    {
+            //        FileName = Path.Combine(Properties.Settings.Default.Ember_BinPath, "em3xx_load.exe"),
+            //        Arguments = "--usb 0",
 
-                    UseShellExecute = false,
-                    CreateNoWindow = true,
-                    RedirectStandardInput = true,
-                    RedirectStandardOutput = true,
-                    RedirectStandardError = true,
-                }
-            };
-            p_ember_usb.Start();
-            p_ember_usb.WaitForExit();
-            string output = p_ember_usb.StandardOutput.ReadToEnd();
-            int rc = p_ember_usb.ExitCode;
-            if (rc != 0)
-            {
-                msg = string.Format("{0} [1} returned {2}\r\n", p_ember_usb.StartInfo.FileName, p_ember_usb.StartInfo.Arguments, rc);
-                string error = p_ember_usb.StandardError.ReadToEnd();
-                msg += error;
-                throw new Exception(msg);
-            }
-            p_ember_usb.Close();
-            debugLog(output);
+            //        UseShellExecute = false,
+            //        CreateNoWindow = true,
+            //        RedirectStandardInput = true,
+            //        RedirectStandardOutput = true,
+            //        RedirectStandardError = true,
+            //    }
+            //};
+            //p_ember_usb.Start();
+            //p_ember_usb.WaitForExit();
+            //string output = p_ember_usb.StandardOutput.ReadToEnd();
+            //int rc = p_ember_usb.ExitCode;
+            //if (rc != 0)
+            //{
+            //    msg = string.Format("{0} [1} returned {2}\r\n", p_ember_usb.StartInfo.FileName, p_ember_usb.StartInfo.Arguments, rc);
+            //    string error = p_ember_usb.StandardError.ReadToEnd();
+            //    msg += error;
+            //    throw new Exception(msg);
+            //}
+            //p_ember_usb.Close();
+            //debugLog(output);
 
             // Opem Ember isa channels
             updateRunStatus("Start Ember isachan");
-            Process p_ember_isachan = new Process()
+            _p_ember_isachan = new Process()
             {
                 StartInfo = new ProcessStartInfo()
                 {
@@ -908,12 +918,12 @@ namespace powercal
                     RedirectStandardError = true,
                 }
             };
-            p_ember_isachan.EnableRaisingEvents = true;
-            p_ember_isachan.OutputDataReceived += p_ember_isachan_OutputDataReceived;
-            p_ember_isachan.ErrorDataReceived += p_ember_isachan_ErrorDataReceived;
-            p_ember_isachan.Start();
-            p_ember_isachan.BeginOutputReadLine();
-            p_ember_isachan.BeginErrorReadLine();
+            _p_ember_isachan.EnableRaisingEvents = true;
+            _p_ember_isachan.OutputDataReceived += p_ember_isachan_OutputDataReceived;
+            _p_ember_isachan.ErrorDataReceived += p_ember_isachan_ErrorDataReceived;
+            _p_ember_isachan.Start();
+            _p_ember_isachan.BeginOutputReadLine();
+            _p_ember_isachan.BeginErrorReadLine();
 
 
             // Create a new telnet connection
@@ -1018,7 +1028,7 @@ namespace powercal
             tc.Close();
 
             updateRunStatus("Close Ember isachan");
-            p_ember_isachan.Close();
+            _p_ember_isachan.Close();
 
             _relay_ctrl.AC_Power = false;
             _relay_ctrl.Reset = false;

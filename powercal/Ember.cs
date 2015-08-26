@@ -82,6 +82,7 @@ namespace powercal
             error = p.StandardError.ReadToEnd();
             output = p.StandardOutput.ReadToEnd();
             int rc = p.ExitCode;
+            p.Close();
             if (rc != 0)
             {
                 string msg = string.Format("Error running {0}.\r\n", _batch_file);
