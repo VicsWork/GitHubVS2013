@@ -131,6 +131,7 @@ namespace powercal
             }
             updateOutputStatus(msg);
 
+            kill_em3xx_load();
         }
 
         /// <summary>
@@ -366,6 +367,7 @@ namespace powercal
 
         private void buttonRun_Click(object sender, EventArgs e)
         {
+            kill_em3xx_load();
             //this.buttonRun.Enabled = false;
             this.textBoxOutputStatus.Clear();
             initTextBoxRunStatus();
@@ -395,15 +397,6 @@ namespace powercal
                 if (_meter != null)
                     _meter.CloseSerialPort();
 
-                if (_p_ember_isachan != null)
-                    _p_ember_isachan.Close();
-
-                Process[] processes = System.Diagnostics.Process.GetProcessesByName("em3xx_load");
-                foreach (Process process in processes)
-                {
-                    process.Kill();
-                }
-
             }
             catch (Exception ex)
             {
@@ -427,7 +420,26 @@ namespace powercal
                 if (_meter != null)
                     _meter.CloseSerialPort();
             }
+
+            kill_em3xx_load();
+
             this.buttonRun.Enabled = true;
+        }
+
+        private void kill_em3xx_load(){
+            try
+            {
+                Process[] processes = System.Diagnostics.Process.GetProcessesByName("em3xx_load");
+                foreach (Process process in processes)
+                {
+                    process.Kill();
+                }
+            }
+            catch (Exception ex)
+            {
+                string msg = string.Format("Error killing em3xx_load.\r\n{0}", ex.Message);
+                updateOutputStatus(msg);
+            }
         }
 
         private void clearToolStripMenuItem_Click(object sender, EventArgs e)
@@ -861,18 +873,18 @@ namespace powercal
 
                 if (meter_load_voltage < _voltage_low_limit || meter_load_voltage > _voltage_high_limit)
                 {
-                    msg = string.Format("VrmsAfterCal not within limits values: {0:F8} < {1:F8} < {2:F8}", _voltage_low_limit, meter_load_voltage, _voltage_high_limit);
+                    msg = string.Format("Meter measured Vrms before calibration is not within limits values: {0:F8} < {1:F8} < {2:F8}", _voltage_low_limit, meter_load_voltage, _voltage_high_limit);
                     debugLog(msg);
                     throw new Exception(msg);
                 }
-                
             }
 
             // Connect Ember
-            updateRunStatus("Setup Ember usb id");
+            updateRunStatus("Connect Ember");
             _relay_ctrl.Ember = true;
             relaysSet(_relay_ctrl);
 
+            //updateRunStatus("Setup Ember usb id");
             // I'm not sure we need to do this all the time
             //updateRunStatus("Setup Ember usb id");
             //Process p_ember_usb = new Process()
@@ -903,7 +915,7 @@ namespace powercal
             //p_ember_usb.Close();
             //debugLog(output);
 
-            // Opem Ember isa channels
+            // Open Ember isa channels
             updateRunStatus("Start Ember isachan");
             _p_ember_isachan = new Process()
             {
@@ -916,6 +928,7 @@ namespace powercal
                     CreateNoWindow = true,
                     RedirectStandardOutput = true,
                     RedirectStandardError = true,
+                    RedirectStandardInput = false
                 }
             };
             _p_ember_isachan.EnableRaisingEvents = true;
@@ -964,12 +977,12 @@ namespace powercal
 
             if (cv.Voltage < _voltage_low_limit || cv.Voltage > _voltage_high_limit)
             {
-                msg = string.Format("Bad VrmsPreCal value:{0:F}", cv.Voltage);
+                msg = string.Format("Vrms before calibration not within limits values: {0:F8} < {1:F8} < {2:F8}", _voltage_low_limit, cv.Voltage, _voltage_high_limit);
                 throw new Exception(msg);
             }
             if (cv.Current < _current_low_limit || cv.Current > _current_high_limit)
             {
-                msg = string.Format("Bad IrmsPreCal value:{0:F8}", cv.Current);
+                msg = string.Format("Irms before calibration not within limits values: {0:F8} < {1:F8} < {2:F8}", _current_low_limit, cv.Current, _current_high_limit);
                 throw new Exception(msg);
             }
 
@@ -1028,6 +1041,8 @@ namespace powercal
             tc.Close();
 
             updateRunStatus("Close Ember isachan");
+            _p_ember_isachan.CancelErrorRead();
+            _p_ember_isachan.Kill();
             _p_ember_isachan.Close();
 
             _relay_ctrl.AC_Power = false;
@@ -1139,9 +1154,12 @@ namespace powercal
 
         void p_ember_isachan_ErrorDataReceived(object sender, DataReceivedEventArgs e)
         {
-            string str = "Error: " + e.Data;
-            debugLog(str);
-            setOutputStatus(str);
+            if (e.Data != null)
+            {
+                string str = "Error: " + e.Data;
+                debugLog(str);
+                setOutputStatus(str);
+            }
         }
 
         void p_ember_isachan_OutputDataReceived(object sender, DataReceivedEventArgs e)
@@ -1171,10 +1189,6 @@ namespace powercal
                     ember.IAdress = 0x08080984;
                     ember.RefereceAdress = 0x08080988;
                     ember.ACOffsetAdress = 0x080809CC;
-
-                    ember.VRefereceValue = 0xF0; // 240 V
-                    ember.IRefereceValue = 0x0F; // 15 A
-
                     break;
                 case (powercal.BoardTypes.Zebrashark):
                 case (powercal.BoardTypes.Hooktooth):
@@ -1182,10 +1196,6 @@ namespace powercal
                     ember.VAdress = 0x08040980;
                     ember.IAdress = 0x08040984;
                     ember.ACOffsetAdress = 0x080409CC;
-
-                    ember.VRefereceValue = 0x78; // 120 V
-                    ember.IRefereceValue = 0x0F; // 15 A
-
                     break;
             }
             ember.CreateCalibrationPatchBath(voltage_gain, current_gain);

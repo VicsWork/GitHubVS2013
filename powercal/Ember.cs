@@ -40,8 +40,8 @@ namespace powercal
         // For Humpback:
         //To set the VREF to 240, the patch contains "@08080988=F0 @08080989=00"
         //To set the IREF to 15, the patch contains "@0808098A=0F @0808098B=00"
-        private int _vRefValue = 0x0;
-        private int _iRefValue = 0x0;
+        private int _vRefValue = 0xF0;
+        private int _iRefValue = 0x0F;
 
         /// <summary>
         /// Runs a calibartion batch file
@@ -82,7 +82,6 @@ namespace powercal
             error = p.StandardError.ReadToEnd();
             output = p.StandardOutput.ReadToEnd();
             int rc = p.ExitCode;
-            p.Close();
             if (rc != 0)
             {
                 string msg = string.Format("Error running {0}.\r\n", _batch_file);
@@ -107,8 +106,8 @@ namespace powercal
                 string txt = string.Format("pushd \"{0}\"", _ember_bin_path);
                 writer.WriteLine(txt);
 
-                txt = string.Format("{0} --usb {1}", _ember_exe, _usb_port);
-                writer.WriteLine(txt);
+                //txt = string.Format("{0} --usb {1}", _ember_exe, _usb_port);
+                //writer.WriteLine(txt);
 
                 txt = string.Format("{0} --patch ", _ember_exe);
 
