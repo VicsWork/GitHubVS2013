@@ -432,9 +432,9 @@ namespace powercal
         {
             // Default values (USA)
             double voltage_load = 120;
-            double voltage_delta = voltage_load * 0.1;
+            double voltage_delta = voltage_load * 0.2;
             double current_load = voltage_load/500; // 500 Ohms
-            double current_delta = current_load * 0.1;
+            double current_delta = current_load * 0.2;
 
             _voltage_reference = 240;
             _current_reference = 15;
@@ -446,8 +446,8 @@ namespace powercal
                 case BoardTypes.Humpback:
                     voltage_load = 240;
                     current_load = voltage_load/2000; // 2K Ohms
-                    voltage_delta = voltage_load * 0.2;
-                    current_delta = current_load * 0.2;
+                    voltage_delta = voltage_load * 0.3;
+                    current_delta = current_load * 0.3;
                     break;
                 case BoardTypes.Zebrashark:
                     _cmd_prefix = "cs5480";  // SPI interface
