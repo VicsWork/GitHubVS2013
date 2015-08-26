@@ -118,6 +118,7 @@
             this.checkBoxUseEmber.TabIndex = 7;
             this.checkBoxUseEmber.Text = "Ember";
             this.checkBoxUseEmber.UseVisualStyleBackColor = true;
+            this.checkBoxUseEmber.CheckedChanged += new System.EventHandler(this.checkBoxUseEmber_CheckedChanged);
             // 
             // CheckBoxManualMultiMeter
             // 
