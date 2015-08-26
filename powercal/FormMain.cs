@@ -37,6 +37,9 @@ namespace powercal
         double _voltage_reference = 0.0;
         double _current_reference = 0.0;
 
+        string _cmd_prefix; 
+
+
         public struct CS_Current_Voltage
         {
             public double Current;
@@ -50,7 +53,6 @@ namespace powercal
         }
 
         delegate void SetTextCallback(string txt);
-
 
         public FormMain()
         {
@@ -103,7 +105,7 @@ namespace powercal
                 updateOutputStatus(msg);
             }
 
-            // Detect whether meter is connected to on eof the ports
+            // Detect whether meter is connected to one of the ports
             bool detected_meter = autoDetectMeterCOMPort();
             if (!detected_cs && !detected_meter && ports.Length > 0)
             {
@@ -412,26 +414,22 @@ namespace powercal
 
         private void set_board_calibration_values()
         {
+            // Default values (USA)
+            _voltage_high_limit = 130;
+            _voltage_low_limit = 80;
+            _voltage_reference = 240;
+            _current_reference = 15;
+            _cmd_prefix = "cs5490"; // UART interface
+
             powercal.BoardTypes board_type = (powercal.BoardTypes)Enum.Parse(typeof(powercal.BoardTypes), comboBoxBoardTypes.Text);
             switch (board_type)
             {
                 case BoardTypes.Humpback:
                     _voltage_high_limit = 260;
                     _voltage_low_limit = 200;
-                    _voltage_reference = 240;
-                    _current_reference = 15;
                     break;
                 case BoardTypes.Zebrashark:
-                    _voltage_high_limit = 130;
-                    _voltage_low_limit = 80;
-                    _voltage_reference = 120;
-                    _current_reference = 15;
-                    break;
-                default:
-                    _voltage_high_limit = 130;
-                    _voltage_low_limit = 80;
-                    _voltage_reference = 120;
-                    _current_reference = 15;
+                    _cmd_prefix = "cs5480";  // SPI interface
                     break;
             }
         }
@@ -782,8 +780,10 @@ namespace powercal
 
         private void calibrate_using_ember()
         {
-            // Set power to external on ember
+            // Remember to set power to external on ember
+
             set_board_calibration_values();
+
             bool manual_measure = Properties.Settings.Default.Meter_Manual_Measurement;
             powercal.BoardTypes board_type = (powercal.BoardTypes)Enum.Parse(typeof(powercal.BoardTypes), comboBoxBoardTypes.Text);
 
@@ -832,7 +832,7 @@ namespace powercal
             p_ember_usb.Close();
             updateOutputStatus(output);
 
-            updateRunStatus("Sart Ember isachan");
+            updateRunStatus("Start Ember isachan");
             Process p_ember_isachan = new Process()
             {
                 StartInfo = new ProcessStartInfo()
@@ -874,7 +874,7 @@ namespace powercal
             updateRunStatus("Patch Gain to 1");
             msg = patch(board_type, 0x400000, 0x400000);
             updateOutputStatus(msg);
-            Thread.Sleep(2000);
+            Thread.Sleep(3000);
             datain = tc.Read();
             updateOutputStatus(datain);
 
@@ -885,19 +885,77 @@ namespace powercal
             datain = tc.Read();
             updateOutputStatus(datain);
 
+            // Get UUT currect/voltage values
+            CS_Current_Voltage cv = ember_parse_pinfo_registers(tc, board_type);
+            msg = string.Format("Cirrus I = {0:F8}, V = {1:F8}, P = {2:F8}", cv.Current, cv.Voltage, cv.Current * cv.Voltage);
+            updateOutputStatus(msg);
             int i = 0;
             while (true)
             {
-                CS_Current_Voltage cv = ember_parse_pinfo_registers(tc, board_type);
+                cv = ember_parse_pinfo_registers(tc, board_type);
                 msg = string.Format("Cirrus I = {0:F8}, V = {1:F8}, P = {2:F8}", cv.Current, cv.Voltage, cv.Current * cv.Voltage);
                 updateOutputStatus(msg);
                 i++;
-                if (i > 10)
+                if (i > 3)
                     break;
             }
 
-            if (_meter != null)
-                _meter.CloseSerialPort();
+            /// The meter measurements
+            MultiMeter meter = new MultiMeter("COM1");
+            meter.OpenComPort();
+            meter.SetToRemote();
+
+            meter.SetupForIAC();
+            string current_meter_str = meter.Measure();
+            current_meter_str = meter.Measure();
+            double current_meter = Double.Parse(current_meter_str);
+
+            meter.SetupForVAC();
+            string voltage_meter_str = meter.Measure();
+            voltage_meter_str = meter.Measure();
+            double voltage_meter = Double.Parse(voltage_meter_str);
+
+            meter.CloseSerialPort();
+
+            msg = string.Format("Meter I = {0:F8}, V = {1:F8}, P = {2:F8}", current_meter, voltage_meter, current_meter * voltage_meter);
+            updateOutputStatus(msg);
+
+            // Gain calucalation
+            double current_gain = current_meter / cv.Current;
+            //double current_gain = current_meter / current_cs;
+            int current_gain_int = (int)(current_gain * 0x400000);
+            msg = string.Format("Current Gain = {0:F8} (0x{1:X})", current_gain, current_gain_int);
+            updateOutputStatus(msg);
+
+            double voltage_gain = voltage_meter / cv.Voltage;
+            int voltage_gain_int = (int)(voltage_gain * 0x400000);
+            msg = string.Format("Voltage Gain = {0:F8} (0x{1:X})", voltage_gain, voltage_gain_int);
+            updateOutputStatus(msg);
+
+            msg = patch(board_type, voltage_gain_int, current_gain_int);
+            Thread.Sleep(3000);
+            datain = tc.Read();
+            updateOutputStatus(datain);
+
+            tc.WriteLine(string.Format("cu {0}_pinfo", _cmd_prefix));
+            Thread.Sleep(500);
+            datain = tc.Read();
+            updateOutputStatus(datain);
+
+            // Get UUT currect/voltage values
+            cv = ember_parse_pinfo_registers(tc, board_type);
+            msg = string.Format("Cirrus I = {0:F8}, V = {1:F8}, P = {2:F8}", cv.Current, cv.Voltage, cv.Current * cv.Voltage);
+            updateOutputStatus(msg);
+            i = 0;
+            while (true)
+            {
+                cv = ember_parse_pinfo_registers(tc, board_type);
+                msg = string.Format("Cirrus I = {0:F8}, V = {1:F8}, P = {2:F8}", cv.Current, cv.Voltage, cv.Current * cv.Voltage);
+                updateOutputStatus(msg);
+                i++;
+                if (i > 3)
+                    break;
+            }
 
             updateRunStatus("Close telnet");
             tc.Close();
@@ -910,25 +968,12 @@ namespace powercal
 
         CS_Current_Voltage ember_parse_pinfo_registers(TelnetConnection tc, BoardTypes board_type)
         {
-            string cmd_prefix = "cs5490"; // UART interface
-            switch (board_type)
-            {
-                case BoardTypes.Humpback:
-                case BoardTypes.Hooktooth:
-                case BoardTypes.Milkshark:
-                    cmd_prefix = "cs5490"; // UART interface
-                    break;
-                case BoardTypes.Zebrashark:
-                    cmd_prefix = "cs5480";  // SPI interface
-                    break;
-            }
-
             string rawCurrentPattern = "Raw IRMS: ([0-9,A-F]{8})";
             string rawVoltagePattern = "Raw VRMS: ([0-9,A-F]{8})";
             double current_cs = 0.0;
             double voltage_cs = 0.0;
 
-            tc.WriteLine(string.Format("cu {0}_pload", cmd_prefix));
+            tc.WriteLine(string.Format("cu {0}_pload", _cmd_prefix));
             Thread.Sleep(500);
             string datain = tc.Read();
             Debug.WriteLine(datain);
