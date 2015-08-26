@@ -34,6 +34,8 @@ namespace powercal
 
         double _voltage_low_limit = 0.0;
         double _voltage_high_limit = 0.0;
+        double _current_high_limit = 0.0;
+        double _current_low_limit = 0.0;
         double _voltage_reference = 0.0;
         double _current_reference = 0.0;
 
@@ -236,6 +238,9 @@ namespace powercal
         private void updateOutputStatus(string txt)
         {
             string line = string.Format("{0:G}: {1}\r\n", DateTime.Now, txt);
+
+            Debug.WriteLine(line);
+
             this.textBoxOutputStatus.AppendText(line);
             this.textBoxOutputStatus.Update();
 
@@ -245,12 +250,22 @@ namespace powercal
             }
         }
 
+        private void debugLog(string txt)
+        {
+            string line = string.Format("{0:G}: {1}\r\n", DateTime.Now, txt);
+            Debug.WriteLine(line);
+        }
+
         /// <summary>
         /// Updates the run status text box
         /// </summary>
         /// <param name="txt"></param>
         private void updateRunStatus(string txt)
         {
+            string line = string.Format("{0:G}: {1}\r\n", DateTime.Now, txt);
+
+            Debug.WriteLine(line);
+
             this.textBoxRunStatus.Text = txt;
             this.textBoxRunStatus.Update();
         }
@@ -319,11 +334,9 @@ namespace powercal
 
                 MessageBox.Show(msg_dlg);
             }
-            else
-            {
-                string status = _relay_ctrl.ToStatusText();
-                updateOutputStatus(status);
-            }
+            string status = _relay_ctrl.ToStatusText();
+            debugLog(status);
+            updateOutputStatus(status);
 
         }
 
@@ -412,11 +425,17 @@ namespace powercal
             this.textBoxOutputStatus.Clear();
         }
 
+        /// <summary>
+        /// Sets values used for calibration for selected board
+        /// </summary>
         private void set_board_calibration_values()
         {
             // Default values (USA)
-            _voltage_high_limit = 130;
-            _voltage_low_limit = 80;
+            double voltage_load = 120;
+            double voltage_delta = voltage_load * 0.1;
+            double current_load = voltage_load/500; // 500 Ohms
+            double current_delta = current_load * 0.1;
+
             _voltage_reference = 240;
             _current_reference = 15;
             _cmd_prefix = "cs5490"; // UART interface
@@ -425,13 +444,21 @@ namespace powercal
             switch (board_type)
             {
                 case BoardTypes.Humpback:
-                    _voltage_high_limit = 260;
-                    _voltage_low_limit = 200;
+                    voltage_load = 240;
+                    current_load = voltage_load/2000; // 2K Ohms
+                    voltage_delta = voltage_load * 0.2;
+                    current_delta = current_load * 0.2;
                     break;
                 case BoardTypes.Zebrashark:
                     _cmd_prefix = "cs5480";  // SPI interface
                     break;
             }
+
+            _voltage_high_limit = voltage_load + voltage_delta;
+            _voltage_low_limit = voltage_load - voltage_delta;
+            _current_high_limit = current_load + current_delta;
+            _current_low_limit = current_load - current_delta;
+
         }
 
         private void calibrate_using_cirrus()
@@ -777,11 +804,11 @@ namespace powercal
             }
         }
 
-
         private void calibrate_using_ember()
         {
             // Remember to set power to external on ember
 
+            // Set values depending on board type tested
             set_board_calibration_values();
 
             bool manual_measure = Properties.Settings.Default.Meter_Manual_Measurement;
@@ -789,6 +816,19 @@ namespace powercal
 
             string msg;
             updateOutputStatus("===============================Start Calibration==============================");
+
+            // Trun AC ON
+            bool manual_relay = Properties.Settings.Default.Manual_Relay_Control;
+            if (manual_relay)
+                _relay_ctrl.Disable = true;
+            _relay_ctrl.Ember = false;
+            _relay_ctrl.Load = false;
+            _relay_ctrl.Reset = false;
+
+            _relay_ctrl.AC_Power = true;
+            _relay_ctrl.Load = true;
+            relaysSet(_relay_ctrl);
+            Thread.Sleep(1000);
 
             // Setup multi-meter
             string meterPortName = Properties.Settings.Default.Meter_COM_Port_Name;
@@ -799,9 +839,31 @@ namespace powercal
                 _meter.OpenComPort();
                 _meter.SetToRemote();
                 _meter.ClearError();
-                string idn = _meter.IDN();
+                _meter.SetupForVAC();
+
+                string meter_load_voltage_str = _meter.Measure();
+                meter_load_voltage_str = _meter.Measure();
+                double meter_load_voltage = Double.Parse(meter_load_voltage_str);
+                updateOutputStatus(string.Format("Meter Load Voltage at {0:F8} V", meter_load_voltage));
+
+                _meter.CloseSerialPort();
+                //string idn = _meter.IDN();
+
+                if (meter_load_voltage < _voltage_low_limit || meter_load_voltage > _voltage_high_limit)
+                {
+                    msg = string.Format("VrmsAfterCal not within limits values: {0:F8} < {1:F8} < {2:F8}", _voltage_low_limit, meter_load_voltage, _voltage_high_limit);
+                    debugLog(msg);
+                    throw new Exception(msg);
+                }
+                
             }
 
+            // Connect Ember
+            updateRunStatus("Setup Ember usb id");
+            _relay_ctrl.Ember = true;
+            relaysSet(_relay_ctrl);
+
+            // I'm not sure we need to do this all the time
             updateRunStatus("Setup Ember usb id");
             Process p_ember_usb = new Process()
             {
@@ -817,7 +879,6 @@ namespace powercal
                     RedirectStandardError = true,
                 }
             };
-
             p_ember_usb.Start();
             p_ember_usb.WaitForExit();
             string output = p_ember_usb.StandardOutput.ReadToEnd();
@@ -830,8 +891,9 @@ namespace powercal
                 throw new Exception(msg);
             }
             p_ember_usb.Close();
-            updateOutputStatus(output);
+            debugLog(output);
 
+            // Opem Ember isa channels
             updateRunStatus("Start Ember isachan");
             Process p_ember_isachan = new Process()
             {
@@ -846,7 +908,6 @@ namespace powercal
                     RedirectStandardError = true,
                 }
             };
-
             p_ember_isachan.EnableRaisingEvents = true;
             p_ember_isachan.OutputDataReceived += p_ember_isachan_OutputDataReceived;
             p_ember_isachan.ErrorDataReceived += p_ember_isachan_ErrorDataReceived;
@@ -855,72 +916,75 @@ namespace powercal
             p_ember_isachan.BeginErrorReadLine();
 
 
+            // Create a new telnet connection
             updateRunStatus("Start telnet");
-            //create a new telnet connection
             TelnetConnection tc = new TelnetConnection("localhost", 4900);
             string datain = tc.Read();
 
-            bool manual_relay = Properties.Settings.Default.Manual_Relay_Control;
-            if (manual_relay)
-                _relay_ctrl.Disable = true;
-            _relay_ctrl.Ember = true;
-            _relay_ctrl.Load = false;
-            _relay_ctrl.Reset = false;
-            _relay_ctrl.AC_Power = true;
-            relaysSet(_relay_ctrl);
-            Thread.Sleep(1000);
-
-            // Set gain to 1
+            // Patch gain to 1
             updateRunStatus("Patch Gain to 1");
             msg = patch(board_type, 0x400000, 0x400000);
-            updateOutputStatus(msg);
+            debugLog(msg);
             Thread.Sleep(3000);
             datain = tc.Read();
-            updateOutputStatus(datain);
+            debugLog(datain);
 
             // Close UUT relay
             updateRunStatus("Close UUT Relay");
             tc.WriteLine("write 1 6 0 1 0x10 {01}");
             Thread.Sleep(1000);
             datain = tc.Read();
-            updateOutputStatus(datain);
+            debugLog(datain);
 
             // Get UUT currect/voltage values
+            updateRunStatus("Get UUT values");
             CS_Current_Voltage cv = ember_parse_pinfo_registers(tc, board_type);
             msg = string.Format("Cirrus I = {0:F8}, V = {1:F8}, P = {2:F8}", cv.Current, cv.Voltage, cv.Current * cv.Voltage);
             updateOutputStatus(msg);
-            int i = 0;
-            while (true)
+            //int i = 0;
+            //while (true)
+            //{
+            //    i++;
+            //    if (i > 2)
+            //        break;
+            //    cv = ember_parse_pinfo_registers(tc, board_type);
+            //    msg = string.Format("Cirrus I = {0:F8}, V = {1:F8}, P = {2:F8}", cv.Current, cv.Voltage, cv.Current * cv.Voltage);
+            //    updateOutputStatus(msg);
+            //}
+
+            if (cv.Voltage < _voltage_low_limit || cv.Voltage > _voltage_high_limit)
             {
-                cv = ember_parse_pinfo_registers(tc, board_type);
-                msg = string.Format("Cirrus I = {0:F8}, V = {1:F8}, P = {2:F8}", cv.Current, cv.Voltage, cv.Current * cv.Voltage);
-                updateOutputStatus(msg);
-                i++;
-                if (i > 3)
-                    break;
+                msg = string.Format("Bad VrmsPreCal value:{0:F}", cv.Voltage);
+                throw new Exception(msg);
+            }
+            if (cv.Current < _current_low_limit || cv.Current > _current_high_limit)
+            {
+                msg = string.Format("Bad IrmsPreCal value:{0:F8}", cv.Current);
+                throw new Exception(msg);
             }
 
             /// The meter measurements
-            MultiMeter meter = new MultiMeter("COM1");
-            meter.OpenComPort();
-            meter.SetToRemote();
+            updateRunStatus("Meter measurements");
+            _meter.OpenComPort();
+            _meter.SetupForIAC();
 
-            meter.SetupForIAC();
-            string current_meter_str = meter.Measure();
-            current_meter_str = meter.Measure();
+            string current_meter_str = _meter.Measure();
+            current_meter_str = _meter.Measure();
             double current_meter = Double.Parse(current_meter_str);
 
-            meter.SetupForVAC();
-            string voltage_meter_str = meter.Measure();
-            voltage_meter_str = meter.Measure();
+            _meter.SetupForVAC();
+            string voltage_meter_str = _meter.Measure();
+            voltage_meter_str = _meter.Measure();
             double voltage_meter = Double.Parse(voltage_meter_str);
 
-            meter.CloseSerialPort();
+            _meter.CloseSerialPort();
 
             msg = string.Format("Meter I = {0:F8}, V = {1:F8}, P = {2:F8}", current_meter, voltage_meter, current_meter * voltage_meter);
             updateOutputStatus(msg);
 
+
             // Gain calucalation
+            updateRunStatus("Gain calucalation");
             double current_gain = current_meter / cv.Current;
             //double current_gain = current_meter / current_cs;
             int current_gain_int = (int)(current_gain * 0x400000);
@@ -932,30 +996,23 @@ namespace powercal
             msg = string.Format("Voltage Gain = {0:F8} (0x{1:X})", voltage_gain, voltage_gain_int);
             updateOutputStatus(msg);
 
+            // Patch new gain
+            updateRunStatus("Patch Gain");
             msg = patch(board_type, voltage_gain_int, current_gain_int);
             Thread.Sleep(3000);
             datain = tc.Read();
-            updateOutputStatus(datain);
+            debugLog(datain);
 
             tc.WriteLine(string.Format("cu {0}_pinfo", _cmd_prefix));
             Thread.Sleep(500);
             datain = tc.Read();
-            updateOutputStatus(datain);
+            debugLog(datain);
 
             // Get UUT currect/voltage values
+            updateRunStatus("Get UUT calibrated values");
             cv = ember_parse_pinfo_registers(tc, board_type);
             msg = string.Format("Cirrus I = {0:F8}, V = {1:F8}, P = {2:F8}", cv.Current, cv.Voltage, cv.Current * cv.Voltage);
             updateOutputStatus(msg);
-            i = 0;
-            while (true)
-            {
-                cv = ember_parse_pinfo_registers(tc, board_type);
-                msg = string.Format("Cirrus I = {0:F8}, V = {1:F8}, P = {2:F8}", cv.Current, cv.Voltage, cv.Current * cv.Voltage);
-                updateOutputStatus(msg);
-                i++;
-                if (i > 3)
-                    break;
-            }
 
             updateRunStatus("Close telnet");
             tc.Close();
@@ -963,6 +1020,24 @@ namespace powercal
             updateRunStatus("Close Ember isachan");
             p_ember_isachan.Close();
 
+            _relay_ctrl.AC_Power = false;
+            _relay_ctrl.Reset = false;
+            _relay_ctrl.Ember = false;
+            _relay_ctrl.Load = false;
+            relaysSet(_relay_ctrl);
+
+            if (cv.Voltage < _voltage_low_limit || cv.Voltage > _voltage_high_limit)
+            {
+                msg = string.Format("VrmsAfterCal not within limits values: {0:F8} < {1:F8} < {2:F8}", _voltage_low_limit, cv.Voltage, _voltage_high_limit);
+                Debug.WriteLine(msg);
+                throw new Exception(msg);
+            }
+
+            this.textBoxRunStatus.BackColor = Color.Green;
+            this.textBoxRunStatus.ForeColor = Color.White;
+            this.textBoxRunStatus.Text = "PASS";
+
+            updateOutputStatus("================================End Calibration===============================");
 
         }
 
@@ -1055,13 +1130,15 @@ namespace powercal
         void p_ember_isachan_ErrorDataReceived(object sender, DataReceivedEventArgs e)
         {
             string str = "Error: " + e.Data;
+            debugLog(str);
             setOutputStatus(str);
         }
 
         void p_ember_isachan_OutputDataReceived(object sender, DataReceivedEventArgs e)
         {
             string str = e.Data;
-            setOutputStatus(str);
+            //setOutputStatus(str);
+            debugLog(str);
 
         }
 
