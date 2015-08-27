@@ -197,7 +197,7 @@ namespace powercal
             string msg = "IGainCal command: ";
             foreach (byte b in tx_data)
                 msg += string.Format("0x{0:X} ", b);
-            Debug.WriteLine(msg);
+            Trace.WriteLine(msg);
 
             _cscommander.Send(tx_data); //Modify IGain
         }
@@ -224,7 +224,7 @@ namespace powercal
             string msg = "VGainCal command: ";
             foreach (byte b in tx_data)
                 msg += string.Format("0x{0:X} ", b);
-            Debug.WriteLine(msg);
+            Trace.WriteLine(msg);
 
             _cscommander.Send(tx_data); //Modify VGain
         }

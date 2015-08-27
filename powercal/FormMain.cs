@@ -61,6 +61,10 @@ namespace powercal
         public FormMain()
         {
 
+            Stream outResultsFile = File.Create("output.txt");
+            var textListener = new TextWriterTraceListener(outResultsFile);
+            Trace.Listeners.Add(textListener);
+
             // All dio port 0 lines to 0
             dio_write(0);
 
@@ -242,7 +246,7 @@ namespace powercal
         {
             string line = string.Format("{0:G}: {1}\r\n", DateTime.Now, txt);
 
-            Debug.WriteLine(line);
+            Trace.WriteLine(line);
 
             this.textBoxOutputStatus.AppendText(line);
             this.textBoxOutputStatus.Update();
@@ -256,7 +260,7 @@ namespace powercal
         private void debugLog(string txt)
         {
             string line = string.Format("{0:G}: {1}\r\n", DateTime.Now, txt);
-            Debug.WriteLine(line);
+            Trace.WriteLine(line);
         }
 
         /// <summary>
@@ -267,7 +271,7 @@ namespace powercal
         {
             string line = string.Format("{0:G}: {1}\r\n", DateTime.Now, txt);
 
-            Debug.WriteLine(line);
+            Trace.WriteLine(line);
 
             this.textBoxRunStatus.Text = txt;
             this.textBoxRunStatus.Update();
@@ -689,7 +693,7 @@ namespace powercal
             if (iRMSAfterCal < lowlimit || iRMSAfterCal > highlimit)
             {
                 msg = string.Format("IrmsAfterCal not within limits values: {0:F8} < {1:F8} < {2:F8}", lowlimit, iRMSAfterCal, highlimit);
-                Debug.WriteLine(msg);
+                Trace.WriteLine(msg);
                 throw new Exception(msg);
             }
 
@@ -703,7 +707,7 @@ namespace powercal
             if (vRMSAfterCal < lowlimit || vRMSAfterCal > highlimit)
             {
                 msg = string.Format("VrmsAfterCal not within limits values: {0:F8} < {1:F8} < {2:F8}", lowlimit, vRMSAfterCal, highlimit);
-                Debug.WriteLine(msg);
+                Trace.WriteLine(msg);
                 throw new Exception(msg);
             }
             updateOutputStatus(string.Format("Power after calibration = {0:F8}", vRMSAfterCal * iRMSAfterCal));
@@ -867,7 +871,8 @@ namespace powercal
                 string meter_load_voltage_str = _meter.Measure();
                 meter_load_voltage_str = _meter.Measure();
                 double meter_load_voltage = Double.Parse(meter_load_voltage_str);
-                updateOutputStatus(string.Format("Meter Load Voltage at {0:F8} V", meter_load_voltage));
+                msg = string.Format("Meter Load Voltage at {0:F8} V", meter_load_voltage);
+                updateOutputStatus(msg);
 
                 _meter.CloseSerialPort();
                 //string idn = _meter.IDN();
@@ -935,10 +940,12 @@ namespace powercal
             datain = tc.Read();
             debugLog(datain);
 
-
             // Get UUT currect/voltage values
             updateRunStatus("Get UUT values");
             CS_Current_Voltage cv = ember_parse_pinfo_registers(tc, board_type);
+            msg = string.Format("Cirrus I = {0:F8}, V = {1:F8}, P = {2:F8}", cv.Current, cv.Voltage, cv.Current * cv.Voltage);
+            debugLog(msg);
+            cv = ember_parse_pinfo_registers(tc, board_type);
             msg = string.Format("Cirrus I = {0:F8}, V = {1:F8}, P = {2:F8}", cv.Current, cv.Voltage, cv.Current * cv.Voltage);
             updateOutputStatus(msg);
 
@@ -961,11 +968,19 @@ namespace powercal
             string current_meter_str = _meter.Measure();
             current_meter_str = _meter.Measure();
             double current_meter = Double.Parse(current_meter_str);
+            msg = string.Format("Meter I = {0:F8}", current_meter);
+            debugLog(msg);
+            current_meter_str = _meter.Measure();
+            current_meter = Double.Parse(current_meter_str);
 
             _meter.SetupForVAC();
             string voltage_meter_str = _meter.Measure();
             voltage_meter_str = _meter.Measure();
             double voltage_meter = Double.Parse(voltage_meter_str);
+            msg = string.Format("Meter V = {0:F8}", voltage_meter);
+            debugLog(msg);
+            voltage_meter_str = _meter.Measure();
+            voltage_meter = Double.Parse(voltage_meter_str);
 
             _meter.CloseSerialPort();
 
@@ -1018,6 +1033,8 @@ namespace powercal
             // Get UUT currect/voltage values
             updateRunStatus("Get UUT calibrated values");
             cv = ember_parse_pinfo_registers(tc, board_type);
+            msg = string.Format("Cirrus I = {0:F8}, V = {1:F8}, P = {2:F8}", cv.Current, cv.Voltage, cv.Current * cv.Voltage);
+            debugLog(msg);
             cv = ember_parse_pinfo_registers(tc, board_type);
             msg = string.Format("Cirrus I = {0:F8}, V = {1:F8}, P = {2:F8}", cv.Current, cv.Voltage, cv.Current * cv.Voltage);
             updateOutputStatus(msg);
@@ -1044,7 +1061,7 @@ namespace powercal
             if (cv.Voltage < low_limit || cv.Voltage > high_limit)
             {
                 msg = string.Format("Voltage after calibration not within limit values: {0:F8} < {1:F8} < {2:F8}", low_limit, cv.Voltage, high_limit);
-                Debug.WriteLine(msg);
+                Trace.WriteLine(msg);
                 throw new Exception(msg);
             }
             delta = current_meter * 0.3;
@@ -1053,7 +1070,7 @@ namespace powercal
             if (cv.Current < low_limit || cv.Current > high_limit)
             {
                 msg = string.Format("Current after calibration not within limit values: {0:F8} < {1:F8} < {2:F8}", low_limit, cv.Current, high_limit);
-                Debug.WriteLine(msg);
+                Trace.WriteLine(msg);
                 throw new Exception(msg);
             }
 
@@ -1075,7 +1092,7 @@ namespace powercal
             tc.WriteLine(string.Format("cu {0}_pload", _cmd_prefix));
             Thread.Sleep(500);
             string datain = tc.Read();
-            Debug.WriteLine(datain);
+            Trace.WriteLine(datain);
             string msg;
             if (datain.Length > 0)
             {

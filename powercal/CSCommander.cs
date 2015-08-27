@@ -98,7 +98,7 @@ namespace powercal
             {
                 presend_data = new byte[_serialPort.BytesToRead];
                 _serialPort.Read(presend_data, 0, len);
-                Debug.WriteLine("Send_Receive_Bytes: BytesToRead > 0 before send!!!");
+                Trace.WriteLine("Send_Receive_Bytes: BytesToRead > 0 before send!!!");
             }
 
             _serialPort.Write(bytesToSend, 0, bytesToSend.Length);
@@ -135,7 +135,7 @@ namespace powercal
                 n++;
                 if (n > 5)
                 {
-                    Debug.WriteLine("WaitForWriteDone: BytesToWrite > 0 for a long time!!!");
+                    Trace.WriteLine("WaitForWriteDone: BytesToWrite > 0 for a long time!!!");
                     break;
                 }
             }
