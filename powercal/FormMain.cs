@@ -853,6 +853,7 @@ namespace powercal
             Thread.Sleep(1000);
 
             // Setup multi-meter
+            // Take a measurement with load on
             string meterPortName = Properties.Settings.Default.Meter_COM_Port_Name;
             _meter = new MultiMeter(meterPortName);
             if (!manual_measure)
@@ -878,42 +879,13 @@ namespace powercal
                     throw new Exception(msg);
                 }
             }
+            // Disconnect the load (help cool off)
+            _relay_ctrl.Load = false;
 
             // Connect Ember
             updateRunStatus("Connect Ember");
             _relay_ctrl.Ember = true;
             relaysSet(_relay_ctrl);
-
-            //updateRunStatus("Setup Ember usb id");
-            // I'm not sure we need to do this all the time
-            //updateRunStatus("Setup Ember usb id");
-            //Process p_ember_usb = new Process()
-            //{
-            //    StartInfo = new ProcessStartInfo()
-            //    {
-            //        FileName = Path.Combine(Properties.Settings.Default.Ember_BinPath, "em3xx_load.exe"),
-            //        Arguments = "--usb 0",
-
-            //        UseShellExecute = false,
-            //        CreateNoWindow = true,
-            //        RedirectStandardInput = true,
-            //        RedirectStandardOutput = true,
-            //        RedirectStandardError = true,
-            //    }
-            //};
-            //p_ember_usb.Start();
-            //p_ember_usb.WaitForExit();
-            //string output = p_ember_usb.StandardOutput.ReadToEnd();
-            //int rc = p_ember_usb.ExitCode;
-            //if (rc != 0)
-            //{
-            //    msg = string.Format("{0} [1} returned {2}\r\n", p_ember_usb.StartInfo.FileName, p_ember_usb.StartInfo.Arguments, rc);
-            //    string error = p_ember_usb.StandardError.ReadToEnd();
-            //    msg += error;
-            //    throw new Exception(msg);
-            //}
-            //p_ember_usb.Close();
-            //debugLog(output);
 
             // Open Ember isa channels
             updateRunStatus("Start Ember isachan");
@@ -955,34 +927,29 @@ namespace powercal
             // Close UUT relay
             updateRunStatus("Close UUT Relay");
             tc.WriteLine("write 1 6 0 1 0x10 {01}");
+
+            // Reconnect the load
+            _relay_ctrl.Load = true;
+
             Thread.Sleep(1000);
             datain = tc.Read();
             debugLog(datain);
+
 
             // Get UUT currect/voltage values
             updateRunStatus("Get UUT values");
             CS_Current_Voltage cv = ember_parse_pinfo_registers(tc, board_type);
             msg = string.Format("Cirrus I = {0:F8}, V = {1:F8}, P = {2:F8}", cv.Current, cv.Voltage, cv.Current * cv.Voltage);
             updateOutputStatus(msg);
-            //int i = 0;
-            //while (true)
-            //{
-            //    i++;
-            //    if (i > 2)
-            //        break;
-            //    cv = ember_parse_pinfo_registers(tc, board_type);
-            //    msg = string.Format("Cirrus I = {0:F8}, V = {1:F8}, P = {2:F8}", cv.Current, cv.Voltage, cv.Current * cv.Voltage);
-            //    updateOutputStatus(msg);
-            //}
 
             if (cv.Voltage < _voltage_low_limit || cv.Voltage > _voltage_high_limit)
             {
-                msg = string.Format("Vrms before calibration not within limits values: {0:F8} < {1:F8} < {2:F8}", _voltage_low_limit, cv.Voltage, _voltage_high_limit);
+                msg = string.Format("Cirrus voltage before calibration not within limit values: {0:F8} < {1:F8} < {2:F8}", _voltage_low_limit, cv.Voltage, _voltage_high_limit);
                 throw new Exception(msg);
             }
             if (cv.Current < _current_low_limit || cv.Current > _current_high_limit)
             {
-                msg = string.Format("Irms before calibration not within limits values: {0:F8} < {1:F8} < {2:F8}", _current_low_limit, cv.Current, _current_high_limit);
+                msg = string.Format("Cirrus current before calibration not within limit values: {0:F8} < {1:F8} < {2:F8}", _current_low_limit, cv.Current, _current_high_limit);
                 throw new Exception(msg);
             }
 
@@ -1005,6 +972,19 @@ namespace powercal
             msg = string.Format("Meter I = {0:F8}, V = {1:F8}, P = {2:F8}", current_meter, voltage_meter, current_meter * voltage_meter);
             updateOutputStatus(msg);
 
+            // Disconnect load
+            _relay_ctrl.Load = false;
+
+            if (voltage_meter < _voltage_low_limit || voltage_meter > _voltage_high_limit)
+            {
+                msg = string.Format("Meter voltage before calibration not within limit values: {0:F8} < {1:F8} < {2:F8}", _voltage_low_limit, voltage_meter, _voltage_high_limit);
+                throw new Exception(msg);
+            }
+            if (current_meter < _current_low_limit || current_meter > _current_high_limit)
+            {
+                msg = string.Format("Meter current before calibration not within limit values: {0:F8} < {1:F8} < {2:F8}", _current_low_limit, current_meter, _current_high_limit);
+                throw new Exception(msg);
+            }
 
             // Gain calucalation
             updateRunStatus("Gain calucalation");
@@ -1022,6 +1002,10 @@ namespace powercal
             // Patch new gain
             updateRunStatus("Patch Gain");
             msg = patch(board_type, voltage_gain_int, current_gain_int);
+
+            // Reconnect the load
+            _relay_ctrl.Load = true;
+
             Thread.Sleep(3000);
             datain = tc.Read();
             debugLog(datain);
@@ -1034,6 +1018,7 @@ namespace powercal
             // Get UUT currect/voltage values
             updateRunStatus("Get UUT calibrated values");
             cv = ember_parse_pinfo_registers(tc, board_type);
+            cv = ember_parse_pinfo_registers(tc, board_type);
             msg = string.Format("Cirrus I = {0:F8}, V = {1:F8}, P = {2:F8}", cv.Current, cv.Voltage, cv.Current * cv.Voltage);
             updateOutputStatus(msg);
 
@@ -1045,15 +1030,29 @@ namespace powercal
             _p_ember_isachan.Kill();
             _p_ember_isachan.Close();
 
+            // Disconnect
             _relay_ctrl.AC_Power = false;
             _relay_ctrl.Reset = false;
             _relay_ctrl.Ember = false;
             _relay_ctrl.Load = false;
             relaysSet(_relay_ctrl);
 
-            if (cv.Voltage < _voltage_low_limit || cv.Voltage > _voltage_high_limit)
+            // Check calibration
+            double delta = voltage_meter * 0.3;
+            double high_limit = voltage_meter + delta;
+            double low_limit = voltage_meter - delta;
+            if (cv.Voltage < low_limit || cv.Voltage > high_limit)
             {
-                msg = string.Format("VrmsAfterCal not within limits values: {0:F8} < {1:F8} < {2:F8}", _voltage_low_limit, cv.Voltage, _voltage_high_limit);
+                msg = string.Format("Voltage after calibration not within limit values: {0:F8} < {1:F8} < {2:F8}", low_limit, cv.Voltage, high_limit);
+                Debug.WriteLine(msg);
+                throw new Exception(msg);
+            }
+            delta = current_meter * 0.3;
+            high_limit = current_meter + delta;
+            low_limit = current_meter - delta;
+            if (cv.Current < low_limit || cv.Current > high_limit)
+            {
+                msg = string.Format("Current after calibration not within limit values: {0:F8} < {1:F8} < {2:F8}", low_limit, cv.Current, high_limit);
                 Debug.WriteLine(msg);
                 throw new Exception(msg);
             }
