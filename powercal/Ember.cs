@@ -30,7 +30,7 @@ namespace powercal
         private string _ember_exe = "em3xx_load";
         private string _ember_bin_path = "C:\\Program Files (x86)\\Ember\\ISA3 Utilities\\bin";
 
-        private int _usb_port = 0;
+        //private int _usb_port = 0;
         
         private int _vAddress = 0x08040980;
         private int _iAddress = 0x08040984;
