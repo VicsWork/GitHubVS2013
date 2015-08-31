@@ -27,20 +27,40 @@ namespace powercal
         MultiMeter _meter = null;
         RelayControler _relay_ctrl = new RelayControler();
 
+        /// <summary>
+        /// The app folder where we save most logs, etc
+        /// </summary>
         static string _app_data_dir = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.UserProfile), ".calibration");
-
+        /// <summary>
+        /// Path to the app log file
+        /// </summary>
         string _log_file = Path.Combine(_app_data_dir, "runlog.txt");
-        string _ember_batchfile_path = Path.Combine(_app_data_dir, "patchit.bat");
 
+        /// <summary>
+        /// Voltage and current limits
+        /// </summary>
         double _voltage_low_limit = 0.0;
         double _voltage_high_limit = 0.0;
         double _current_high_limit = 0.0;
         double _current_low_limit = 0.0;
+        /// <summary>
+        /// Voltage and current reference value
+        /// </summary>
         double _voltage_reference = 0.0;
         double _current_reference = 0.0;
-
+        /// <summary>
+        /// Prefix to custom commnds (soon to be auto configured)
+        /// </summary>
         string _cmd_prefix;
 
+
+        /// <summary>
+        /// Path to where the Ember programing batch file is created
+        /// </summary>
+        string _ember_batchfile_path = Path.Combine(_app_data_dir, "patchit.bat");
+        /// <summary>
+        /// Process used to open Ember box ports (isachan=all)
+        /// </summary>
         Process _p_ember_isachan;
 
 
@@ -1058,6 +1078,92 @@ namespace powercal
             }
         }
 
+        /// <summary>
+        /// Starts the process responsible to open the Ember box isa channels
+        /// </summary>
+        private void openEmberISAChannels()
+        {
+            _p_ember_isachan = new Process()
+            {
+                StartInfo = new ProcessStartInfo()
+                {
+                    FileName = Path.Combine(Properties.Settings.Default.Ember_BinPath, "em3xx_load.exe"),
+                    Arguments = "--isachan=all",
+
+                    UseShellExecute = false,
+                    CreateNoWindow = true,
+                    RedirectStandardOutput = true,
+                    RedirectStandardError = true,
+                    RedirectStandardInput = false
+                }
+            };
+            _p_ember_isachan.EnableRaisingEvents = true;
+            _p_ember_isachan.OutputDataReceived += p_ember_isachan_OutputDataReceived;
+            _p_ember_isachan.ErrorDataReceived += p_ember_isachan_ErrorDataReceived;
+            _p_ember_isachan.Start();
+            _p_ember_isachan.BeginOutputReadLine();
+            _p_ember_isachan.BeginErrorReadLine();
+
+        }
+
+        /// <summary>
+        /// Closes the Ember process that open the isa channels
+        /// <seealso cref="openEmberISAChannels"/>
+        /// </summary>
+        private void closeEmberISAChannels()
+        {
+            _p_ember_isachan.CancelErrorRead();
+            _p_ember_isachan.Kill();
+            _p_ember_isachan.Close();
+        }
+
+        /// <summary>
+        /// Telnets to the Ember and prints custom commands
+        /// Parses command list and tries to find the pload or pinfo comand prefix
+        /// It is usually "cs5480_" in the case of SPDI or "cs5490_" in the case of UART comunications
+        /// Exception is thrown if not pload command is found after typing "cu"
+        /// </summary>
+        /// <returns></returns>
+        private string get_custom_command_prefix(TelnetConnection telnet_connection)
+        {
+            string cmd_pre = null;
+
+            int try_count = 0;
+            string data = "";
+
+            while (true)
+            {
+                telnet_connection.WriteLine("cu");
+                data += telnet_connection.Read();
+                if (data.Contains("pload"))
+                    break;
+                try_count++;
+                if (try_count > 3)
+                    break;
+            }
+
+            string msg = "";
+            if (!data.Contains("pload"))
+            {
+                msg = string.Format("Unable to get custum command output list from Ember\r\n.  Output was: {0}", data);
+                throw new Exception(msg);
+            }
+
+            string pattern = @"(cs[0-9]{4})_pload\r\n";
+            Match match = Regex.Match(data, pattern);
+            if (match.Groups.Count != 2)
+            {
+                msg = string.Format("Unable to parse custom command list for pload.  Output was:{0}", data);
+                throw new Exception(msg);
+            }
+
+            return match.Groups[1].Value;
+        }
+        
+        /// <summary>
+        /// Calibrates using just the Ember
+        /// Voltage and Current register values are gathered using custom commands
+        /// </summary>
         private void calibrate_using_ember()
         {
             // Remember to set power to external on ember
@@ -1122,58 +1228,40 @@ namespace powercal
 
             // Open Ember isa channels
             updateRunStatus("Start Ember isachan");
-            _p_ember_isachan = new Process()
-            {
-                StartInfo = new ProcessStartInfo()
-                {
-                    FileName = Path.Combine(Properties.Settings.Default.Ember_BinPath, "em3xx_load.exe"),
-                    Arguments = "--isachan=all",
-
-                    UseShellExecute = false,
-                    CreateNoWindow = true,
-                    RedirectStandardOutput = true,
-                    RedirectStandardError = true,
-                    RedirectStandardInput = false
-                }
-            };
-            _p_ember_isachan.EnableRaisingEvents = true;
-            _p_ember_isachan.OutputDataReceived += p_ember_isachan_OutputDataReceived;
-            _p_ember_isachan.ErrorDataReceived += p_ember_isachan_ErrorDataReceived;
-            _p_ember_isachan.Start();
-            _p_ember_isachan.BeginOutputReadLine();
-            _p_ember_isachan.BeginErrorReadLine();
-
+            openEmberISAChannels();
 
             // Create a new telnet connection
             updateRunStatus("Start telnet");
-            TelnetConnection tc = new TelnetConnection("localhost", 4900);
-            string datain = tc.Read();
+            TelnetConnection telnet_connection = new TelnetConnection("localhost", 4900);
+            string datain = telnet_connection.Read();
 
             // Patch gain to 1
             updateRunStatus("Patch Gain to 1");
             msg = patch(board_type, 0x400000, 0x400000);
             debugLog(msg);
             Thread.Sleep(3000);
-            datain = tc.Read();
+            datain = telnet_connection.Read();
             debugLog(datain);
 
             // Close UUT relay
             updateRunStatus("Close UUT Relay");
-            tc.WriteLine("write 1 6 0 1 0x10 {01}");
+            telnet_connection.WriteLine("write 1 6 0 1 0x10 {01}");
 
             // Reconnect the load
             //_relay_ctrl.Load = true;
 
             Thread.Sleep(1000);
-            datain = tc.Read();
+            datain = telnet_connection.Read();
             debugLog(datain);
+
+            string cmd_prefix = get_custom_command_prefix(telnet_connection);
 
             // Get UUT currect/voltage values
             updateRunStatus("Get UUT values");
-            CS_Current_Voltage cv = ember_parse_pinfo_registers(tc, board_type);
+            CS_Current_Voltage cv = ember_parse_pinfo_registers(telnet_connection, board_type);
             msg = string.Format("Cirrus I = {0:F8}, V = {1:F8}, P = {2:F8}", cv.Current, cv.Voltage, cv.Current * cv.Voltage);
             debugLog(msg);
-            cv = ember_parse_pinfo_registers(tc, board_type);
+            cv = ember_parse_pinfo_registers(telnet_connection, board_type);
             msg = string.Format("Cirrus I = {0:F8}, V = {1:F8}, P = {2:F8}", cv.Current, cv.Voltage, cv.Current * cv.Voltage);
             updateOutputStatus(msg);
 
@@ -1250,30 +1338,28 @@ namespace powercal
             //_relay_ctrl.Load = true;
 
             Thread.Sleep(3000);
-            datain = tc.Read();
+            datain = telnet_connection.Read();
             debugLog(datain);
 
-            tc.WriteLine(string.Format("cu {0}_pinfo", _cmd_prefix));
+            telnet_connection.WriteLine(string.Format("cu {0}_pinfo", _cmd_prefix));
             Thread.Sleep(500);
-            datain = tc.Read();
+            datain = telnet_connection.Read();
             debugLog(datain);
 
             // Get UUT currect/voltage values
             updateRunStatus("Get UUT calibrated values");
-            cv = ember_parse_pinfo_registers(tc, board_type);
+            cv = ember_parse_pinfo_registers(telnet_connection, board_type);
             msg = string.Format("Cirrus I = {0:F8}, V = {1:F8}, P = {2:F8}", cv.Current, cv.Voltage, cv.Current * cv.Voltage);
             debugLog(msg);
-            cv = ember_parse_pinfo_registers(tc, board_type);
+            cv = ember_parse_pinfo_registers(telnet_connection, board_type);
             msg = string.Format("Cirrus I = {0:F8}, V = {1:F8}, P = {2:F8}", cv.Current, cv.Voltage, cv.Current * cv.Voltage);
             updateOutputStatus(msg);
 
             updateRunStatus("Close telnet");
-            tc.Close();
+            telnet_connection.Close();
 
             updateRunStatus("Close Ember isachan");
-            _p_ember_isachan.CancelErrorRead();
-            _p_ember_isachan.Kill();
-            _p_ember_isachan.Close();
+            closeEmberISAChannels();
 
             // Disconnect Power
             _relay_ctrl.AC_Power = false;
