@@ -93,6 +93,8 @@ namespace powercal
                 comboBoxBoardTypes.SelectedIndex = 0;
             }
 
+            cleanupEmberTempPatchFile();
+
             // Report COM ports found in system
             string[] ports = SerialPort.GetPortNames();
             string msg = "";
@@ -136,6 +138,18 @@ namespace powercal
             updateOutputStatus(msg);
 
             kill_em3xx_load();
+        }
+
+        /// <summary>
+        /// Removes any Ember temp files and reports it in output status
+        /// </summary>
+        void cleanupEmberTempPatchFile()
+        {
+            string[] ember_temp_files = Ember.CleanupTempPatchFile();
+            foreach (string file in ember_temp_files)
+            {
+                updateOutputStatus(string.Format("Ember temp file found and removed {0}", file));
+            }
         }
 
         /// <summary>
@@ -377,67 +391,6 @@ namespace powercal
             {
                 MessageBox.Show(ex.Message);
             }
-        }
-
-        private void buttonRun_Click(object sender, EventArgs e)
-        {
-            kill_em3xx_load();
-            //this.buttonRun.Enabled = false;
-            this.textBoxOutputStatus.Clear();
-            initTextBoxRunStatus();
-            try
-            {
-                Stopwatch stopWatch = new Stopwatch();
-                stopWatch.Start();
-
-                bool run_using_ember = Properties.Settings.Default.Calibrate_With_Ember;
-                if (run_using_ember)
-                {
-                    calibrate_using_ember();
-                }
-                else
-                {
-                    calibrate_using_cirrus();
-                }
-                stopWatch.Stop();
-                TimeSpan ts = stopWatch.Elapsed;
-                // Format and display the TimeSpan value. 
-                string elapsedTime = String.Format("Elaspsed time {0:00} seconds", ts.Seconds);
-                updateOutputStatus(elapsedTime);
-
-                if (_sq != null)
-                    _sq.CloseSerialPort();
-
-                if (_meter != null)
-                    _meter.CloseSerialPort();
-
-            }
-            catch (Exception ex)
-            {
-                this.textBoxRunStatus.BackColor = Color.Red;
-                this.textBoxRunStatus.ForeColor = Color.White;
-                updateRunStatus("FAIL");
-                updateOutputStatus(ex.Message);
-
-                bool manual_relay = Properties.Settings.Default.Manual_Relay_Control;
-                if (manual_relay)
-                    _relay_ctrl.Disable = true;
-                _relay_ctrl.Ember = false;
-                _relay_ctrl.AC_Power = false;
-                _relay_ctrl.Load = false;
-                _relay_ctrl.Reset = false;
-                relaysSet();
-
-                if (_sq != null)
-                    _sq.CloseSerialPort();
-
-                if (_meter != null)
-                    _meter.CloseSerialPort();
-            }
-
-            kill_em3xx_load();
-
-            this.buttonRun.Enabled = true;
         }
 
         private void kill_em3xx_load(){
@@ -1367,5 +1320,77 @@ namespace powercal
 
         }
 
+        /// <summary>
+        /// Run Calibration
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        private void buttonRun_Click(object sender, EventArgs e)
+        {
+            //this.buttonRun.Enabled = false;
+
+            this.textBoxOutputStatus.Clear();
+            initTextBoxRunStatus();
+
+            kill_em3xx_load();
+
+            try
+            {
+                Stopwatch stopWatch = new Stopwatch();
+                stopWatch.Start();
+
+                cleanupEmberTempPatchFile();
+
+                bool run_using_ember = Properties.Settings.Default.Calibrate_With_Ember;
+                if (run_using_ember)
+                {
+                    calibrate_using_ember();
+                }
+                else
+                {
+                    calibrate_using_cirrus();
+                }
+
+                stopWatch.Stop();
+                TimeSpan ts = stopWatch.Elapsed;
+                // Format and display the TimeSpan value. 
+                string elapsedTime = String.Format("Elaspsed time {0:00} seconds", ts.Seconds);
+                updateOutputStatus(elapsedTime);
+
+                if (_sq != null)
+                    _sq.CloseSerialPort();
+
+                if (_meter != null)
+                    _meter.CloseSerialPort();
+
+            }
+            catch (Exception ex)
+            {
+                this.textBoxRunStatus.BackColor = Color.Red;
+                this.textBoxRunStatus.ForeColor = Color.White;
+                updateRunStatus("FAIL");
+                updateOutputStatus(ex.Message);
+
+                bool manual_relay = Properties.Settings.Default.Manual_Relay_Control;
+                if (manual_relay)
+                    _relay_ctrl.Disable = true;
+                _relay_ctrl.Ember = false;
+                _relay_ctrl.AC_Power = false;
+                _relay_ctrl.Load = false;
+                _relay_ctrl.Reset = false;
+                relaysSet();
+
+                if (_sq != null)
+                    _sq.CloseSerialPort();
+
+                if (_meter != null)
+                    _meter.CloseSerialPort();
+            }
+
+            kill_em3xx_load();
+
+            this.buttonRun.Enabled = true;
+        }
     }
+
 }

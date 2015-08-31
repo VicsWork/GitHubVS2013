@@ -174,6 +174,42 @@ namespace powercal
         }
 
         /// <summary>
+        /// Removes the temp file that is created when a operation such as em3xx_load is initiated
+        /// This is helpful when the load failed on a device and the file was not removed.  
+        /// The next load will fail if this file is found present
+        /// </summary>
+        /// <returns>Array with any file found and deleted</returns>
+        public static string[] CleanupTempPatchFile()
+        {
+            List<string> removed_list = new List<string>();
+
+            string path = Environment.GetEnvironmentVariable("LOCALAPPDATA");
+            path = Path.Combine(path, @"VirtualStore\Program Files (x86)\Ember\ISA3 Utilities\bin");
+            
+            if (Directory.Exists(path))
+            {
+                string[] files = Directory.GetFiles(path, "em3xx_load_temp_patch_file_*.s37");
+                foreach(string file in files){
+                    File.Delete(file);
+                    removed_list.Add(file);
+                }
+            }
+
+            path = Environment.GetEnvironmentVariable("USERPROFILE");
+            if (Directory.Exists(path))
+            {
+                string[] files = Directory.GetFiles(path, "em3xx_load_temp_patch_file_*.s37");
+                foreach (string file in files)
+                {
+                    File.Delete(file);
+                    removed_list.Add(file);
+                }
+            }
+            
+            return removed_list.ToArray();
+        }
+
+        /// <summary>
         /// Breaks an int into 3 bytes
         /// </summary>
         /// <param name="value"></param>
