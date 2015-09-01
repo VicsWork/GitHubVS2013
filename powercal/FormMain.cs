@@ -19,7 +19,8 @@ using NationalInstruments.DAQmx;
 
 namespace powercal
 {
-    enum BoardTypes { Humpback, Hooktooth, Milkshark, Zebrashark };
+    //enum BoardTypes { Humpback, Hooktooth, Milkshark, Zebrashark };
+    enum BoardTypes { Hooktooth, Humpback, Milkshark, Zebrashark };
 
     public partial class FormMain : Form
     {
@@ -303,12 +304,13 @@ namespace powercal
         /// <param name="txt"></param>
         private void updateRunStatus(string txt)
         {
-            string line = string.Format("{0:G}: {1}\r\n", DateTime.Now, txt);
-
-            Trace.WriteLine(line);
-
             this.textBoxRunStatus.Text = txt;
             this.textBoxRunStatus.Update();
+            updateOutputStatus(txt);
+
+            string line = string.Format("{0:G}: {1}", DateTime.Now, txt);
+            Trace.WriteLine(line);
+
         }
 
         /// <summary>
@@ -443,7 +445,7 @@ namespace powercal
             double voltage_load = 120;
             double voltage_delta = voltage_load * 0.2;
             double current_load = voltage_load/500; // 500 Ohms
-            double current_delta = current_load * 0.2;
+            double current_delta = current_load * 0.3;
 
             _voltage_reference = 240;
             _current_reference = 15;
@@ -465,7 +467,7 @@ namespace powercal
 
             _voltage_high_limit = voltage_load + voltage_delta;
             _voltage_low_limit = voltage_load - voltage_delta;
-            _current_high_limit = current_load + current_delta;
+            _current_high_limit = current_load + 5*current_delta;
             _current_low_limit = current_load - current_delta;
 
         }
@@ -643,6 +645,16 @@ namespace powercal
                 else
                 {
                     break;
+                }
+
+                switch (board_type)
+                {
+                    case (powercal.BoardTypes.Zebrashark):
+                        _relay_ctrl.AC_Power = false;
+                        relaysSet();
+                        _relay_ctrl.AC_Power = true;
+                        relaysSet();
+                        break;
                 }
 
             }
@@ -1145,7 +1157,7 @@ namespace powercal
             string msg = "";
             if (!data.Contains("pload"))
             {
-                msg = string.Format("Unable to get custum command output list from Ember\r\n.  Output was: {0}", data);
+                msg = string.Format("Unable to get custum command output list from Ember.  Output was: {0}", data);
                 throw new Exception(msg);
             }
 
@@ -1181,14 +1193,44 @@ namespace powercal
             bool manual_relay = Properties.Settings.Default.Manual_Relay_Control;
             if (manual_relay)
                 _relay_ctrl.Disable = true;
-            //_relay_ctrl.Load = false;
-            _relay_ctrl.Ember = false;
             _relay_ctrl.Reset = false;
-
+            _relay_ctrl.Ember = true;
             _relay_ctrl.AC_Power = true;
             _relay_ctrl.Load = true;
             relaysSet();
+
+            // Open Ember isa channels
+            updateRunStatus("Start Ember isachan");
+            openEmberISAChannels();
+
+            // Create a new telnet connection
+            updateRunStatus("Start telnet");
+            TelnetConnection telnet_connection = new TelnetConnection("localhost", 4900);
+            string datain = telnet_connection.Read();
+
+            // Patch gain to 1
+            updateRunStatus("Patch Gain to 1");
+            msg = patch(board_type, 0x400000, 0x400000);
+            debugLog(msg);
+            Thread.Sleep(3000);
+            datain = telnet_connection.Read();
+            debugLog(datain);
+
+            // Force reset by cycle power
+            _relay_ctrl.AC_Power = false;
+            relaysSet();
+            _relay_ctrl.AC_Power = true;
+            relaysSet();
             Thread.Sleep(1000);
+
+            // Close UUT relay
+            updateRunStatus("Close UUT Relay");
+            telnet_connection.WriteLine("write 1 6 0 1 0x10 {01}");
+
+            Thread.Sleep(1000);
+            datain = telnet_connection.Read();
+            debugLog(datain);
+
 
             // Setup multi-meter
             // Take a measurement with load on
@@ -1218,41 +1260,6 @@ namespace powercal
                     throw new Exception(msg);
                 }
             }
-            // Disconnect the load (help cool off)
-            //_relay_ctrl.Load = false;
-
-            // Connect Ember
-            updateRunStatus("Connect Ember");
-            _relay_ctrl.Ember = true;
-            relay_log_status();
-
-            // Open Ember isa channels
-            updateRunStatus("Start Ember isachan");
-            openEmberISAChannels();
-
-            // Create a new telnet connection
-            updateRunStatus("Start telnet");
-            TelnetConnection telnet_connection = new TelnetConnection("localhost", 4900);
-            string datain = telnet_connection.Read();
-
-            // Patch gain to 1
-            updateRunStatus("Patch Gain to 1");
-            msg = patch(board_type, 0x400000, 0x400000);
-            debugLog(msg);
-            Thread.Sleep(3000);
-            datain = telnet_connection.Read();
-            debugLog(datain);
-
-            // Close UUT relay
-            updateRunStatus("Close UUT Relay");
-            telnet_connection.WriteLine("write 1 6 0 1 0x10 {01}");
-
-            // Reconnect the load
-            //_relay_ctrl.Load = true;
-
-            Thread.Sleep(1000);
-            datain = telnet_connection.Read();
-            debugLog(datain);
 
             string cmd_prefix = get_custom_command_prefix(telnet_connection);
 
@@ -1303,9 +1310,6 @@ namespace powercal
             msg = string.Format("Meter I = {0:F8}, V = {1:F8}, P = {2:F8}", current_meter, voltage_meter, current_meter * voltage_meter);
             updateOutputStatus(msg);
 
-            // Disconnect load
-            //_relay_ctrl.Load = false;
-
             if (voltage_meter < _voltage_low_limit || voltage_meter > _voltage_high_limit)
             {
                 msg = string.Format("Meter voltage before calibration not within limit values: {0:F8} < {1:F8} < {2:F8}", _voltage_low_limit, voltage_meter, _voltage_high_limit);
@@ -1334,10 +1338,13 @@ namespace powercal
             updateRunStatus("Patch Gain");
             msg = patch(board_type, voltage_gain_int, current_gain_int);
 
-            // Reconnect the load
-            //_relay_ctrl.Load = true;
+            // Force reset by cycle power
+            _relay_ctrl.AC_Power = false;
+            relaysSet();
+            _relay_ctrl.AC_Power = true;
+            relaysSet();
+            Thread.Sleep(1000);
 
-            Thread.Sleep(3000);
             datain = telnet_connection.Read();
             debugLog(datain);
 

@@ -25,7 +25,7 @@ namespace powercal.Properties {
         
         [global::System.Configuration.UserScopedSettingAttribute()]
         [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
-        [global::System.Configuration.DefaultSettingValueAttribute("COM5")]
+        [global::System.Configuration.DefaultSettingValueAttribute("COM1")]
         public string Meter_COM_Port_Name {
             get {
                 return ((string)(this["Meter_COM_Port_Name"]));
@@ -49,7 +49,7 @@ namespace powercal.Properties {
         
         [global::System.Configuration.UserScopedSettingAttribute()]
         [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
-        [global::System.Configuration.DefaultSettingValueAttribute("False")]
+        [global::System.Configuration.DefaultSettingValueAttribute("True")]
         public bool Manual_Relay_Control {
             get {
                 return ((bool)(this["Manual_Relay_Control"]));
@@ -140,6 +140,18 @@ namespace powercal.Properties {
             }
             set {
                 this["Calibrate_With_Ember"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("")]
+        public string Setting {
+            get {
+                return ((string)(this["Setting"]));
+            }
+            set {
+                this["Setting"] = value;
             }
         }
     }
