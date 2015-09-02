@@ -1169,7 +1169,8 @@ namespace powercal
                 throw new Exception(msg);
             }
 
-            return match.Groups[1].Value;
+            cmd_pre = match.Groups[1].Value;
+            return cmd_pre;
         }
         
         /// <summary>
