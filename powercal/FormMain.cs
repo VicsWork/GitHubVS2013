@@ -19,8 +19,7 @@ using NationalInstruments.DAQmx;
 
 namespace powercal
 {
-    //enum BoardTypes { Humpback, Hooktooth, Milkshark, Zebrashark };
-    enum BoardTypes { Hooktooth, Humpback, Milkshark, Zebrashark };
+    enum BoardTypes { Hornshark, Mudshark, Humpback, Hooktooth, Milkshark, Zebrashark };
 
     public partial class FormMain : Form
     {
@@ -47,12 +46,12 @@ namespace powercal
         /// <summary>
         /// Voltage and current reference value
         /// </summary>
-        double _voltage_reference = 0.0;
-        double _current_reference = 0.0;
+        int _voltage_reference = 0;
+        int _current_reference = 0;
         /// <summary>
-        /// Prefix to custom commnds (soon to be auto configured)
+        /// Prefix to custom pload and oinfo commands (soon to be auto configured)
         /// </summary>
-        string _cmd_prefix;
+        string _cmd_prefix = "cs5490"; // UART interface
 
 
         /// <summary>
@@ -70,7 +69,7 @@ namespace powercal
             public double Current;
             public double Voltage;
 
-            public CS_Current_Voltage(double i, double v)
+            public CS_Current_Voltage(double i=0.0, double v=0.0)
             {
                 Current = i;
                 Voltage = v;
@@ -292,7 +291,11 @@ namespace powercal
             }
         }
 
-        private void debugLog(string txt)
+        /// <summary>
+        /// Writes to the trace
+        /// </summary>
+        /// <param name="txt"></param>
+        private void traceLog(string txt)
         {
             string line = string.Format("{0:G}: {1}\r\n", DateTime.Now, txt);
             Trace.WriteLine(line);
@@ -378,7 +381,7 @@ namespace powercal
                 MessageBox.Show(msg_dlg);
             }
             string status = _relay_ctrl.ToStatusText();
-            debugLog(status);
+            traceLog(status);
             updateOutputStatus(status);
 
         }
@@ -389,10 +392,14 @@ namespace powercal
         private void relay_log_status()
         {
             string status = _relay_ctrl.ToStatusText();
-            debugLog(status);
+            traceLog(status);
             updateOutputStatus(status);
         }
 
+        /// <summary>
+        /// Writes to first DIO port if one if found
+        /// </summary>
+        /// <param name="value">value to write</param>
         private void dio_write(int value)
         {
             try
@@ -415,6 +422,9 @@ namespace powercal
             }
         }
 
+        /// <summary>
+        /// Kills any em3xx_load process running in the system
+        /// </summary>
         private void kill_em3xx_load(){
             try
             {
@@ -463,16 +473,26 @@ namespace powercal
                 case BoardTypes.Zebrashark:
                     _cmd_prefix = "cs5480";  // SPI interface
                     break;
+                case BoardTypes.Milkshark:
+                case BoardTypes.Mudshark:
+                    _current_reference = 10;
+                    break;
             }
 
             _voltage_high_limit = voltage_load + voltage_delta;
             _voltage_low_limit = voltage_load - voltage_delta;
-            _current_high_limit = current_load + 5*current_delta;
+            _current_high_limit = current_load + 5*current_delta;  // On Hornshark current measurement is very high with gain set to 1
             _current_low_limit = current_load - current_delta;
 
         }
 
-        CS_Current_Voltage ember_parse_pinfo_registers(TelnetConnection tc, BoardTypes board_type)
+        /// <summary>
+        /// Sends a pload command and returns the current and voltage values
+        /// </summary>
+        /// <param name="tc">Telnet connection to the EMber</param>
+        /// <param name="board_type">What board are we using</param>
+        /// <returns>Current/Voltage structure values</returns>
+        CS_Current_Voltage ember_parse_pinfo_registers(TelnetConnection tc)
         {
             string rawCurrentPattern = "Raw IRMS: ([0-9,A-F]{8})";
             string rawVoltagePattern = "Raw VRMS: ([0-9,A-F]{8})";
@@ -520,7 +540,7 @@ namespace powercal
 
             }
 
-            CS_Current_Voltage current_voltage = new CS_Current_Voltage(current_cs, voltage_cs);
+            CS_Current_Voltage current_voltage = new CS_Current_Voltage(i:current_cs, v:voltage_cs);
             return current_voltage;
         }
 
@@ -562,7 +582,7 @@ namespace powercal
             if (e.Data != null)
             {
                 string str = "Error: " + e.Data;
-                debugLog(str);
+                traceLog(str);
                 setOutputStatus(str);
             }
         }
@@ -571,7 +591,7 @@ namespace powercal
         {
             string str = e.Data;
             //setOutputStatus(str);
-            debugLog(str);
+            traceLog(str);
 
         }
 
@@ -587,19 +607,21 @@ namespace powercal
             Ember ember = new Ember();
             ember.EmberBinPath = Properties.Settings.Default.Ember_BinPath;
             ember.BatchFilePath = _ember_batchfile_path;
+            ember.VoltageRefereceValue = _voltage_reference;
+            ember.CurrentRefereceValue = _current_reference;
             switch (board_type)
             {
                 case (powercal.BoardTypes.Humpback):
-                    ember.VAdress = 0x08080980;
-                    ember.IAdress = 0x08080984;
+                    ember.VoltageAdress = 0x08080980;
+                    ember.CurrentAdress = 0x08080984;
                     ember.RefereceAdress = 0x08080988;
                     ember.ACOffsetAdress = 0x080809CC;
                     break;
                 case (powercal.BoardTypes.Zebrashark):
                 case (powercal.BoardTypes.Hooktooth):
                 case (powercal.BoardTypes.Milkshark):
-                    ember.VAdress = 0x08040980;
-                    ember.IAdress = 0x08040984;
+                    ember.VoltageAdress = 0x08040980;
+                    ember.CurrentAdress = 0x08040984;
                     ember.ACOffsetAdress = 0x080409CC;
                     break;
             }
@@ -997,24 +1019,24 @@ namespace powercal
             switch (board_type)
             {
                 case (powercal.BoardTypes.Humpback):
-                    ember.VAdress = 0x08080980;
-                    ember.IAdress = 0x08080984;
+                    ember.VoltageAdress = 0x08080980;
+                    ember.CurrentAdress = 0x08080984;
                     ember.RefereceAdress = 0x08080988;
                     ember.ACOffsetAdress = 0x080809CC;
 
-                    ember.VRefereceValue = 0xF0; // 240 V
-                    ember.IRefereceValue = 0x0F; // 15 A
+                    ember.VoltageRefereceValue = 0xF0; // 240 V
+                    ember.CurrentRefereceValue = 0x0F; // 15 A
 
                     break;
                 case (powercal.BoardTypes.Zebrashark):
                 case (powercal.BoardTypes.Hooktooth):
                 case (powercal.BoardTypes.Milkshark):
-                    ember.VAdress = 0x08040980;
-                    ember.IAdress = 0x08040984;
+                    ember.VoltageAdress = 0x08040980;
+                    ember.CurrentAdress = 0x08040984;
                     ember.ACOffsetAdress = 0x080409CC;
 
-                    ember.VRefereceValue = 0x78; // 120 V
-                    ember.IRefereceValue = 0x0F; // 15 A
+                    ember.VoltageRefereceValue = 0x78; // 120 V
+                    ember.CurrentRefereceValue = 0x0F; // 15 A
 
                     break;
             }
@@ -1212,10 +1234,10 @@ namespace powercal
             // Patch gain to 1
             updateRunStatus("Patch Gain to 1");
             msg = patch(board_type, 0x400000, 0x400000);
-            debugLog(msg);
+            traceLog(msg);
             Thread.Sleep(3000);
             datain = telnet_connection.Read();
-            debugLog(datain);
+            traceLog(datain);
 
             // Force reset by cycle power
             _relay_ctrl.AC_Power = false;
@@ -1230,7 +1252,7 @@ namespace powercal
 
             Thread.Sleep(1000);
             datain = telnet_connection.Read();
-            debugLog(datain);
+            traceLog(datain);
 
 
             // Setup multi-meter
@@ -1257,7 +1279,7 @@ namespace powercal
                 if (meter_load_voltage < _voltage_low_limit || meter_load_voltage > _voltage_high_limit)
                 {
                     msg = string.Format("Meter measured Vrms before calibration is not within limits values: {0:F8} < {1:F8} < {2:F8}", _voltage_low_limit, meter_load_voltage, _voltage_high_limit);
-                    debugLog(msg);
+                    traceLog(msg);
                     throw new Exception(msg);
                 }
             }
@@ -1266,10 +1288,10 @@ namespace powercal
 
             // Get UUT currect/voltage values
             updateRunStatus("Get UUT values");
-            CS_Current_Voltage cv = ember_parse_pinfo_registers(telnet_connection, board_type);
+            CS_Current_Voltage cv = ember_parse_pinfo_registers(telnet_connection);
             msg = string.Format("Cirrus I = {0:F8}, V = {1:F8}, P = {2:F8}", cv.Current, cv.Voltage, cv.Current * cv.Voltage);
-            debugLog(msg);
-            cv = ember_parse_pinfo_registers(telnet_connection, board_type);
+            traceLog(msg);
+            cv = ember_parse_pinfo_registers(telnet_connection);
             msg = string.Format("Cirrus I = {0:F8}, V = {1:F8}, P = {2:F8}", cv.Current, cv.Voltage, cv.Current * cv.Voltage);
             updateOutputStatus(msg);
 
@@ -1293,7 +1315,7 @@ namespace powercal
             current_meter_str = _meter.Measure();
             double current_meter = Double.Parse(current_meter_str);
             msg = string.Format("Meter I = {0:F8}", current_meter);
-            debugLog(msg);
+            traceLog(msg);
             current_meter_str = _meter.Measure();
             current_meter = Double.Parse(current_meter_str);
 
@@ -1302,7 +1324,7 @@ namespace powercal
             voltage_meter_str = _meter.Measure();
             double voltage_meter = Double.Parse(voltage_meter_str);
             msg = string.Format("Meter V = {0:F8}", voltage_meter);
-            debugLog(msg);
+            traceLog(msg);
             voltage_meter_str = _meter.Measure();
             voltage_meter = Double.Parse(voltage_meter_str);
 
@@ -1347,19 +1369,19 @@ namespace powercal
             Thread.Sleep(1000);
 
             datain = telnet_connection.Read();
-            debugLog(datain);
+            traceLog(datain);
 
             telnet_connection.WriteLine(string.Format("cu {0}_pinfo", _cmd_prefix));
             Thread.Sleep(500);
             datain = telnet_connection.Read();
-            debugLog(datain);
+            traceLog(datain);
 
             // Get UUT currect/voltage values
             updateRunStatus("Get UUT calibrated values");
-            cv = ember_parse_pinfo_registers(telnet_connection, board_type);
+            cv = ember_parse_pinfo_registers(telnet_connection);
             msg = string.Format("Cirrus I = {0:F8}, V = {1:F8}, P = {2:F8}", cv.Current, cv.Voltage, cv.Current * cv.Voltage);
-            debugLog(msg);
-            cv = ember_parse_pinfo_registers(telnet_connection, board_type);
+            traceLog(msg);
+            cv = ember_parse_pinfo_registers(telnet_connection);
             msg = string.Format("Cirrus I = {0:F8}, V = {1:F8}, P = {2:F8}", cv.Current, cv.Voltage, cv.Current * cv.Voltage);
             updateOutputStatus(msg);
 
@@ -1403,7 +1425,7 @@ namespace powercal
             _meter.CloseSerialPort();
             voltage_meter = Double.Parse(voltage_meter_str);
             msg = string.Format("Meter V = {0:F8}", voltage_meter);
-            debugLog(msg);
+            traceLog(msg);
             updateOutputStatus(msg);
 
             this.textBoxRunStatus.BackColor = Color.Green;
@@ -1448,7 +1470,7 @@ namespace powercal
                 stopWatch.Stop();
                 TimeSpan ts = stopWatch.Elapsed;
                 // Format and display the TimeSpan value. 
-                string elapsedTime = String.Format("Elaspsed time {0:00} seconds", ts.Seconds);
+                string elapsedTime = String.Format("Elaspsed time {0:00} seconds", ts.TotalSeconds);
                 updateOutputStatus(elapsedTime);
 
                 if (_sq != null)
