@@ -69,7 +69,7 @@ namespace powercal
             public double Current;
             public double Voltage;
 
-            public CS_Current_Voltage(double i=0.0, double v=0.0)
+            public CS_Current_Voltage(double i = 0.0, double v = 0.0)
             {
                 Current = i;
                 Voltage = v;
@@ -425,7 +425,8 @@ namespace powercal
         /// <summary>
         /// Kills any em3xx_load process running in the system
         /// </summary>
-        private void kill_em3xx_load(){
+        private void kill_em3xx_load()
+        {
             try
             {
                 Process[] processes = System.Diagnostics.Process.GetProcessesByName("em3xx_load");
@@ -454,7 +455,7 @@ namespace powercal
             // Default values (USA)
             double voltage_load = 120;
             double voltage_delta = voltage_load * 0.2;
-            double current_load = voltage_load/500; // 500 Ohms
+            double current_load = voltage_load / 500; // 500 Ohms
             double current_delta = current_load * 0.3;
 
             _voltage_reference = 240;
@@ -466,7 +467,7 @@ namespace powercal
             {
                 case BoardTypes.Humpback:
                     voltage_load = 240;
-                    current_load = voltage_load/2000; // 2K Ohms
+                    current_load = voltage_load / 2000; // 2K Ohms
                     voltage_delta = voltage_load * 0.3;
                     current_delta = current_load * 0.4;
                     break;
@@ -481,7 +482,7 @@ namespace powercal
 
             _voltage_high_limit = voltage_load + voltage_delta;
             _voltage_low_limit = voltage_load - voltage_delta;
-            _current_high_limit = current_load + 5*current_delta;  // On Hornshark current measurement is very high with gain set to 1
+            _current_high_limit = current_load + 5 * current_delta;  // On Hornshark current measurement is very high with gain set to 1
             _current_low_limit = current_load - current_delta;
 
         }
@@ -540,7 +541,7 @@ namespace powercal
 
             }
 
-            CS_Current_Voltage current_voltage = new CS_Current_Voltage(i:current_cs, v:voltage_cs);
+            CS_Current_Voltage current_voltage = new CS_Current_Voltage(i: current_cs, v: voltage_cs);
             return current_voltage;
         }
 
@@ -1194,7 +1195,51 @@ namespace powercal
             cmd_pre = match.Groups[1].Value;
             return cmd_pre;
         }
-        
+
+        /// <summary>
+        /// Handels a board reset
+        /// </summary>
+        /// <param name="board_type"></param>
+        void reset_handler(BoardTypes board_type)
+        {
+
+            switch (board_type)
+            {
+                // These boards are hanging on reset
+                case BoardTypes.Hornshark:
+                case BoardTypes.Mudshark:
+                    // Force reset by cycle power
+                    updateRunStatus("Force reset by cycle power");
+                    _relay_ctrl.AC_Power = false;
+                    relaysSet();
+                    _relay_ctrl.AC_Power = true;
+                    relaysSet();
+                    Thread.Sleep(1000); 
+                    break;
+            }
+        }
+
+        /// <summary>
+        /// Closes the board releay using custom command
+        /// </summary>
+        /// <param name="board_type"></param>
+        /// <param name="telnet_connection"></param>
+        void close_board_relay(BoardTypes board_type, TelnetConnection telnet_connection)
+        {
+            switch (board_type)
+            {
+                // These boards have relays
+                case BoardTypes.Hooktooth:
+                case BoardTypes.Hornshark:
+                case BoardTypes.Humpback:
+                case BoardTypes.Zebrashark:
+                    updateRunStatus("Close UUT Relay");
+                    telnet_connection.WriteLine("write 1 6 0 1 0x10 {01}");
+                    break;
+            }
+
+        }
+
         /// <summary>
         /// Calibrates using just the Ember
         /// Voltage and Current register values are gathered using custom commands
@@ -1235,20 +1280,16 @@ namespace powercal
             updateRunStatus("Patch Gain to 1");
             msg = patch(board_type, 0x400000, 0x400000);
             traceLog(msg);
+
             Thread.Sleep(3000);
             datain = telnet_connection.Read();
             traceLog(datain);
 
             // Force reset by cycle power
-            _relay_ctrl.AC_Power = false;
-            relaysSet();
-            _relay_ctrl.AC_Power = true;
-            relaysSet();
-            Thread.Sleep(1000);
+            reset_handler(board_type);
 
             // Close UUT relay
-            updateRunStatus("Close UUT Relay");
-            telnet_connection.WriteLine("write 1 6 0 1 0x10 {01}");
+            close_board_relay(board_type, telnet_connection);
 
             Thread.Sleep(1000);
             datain = telnet_connection.Read();
@@ -1361,12 +1402,12 @@ namespace powercal
             updateRunStatus("Patch Gain");
             msg = patch(board_type, voltage_gain_int, current_gain_int);
 
+            Thread.Sleep(3000);
+            datain = telnet_connection.Read();
+            traceLog(datain);
+
             // Force reset by cycle power
-            _relay_ctrl.AC_Power = false;
-            relaysSet();
-            _relay_ctrl.AC_Power = true;
-            relaysSet();
-            Thread.Sleep(1000);
+            reset_handler(board_type);
 
             datain = telnet_connection.Read();
             traceLog(datain);
