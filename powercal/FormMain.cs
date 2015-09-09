@@ -481,7 +481,7 @@ namespace powercal
 
             _voltage_high_limit = voltage_load + voltage_delta;
             _voltage_low_limit = voltage_load - voltage_delta;
-            _current_high_limit = current_load + 5 * current_delta;  // On Hornshark current measurement is very high with gain set to 1
+            _current_high_limit = current_load + 2*current_delta;  // On Hornshark current measurement is very high with gain set to 1
             _current_low_limit = current_load - current_delta;
 
         }
@@ -1222,7 +1222,7 @@ namespace powercal
                 case BoardTypes.Hornshark:
                 case BoardTypes.Mudshark:
                     // Force reset by cycle power
-                    updateRunStatus("Force reset by cycle power");
+                    updateRunStatus("Reset by cycle power");
                     _relay_ctrl.AC_Power = false;
                     relaysSet();
                     _relay_ctrl.AC_Power = true;
@@ -1558,6 +1558,7 @@ namespace powercal
             }
 
             kill_em3xx_load();
+            cleanupEmberTempPatchFile();
 
             this.buttonRun.Enabled = true;
         }
