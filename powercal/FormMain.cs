@@ -383,7 +383,6 @@ namespace powercal
             string status = _relay_ctrl.ToStatusText();
             traceLog(status);
             updateOutputStatus(status);
-
         }
 
         /// <summary>
@@ -578,6 +577,11 @@ namespace powercal
             return RegHex_ToDouble(val_int); ;
         }
 
+        /// <summary>
+        /// Handels error data from the em3xx_load process
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
         void p_ember_isachan_ErrorDataReceived(object sender, DataReceivedEventArgs e)
         {
             if (e.Data != null)
@@ -588,12 +592,16 @@ namespace powercal
             }
         }
 
+        /// <summary>
+        /// Handels output data from the em3xx_load process
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
         void p_ember_isachan_OutputDataReceived(object sender, DataReceivedEventArgs e)
         {
             string str = e.Data;
             //setOutputStatus(str);
             traceLog(str);
-
         }
 
         /// <summary>
@@ -689,6 +697,7 @@ namespace powercal
 
             return coding_output;
         }
+
         /// <summary>
         /// Invokes the DIO test dialog
         /// </summary>
@@ -770,6 +779,10 @@ namespace powercal
             dlg.Show();
         }
 
+        [Obsolete("Method is deprecated, please use calibrate_using_ember instead.")]
+        /// <summary>
+        /// Calibrates using the cirrus uart
+        /// </summary>
         private void calibrate_using_cirrus()
         {
 

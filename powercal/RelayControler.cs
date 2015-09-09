@@ -98,11 +98,6 @@ namespace powercal
         /// <summary>
         /// The DIO port info
         /// </summary>
-        public string DevPort
-        {
-            get { return _dev_port; }
-            set { _dev_port = value; }
-        }
         private string _dev_port;
 
         /// <summary>
@@ -181,7 +176,7 @@ namespace powercal
             using (Task digitalWriteTask = new Task())
             {
                 //  Create an Digital Output channel and name it.
-                string linestr = string.Format("{0}/line{1}", DevPort, linenum);
+                string linestr = string.Format("{0}/line{1}", _dev_port, linenum);
                 string name = string.Format("line{0}", linenum);
                 digitalWriteTask.DOChannels.CreateChannel(linestr, name, ChannelLineGrouping.OneChannelForEachLine);
 
@@ -248,7 +243,7 @@ namespace powercal
             using (Task digitalReaderTask = new Task())
             {
                 //  Create an Digital Output channel and name it.
-                string linestr = string.Format("{0}/line{1}", DevPort, linenum);
+                string linestr = string.Format("{0}/line{1}", _dev_port, linenum);
                 string name = string.Format("line{0}", linenum);
                 digitalReaderTask.DOChannels.CreateChannel(linestr, name, ChannelLineGrouping.OneChannelForEachLine);
 
@@ -313,6 +308,5 @@ namespace powercal
 
             return status;
         }
-
     }
 }
