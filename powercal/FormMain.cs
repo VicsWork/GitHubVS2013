@@ -23,7 +23,6 @@ namespace powercal
 
     public partial class FormMain : Form
     {
-        CSSequencer _sq = null;
         MultiMeter _meter = null;
         RelayControler _relay_ctrl = new RelayControler();
 
@@ -118,15 +117,9 @@ namespace powercal
             // Report COM ports found in system
             string[] ports = SerialPort.GetPortNames();
             string msg = "";
-            bool detected_cs = false;
             foreach (string portname in ports)
             {
                 msg += string.Format("{0}, ", portname);
-
-                if (portname == Properties.Settings.Default.CS_COM_Port_Name)
-                {
-                    detected_cs = true;
-                }
             }
             if (msg != "")
             {
@@ -137,16 +130,8 @@ namespace powercal
 
             // Detect whether meter is connected to one of the ports
             bool detected_meter = autoDetectMeterCOMPort();
-            if (!detected_cs && !detected_meter && ports.Length > 0)
-            {
-                Properties.Settings.Default.CS_COM_Port_Name = ports[0];
-                Properties.Settings.Default.Save();
-            }
 
             // Ember path
-            msg = string.Format("Cirrus Logic comunications port = {0}", Properties.Settings.Default.CS_COM_Port_Name);
-            updateOutputStatus(msg);
-
             if (!Directory.Exists(Properties.Settings.Default.Ember_BinPath))
             {
                 msg = string.Format("Unable to find Ember bin path \"{0}\"", Properties.Settings.Default.Ember_BinPath);
@@ -481,7 +466,7 @@ namespace powercal
 
             _voltage_high_limit = voltage_load + voltage_delta;
             _voltage_low_limit = voltage_load - voltage_delta;
-            _current_high_limit = current_load + 3*current_delta;  // On Hornshark current measurement is very high with gain set to 1
+            _current_high_limit = current_load + 3 * current_delta;  // On Hornshark current measurement is very high with gain set to 1
             _current_low_limit = current_load - current_delta;
 
         }
@@ -699,18 +684,6 @@ namespace powercal
         }
 
         /// <summary>
-        /// Invokes the DIO test dialog
-        /// </summary>
-        /// <param name="sender"></param>
-        /// <param name="e"></param>
-        private void digitalOutputToolStripMenuItem_Click(object sender, EventArgs e)
-        {
-            FormDigitalPortTest dlg = new FormDigitalPortTest();
-            //dlg.ShowDialog();
-            dlg.Show();
-        }
-
-        /// <summary>
         /// Invikes the settings dialog
         /// </summary>
         /// <param name="sender"></param>
@@ -720,11 +693,6 @@ namespace powercal
             FormSettings dlg = new FormSettings();
 
             // COM ports
-            dlg.checkBoxUseEmber.Checked = Properties.Settings.Default.Calibrate_With_Ember;
-
-            dlg.TextBoxCirrusCOM.Text = Properties.Settings.Default.CS_COM_Port_Name;
-
-            dlg.TextBoxMeterCOM.Text = Properties.Settings.Default.Meter_COM_Port_Name;
             dlg.CheckBoxManualMultiMeter.Checked = Properties.Settings.Default.Meter_Manual_Measurement;
 
 
@@ -734,7 +702,6 @@ namespace powercal
             // DIO line assigment
             dlg.NumericUpDownACPower.Value = Properties.Settings.Default.DIO_ACPower_LineNum;
             dlg.NumericUpDownLoad.Value = Properties.Settings.Default.DIO_Load_LinNum;
-            dlg.NumericUpDownReset.Value = Properties.Settings.Default.DIO_Reset_LineNum;
             dlg.NumericUpDownEmber.Value = Properties.Settings.Default.DIO_Ember_LineNum;
 
             // Ember
@@ -744,10 +711,6 @@ namespace powercal
             if (rc == DialogResult.OK)
             {
                 // COM ports
-                Properties.Settings.Default.Calibrate_With_Ember = dlg.checkBoxUseEmber.Checked;
-
-                Properties.Settings.Default.CS_COM_Port_Name = dlg.TextBoxCirrusCOM.Text;
-
                 Properties.Settings.Default.Meter_COM_Port_Name = dlg.TextBoxMeterCOM.Text;
                 Properties.Settings.Default.Meter_Manual_Measurement = dlg.CheckBoxManualMultiMeter.Checked;
 
@@ -757,7 +720,6 @@ namespace powercal
                 // DIO line assigment
                 Properties.Settings.Default.DIO_ACPower_LineNum = (int)dlg.NumericUpDownACPower.Value;
                 Properties.Settings.Default.DIO_Load_LinNum = (int)dlg.NumericUpDownLoad.Value;
-                Properties.Settings.Default.DIO_Reset_LineNum = (int)dlg.NumericUpDownReset.Value;
                 Properties.Settings.Default.DIO_Ember_LineNum = (int)dlg.NumericUpDownEmber.Value;
 
                 // Ember
@@ -779,352 +741,6 @@ namespace powercal
             dlg.Show();
         }
 
-        [Obsolete("Method is deprecated, please use calibrate_using_ember instead.")]
-        /// <summary>
-        /// Calibrates using the cirrus uart
-        /// </summary>
-        private void calibrate_using_cirrus()
-        {
-
-            set_board_calibration_values();
-
-            bool manual_measure = Properties.Settings.Default.Meter_Manual_Measurement;
-
-            string msg;
-            updateOutputStatus("===============================Start Calibration==============================");
-            string csPortName = Properties.Settings.Default.CS_COM_Port_Name;
-            powercal.BoardTypes board_type = (powercal.BoardTypes)Enum.Parse(typeof(powercal.BoardTypes), comboBoxBoardTypes.Text);
-            _sq = new CSSequencer(csPortName);
-
-            // Setup multi-meter
-            string meterPortName = Properties.Settings.Default.Meter_COM_Port_Name;
-            _meter = new MultiMeter(meterPortName);
-            if (!manual_measure)
-            {
-                updateRunStatus("Setup multi-meter");
-                _meter.OpenComPort();
-                _meter.SetToRemote();
-                _meter.ClearError();
-                string idn = _meter.IDN();
-            }
-
-            // IOffsetPre_Cal
-            updateRunStatus("IOffsetPre_Cal");
-            bool manual_relay = Properties.Settings.Default.Manual_Relay_Control;
-            if (manual_relay)
-                _relay_ctrl.Disable = true;
-            _relay_ctrl.Ember = false;
-            _relay_ctrl.Load = false;
-            _relay_ctrl.Reset = true;
-            _relay_ctrl.AC_Power = true;
-            relaysSet();
-            Thread.Sleep(1000);
-
-            _sq.OpenSerialPort();
-
-            _sq.SoftReset();
-            Thread.Sleep(500);
-            _sq.Init();
-
-            // Set gain to 1
-            // IGainCal
-            //updateRunStatus("IGainCal Default");
-            //int iRMSGainInt = 0x400000;
-            //updateOutputStatus(string.Format("IrmsGain = (0x{0:X})", iRMSGainInt));
-            //_sq.IGainCal(iRMSGainInt);
-
-            //// VGainCal
-            //updateRunStatus("VGainCal");
-            //int vRMSGainInt = 0x400000;
-            //updateOutputStatus(string.Format("VrmsGain = (0x{0:X})", vRMSGainInt));
-            //_sq.VGainCal(vRMSGainInt);
-
-            double acOffsetPre_Cal = _sq.GetIOffset();
-            updateOutputStatus(string.Format("ACOffsetPre_Cal = {0:F8}", acOffsetPre_Cal));
-
-            // IRMSNoLoad
-            updateRunStatus("IRMSNoLoad");
-            double iRMSNoLoad = _sq.IRMSNoLoad();
-            if (iRMSNoLoad > 0.05)
-            {
-                msg = string.Format("Bad IrmsNoLoad value:{08:F}", iRMSNoLoad);
-                throw new Exception(msg);
-            }
-            updateOutputStatus(string.Format("IrmsNoLoad = {0:F8}", iRMSNoLoad));
-
-
-            // Connect the load
-            _relay_ctrl.Load = true;
-            relaysSet();
-
-            _sq.StartContinuousConvertion();
-
-            Thread.Sleep(1000);
-
-            if (!manual_measure)
-            {
-                _meter.SetupForVAC();
-                string meter_load_voltage_str = _meter.Measure();
-                meter_load_voltage_str = _meter.Measure();
-                double meter_load_voltage = Double.Parse(meter_load_voltage_str);
-                updateOutputStatus(string.Format("Meter Load Voltage at {0:F8} V", meter_load_voltage));
-            }
-
-
-            // IRMSPre_Cal
-            updateRunStatus("IRMSPre_Cal");
-            double iRMSPreCal = _sq.GetIRMS();
-            // for hooktooth iRMSPreCal < 0.17 || iRMSPreCal > 0.4
-            double lowlimit = 0.17;
-            double highlimit = 0.4;
-            switch (board_type)
-            {
-                case (powercal.BoardTypes.Humpback):
-                    lowlimit = 0.08;
-                    highlimit = 0.19;
-                    break;
-            }
-
-            if (iRMSPreCal < lowlimit || iRMSPreCal > highlimit)
-            {
-                // With 500 Ohms load and 120VAC this value should be around 0.240 mA
-                // With 2k Ohms load and 240VAC this value should be around 0.120 mA
-                msg = string.Format("Bad IrmsPreCal value:{0:F8}", iRMSPreCal);
-                throw new Exception(msg);
-            }
-            updateOutputStatus(string.Format("IrmsPreCal = {0:F8}", iRMSPreCal));
-
-            // VRMSPre_Cal
-            updateRunStatus("VRMSPre_Cal");
-            double vRMSPreCal = _sq.GetVRMS();
-            updateOutputStatus(string.Format("VrmsPreCal = {0:F8}", vRMSPreCal));
-
-            if (vRMSPreCal < _voltage_low_limit || vRMSPreCal > _voltage_high_limit)
-            {
-                msg = string.Format("Bad VrmsPreCal value:{0:F}", vRMSPreCal);
-                throw new Exception(msg);
-            }
-            updateOutputStatus(string.Format("Power before calibration = {0:F8}", vRMSPreCal * iRMSPreCal));
-
-            // IRMSMeasure
-            updateRunStatus("IRMSMeasure");
-            double iRMSMeasure = 0;
-            if (manual_measure)
-            {
-                // Enter measurement
-                FormEnterMeasurement dlg = new FormEnterMeasurement();
-                iRMSMeasure = dlg.GetMeasurement("Irms:");
-            }
-            else
-            {
-                _meter.SetupForIAC();
-                string iac_measurement = _meter.Measure();
-                iac_measurement = _meter.Measure();
-                iRMSMeasure = Double.Parse(iac_measurement);
-            }
-            updateOutputStatus(string.Format("IrmsMeasure = {0:F8}", iRMSMeasure));
-
-            // VRMSMeasure
-            updateRunStatus("VRMSMeasure");
-            double vRMSMeasure = 0;
-            if (manual_measure)
-            {
-                // Enter measurement
-                FormEnterMeasurement dlg = new FormEnterMeasurement();
-                vRMSMeasure = dlg.GetMeasurement("Vrms:");
-            }
-            else
-            {
-                _meter.SetupForVAC();
-                string vac_measurement = _meter.Measure();
-                vac_measurement = _meter.Measure();
-                vRMSMeasure = Double.Parse(vac_measurement);
-            }
-            updateOutputStatus(string.Format("VrmsMeasure = {0:F8}", vRMSMeasure));
-            updateOutputStatus(string.Format("Power measured = {0:F8}", vRMSMeasure * iRMSMeasure));
-
-            // IGainCal
-            updateRunStatus("IGainCal");
-            double iGain = iRMSMeasure / iRMSPreCal;
-            int iRMSGainInt = (int)(iGain * 0x400000);
-            updateOutputStatus(string.Format("IrmsGain = {0:F8} (0x{1:X})", iGain, iRMSGainInt));
-            _sq.IGainCal(iRMSGainInt);
-
-            // VGainCal
-            updateRunStatus("VGainCal");
-            double vGain = vRMSMeasure / vRMSPreCal;
-            int vRMSGainInt = (int)(vGain * 0x400000);
-            updateOutputStatus(string.Format("VrmsGain = {0:F8} (0x{1:X})", vGain, vRMSGainInt));
-            _sq.VGainCal(vRMSGainInt);
-
-            // IRMSNoLoad
-
-            // Disconnect the load
-            _relay_ctrl.Load = false;
-            relaysSet();
-            Thread.Sleep(2000);
-
-            updateRunStatus("IRMSNoLoad");
-
-            iRMSNoLoad = _sq.IRMSNoLoad();
-            updateOutputStatus(string.Format("IrmsNoLoad = {0:F8}", iRMSNoLoad));
-            if (iRMSNoLoad > 0.05)
-            {
-                msg = string.Format("Bad IrmsNoLoad value:{0:F8}", iRMSNoLoad);
-                throw new Exception(msg);
-            }
-
-            // Connect the load
-            _relay_ctrl.Load = true;
-            relaysSet();
-            Thread.Sleep(2000);
-
-            // IRMSAfter_Cal
-            updateRunStatus("IRMSAfter_Cal");
-            double iRMSAfterCal = _sq.GetIRMS();
-            updateOutputStatus(string.Format("IrmsAfterCal = {0:F8}", iRMSAfterCal));
-            double delta = iRMSMeasure * 0.03;
-            lowlimit = iRMSMeasure - delta;
-            highlimit = iRMSMeasure + delta;
-            if (iRMSAfterCal < lowlimit || iRMSAfterCal > highlimit)
-            {
-                msg = string.Format("IrmsAfterCal not within limits values: {0:F8} < {1:F8} < {2:F8}", lowlimit, iRMSAfterCal, highlimit);
-                Trace.WriteLine(msg);
-                throw new Exception(msg);
-            }
-
-            // VRMSAfter_Cal
-            updateRunStatus("VRMSAfter_Cal");
-            double vRMSAfterCal = _sq.GetVRMS();
-            updateOutputStatus(string.Format("VrmsAfterCal = {0:F8}", vRMSAfterCal));
-            delta = vRMSMeasure * 0.03;
-            lowlimit = vRMSMeasure - delta;
-            highlimit = vRMSMeasure + delta;
-            if (vRMSAfterCal < lowlimit || vRMSAfterCal > highlimit)
-            {
-                msg = string.Format("VrmsAfterCal not within limits values: {0:F8} < {1:F8} < {2:F8}", lowlimit, vRMSAfterCal, highlimit);
-                Trace.WriteLine(msg);
-                throw new Exception(msg);
-            }
-            updateOutputStatus(string.Format("Power after calibration = {0:F8}", vRMSAfterCal * iRMSAfterCal));
-
-            // IGain
-            updateRunStatus("IGain");
-            int iGaintInt = (int)(iGain * 0x400000);
-            updateOutputStatus(string.Format("IrmsAdjust = {0:F8} (0x{1:X})", iGain, iGaintInt));
-
-            // VGain
-            updateRunStatus("VGainAdj");
-            int vGainInt = (int)(vGain * 0x400000);
-            updateOutputStatus(string.Format("VrmsAdjust = {0:F8} (0x{1:X})", vGain, vGainInt));
-
-            // PatchingGain
-            updateRunStatus("PatchingGain");
-            _relay_ctrl.AC_Power = false;
-            _relay_ctrl.Load = false;
-            _relay_ctrl.Reset = false;
-            _relay_ctrl.Ember = true;
-            relaysSet();
-            Thread.Sleep(1000);
-
-            Ember ember = new Ember();
-            ember.EmberBinPath = Properties.Settings.Default.Ember_BinPath;
-            ember.BatchFilePath = _ember_batchfile_path;
-            switch (board_type)
-            {
-                case (powercal.BoardTypes.Humpback):
-                    ember.VoltageAdress = 0x08080980;
-                    ember.CurrentAdress = 0x08080984;
-                    ember.RefereceAdress = 0x08080988;
-                    ember.ACOffsetAdress = 0x080809CC;
-
-                    ember.VoltageRefereceValue = 0xF0; // 240 V
-                    ember.CurrentRefereceValue = 0x0F; // 15 A
-
-                    break;
-                case (powercal.BoardTypes.Zebrashark):
-                case (powercal.BoardTypes.Hooktooth):
-                case (powercal.BoardTypes.Milkshark):
-                    ember.VoltageAdress = 0x08040980;
-                    ember.CurrentAdress = 0x08040984;
-                    ember.ACOffsetAdress = 0x080409CC;
-
-                    ember.VoltageRefereceValue = 0x78; // 120 V
-                    ember.CurrentRefereceValue = 0x0F; // 15 A
-
-                    break;
-            }
-            ember.CreateCalibrationPatchBath(vGainInt, iGaintInt);
-
-            bool patchit_fail = false;
-            string exception_msg = "";
-            string coding_output = "";
-            // Retry patch loop if fail
-            while (true)
-            {
-                patchit_fail = false;
-                exception_msg = "";
-                coding_output = "";
-                try
-                {
-                    string output = ember.RunCalibrationPatchBatch();
-                    if (output.Contains("ERROR:"))
-                    {
-                        patchit_fail = true;
-                        exception_msg = "Patching error detected:\r\n";
-                        exception_msg += output;
-                    }
-                    coding_output = output;
-                }
-                catch (Exception e)
-                {
-                    patchit_fail = true;
-                    exception_msg = "Patching exception detected:\r\n";
-                    exception_msg += e.Message;
-                }
-
-                if (patchit_fail)
-                {
-                    string retry_err_msg = exception_msg;
-                    int max_len = 1000;
-                    if (retry_err_msg.Length > max_len)
-                        retry_err_msg = retry_err_msg.Substring(0, max_len) + "...";
-                    DialogResult dlg_rc = MessageBox.Show(retry_err_msg, "Patching fail", MessageBoxButtons.RetryCancel);
-                    if (dlg_rc == System.Windows.Forms.DialogResult.Cancel)
-                        break;
-                }
-                else
-                {
-                    break;
-                }
-
-            }
-
-            if (patchit_fail)
-            {
-                throw new Exception(exception_msg);
-            }
-            updateOutputStatus(coding_output);
-
-            // Disconnect Ember
-            _relay_ctrl.Ember = false;
-            relaysSet();
-
-            updateOutputStatus("================================End Calibration===============================");
-
-            if (_sq != null)
-                _sq.CloseSerialPort();
-            if (_meter != null)
-                _meter.CloseSerialPort();
-
-
-            if (true)
-            {
-                this.textBoxRunStatus.BackColor = Color.Green;
-                this.textBoxRunStatus.ForeColor = Color.White;
-                this.textBoxRunStatus.Text = "PASS";
-            }
-        }
 
         /// <summary>
         /// Starts the process responsible to open the Ember box isa channels
@@ -1228,7 +844,7 @@ namespace powercal
                     relaysSet();
                     _relay_ctrl.AC_Power = true;
                     relaysSet();
-                    Thread.Sleep(1000); 
+                    Thread.Sleep(1000);
                     break;
             }
         }
@@ -1275,7 +891,6 @@ namespace powercal
             bool manual_relay = Properties.Settings.Default.Manual_Relay_Control;
             if (manual_relay)
                 _relay_ctrl.Disable = true;
-            _relay_ctrl.Reset = false;
             _relay_ctrl.Ember = true;
             _relay_ctrl.AC_Power = true;
             _relay_ctrl.Load = true;
@@ -1515,24 +1130,13 @@ namespace powercal
 
                 cleanupEmberTempPatchFile();
 
-                bool run_using_ember = Properties.Settings.Default.Calibrate_With_Ember;
-                if (run_using_ember)
-                {
-                    calibrate_using_ember();
-                }
-                else
-                {
-                    calibrate_using_cirrus();
-                }
+                calibrate_using_ember();
 
                 stopWatch.Stop();
                 TimeSpan ts = stopWatch.Elapsed;
                 // Format and display the TimeSpan value. 
                 string elapsedTime = String.Format("Elaspsed time {0:00} seconds", ts.TotalSeconds);
                 updateOutputStatus(elapsedTime);
-
-                if (_sq != null)
-                    _sq.CloseSerialPort();
 
                 if (_meter != null)
                     _meter.CloseSerialPort();
@@ -1551,11 +1155,7 @@ namespace powercal
                 _relay_ctrl.Ember = false;
                 _relay_ctrl.AC_Power = false;
                 _relay_ctrl.Load = false;
-                _relay_ctrl.Reset = false;
                 relaysSet();
-
-                if (_sq != null)
-                    _sq.CloseSerialPort();
 
                 if (_meter != null)
                     _meter.CloseSerialPort();
@@ -1565,6 +1165,18 @@ namespace powercal
             cleanupEmberTempPatchFile();
 
             this.buttonRun.Enabled = true;
+        }
+
+        /// <summary>
+        /// Invokes the DIO test dialog
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        private void nIToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            FormNIDigitalPortTest dlg = new FormNIDigitalPortTest();
+            //dlg.ShowDialog();
+            dlg.Show();
         }
     }
 

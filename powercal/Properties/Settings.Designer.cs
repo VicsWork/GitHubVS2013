@@ -37,18 +37,6 @@ namespace powercal.Properties {
         
         [global::System.Configuration.UserScopedSettingAttribute()]
         [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
-        [global::System.Configuration.DefaultSettingValueAttribute("COM4")]
-        public string CS_COM_Port_Name {
-            get {
-                return ((string)(this["CS_COM_Port_Name"]));
-            }
-            set {
-                this["CS_COM_Port_Name"] = value;
-            }
-        }
-        
-        [global::System.Configuration.UserScopedSettingAttribute()]
-        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
         [global::System.Configuration.DefaultSettingValueAttribute("True")]
         public bool Manual_Relay_Control {
             get {
@@ -128,18 +116,6 @@ namespace powercal.Properties {
             }
             set {
                 this["Ember_BinPath"] = value;
-            }
-        }
-        
-        [global::System.Configuration.UserScopedSettingAttribute()]
-        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
-        [global::System.Configuration.DefaultSettingValueAttribute("True")]
-        public bool Calibrate_With_Ember {
-            get {
-                return ((bool)(this["Calibrate_With_Ember"]));
-            }
-            set {
-                this["Calibrate_With_Ember"] = value;
             }
         }
         

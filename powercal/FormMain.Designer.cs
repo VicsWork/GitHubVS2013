@@ -44,6 +44,8 @@
             this.toolStripMenuItemPowerMeter = new System.Windows.Forms.ToolStripMenuItem();
             this.aboutToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.textBoxRunStatus = new System.Windows.Forms.TextBox();
+            this.nIToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.fT232HToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.contextMenuStatusTextBox.SuspendLayout();
             this.menuStripMain.SuspendLayout();
             this.SuspendLayout();
@@ -145,10 +147,12 @@
             // 
             // digitalOutputToolStripMenuItem
             // 
+            this.digitalOutputToolStripMenuItem.DropDownItems.AddRange(new System.Windows.Forms.ToolStripItem[] {
+            this.nIToolStripMenuItem,
+            this.fT232HToolStripMenuItem});
             this.digitalOutputToolStripMenuItem.Name = "digitalOutputToolStripMenuItem";
             this.digitalOutputToolStripMenuItem.Size = new System.Drawing.Size(152, 22);
             this.digitalOutputToolStripMenuItem.Text = "Digital Output";
-            this.digitalOutputToolStripMenuItem.Click += new System.EventHandler(this.digitalOutputToolStripMenuItem_Click);
             // 
             // calculatorToolStripMenuItem
             // 
@@ -181,6 +185,19 @@
             this.textBoxRunStatus.TabIndex = 10;
             this.textBoxRunStatus.Text = "test";
             this.textBoxRunStatus.WordWrap = false;
+            // 
+            // nIToolStripMenuItem
+            // 
+            this.nIToolStripMenuItem.Name = "nIToolStripMenuItem";
+            this.nIToolStripMenuItem.Size = new System.Drawing.Size(152, 22);
+            this.nIToolStripMenuItem.Text = "NI";
+            this.nIToolStripMenuItem.Click += new System.EventHandler(this.nIToolStripMenuItem_Click);
+            // 
+            // fT232HToolStripMenuItem
+            // 
+            this.fT232HToolStripMenuItem.Name = "fT232HToolStripMenuItem";
+            this.fT232HToolStripMenuItem.Size = new System.Drawing.Size(152, 22);
+            this.fT232HToolStripMenuItem.Text = "FT232H";
             // 
             // FormMain
             // 
@@ -222,6 +239,8 @@
         private System.Windows.Forms.ToolStripMenuItem settingsToolStripMenuItem;
         private System.Windows.Forms.ToolStripMenuItem calculatorToolStripMenuItem;
         private System.Windows.Forms.ToolStripMenuItem toolStripMenuItemPowerMeter;
+        private System.Windows.Forms.ToolStripMenuItem nIToolStripMenuItem;
+        private System.Windows.Forms.ToolStripMenuItem fT232HToolStripMenuItem;
     }
 }
 

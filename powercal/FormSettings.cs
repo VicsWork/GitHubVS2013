@@ -65,16 +65,5 @@ namespace powercal
             }
         }
 
-        private void checkBoxUseEmber_CheckedChanged(object sender, EventArgs e)
-        {
-            if (this.checkBoxUseEmber.Checked)
-            {
-                this.TextBoxCirrusCOM.Enabled = false;
-            }
-            else
-            {
-                this.TextBoxCirrusCOM.Enabled = true;
-            }
-        }
     }
 }

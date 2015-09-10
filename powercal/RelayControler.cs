@@ -13,7 +13,6 @@ namespace powercal
     {
         string _acPowerLbl = "AC Power";
         string _loadLbl = "Load";
-        string _resetLbl = "Reset";
         string _emberLbl = "Ember";
 
         /// <summary>
@@ -25,14 +24,12 @@ namespace powercal
             _dic_lines.Clear();
             _dic_lines.Add(_acPowerLbl, 1);
             _dic_lines.Add(_loadLbl, 2);
-            _dic_lines.Add(_resetLbl, 3);
             _dic_lines.Add(_emberLbl, 4);
 
             // Dic to store line state (true = ON, false = OFF)
             _dic_values.Clear();
             _dic_values.Add(_acPowerLbl, false);
             _dic_values.Add(_loadLbl, false);
-            _dic_values.Add(_resetLbl, false);
             _dic_values.Add(_emberLbl, false);
 
         }
@@ -51,16 +48,6 @@ namespace powercal
         {
             get { return _acPowerLbl; }
             set { _acPowerLbl = value; }
-        }
-        public bool Reset
-        {
-            get { return ReadLine(_resetLbl); }
-            set { WriteLine(_resetLbl, value); }
-        }
-        public int Reset_LineNum
-        {
-            get { return _dic_lines[_resetLbl]; }
-            set { _dic_lines[_resetLbl] = value; }
         }
 
         public bool Load

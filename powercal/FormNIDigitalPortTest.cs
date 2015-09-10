@@ -10,14 +10,14 @@ using NationalInstruments.DAQmx;
 
 namespace powercal
 {
-    public partial class FormDigitalPortTest : Form
+    public partial class FormNIDigitalPortTest : Form
     {
         RelayControler _relayCtrl = new RelayControler();
 
         /// <summary>
         /// Class use to performe tests on DIO board
         /// </summary>
-        public FormDigitalPortTest()
+        public FormNIDigitalPortTest()
         {
             InitializeComponent();
 
@@ -32,17 +32,16 @@ namespace powercal
             _relayCtrl.Load_LineNum = linenum;
             labelLoad.Text += string.Format("({0})", linenum);
 
-            linenum = Properties.Settings.Default.DIO_Reset_LineNum;
-            _relayCtrl.Reset_LineNum = linenum;
-            labelReset.Text += string.Format("({0})", linenum);
-
             linenum = Properties.Settings.Default.DIO_Ember_LineNum;
             _relayCtrl.Ember_LineNum = linenum;
             labelOutput.Text += string.Format("({0})", linenum);
 
-            NumericUpDowndataToWrite.Value = rearPort();
+            if (this.physicalChannelComboBox.Text != "")
+            {
+                NumericUpDowndataToWrite.Value = rearPort();
 
-            refreshNumericUpDownValue();
+                refreshNumericUpDownValue();
+            }
         }
 
         /// <summary>
@@ -75,7 +74,6 @@ namespace powercal
                 // Reads all values from DIO and updates the numeric up and down control
                 NumericUpDownACPower.Value = Convert.ToDecimal(_relayCtrl.AC_Power);
                 NumericUpDownLoad.Value = Convert.ToDecimal(_relayCtrl.Load);
-                NumericUpDownReset.Value = Convert.ToDecimal(_relayCtrl.Reset);
                 NumericUpDownOutput.Value = Convert.ToDecimal(_relayCtrl.Ember);
             }
             catch (Exception ex)
@@ -179,13 +177,6 @@ namespace powercal
         {
             NumericUpDown num = (NumericUpDown)sender;
             _relayCtrl.Load = Convert.ToBoolean(num.Value);
-            NumericUpDowndataToWrite.Value = rearPort();
-        }
-
-        private void NumericUpDownReset_ValueChanged(object sender, EventArgs e)
-        {
-            NumericUpDown num = (NumericUpDown)sender;
-            _relayCtrl.Reset = Convert.ToBoolean(num.Value);
             NumericUpDowndataToWrite.Value = rearPort();
         }
 

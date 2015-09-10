@@ -29,12 +29,9 @@
         private void InitializeComponent()
         {
             this.components = new System.ComponentModel.Container();
-            this.TextBoxCirrusCOM = new System.Windows.Forms.TextBox();
-            this.label1 = new System.Windows.Forms.Label();
             this.TextBoxMeterCOM = new System.Windows.Forms.TextBox();
             this.label2 = new System.Windows.Forms.Label();
             this.groupBox1 = new System.Windows.Forms.GroupBox();
-            this.checkBoxUseEmber = new System.Windows.Forms.CheckBox();
             this.CheckBoxManualMultiMeter = new System.Windows.Forms.CheckBox();
             this.buttonOK = new System.Windows.Forms.Button();
             this.buttonCancel = new System.Windows.Forms.Button();
@@ -42,8 +39,6 @@
             this.checkBoxDisableDIO = new System.Windows.Forms.CheckBox();
             this.label6 = new System.Windows.Forms.Label();
             this.NumericUpDownEmber = new System.Windows.Forms.NumericUpDown();
-            this.label5 = new System.Windows.Forms.Label();
-            this.NumericUpDownReset = new System.Windows.Forms.NumericUpDown();
             this.label4 = new System.Windows.Forms.Label();
             this.NumericUpDownLoad = new System.Windows.Forms.NumericUpDown();
             this.label3 = new System.Windows.Forms.Label();
@@ -55,31 +50,13 @@
             this.groupBox1.SuspendLayout();
             this.groupBoxDIO.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.NumericUpDownEmber)).BeginInit();
-            ((System.ComponentModel.ISupportInitialize)(this.NumericUpDownReset)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.NumericUpDownLoad)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.NumericUpDownACPower)).BeginInit();
             this.SuspendLayout();
             // 
-            // TextBoxCirrusCOM
-            // 
-            this.TextBoxCirrusCOM.Location = new System.Drawing.Point(91, 23);
-            this.TextBoxCirrusCOM.Name = "TextBoxCirrusCOM";
-            this.TextBoxCirrusCOM.Size = new System.Drawing.Size(58, 20);
-            this.TextBoxCirrusCOM.TabIndex = 3;
-            this.TextBoxCirrusCOM.WordWrap = false;
-            // 
-            // label1
-            // 
-            this.label1.AutoSize = true;
-            this.label1.Location = new System.Drawing.Point(6, 23);
-            this.label1.Name = "label1";
-            this.label1.Size = new System.Drawing.Size(54, 13);
-            this.label1.TabIndex = 2;
-            this.label1.Text = "Cirrus port";
-            // 
             // TextBoxMeterCOM
             // 
-            this.TextBoxMeterCOM.Location = new System.Drawing.Point(91, 59);
+            this.TextBoxMeterCOM.Location = new System.Drawing.Point(91, 29);
             this.TextBoxMeterCOM.Name = "TextBoxMeterCOM";
             this.TextBoxMeterCOM.Size = new System.Drawing.Size(58, 20);
             this.TextBoxMeterCOM.TabIndex = 5;
@@ -88,7 +65,7 @@
             // label2
             // 
             this.label2.AutoSize = true;
-            this.label2.Location = new System.Drawing.Point(6, 59);
+            this.label2.Location = new System.Drawing.Point(6, 29);
             this.label2.Name = "label2";
             this.label2.Size = new System.Drawing.Size(79, 13);
             this.label2.TabIndex = 4;
@@ -96,34 +73,20 @@
             // 
             // groupBox1
             // 
-            this.groupBox1.Controls.Add(this.checkBoxUseEmber);
             this.groupBox1.Controls.Add(this.CheckBoxManualMultiMeter);
-            this.groupBox1.Controls.Add(this.label1);
             this.groupBox1.Controls.Add(this.TextBoxMeterCOM);
-            this.groupBox1.Controls.Add(this.TextBoxCirrusCOM);
             this.groupBox1.Controls.Add(this.label2);
             this.groupBox1.Location = new System.Drawing.Point(12, 12);
             this.groupBox1.Name = "groupBox1";
-            this.groupBox1.Size = new System.Drawing.Size(230, 138);
+            this.groupBox1.Size = new System.Drawing.Size(230, 140);
             this.groupBox1.TabIndex = 6;
             this.groupBox1.TabStop = false;
             this.groupBox1.Text = "Comunications";
             // 
-            // checkBoxUseEmber
-            // 
-            this.checkBoxUseEmber.AutoSize = true;
-            this.checkBoxUseEmber.Location = new System.Drawing.Point(156, 25);
-            this.checkBoxUseEmber.Name = "checkBoxUseEmber";
-            this.checkBoxUseEmber.Size = new System.Drawing.Size(56, 17);
-            this.checkBoxUseEmber.TabIndex = 7;
-            this.checkBoxUseEmber.Text = "Ember";
-            this.checkBoxUseEmber.UseVisualStyleBackColor = true;
-            this.checkBoxUseEmber.CheckedChanged += new System.EventHandler(this.checkBoxUseEmber_CheckedChanged);
-            // 
             // CheckBoxManualMultiMeter
             // 
             this.CheckBoxManualMultiMeter.AutoSize = true;
-            this.CheckBoxManualMultiMeter.Location = new System.Drawing.Point(156, 61);
+            this.CheckBoxManualMultiMeter.Location = new System.Drawing.Point(156, 31);
             this.CheckBoxManualMultiMeter.Name = "CheckBoxManualMultiMeter";
             this.CheckBoxManualMultiMeter.Size = new System.Drawing.Size(61, 17);
             this.CheckBoxManualMultiMeter.TabIndex = 6;
@@ -155,8 +118,6 @@
             this.groupBoxDIO.Controls.Add(this.checkBoxDisableDIO);
             this.groupBoxDIO.Controls.Add(this.label6);
             this.groupBoxDIO.Controls.Add(this.NumericUpDownEmber);
-            this.groupBoxDIO.Controls.Add(this.label5);
-            this.groupBoxDIO.Controls.Add(this.NumericUpDownReset);
             this.groupBoxDIO.Controls.Add(this.label4);
             this.groupBoxDIO.Controls.Add(this.NumericUpDownLoad);
             this.groupBoxDIO.Controls.Add(this.label3);
@@ -185,7 +146,7 @@
             // label6
             // 
             this.label6.AutoSize = true;
-            this.label6.Location = new System.Drawing.Point(26, 119);
+            this.label6.Location = new System.Drawing.Point(26, 95);
             this.label6.Name = "label6";
             this.label6.Size = new System.Drawing.Size(37, 13);
             this.label6.TabIndex = 7;
@@ -193,7 +154,7 @@
             // 
             // NumericUpDownEmber
             // 
-            this.NumericUpDownEmber.Location = new System.Drawing.Point(86, 118);
+            this.NumericUpDownEmber.Location = new System.Drawing.Point(86, 94);
             this.NumericUpDownEmber.Maximum = new decimal(new int[] {
             7,
             0,
@@ -202,27 +163,6 @@
             this.NumericUpDownEmber.Name = "NumericUpDownEmber";
             this.NumericUpDownEmber.Size = new System.Drawing.Size(31, 20);
             this.NumericUpDownEmber.TabIndex = 6;
-            // 
-            // label5
-            // 
-            this.label5.AutoSize = true;
-            this.label5.Location = new System.Drawing.Point(26, 95);
-            this.label5.Name = "label5";
-            this.label5.Size = new System.Drawing.Size(35, 13);
-            this.label5.TabIndex = 5;
-            this.label5.Text = "Reset";
-            // 
-            // NumericUpDownReset
-            // 
-            this.NumericUpDownReset.Location = new System.Drawing.Point(86, 94);
-            this.NumericUpDownReset.Maximum = new decimal(new int[] {
-            7,
-            0,
-            0,
-            0});
-            this.NumericUpDownReset.Name = "NumericUpDownReset";
-            this.NumericUpDownReset.Size = new System.Drawing.Size(31, 20);
-            this.NumericUpDownReset.TabIndex = 4;
             // 
             // label4
             // 
@@ -316,7 +256,6 @@
             this.groupBoxDIO.ResumeLayout(false);
             this.groupBoxDIO.PerformLayout();
             ((System.ComponentModel.ISupportInitialize)(this.NumericUpDownEmber)).EndInit();
-            ((System.ComponentModel.ISupportInitialize)(this.NumericUpDownReset)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this.NumericUpDownLoad)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this.NumericUpDownACPower)).EndInit();
             this.ResumeLayout(false);
@@ -326,20 +265,16 @@
 
         #endregion
 
-        private System.Windows.Forms.Label label1;
         private System.Windows.Forms.Label label2;
         private System.Windows.Forms.GroupBox groupBox1;
         private System.Windows.Forms.Button buttonOK;
         private System.Windows.Forms.Button buttonCancel;
-        public System.Windows.Forms.TextBox TextBoxCirrusCOM;
         public System.Windows.Forms.TextBox TextBoxMeterCOM;
         private System.Windows.Forms.GroupBox groupBoxDIO;
         private System.Windows.Forms.Label label6;
-        private System.Windows.Forms.Label label5;
         private System.Windows.Forms.Label label4;
         private System.Windows.Forms.Label label3;
         public System.Windows.Forms.NumericUpDown NumericUpDownEmber;
-        public System.Windows.Forms.NumericUpDown NumericUpDownReset;
         public System.Windows.Forms.NumericUpDown NumericUpDownLoad;
         public System.Windows.Forms.NumericUpDown NumericUpDownACPower;
         public System.Windows.Forms.CheckBox checkBoxDisableDIO;
@@ -348,6 +283,5 @@
         private System.Windows.Forms.Label label7;
         public System.Windows.Forms.TextBox TextBoxEmberBinPath;
         private System.Windows.Forms.Button buttonEmberBinPathBrowse;
-        public System.Windows.Forms.CheckBox checkBoxUseEmber;
     }
 }
