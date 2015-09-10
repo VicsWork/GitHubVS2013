@@ -481,7 +481,7 @@ namespace powercal
 
             _voltage_high_limit = voltage_load + voltage_delta;
             _voltage_low_limit = voltage_load - voltage_delta;
-            _current_high_limit = current_load + 2*current_delta;  // On Hornshark current measurement is very high with gain set to 1
+            _current_high_limit = current_load + 3*current_delta;  // On Hornshark current measurement is very high with gain set to 1
             _current_low_limit = current_load - current_delta;
 
         }
@@ -1161,6 +1161,7 @@ namespace powercal
         private void closeEmberISAChannels()
         {
             _p_ember_isachan.CancelErrorRead();
+            _p_ember_isachan.CancelOutputRead();
             _p_ember_isachan.Kill();
             _p_ember_isachan.Close();
         }
@@ -1438,6 +1439,9 @@ namespace powercal
             cv = ember_parse_pinfo_registers(telnet_connection);
             msg = string.Format("Cirrus I = {0:F8}, V = {1:F8}, P = {2:F8}", cv.Current, cv.Voltage, cv.Current * cv.Voltage);
             updateOutputStatus(msg);
+
+            _p_ember_isachan.CancelOutputRead();
+            _p_ember_isachan.CancelErrorRead();
 
             updateRunStatus("Close telnet");
             telnet_connection.Close();
