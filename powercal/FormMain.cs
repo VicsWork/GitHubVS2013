@@ -180,6 +180,7 @@ namespace powercal
                     {
                         detected = true;
                         Properties.Settings.Default.Meter_COM_Port_Name = portname;
+                        Properties.Settings.Default.Save();
                         string msg = string.Format("Multimetter '{0}' comunications port autodetected at {1}", idn.TrimEnd('\n'), Properties.Settings.Default.Meter_COM_Port_Name);
                         updateOutputStatus(msg);
                         break;
@@ -694,7 +695,7 @@ namespace powercal
 
             // COM ports
             dlg.CheckBoxManualMultiMeter.Checked = Properties.Settings.Default.Meter_Manual_Measurement;
-
+            dlg.TextBoxMeterCOM.Text = Properties.Settings.Default.Meter_COM_Port_Name;
 
             // DIO Disable
             dlg.checkBoxDisableDIO.Checked = Properties.Settings.Default.Manual_Relay_Control;

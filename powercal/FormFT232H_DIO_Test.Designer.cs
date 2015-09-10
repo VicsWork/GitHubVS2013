@@ -34,7 +34,6 @@
             this.groupBoxDIOLines = new System.Windows.Forms.GroupBox();
             this.labelOutput = new System.Windows.Forms.Label();
             this.NumericUpDownOutput = new System.Windows.Forms.NumericUpDown();
-            this.NumericUpDownReset = new System.Windows.Forms.NumericUpDown();
             this.labelLoad = new System.Windows.Forms.Label();
             this.NumericUpDownLoad = new System.Windows.Forms.NumericUpDown();
             this.labelACPower = new System.Windows.Forms.Label();
@@ -42,7 +41,6 @@
             this.channelParametersGroupBox.SuspendLayout();
             this.groupBoxDIOLines.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.NumericUpDownOutput)).BeginInit();
-            ((System.ComponentModel.ISupportInitialize)(this.NumericUpDownReset)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.NumericUpDownLoad)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.NumericUpDownACPower)).BeginInit();
             this.SuspendLayout();
@@ -80,7 +78,6 @@
             // 
             this.groupBoxDIOLines.Controls.Add(this.labelOutput);
             this.groupBoxDIOLines.Controls.Add(this.NumericUpDownOutput);
-            this.groupBoxDIOLines.Controls.Add(this.NumericUpDownReset);
             this.groupBoxDIOLines.Controls.Add(this.labelLoad);
             this.groupBoxDIOLines.Controls.Add(this.NumericUpDownLoad);
             this.groupBoxDIOLines.Controls.Add(this.labelACPower);
@@ -112,13 +109,6 @@
             this.NumericUpDownOutput.Name = "NumericUpDownOutput";
             this.NumericUpDownOutput.Size = new System.Drawing.Size(31, 20);
             this.NumericUpDownOutput.TabIndex = 6;
-            // 
-            // NumericUpDownReset
-            // 
-            this.NumericUpDownReset.Location = new System.Drawing.Point(0, 0);
-            this.NumericUpDownReset.Name = "NumericUpDownReset";
-            this.NumericUpDownReset.Size = new System.Drawing.Size(120, 20);
-            this.NumericUpDownReset.TabIndex = 8;
             // 
             // labelLoad
             // 
@@ -166,7 +156,7 @@
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(288, 270);
+            this.ClientSize = new System.Drawing.Size(256, 270);
             this.Controls.Add(this.groupBoxDIOLines);
             this.Controls.Add(this.channelParametersGroupBox);
             this.Name = "FormFT232H_DIO_Test";
@@ -175,7 +165,6 @@
             this.groupBoxDIOLines.ResumeLayout(false);
             this.groupBoxDIOLines.PerformLayout();
             ((System.ComponentModel.ISupportInitialize)(this.NumericUpDownOutput)).EndInit();
-            ((System.ComponentModel.ISupportInitialize)(this.NumericUpDownReset)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this.NumericUpDownLoad)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this.NumericUpDownACPower)).EndInit();
             this.ResumeLayout(false);
@@ -190,7 +179,6 @@
         private System.Windows.Forms.GroupBox groupBoxDIOLines;
         private System.Windows.Forms.Label labelOutput;
         public System.Windows.Forms.NumericUpDown NumericUpDownOutput;
-        public System.Windows.Forms.NumericUpDown NumericUpDownReset;
         private System.Windows.Forms.Label labelLoad;
         public System.Windows.Forms.NumericUpDown NumericUpDownLoad;
         private System.Windows.Forms.Label labelACPower;
