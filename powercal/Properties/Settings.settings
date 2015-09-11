@@ -6,16 +6,13 @@
       <Value Profile="(Default)">COM1</Value>
     </Setting>
     <Setting Name="DIO_ACPower_LineNum" Type="System.Int32" Scope="User">
-      <Value Profile="(Default)">1</Value>
+      <Value Profile="(Default)">0</Value>
     </Setting>
     <Setting Name="DIO_Load_LinNum" Type="System.Int32" Scope="User">
-      <Value Profile="(Default)">2</Value>
-    </Setting>
-    <Setting Name="DIO_Reset_LineNum" Type="System.Int32" Scope="User">
-      <Value Profile="(Default)">3</Value>
+      <Value Profile="(Default)">1</Value>
     </Setting>
     <Setting Name="DIO_Ember_LineNum" Type="System.Int32" Scope="User">
-      <Value Profile="(Default)">4</Value>
+      <Value Profile="(Default)">2</Value>
     </Setting>
     <Setting Name="Meter_Manual_Measurement" Type="System.Boolean" Scope="User">
       <Value Profile="(Default)">False</Value>
@@ -24,7 +21,7 @@
       <Value Profile="(Default)">C:\Program Files (x86)\Ember\ISA3 Utilities\bin</Value>
     </Setting>
     <Setting Name="Relay_Controller_Type" Type="System.String" Scope="User">
-      <Value Profile="(Default)">Manual</Value>
+      <Value Profile="(Default)">FT232H</Value>
     </Setting>
   </Settings>
 </SettingsFile>

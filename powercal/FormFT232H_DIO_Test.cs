@@ -12,9 +12,43 @@ namespace powercal
 {
     public partial class FormFT232H_DIO_Test : Form
     {
+        RelayControler _relayCtrl = new RelayControler(RelayControler.Device_Types.FT232H);
+
         public FormFT232H_DIO_Test()
         {
             InitializeComponent();
+
+            // Add line numbers to labels
+            int linenum = Properties.Settings.Default.DIO_ACPower_LineNum;
+            _relayCtrl.AC_Power_LineNum = linenum;
+            labelACPower.Text += string.Format("({0})", linenum);
+
+            linenum = Properties.Settings.Default.DIO_Load_LinNum;
+            _relayCtrl.Load_LineNum = linenum;
+            labelLoad.Text += string.Format("({0})", linenum);
+
+            linenum = Properties.Settings.Default.DIO_Ember_LineNum;
+            _relayCtrl.Ember_LineNum = linenum;
+            labelOutput.Text += string.Format("({0})", linenum);
+
+        }
+
+        private void NumericUpDownACPower_ValueChanged(object sender, EventArgs e)
+        {
+            NumericUpDown num = (NumericUpDown)sender;
+            _relayCtrl.AC_Power = Convert.ToBoolean(num.Value);
+        }
+
+        private void NumericUpDownLoad_ValueChanged(object sender, EventArgs e)
+        {
+            NumericUpDown num = (NumericUpDown)sender;
+            _relayCtrl.Load = Convert.ToBoolean(num.Value);
+        }
+
+        private void NumericUpDownOutput_ValueChanged(object sender, EventArgs e)
+        {
+            NumericUpDown num = (NumericUpDown)sender;
+            _relayCtrl.Ember = Convert.ToBoolean(num.Value);
         }
     }
 }

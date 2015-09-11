@@ -1170,9 +1170,16 @@ namespace powercal
         private void nIToolStripMenuItem_Click(object sender, EventArgs e)
         {
             FormNIDigitalPortTest dlg = new FormNIDigitalPortTest();
-            //dlg.ShowDialog();
             dlg.Show();
         }
+
+        private void fT232HToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            _relay_ctrl.Close();
+            FormFT232H_DIO_Test dlg = new FormFT232H_DIO_Test();
+            dlg.Show();
+        }
+
     }
 
 }

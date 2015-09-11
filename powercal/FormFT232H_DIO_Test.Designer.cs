@@ -109,6 +109,7 @@
             this.NumericUpDownOutput.Name = "NumericUpDownOutput";
             this.NumericUpDownOutput.Size = new System.Drawing.Size(31, 20);
             this.NumericUpDownOutput.TabIndex = 6;
+            this.NumericUpDownOutput.ValueChanged += new System.EventHandler(this.NumericUpDownOutput_ValueChanged);
             // 
             // labelLoad
             // 
@@ -130,6 +131,7 @@
             this.NumericUpDownLoad.Name = "NumericUpDownLoad";
             this.NumericUpDownLoad.Size = new System.Drawing.Size(31, 20);
             this.NumericUpDownLoad.TabIndex = 2;
+            this.NumericUpDownLoad.ValueChanged += new System.EventHandler(this.NumericUpDownLoad_ValueChanged);
             // 
             // labelACPower
             // 
@@ -151,6 +153,7 @@
             this.NumericUpDownACPower.Name = "NumericUpDownACPower";
             this.NumericUpDownACPower.Size = new System.Drawing.Size(31, 20);
             this.NumericUpDownACPower.TabIndex = 0;
+            this.NumericUpDownACPower.ValueChanged += new System.EventHandler(this.NumericUpDownACPower_ValueChanged);
             // 
             // FormFT232H_DIO_Test
             // 

@@ -166,6 +166,7 @@
             this.fT232HToolStripMenuItem.Name = "fT232HToolStripMenuItem";
             this.fT232HToolStripMenuItem.Size = new System.Drawing.Size(114, 22);
             this.fT232HToolStripMenuItem.Text = "FT232H";
+            this.fT232HToolStripMenuItem.Click += new System.EventHandler(this.fT232HToolStripMenuItem_Click);
             // 
             // calculatorToolStripMenuItem
             // 

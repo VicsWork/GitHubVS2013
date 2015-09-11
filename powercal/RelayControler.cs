@@ -2,7 +2,10 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using System.Diagnostics;
+
 using NationalInstruments.DAQmx;
+using DIO;
 
 namespace powercal
 {
@@ -93,6 +96,9 @@ namespace powercal
         /// </summary>
         private string _ni_port_desc;
 
+        DIO.FT232HDIO _ft232hdio;
+        DIO.FT232HDIO.DIO_BUS _ft232hdio_bus = FT232HDIO.DIO_BUS.AC_BUS;
+
         /// <summary>
         /// Constructor
         /// </summary>
@@ -100,14 +106,32 @@ namespace powercal
         {
             _dev_type = devtype;
 
-            initNIDevPort();
+            if (_dev_type == Device_Types.NI_USB6008)
+                initNI_USB6008();
+            else if (_dev_type == Device_Types.FT232H)
+                initFT232H();
+
             _initDicLines();
+        }
+
+        private void initFT232H()
+        {
+            _ft232hdio = new FT232HDIO();
+            _ft232hdio.Init(0);
+        }
+
+        public void Close()
+        {
+            if (_dev_type == Device_Types.FT232H)
+            {
+                _ft232hdio.Close();
+            }
         }
 
         /// <summary>
         /// Inits the DIO to be the first port found
         /// </summary>
-        private void initNIDevPort()
+        private void initNI_USB6008()
         {
             if (_ni_port_desc == null)
             {
@@ -158,17 +182,27 @@ namespace powercal
                 return;
             }
 
-            using (Task digitalWriteTask = new Task())
+            if (_dev_type == Device_Types.NI_USB6008)
             {
-                //  Create an Digital Output channel and name it.
-                string linestr = string.Format("{0}/line{1}", _ni_port_desc, linenum);
-                string name = string.Format("line{0}", linenum);
-                digitalWriteTask.DOChannels.CreateChannel(linestr, name, ChannelLineGrouping.OneChannelForEachLine);
+                using (Task digitalWriteTask = new Task())
+                {
+                    //  Create an Digital Output channel and name it.
+                    string linestr = string.Format("{0}/line{1}", _ni_port_desc, linenum);
+                    string name = string.Format("line{0}", linenum);
+                    digitalWriteTask.DOChannels.CreateChannel(linestr, name, ChannelLineGrouping.OneChannelForEachLine);
 
-                //  Write digital port data. WriteDigitalSingChanSingSampPort writes a single sample
-                //  of digital data on demand, so no timeout is necessary.
-                DigitalSingleChannelWriter writer = new DigitalSingleChannelWriter(digitalWriteTask.Stream);
-                writer.WriteSingleSampleSingleLine(true, value);
+                    //  Write digital port data. WriteDigitalSingChanSingSampPort writes a single sample
+                    //  of digital data on demand, so no timeout is necessary.
+                    DigitalSingleChannelWriter writer = new DigitalSingleChannelWriter(digitalWriteTask.Stream);
+                    writer.WriteSingleSampleSingleLine(true, value);
+                }
+                return;
+            }
+
+            if (_dev_type == Device_Types.FT232H)
+            {
+                _ft232hdio.SetPin(_ft232hdio_bus, linenum, value);
+                return;
             }
         }
 
@@ -224,19 +258,29 @@ namespace powercal
                 string linename = GetName(linenum);
                 return _dic_values[linename];
             }
-
-            using (Task digitalReaderTask = new Task())
+            else if (_dev_type == Device_Types.NI_USB6008)
             {
-                //  Create an Digital Output channel and name it.
-                string linestr = string.Format("{0}/line{1}", _ni_port_desc, linenum);
-                string name = string.Format("line{0}", linenum);
-                digitalReaderTask.DOChannels.CreateChannel(linestr, name, ChannelLineGrouping.OneChannelForEachLine);
+                using (Task digitalReaderTask = new Task())
+                {
+                    //  Create an Digital Output channel and name it.
+                    string linestr = string.Format("{0}/line{1}", _ni_port_desc, linenum);
+                    string name = string.Format("line{0}", linenum);
+                    digitalReaderTask.DOChannels.CreateChannel(linestr, name, ChannelLineGrouping.OneChannelForEachLine);
 
-                //  Write digital port data. WriteDigitalSingChanSingSampPort writes a single sample
-                //  of digital data on demand, so no timeout is necessary.
-                DigitalSingleChannelReader reader = new DigitalSingleChannelReader(digitalReaderTask.Stream);
-                return reader.ReadSingleSampleSingleLine();
+                    //  Write digital port data. WriteDigitalSingChanSingSampPort writes a single sample
+                    //  of digital data on demand, so no timeout is necessary.
+                    DigitalSingleChannelReader reader = new DigitalSingleChannelReader(digitalReaderTask.Stream);
+                    return reader.ReadSingleSampleSingleLine();
+                }
             }
+            else if (_dev_type == Device_Types.FT232H)
+            {
+                Trace.TraceWarning("Trying to read from FT232 unsupported");
+                return false;
+            }
+
+            Trace.TraceWarning("Unkown device");
+            return false;
 
         }
 

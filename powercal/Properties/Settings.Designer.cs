@@ -37,7 +37,7 @@ namespace powercal.Properties {
         
         [global::System.Configuration.UserScopedSettingAttribute()]
         [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
-        [global::System.Configuration.DefaultSettingValueAttribute("1")]
+        [global::System.Configuration.DefaultSettingValueAttribute("0")]
         public int DIO_ACPower_LineNum {
             get {
                 return ((int)(this["DIO_ACPower_LineNum"]));
@@ -49,7 +49,7 @@ namespace powercal.Properties {
         
         [global::System.Configuration.UserScopedSettingAttribute()]
         [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
-        [global::System.Configuration.DefaultSettingValueAttribute("2")]
+        [global::System.Configuration.DefaultSettingValueAttribute("1")]
         public int DIO_Load_LinNum {
             get {
                 return ((int)(this["DIO_Load_LinNum"]));
@@ -61,19 +61,7 @@ namespace powercal.Properties {
         
         [global::System.Configuration.UserScopedSettingAttribute()]
         [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
-        [global::System.Configuration.DefaultSettingValueAttribute("3")]
-        public int DIO_Reset_LineNum {
-            get {
-                return ((int)(this["DIO_Reset_LineNum"]));
-            }
-            set {
-                this["DIO_Reset_LineNum"] = value;
-            }
-        }
-        
-        [global::System.Configuration.UserScopedSettingAttribute()]
-        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
-        [global::System.Configuration.DefaultSettingValueAttribute("4")]
+        [global::System.Configuration.DefaultSettingValueAttribute("2")]
         public int DIO_Ember_LineNum {
             get {
                 return ((int)(this["DIO_Ember_LineNum"]));
@@ -109,7 +97,7 @@ namespace powercal.Properties {
         
         [global::System.Configuration.UserScopedSettingAttribute()]
         [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
-        [global::System.Configuration.DefaultSettingValueAttribute("Manual")]
+        [global::System.Configuration.DefaultSettingValueAttribute("FT232H")]
         public string Relay_Controller_Type {
             get {
                 return ((string)(this["Relay_Controller_Type"]));
