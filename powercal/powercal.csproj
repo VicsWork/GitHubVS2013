@@ -219,12 +219,6 @@
       <Install>false</Install>
     </BootstrapperPackage>
   </ItemGroup>
-  <ItemGroup>
-    <ProjectReference Include="..\..\FT232HDIO\FT232HDIO\FT232HDIO.csproj">
-      <Project>{40e5bcb7-0889-4050-b389-fe3190650dce}</Project>
-      <Name>FT232HDIO</Name>
-    </ProjectReference>
-  </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <Target Name="BeforeBuild">
   </Target>

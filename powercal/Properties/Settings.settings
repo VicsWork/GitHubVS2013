@@ -5,9 +5,6 @@
     <Setting Name="Meter_COM_Port_Name" Type="System.String" Scope="User">
       <Value Profile="(Default)">COM1</Value>
     </Setting>
-    <Setting Name="Manual_Relay_Control" Type="System.Boolean" Scope="User">
-      <Value Profile="(Default)">True</Value>
-    </Setting>
     <Setting Name="DIO_ACPower_LineNum" Type="System.Int32" Scope="User">
       <Value Profile="(Default)">1</Value>
     </Setting>
@@ -26,8 +23,8 @@
     <Setting Name="Ember_BinPath" Type="System.String" Scope="User">
       <Value Profile="(Default)">C:\Program Files (x86)\Ember\ISA3 Utilities\bin</Value>
     </Setting>
-    <Setting Name="Setting" Type="System.String" Scope="User">
-      <Value Profile="(Default)" />
+    <Setting Name="Relay_Controller_Type" Type="System.String" Scope="User">
+      <Value Profile="(Default)">Manual</Value>
     </Setting>
   </Settings>
 </SettingsFile>

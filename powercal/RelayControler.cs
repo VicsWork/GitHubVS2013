@@ -9,11 +9,17 @@ namespace powercal
     /// <summary>
     /// Class to control the DIO lines connecte dto the different relays
     /// </summary>
-    class RelayControler
+    public class RelayControler
     {
+        public enum Device_Types { Manual, NI_USB6008, FT232H };
+
+        Device_Types _dev_type;
+
         string _acPowerLbl = "AC Power";
         string _loadLbl = "Load";
         string _emberLbl = "Ember";
+
+        public Device_Types Device_Type { get { return _dev_type; } }
 
         /// <summary>
         /// Inits internal dictionary that holds line number and state info
@@ -83,40 +89,32 @@ namespace powercal
         private Dictionary<string, bool> _dic_values = new Dictionary<string, bool>();
 
         /// <summary>
-        /// The DIO port info
+        /// The NI DIO port info
         /// </summary>
-        private string _dev_port;
+        private string _ni_port_desc;
 
         /// <summary>
         /// Constructor
         /// </summary>
-        public RelayControler()
+        public RelayControler(Device_Types devtype)
         {
-            initDevPort();
+            _dev_type = devtype;
+
+            initNIDevPort();
             _initDicLines();
         }
 
         /// <summary>
-        /// When disable we only store values.  This is usualfuul when running in manual mode
-        /// </summary>
-        public bool Disable
-        {
-            get { return _disable; }
-            set { _disable = value; }
-        }
-        private bool _disable = false;
-
-        /// <summary>
         /// Inits the DIO to be the first port found
         /// </summary>
-        private void initDevPort()
+        private void initNIDevPort()
         {
-            if (_dev_port == null)
+            if (_ni_port_desc == null)
             {
                 string[] data = DaqSystem.Local.GetPhysicalChannels(PhysicalChannelTypes.DOPort, PhysicalChannelAccess.External);
                 if (data.Length > 0)
                 {
-                    _dev_port = data[0];
+                    _ni_port_desc = data[0];
                 }
             }
         }
@@ -135,7 +133,7 @@ namespace powercal
         /// <param name="value"></param>
         public void WriteLine(string linename, bool value)
         {
-            if (Disable)
+            if (_dev_type == Device_Types.Manual)
             {
                 _dic_values[linename] = value;
             }
@@ -153,7 +151,7 @@ namespace powercal
         /// <param name="value"></param>
         public void WriteLine(int linenum, bool value)
         {
-            if (Disable)
+            if (_dev_type == Device_Types.Manual)
             {
                 string linename = GetName(linenum);
                 _dic_values[linename] = value;
@@ -163,7 +161,7 @@ namespace powercal
             using (Task digitalWriteTask = new Task())
             {
                 //  Create an Digital Output channel and name it.
-                string linestr = string.Format("{0}/line{1}", _dev_port, linenum);
+                string linestr = string.Format("{0}/line{1}", _ni_port_desc, linenum);
                 string name = string.Format("line{0}", linenum);
                 digitalWriteTask.DOChannels.CreateChannel(linestr, name, ChannelLineGrouping.OneChannelForEachLine);
 
@@ -181,7 +179,7 @@ namespace powercal
         /// <returns></returns>
         public bool ReadLine(string linename)
         {
-            if (Disable)
+            if (_dev_type == Device_Types.Manual)
             {
                 return _dic_values[linename];
             }
@@ -221,7 +219,7 @@ namespace powercal
         /// <returns></returns>
         public bool ReadLine(int linenum)
         {
-            if (Disable)
+            if (_dev_type == Device_Types.Manual)
             {
                 string linename = GetName(linenum);
                 return _dic_values[linename];
@@ -230,7 +228,7 @@ namespace powercal
             using (Task digitalReaderTask = new Task())
             {
                 //  Create an Digital Output channel and name it.
-                string linestr = string.Format("{0}/line{1}", _dev_port, linenum);
+                string linestr = string.Format("{0}/line{1}", _ni_port_desc, linenum);
                 string name = string.Format("line{0}", linenum);
                 digitalReaderTask.DOChannels.CreateChannel(linestr, name, ChannelLineGrouping.OneChannelForEachLine);
 

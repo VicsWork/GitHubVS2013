@@ -33,11 +33,6 @@ namespace powercal
             }
         }
 
-        private void checkBoxDisableDIO_CheckedChanged(object sender, EventArgs e)
-        {
-            setLineEnablement(!checkBoxDisableDIO.Checked);
-        }
-
         private void FormSettings_Load(object sender, EventArgs e)
         {
         }
@@ -63,6 +58,14 @@ namespace powercal
             {
                 TextBoxEmberBinPath.Text = dlg.SelectedPath;
             }
+        }
+
+        private void comboBoxDIOCtrollerTypes_SelectedIndexChanged(object sender, EventArgs e)
+        {
+            if (comboBoxDIOCtrollerTypes.Text == "Manual")
+                setLineEnablement(false);
+            else
+                setLineEnablement(true);
         }
 
     }

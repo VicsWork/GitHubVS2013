@@ -24,7 +24,7 @@ namespace powercal
     public partial class FormMain : Form
     {
         MultiMeter _meter = null;
-        RelayControler _relay_ctrl = new RelayControler();
+        RelayControler _relay_ctrl;
 
         /// <summary>
         /// The app folder where we save most logs, etc
@@ -130,6 +130,10 @@ namespace powercal
 
             // Detect whether meter is connected to one of the ports
             bool detected_meter = autoDetectMeterCOMPort();
+
+            // Init relay controller
+            RelayControler.Device_Types rdevtype = (RelayControler.Device_Types)Enum.Parse(typeof(RelayControler.Device_Types), Properties.Settings.Default.Relay_Controller_Type);
+            _relay_ctrl = new RelayControler(rdevtype);
 
             // Ember path
             if (!Directory.Exists(Properties.Settings.Default.Ember_BinPath))
@@ -332,8 +336,7 @@ namespace powercal
         private void relaysSet()
         {
 
-            bool manual_relay = Properties.Settings.Default.Manual_Relay_Control;
-            if (manual_relay)
+            if (_relay_ctrl.Device_Type == RelayControler.Device_Types.Manual)
             {
                 //string msg_dlg = relay_ctrl.ToDlgText();
                 string key = "AC Power";
@@ -342,13 +345,6 @@ namespace powercal
                 if (value)
                     on_off_str = "ON";
                 string msg_dlg = string.Format("{0} = {1}\r\n", key, on_off_str);
-
-                key = "Reset";
-                value = _relay_ctrl.ReadLine(key);
-                on_off_str = "OFF";
-                if (value)
-                    on_off_str = "ON";
-                msg_dlg += string.Format("{0} = {1}\r\n", key, on_off_str);
 
                 key = "Ember";
                 value = _relay_ctrl.ReadLine(key);
@@ -697,8 +693,12 @@ namespace powercal
             dlg.CheckBoxManualMultiMeter.Checked = Properties.Settings.Default.Meter_Manual_Measurement;
             dlg.TextBoxMeterCOM.Text = Properties.Settings.Default.Meter_COM_Port_Name;
 
-            // DIO Disable
-            dlg.checkBoxDisableDIO.Checked = Properties.Settings.Default.Manual_Relay_Control;
+            // Pupulate DIO controller types
+            dlg.comboBoxDIOCtrollerTypes.Items.Clear();
+            Array relay_types = Enum.GetValues( typeof(RelayControler.Device_Types) );
+            foreach (RelayControler.Device_Types relay_type in relay_types)
+                dlg.comboBoxDIOCtrollerTypes.Items.Add(relay_type.ToString());
+            dlg.comboBoxDIOCtrollerTypes.Text = Properties.Settings.Default.Relay_Controller_Type;
 
             // DIO line assigment
             dlg.NumericUpDownACPower.Value = Properties.Settings.Default.DIO_ACPower_LineNum;
@@ -715,8 +715,8 @@ namespace powercal
                 Properties.Settings.Default.Meter_COM_Port_Name = dlg.TextBoxMeterCOM.Text;
                 Properties.Settings.Default.Meter_Manual_Measurement = dlg.CheckBoxManualMultiMeter.Checked;
 
-                // DIO Disable
-                Properties.Settings.Default.Manual_Relay_Control = dlg.checkBoxDisableDIO.Checked;
+                // DIO controller type
+                Properties.Settings.Default.Relay_Controller_Type = dlg.comboBoxDIOCtrollerTypes.Text;
 
                 // DIO line assigment
                 Properties.Settings.Default.DIO_ACPower_LineNum = (int)dlg.NumericUpDownACPower.Value;
@@ -889,9 +889,6 @@ namespace powercal
             updateOutputStatus("===============================Start Calibration==============================");
 
             // Trun AC ON
-            bool manual_relay = Properties.Settings.Default.Manual_Relay_Control;
-            if (manual_relay)
-                _relay_ctrl.Disable = true;
             _relay_ctrl.Ember = true;
             _relay_ctrl.AC_Power = true;
             _relay_ctrl.Load = true;
@@ -1150,9 +1147,6 @@ namespace powercal
                 updateRunStatus("FAIL");
                 updateOutputStatus(ex.Message);
 
-                bool manual_relay = Properties.Settings.Default.Manual_Relay_Control;
-                if (manual_relay)
-                    _relay_ctrl.Disable = true;
                 _relay_ctrl.Ember = false;
                 _relay_ctrl.AC_Power = false;
                 _relay_ctrl.Load = false;

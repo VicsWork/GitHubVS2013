@@ -37,18 +37,6 @@ namespace powercal.Properties {
         
         [global::System.Configuration.UserScopedSettingAttribute()]
         [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
-        [global::System.Configuration.DefaultSettingValueAttribute("True")]
-        public bool Manual_Relay_Control {
-            get {
-                return ((bool)(this["Manual_Relay_Control"]));
-            }
-            set {
-                this["Manual_Relay_Control"] = value;
-            }
-        }
-        
-        [global::System.Configuration.UserScopedSettingAttribute()]
-        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
         [global::System.Configuration.DefaultSettingValueAttribute("1")]
         public int DIO_ACPower_LineNum {
             get {
@@ -121,13 +109,13 @@ namespace powercal.Properties {
         
         [global::System.Configuration.UserScopedSettingAttribute()]
         [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
-        [global::System.Configuration.DefaultSettingValueAttribute("")]
-        public string Setting {
+        [global::System.Configuration.DefaultSettingValueAttribute("Manual")]
+        public string Relay_Controller_Type {
             get {
-                return ((string)(this["Setting"]));
+                return ((string)(this["Relay_Controller_Type"]));
             }
             set {
-                this["Setting"] = value;
+                this["Relay_Controller_Type"] = value;
             }
         }
     }

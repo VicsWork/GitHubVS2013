@@ -40,12 +40,12 @@
             this.testToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.serialToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.digitalOutputToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.nIToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.fT232HToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.calculatorToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.toolStripMenuItemPowerMeter = new System.Windows.Forms.ToolStripMenuItem();
             this.aboutToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.textBoxRunStatus = new System.Windows.Forms.TextBox();
-            this.nIToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
-            this.fT232HToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.contextMenuStatusTextBox.SuspendLayout();
             this.menuStripMain.SuspendLayout();
             this.SuspendLayout();
@@ -141,7 +141,7 @@
             // serialToolStripMenuItem
             // 
             this.serialToolStripMenuItem.Name = "serialToolStripMenuItem";
-            this.serialToolStripMenuItem.Size = new System.Drawing.Size(152, 22);
+            this.serialToolStripMenuItem.Size = new System.Drawing.Size(149, 22);
             this.serialToolStripMenuItem.Text = "Serial Port";
             this.serialToolStripMenuItem.Click += new System.EventHandler(this.serialToolStripMenuItem_Click);
             // 
@@ -151,20 +151,33 @@
             this.nIToolStripMenuItem,
             this.fT232HToolStripMenuItem});
             this.digitalOutputToolStripMenuItem.Name = "digitalOutputToolStripMenuItem";
-            this.digitalOutputToolStripMenuItem.Size = new System.Drawing.Size(152, 22);
+            this.digitalOutputToolStripMenuItem.Size = new System.Drawing.Size(149, 22);
             this.digitalOutputToolStripMenuItem.Text = "Digital Output";
+            // 
+            // nIToolStripMenuItem
+            // 
+            this.nIToolStripMenuItem.Name = "nIToolStripMenuItem";
+            this.nIToolStripMenuItem.Size = new System.Drawing.Size(114, 22);
+            this.nIToolStripMenuItem.Text = "NI";
+            this.nIToolStripMenuItem.Click += new System.EventHandler(this.nIToolStripMenuItem_Click);
+            // 
+            // fT232HToolStripMenuItem
+            // 
+            this.fT232HToolStripMenuItem.Name = "fT232HToolStripMenuItem";
+            this.fT232HToolStripMenuItem.Size = new System.Drawing.Size(114, 22);
+            this.fT232HToolStripMenuItem.Text = "FT232H";
             // 
             // calculatorToolStripMenuItem
             // 
             this.calculatorToolStripMenuItem.Name = "calculatorToolStripMenuItem";
-            this.calculatorToolStripMenuItem.Size = new System.Drawing.Size(152, 22);
+            this.calculatorToolStripMenuItem.Size = new System.Drawing.Size(149, 22);
             this.calculatorToolStripMenuItem.Text = "&Calculator";
             this.calculatorToolStripMenuItem.Click += new System.EventHandler(this.calculatorToolStripMenuItem_Click);
             // 
             // toolStripMenuItemPowerMeter
             // 
             this.toolStripMenuItemPowerMeter.Name = "toolStripMenuItemPowerMeter";
-            this.toolStripMenuItemPowerMeter.Size = new System.Drawing.Size(152, 22);
+            this.toolStripMenuItemPowerMeter.Size = new System.Drawing.Size(149, 22);
             this.toolStripMenuItemPowerMeter.Text = "Power Meter";
             this.toolStripMenuItemPowerMeter.Click += new System.EventHandler(this.toolStripMenuItemPowerMeter_Click);
             // 
@@ -185,19 +198,6 @@
             this.textBoxRunStatus.TabIndex = 10;
             this.textBoxRunStatus.Text = "test";
             this.textBoxRunStatus.WordWrap = false;
-            // 
-            // nIToolStripMenuItem
-            // 
-            this.nIToolStripMenuItem.Name = "nIToolStripMenuItem";
-            this.nIToolStripMenuItem.Size = new System.Drawing.Size(152, 22);
-            this.nIToolStripMenuItem.Text = "NI";
-            this.nIToolStripMenuItem.Click += new System.EventHandler(this.nIToolStripMenuItem_Click);
-            // 
-            // fT232HToolStripMenuItem
-            // 
-            this.fT232HToolStripMenuItem.Name = "fT232HToolStripMenuItem";
-            this.fT232HToolStripMenuItem.Size = new System.Drawing.Size(152, 22);
-            this.fT232HToolStripMenuItem.Text = "FT232H";
             // 
             // FormMain
             // 

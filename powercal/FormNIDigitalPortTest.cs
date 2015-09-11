@@ -12,7 +12,7 @@ namespace powercal
 {
     public partial class FormNIDigitalPortTest : Form
     {
-        RelayControler _relayCtrl = new RelayControler();
+        RelayControler _relayCtrl = new RelayControler(RelayControler.Device_Types.NI_USB6008);
 
         /// <summary>
         /// Class use to performe tests on DIO board
