@@ -31,10 +31,12 @@ namespace DIO
         /// <summary>
         /// Constructor
         /// </summary>
+        /// <see cref="http://www.ftdichip.com/Support/Documents/AppNotes/AN_108_Command_Processor_for_MPSSE_and_MCU_Host_Bus_Emulation_Modes.pdf"/>
         /// <param name="dev_index"></param>
         /// <returns></returns>
         public FTDI.FT_STATUS Init(uint dev_index = 0)
         {
+
             // Reste and purge any data
             //ResetPort();
             //_ftdi.Purge(FTDI.FT_PURGE.FT_PURGE_RX | FTDI.FT_PURGE.FT_PURGE_TX);
@@ -43,7 +45,8 @@ namespace DIO
             uint count = 0;
             _ftdi.GetNumberOfDevices(ref count);
             Debug.Assert(count > dev_index, string.Format("No FTDI device at channel {0}.  FTDI device count was {1}", dev_index, count));
-            _ftdi.OpenByIndex(dev_index);
+            FTDI.FT_STATUS status = _ftdi.OpenByIndex(dev_index);
+            Debug.Assert(status == FTDI.FT_STATUS.FT_OK, "Problem opening FTDI status");
 
             // Verify is the right type
             FTDI.FT_DEVICE_INFO_NODE[] devlist = new FTDI.FT_DEVICE_INFO_NODE[100];
@@ -54,15 +57,19 @@ namespace DIO
                 devinfo.Type, dev_index, expected.ToString()));
 
             // Enable MPSSE
-            _ftdi.SetBitMode(0xFF, FTDI.FT_BIT_MODES.FT_BIT_MODE_MPSSE);
+            status = _ftdi.SetBitMode(0xFF, FTDI.FT_BIT_MODES.FT_BIT_MODE_MPSSE);
+            Debug.Assert(status == FTDI.FT_STATUS.FT_OK, "Problem setting FTDI bitmode");
             //_ftdi.SetBitMode(0, 0);
             //_ftdi.SetBitMode(0, 2);
 
             // Set all outputs and data = all 0
             //(0x80, level_low, dir_low, 0x82, level_high, dir_high)
-            byte[] data = new byte[] { 0x80, _cha_state, 0xFF, 0x82, _chb_state, 0xFF };
+            //byte[] data = new byte[] { 0x80, _cha_state, 0xFF, 0x82, _chb_state, 0xFF };
+            byte[] data = new byte[] { 0x82, _chb_state, 0xFF };
             uint n = 0;
             status = _ftdi.Write(data, data.Length, ref n);
+            Debug.Assert(status == FTDI.FT_STATUS.FT_OK, "Problem writing initial FTDI pin data");
+
             return status;
         }
 
