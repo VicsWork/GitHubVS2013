@@ -107,10 +107,12 @@ namespace powercal
 
             // Make sure we have a selection for board types
             this.comboBoxBoardTypes.Items.AddRange(Enum.GetNames(typeof(powercal.BoardTypes)));
+            int index = comboBoxBoardTypes.Items.IndexOf(Properties.Settings.Default.Last_Used_Board);
+            if (index < 0)
+                index = 0;
             if (comboBoxBoardTypes.Items.Count > 0)
-            {
-                comboBoxBoardTypes.SelectedIndex = 0;
-            }
+                comboBoxBoardTypes.SelectedIndex = index;
+
 
             cleanupEmberTempPatchFile();
 
@@ -858,7 +860,7 @@ namespace powercal
         /// </summary>
         /// <param name="board_type"></param>
         /// <param name="telnet_connection"></param>
-        void close_board_relay(BoardTypes board_type, TelnetConnection telnet_connection)
+        void set_board_relay(BoardTypes board_type, TelnetConnection telnet_connection, bool value)
         {
             switch (board_type)
             {
@@ -867,8 +869,11 @@ namespace powercal
                 case BoardTypes.Hornshark:
                 case BoardTypes.Humpback:
                 case BoardTypes.Zebrashark:
-                    updateRunStatus("Close UUT Relay");
-                    telnet_connection.WriteLine("write 1 6 0 1 0x10 {01}");
+                    updateRunStatus( string.Format("Set UUT Relay {0}", value.ToString() ) );
+                    if(value)
+                        telnet_connection.WriteLine("write 1 6 0 1 0x10 {01}");
+                    else
+                        telnet_connection.WriteLine("write 1 6 0 1 0x10 {00}");
                     break;
             }
 
@@ -919,7 +924,7 @@ namespace powercal
             reset_handler(board_type);
 
             // Close UUT relay
-            close_board_relay(board_type, telnet_connection);
+            set_board_relay(board_type, telnet_connection, true);
 
             Thread.Sleep(1000);
             datain = telnet_connection.Read();
@@ -1056,6 +1061,12 @@ namespace powercal
             msg = string.Format("Cirrus I = {0:F8}, V = {1:F8}, P = {2:F8}", cv.Current, cv.Voltage, cv.Current * cv.Voltage);
             updateOutputStatus(msg);
 
+            // Open UUT relay
+            //set_board_relay(board_type, telnet_connection, false);
+            //Thread.Sleep(1000);
+            //datain = telnet_connection.Read();
+            //traceLog(datain);
+
             _p_ember_isachan.CancelOutputRead();
             _p_ember_isachan.CancelErrorRead();
 
@@ -1067,8 +1078,7 @@ namespace powercal
 
             // Disconnect Power
             _relay_ctrl.AC_Power = false;
-            //_relay_ctrl.Reset = false;
-            //_relay_ctrl.Ember = false;
+            _relay_ctrl.Ember = false;
             //_relay_ctrl.Load = false;
             relaysSet();
 
@@ -1134,9 +1144,11 @@ namespace powercal
                 calibrate();
 
                 stopWatch.Stop();
+
                 TimeSpan ts = stopWatch.Elapsed;
                 // Format and display the TimeSpan value. 
                 string elapsedTime = String.Format("Elaspsed time {0:00} seconds", ts.TotalSeconds);
+                
                 updateOutputStatus(elapsedTime);
 
                 if (_meter != null)
@@ -1185,6 +1197,17 @@ namespace powercal
         {
             FormFT232H_DIO_Test dlg = new FormFT232H_DIO_Test();
             dlg.Show();
+        }
+
+        /// <summary>
+        /// Remember the last board we used
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        private void comboBoxBoardTypes_SelectedIndexChanged(object sender, EventArgs e)
+        {
+            Properties.Settings.Default.Last_Used_Board = this.comboBoxBoardTypes.Text;
+            Properties.Settings.Default.Save();
         }
 
     }

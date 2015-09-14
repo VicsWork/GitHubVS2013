@@ -106,5 +106,17 @@ namespace powercal.Properties {
                 this["Relay_Controller_Type"] = value;
             }
         }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("")]
+        public string Last_Used_Board {
+            get {
+                return ((string)(this["Last_Used_Board"]));
+            }
+            set {
+                this["Last_Used_Board"] = value;
+            }
+        }
     }
 }

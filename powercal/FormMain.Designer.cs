@@ -99,6 +99,7 @@
             this.comboBoxBoardTypes.Name = "comboBoxBoardTypes";
             this.comboBoxBoardTypes.Size = new System.Drawing.Size(170, 28);
             this.comboBoxBoardTypes.TabIndex = 7;
+            this.comboBoxBoardTypes.SelectedIndexChanged += new System.EventHandler(this.comboBoxBoardTypes_SelectedIndexChanged);
             // 
             // label1
             // 

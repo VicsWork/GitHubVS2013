@@ -23,5 +23,8 @@
     <Setting Name="Relay_Controller_Type" Type="System.String" Scope="User">
       <Value Profile="(Default)">FT232H</Value>
     </Setting>
+    <Setting Name="Last_Used_Board" Type="System.String" Scope="User">
+      <Value Profile="(Default)" />
+    </Setting>
   </Settings>
 </SettingsFile>

@@ -185,14 +185,15 @@ namespace DIO
             Debug.Assert(pin < 8 && pin >= 0, "Pin number must be between 0 and 7");
 
             byte pin_num = Convert.ToByte(pin);
-            byte state_new = get_bus_state(bus);
+            byte state_current = get_bus_state(bus);
+            byte state_new = state_current;
             if (value)
             {
                 state_new |= (byte)(1 << pin_num);
             }
             else
             {
-                state_new &= (byte)(0 << pin_num);
+                state_new &= (byte)(~(1 << pin_num) & 0xFF);
             }
 
             FTDI.FT_STATUS status = set_bus_state(bus, state_new);

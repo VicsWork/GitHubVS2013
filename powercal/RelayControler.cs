@@ -212,7 +212,8 @@ namespace powercal
 
             if (_dev_type == Device_Types.FT232H)
             {
-                _ft232hdio.Open( Convert.ToUInt32(_ftdi_dev_index) );
+                _ft232hdio.Close();
+                _ft232hdio.Open(Convert.ToUInt32(_ftdi_dev_index));
                 _ft232hdio.SetPin(_ftdi_bus, linenum, value);
                 _ft232hdio.Close();
                 return;
