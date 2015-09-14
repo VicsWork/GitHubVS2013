@@ -28,49 +28,101 @@ namespace DIO
         /// </summary>
         public enum PIN { PIN0 = 0, PIN1 = 1, PIN2 = 2, PIN3 = 3, PIN4 = 4, PIN5 = 5, PIN6 = 6, PIN7 = 7 };
 
+        FTD2XX_NET.FTDI.FT_DEVICE _dev_type;
+        public FTD2XX_NET.FTDI.FT_DEVICE DeviceType { get { return _dev_type; } }
+
         /// <summary>
         /// Constructor
         /// </summary>
         /// <see cref="http://www.ftdichip.com/Support/Documents/AppNotes/AN_108_Command_Processor_for_MPSSE_and_MCU_Host_Bus_Emulation_Modes.pdf"/>
         /// <param name="dev_index"></param>
         /// <returns></returns>
-        public FTDI.FT_STATUS Init(uint dev_index = 0)
+        public FTDI.FT_STATUS Reset()
         {
-
             // Reste and purge any data
-            //ResetPort();
-            //_ftdi.Purge(FTDI.FT_PURGE.FT_PURGE_RX | FTDI.FT_PURGE.FT_PURGE_TX);
+            FTDI.FT_STATUS status = ResetPort();
+            status = _ftdi.Purge(FTDI.FT_PURGE.FT_PURGE_RX | FTDI.FT_PURGE.FT_PURGE_TX);
 
-            // Check we have a device
-            uint count = 0;
-            _ftdi.GetNumberOfDevices(ref count);
-            Debug.Assert(count > dev_index, string.Format("No FTDI device at channel {0}.  FTDI device count was {1}", dev_index, count));
-            FTDI.FT_STATUS status = _ftdi.OpenByIndex(dev_index);
-            Debug.Assert(status == FTDI.FT_STATUS.FT_OK, "Problem opening FTDI status");
+            return status;
+        }
 
-            // Verify is the right type
-            FTDI.FT_DEVICE_INFO_NODE[] devlist = new FTDI.FT_DEVICE_INFO_NODE[100];
-            FTDI.FT_STATUS status = _ftdi.GetDeviceList(devlist);
-            FTDI.FT_DEVICE_INFO_NODE devinfo = devlist[dev_index];
-            FTD2XX_NET.FTDI.FT_DEVICE expected = FTD2XX_NET.FTDI.FT_DEVICE.FT_DEVICE_232H;
-            Debug.Assert(devinfo.Type == expected, string.Format("Unexpected device type '{0}' at index {1}.  Expected '{2}'",
-                devinfo.Type, dev_index, expected.ToString()));
+
+        /// <summary>
+        /// Open the FTDI device
+        /// </summary>
+        /// <param name="index"></param>
+        public void Open(uint index)
+        {
+            FTDI.FT_STATUS status = _ftdi.OpenByIndex(index);
+            if (status != FTDI.FT_STATUS.FT_OK)
+            {
+                throw new Exception( string.Format("Problem opening FTDI device at index {0}", index) );
+            }
 
             // Enable MPSSE
             status = _ftdi.SetBitMode(0xFF, FTDI.FT_BIT_MODES.FT_BIT_MODE_MPSSE);
-            Debug.Assert(status == FTDI.FT_STATUS.FT_OK, "Problem setting FTDI bitmode");
+            if (status != FTDI.FT_STATUS.FT_OK)
+            {
+                throw new Exception(string.Format("Problem setting FTDI bitmode for device at index {0}", index));
+            }
             //_ftdi.SetBitMode(0, 0);
             //_ftdi.SetBitMode(0, 2);
 
+        }
+
+        /// <summary>
+        /// Returns the index of the first available FTDI 232H device found in the system
+        /// </summary>
+        /// <returns></returns>
+        public int GetFirstDevIndex()
+        {
+            int count = 10;
+
+            FTDI.FT_DEVICE_INFO_NODE[] devlist = new FTDI.FT_DEVICE_INFO_NODE[count];
+            FTDI.FT_STATUS status = _ftdi.GetDeviceList(devlist);
+            Debug.Assert(status == FTDI.FT_STATUS.FT_OK, "Problem getting FTDI device list");
+
+            int index = -1;
+            for (int i = 0; i < count; i++)
+            {
+                FTDI.FT_DEVICE_INFO_NODE devinfo = devlist[i];
+                if (devinfo != null)
+                {
+                    if (devinfo.Type == FTD2XX_NET.FTDI.FT_DEVICE.FT_DEVICE_232H)
+                    {
+                        index = i;
+                        _dev_type = devinfo.Type;
+                        break;
+                    }
+                }
+            }
+
+            return index;
+        }
+
+        /// <summary>
+        /// Sets directions of the pins in a bus
+        /// </summary>
+        /// <param name="bus"></param>
+        void SetPortAsOutput(DIO_BUS bus, byte direction=0xFF)
+        {
             // Set all outputs and data = all 0
             //(0x80, level_low, dir_low, 0x82, level_high, dir_high)
             //byte[] data = new byte[] { 0x80, _cha_state, 0xFF, 0x82, _chb_state, 0xFF };
-            byte[] data = new byte[] { 0x82, _chb_state, 0xFF };
-            uint n = 0;
-            status = _ftdi.Write(data, data.Length, ref n);
-            Debug.Assert(status == FTDI.FT_STATUS.FT_OK, "Problem writing initial FTDI pin data");
 
-            return status;
+            byte addr = get_bus_address(bus);
+            byte state = get_bus_state(bus);
+
+            byte[] data = new byte[] { addr, state, direction };
+            uint n = 0;
+            FTDI.FT_STATUS status = _ftdi.Write(data, data.Length, ref n);
+            if (status != FTDI.FT_STATUS.FT_OK)
+            {
+                throw new Exception(string.Format("Problem writing to bus {0}", bus.ToString()));
+            }
+
+            set_bus_state(bus, state);
+
         }
 
         /// <summary>
@@ -78,7 +130,7 @@ namespace DIO
         /// </summary>
         /// <param name="bus"></param>
         /// <returns></returns>
-        byte _get_bus_address(DIO_BUS bus)
+        byte get_bus_address(DIO_BUS bus)
         {
             byte addr = 0x80;
             if (bus == DIO_BUS.AC_BUS)
@@ -91,7 +143,7 @@ namespace DIO
         /// </summary>
         /// <param name="bus"></param>
         /// <returns></returns>
-        byte _get_bus_state(DIO_BUS bus)
+        byte get_bus_state(DIO_BUS bus)
         {
             byte state = _cha_state;
             if (bus == DIO_BUS.AC_BUS)
@@ -105,14 +157,14 @@ namespace DIO
         /// <param name="bus"></param>
         /// <param name="state"></param>
         /// <returns></returns>
-        FTDI.FT_STATUS _set_bus_state(DIO_BUS bus, byte state)
+        FTDI.FT_STATUS set_bus_state(DIO_BUS bus, byte state)
         {
             if (bus == DIO_BUS.AD_BUS)
                 _cha_state = state;
             else if (bus == DIO_BUS.AC_BUS)
                 _chb_state = state;
 
-            byte addr = _get_bus_address(bus);
+            byte addr = get_bus_address(bus);
             byte[] buffer = new byte[] { addr, state, 0xFF };
             uint n = 0;
             FTDI.FT_STATUS status = _ftdi.Write(buffer, buffer.Length, ref n);
@@ -133,7 +185,7 @@ namespace DIO
             Debug.Assert(pin < 8 && pin >= 0, "Pin number must be between 0 and 7");
 
             byte pin_num = Convert.ToByte(pin);
-            byte state_new = _get_bus_state(bus);
+            byte state_new = get_bus_state(bus);
             if (value)
             {
                 state_new |= (byte)(1 << pin_num);
@@ -143,7 +195,7 @@ namespace DIO
                 state_new &= (byte)(0 << pin_num);
             }
 
-            FTDI.FT_STATUS status = _set_bus_state(bus, state_new);
+            FTDI.FT_STATUS status = set_bus_state(bus, state_new);
             return status;
         }
 

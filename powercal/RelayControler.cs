@@ -96,8 +96,17 @@ namespace powercal
         /// </summary>
         private string _ni_port_desc;
 
+        /// <summary>
+        /// FTDI Stuff
+        /// </summary>
         DIO.FT232HDIO _ft232hdio;
-        DIO.FT232HDIO.DIO_BUS _ft232hdio_bus = FT232HDIO.DIO_BUS.AC_BUS;
+        DIO.FT232HDIO.DIO_BUS _ftdi_bus = FT232HDIO.DIO_BUS.AC_BUS;
+        public string FTDI_BUS { get { return _ftdi_bus.ToString(); } }
+
+        int _ftdi_dev_index = -1;
+        public int FTDI_DEVICE_ID { get { return _ftdi_dev_index; } }
+
+        public string FTDI_DEVICE_YPE { get { return _ft232hdio.DeviceType.ToString(); } }
 
         /// <summary>
         /// Constructor
@@ -109,7 +118,9 @@ namespace powercal
             if (_dev_type == Device_Types.NI_USB6008)
                 initNI_USB6008();
             else if (_dev_type == Device_Types.FT232H)
+            {
                 initFT232H();
+            }
 
             _initDicLines();
         }
@@ -117,7 +128,11 @@ namespace powercal
         private void initFT232H()
         {
             _ft232hdio = new FT232HDIO();
-            _ft232hdio.Init(0);
+            _ft232hdio.Reset();
+            _ftdi_dev_index = _ft232hdio.GetFirstDevIndex();
+            if (_ftdi_dev_index < 0)
+                throw new Exception("Uanble to find an F232H device");
+            
         }
 
         public void Close()
@@ -175,12 +190,8 @@ namespace powercal
         /// <param name="value"></param>
         public void WriteLine(int linenum, bool value)
         {
-            if (_dev_type == Device_Types.Manual)
-            {
-                string linename = GetName(linenum);
-                _dic_values[linename] = value;
-                return;
-            }
+            string linename = GetName(linenum);
+            _dic_values[linename] = value;
 
             if (_dev_type == Device_Types.NI_USB6008)
             {
@@ -201,7 +212,9 @@ namespace powercal
 
             if (_dev_type == Device_Types.FT232H)
             {
-                _ft232hdio.SetPin(_ft232hdio_bus, linenum, value);
+                _ft232hdio.Open( Convert.ToUInt32(_ftdi_dev_index) );
+                _ft232hdio.SetPin(_ftdi_bus, linenum, value);
+                _ft232hdio.Close();
                 return;
             }
         }
@@ -213,7 +226,7 @@ namespace powercal
         /// <returns></returns>
         public bool ReadLine(string linename)
         {
-            if (_dev_type == Device_Types.Manual)
+            if (_dev_type == Device_Types.Manual || _dev_type == Device_Types.FT232H)
             {
                 return _dic_values[linename];
             }
@@ -323,7 +336,7 @@ namespace powercal
         }
 
         /// <summary>
-        /// Returs the status of all lines a text
+        /// Returs the status of all lines as text
         /// </summary>
         /// <returns></returns>
         public string ToStatusText()
@@ -334,6 +347,7 @@ namespace powercal
             {
                 status += txt + ",";
             }
+            status = status.TrimEnd(',');
 
             return status;
         }

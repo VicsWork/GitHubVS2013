@@ -134,6 +134,9 @@ namespace powercal
             // Init relay controller
             RelayControler.Device_Types rdevtype = (RelayControler.Device_Types)Enum.Parse(typeof(RelayControler.Device_Types), Properties.Settings.Default.Relay_Controller_Type);
             _relay_ctrl = new RelayControler(rdevtype);
+            _relay_ctrl.AC_Power_LineNum = Properties.Settings.Default.DIO_ACPower_LineNum;
+            _relay_ctrl.Load_LineNum = Properties.Settings.Default.DIO_Load_LinNum;
+            _relay_ctrl.Ember_LineNum = Properties.Settings.Default.DIO_Ember_LineNum;
 
             // Ember path
             if (!Directory.Exists(Properties.Settings.Default.Ember_BinPath))
@@ -875,7 +878,7 @@ namespace powercal
         /// Calibrates using just the Ember
         /// Voltage and Current register values are gathered using custom commands
         /// </summary>
-        private void calibrate_using_ember()
+        private void calibrate()
         {
             // Remember to set power to external on ember
 
@@ -1128,7 +1131,7 @@ namespace powercal
 
                 cleanupEmberTempPatchFile();
 
-                calibrate_using_ember();
+                calibrate();
 
                 stopWatch.Stop();
                 TimeSpan ts = stopWatch.Elapsed;
@@ -1163,7 +1166,7 @@ namespace powercal
         }
 
         /// <summary>
-        /// Invokes the DIO test dialog
+        /// Invokes the NI DIO test dialog
         /// </summary>
         /// <param name="sender"></param>
         /// <param name="e"></param>
@@ -1173,9 +1176,13 @@ namespace powercal
             dlg.Show();
         }
 
+        /// <summary>
+        /// Invokes the FTDI test dialog
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
         private void fT232HToolStripMenuItem_Click(object sender, EventArgs e)
         {
-            _relay_ctrl.Close();
             FormFT232H_DIO_Test dlg = new FormFT232H_DIO_Test();
             dlg.Show();
         }

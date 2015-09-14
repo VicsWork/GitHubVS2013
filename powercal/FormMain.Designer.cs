@@ -57,12 +57,12 @@
             | System.Windows.Forms.AnchorStyles.Right)));
             this.textBoxOutputStatus.ContextMenuStrip = this.contextMenuStatusTextBox;
             this.textBoxOutputStatus.ForeColor = System.Drawing.SystemColors.WindowText;
-            this.textBoxOutputStatus.Location = new System.Drawing.Point(12, 157);
+            this.textBoxOutputStatus.Location = new System.Drawing.Point(12, 126);
             this.textBoxOutputStatus.Multiline = true;
             this.textBoxOutputStatus.Name = "textBoxOutputStatus";
             this.textBoxOutputStatus.ReadOnly = true;
             this.textBoxOutputStatus.ScrollBars = System.Windows.Forms.ScrollBars.Vertical;
-            this.textBoxOutputStatus.Size = new System.Drawing.Size(702, 376);
+            this.textBoxOutputStatus.Size = new System.Drawing.Size(702, 407);
             this.textBoxOutputStatus.TabIndex = 2;
             // 
             // contextMenuStatusTextBox
@@ -82,7 +82,7 @@
             // buttonRun
             // 
             this.buttonRun.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
-            this.buttonRun.Location = new System.Drawing.Point(639, 48);
+            this.buttonRun.Location = new System.Drawing.Point(639, 27);
             this.buttonRun.Name = "buttonRun";
             this.buttonRun.Size = new System.Drawing.Size(75, 23);
             this.buttonRun.TabIndex = 6;
@@ -93,16 +93,17 @@
             // comboBoxBoardTypes
             // 
             this.comboBoxBoardTypes.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
+            this.comboBoxBoardTypes.Font = new System.Drawing.Font("Microsoft Sans Serif", 12F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.comboBoxBoardTypes.FormattingEnabled = true;
-            this.comboBoxBoardTypes.Location = new System.Drawing.Point(12, 50);
+            this.comboBoxBoardTypes.Location = new System.Drawing.Point(57, 27);
             this.comboBoxBoardTypes.Name = "comboBoxBoardTypes";
-            this.comboBoxBoardTypes.Size = new System.Drawing.Size(170, 21);
+            this.comboBoxBoardTypes.Size = new System.Drawing.Size(170, 28);
             this.comboBoxBoardTypes.TabIndex = 7;
             // 
             // label1
             // 
             this.label1.AutoSize = true;
-            this.label1.Location = new System.Drawing.Point(13, 36);
+            this.label1.Location = new System.Drawing.Point(13, 35);
             this.label1.Name = "label1";
             this.label1.Size = new System.Drawing.Size(38, 13);
             this.label1.TabIndex = 8;
@@ -192,7 +193,7 @@
             // textBoxRunStatus
             // 
             this.textBoxRunStatus.Font = new System.Drawing.Font("Microsoft Sans Serif", 27.75F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.textBoxRunStatus.Location = new System.Drawing.Point(12, 90);
+            this.textBoxRunStatus.Location = new System.Drawing.Point(12, 71);
             this.textBoxRunStatus.Name = "textBoxRunStatus";
             this.textBoxRunStatus.ReadOnly = true;
             this.textBoxRunStatus.Size = new System.Drawing.Size(702, 49);

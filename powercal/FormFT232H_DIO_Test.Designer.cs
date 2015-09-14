@@ -29,7 +29,6 @@
         private void InitializeComponent()
         {
             this.channelParametersGroupBox = new System.Windows.Forms.GroupBox();
-            this.physicalChannelComboBox = new System.Windows.Forms.ComboBox();
             this.physicalChannelLabel = new System.Windows.Forms.Label();
             this.groupBoxDIOLines = new System.Windows.Forms.GroupBox();
             this.labelOutput = new System.Windows.Forms.Label();
@@ -47,7 +46,6 @@
             // 
             // channelParametersGroupBox
             // 
-            this.channelParametersGroupBox.Controls.Add(this.physicalChannelComboBox);
             this.channelParametersGroupBox.Controls.Add(this.physicalChannelLabel);
             this.channelParametersGroupBox.FlatStyle = System.Windows.Forms.FlatStyle.System;
             this.channelParametersGroupBox.Location = new System.Drawing.Point(12, 12);
@@ -57,20 +55,12 @@
             this.channelParametersGroupBox.TabStop = false;
             this.channelParametersGroupBox.Text = "Channel Parameters";
             // 
-            // physicalChannelComboBox
-            // 
-            this.physicalChannelComboBox.Location = new System.Drawing.Point(16, 40);
-            this.physicalChannelComboBox.Name = "physicalChannelComboBox";
-            this.physicalChannelComboBox.Size = new System.Drawing.Size(156, 21);
-            this.physicalChannelComboBox.TabIndex = 1;
-            this.physicalChannelComboBox.Text = "Dev1/port0";
-            // 
             // physicalChannelLabel
             // 
             this.physicalChannelLabel.FlatStyle = System.Windows.Forms.FlatStyle.System;
             this.physicalChannelLabel.Location = new System.Drawing.Point(16, 20);
             this.physicalChannelLabel.Name = "physicalChannelLabel";
-            this.physicalChannelLabel.Size = new System.Drawing.Size(96, 14);
+            this.physicalChannelLabel.Size = new System.Drawing.Size(162, 49);
             this.physicalChannelLabel.TabIndex = 0;
             this.physicalChannelLabel.Text = "Port";
             // 
@@ -164,6 +154,7 @@
             this.Controls.Add(this.channelParametersGroupBox);
             this.Name = "FormFT232H_DIO_Test";
             this.Text = "FormFT232H_DIO_Test";
+            this.FormClosed += new System.Windows.Forms.FormClosedEventHandler(this.FormFT232H_DIO_Test_FormClosed);
             this.channelParametersGroupBox.ResumeLayout(false);
             this.groupBoxDIOLines.ResumeLayout(false);
             this.groupBoxDIOLines.PerformLayout();
@@ -177,8 +168,6 @@
         #endregion
 
         private System.Windows.Forms.GroupBox channelParametersGroupBox;
-        private System.Windows.Forms.ComboBox physicalChannelComboBox;
-        private System.Windows.Forms.Label physicalChannelLabel;
         private System.Windows.Forms.GroupBox groupBoxDIOLines;
         private System.Windows.Forms.Label labelOutput;
         public System.Windows.Forms.NumericUpDown NumericUpDownOutput;
@@ -186,5 +175,6 @@
         public System.Windows.Forms.NumericUpDown NumericUpDownLoad;
         private System.Windows.Forms.Label labelACPower;
         public System.Windows.Forms.NumericUpDown NumericUpDownACPower;
+        public System.Windows.Forms.Label physicalChannelLabel;
     }
 }
