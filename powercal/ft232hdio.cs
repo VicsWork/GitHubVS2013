@@ -37,12 +37,9 @@ namespace DIO
         /// <see cref="http://www.ftdichip.com/Support/Documents/AppNotes/AN_108_Command_Processor_for_MPSSE_and_MCU_Host_Bus_Emulation_Modes.pdf"/>
         /// <param name="dev_index"></param>
         /// <returns></returns>
-        public FTDI.FT_STATUS Reset()
+        public FTDI.FT_STATUS ResetDevice()
         {
-            // Reste and purge any data
-            FTDI.FT_STATUS status = ResetPort();
-            status = _ftdi.Purge(FTDI.FT_PURGE.FT_PURGE_RX | FTDI.FT_PURGE.FT_PURGE_TX);
-
+            FTDI.FT_STATUS status = _ftdi.ResetDevice();
             return status;
         }
 
@@ -221,6 +218,7 @@ namespace DIO
         public FTDI.FT_STATUS ResetPort()
         {
             FTDI.FT_STATUS status = _ftdi.ResetPort();
+            status = _ftdi.Purge(FTDI.FT_PURGE.FT_PURGE_RX | FTDI.FT_PURGE.FT_PURGE_TX);
             return status;
         }
 

@@ -217,6 +217,7 @@
             this.MinimumSize = new System.Drawing.Size(300, 300);
             this.Name = "FormMain";
             this.Text = "FormMain";
+            this.FormClosing += new System.Windows.Forms.FormClosingEventHandler(this.FormMain_FormClosing);
             this.contextMenuStatusTextBox.ResumeLayout(false);
             this.menuStripMain.ResumeLayout(false);
             this.menuStripMain.PerformLayout();

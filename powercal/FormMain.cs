@@ -135,10 +135,22 @@ namespace powercal
 
             // Init relay controller
             RelayControler.Device_Types rdevtype = (RelayControler.Device_Types)Enum.Parse(typeof(RelayControler.Device_Types), Properties.Settings.Default.Relay_Controller_Type);
-            _relay_ctrl = new RelayControler(rdevtype);
-            _relay_ctrl.AC_Power_LineNum = Properties.Settings.Default.DIO_ACPower_LineNum;
-            _relay_ctrl.Load_LineNum = Properties.Settings.Default.DIO_Load_LinNum;
-            _relay_ctrl.Ember_LineNum = Properties.Settings.Default.DIO_Ember_LineNum;
+            try
+            {
+                _relay_ctrl = new RelayControler(rdevtype);
+                _relay_ctrl.AC_Power_LineNum = Properties.Settings.Default.DIO_ACPower_LineNum;
+                _relay_ctrl.Load_LineNum = Properties.Settings.Default.DIO_Load_LinNum;
+                _relay_ctrl.Ember_LineNum = Properties.Settings.Default.DIO_Ember_LineNum;
+            }
+            catch (Exception ex)
+            {
+                msg = string.Format("Unable to init relay controler \"{0}\".  Switching to Manual relay mode", rdevtype);
+                updateOutputStatus(msg);
+
+                _relay_ctrl = new RelayControler(RelayControler.Device_Types.Manual);
+                Properties.Settings.Default.Relay_Controller_Type = _relay_ctrl.Device_Type.ToString();
+                Properties.Settings.Default.Save();
+            }
 
             // Ember path
             if (!Directory.Exists(Properties.Settings.Default.Ember_BinPath))
@@ -897,7 +909,9 @@ namespace powercal
             updateOutputStatus("===============================Start Calibration==============================");
 
             // Trun AC ON
+            _relay_ctrl.ResetDevice();
             _relay_ctrl.Ember = true;
+            _relay_ctrl.Load = false;
             _relay_ctrl.AC_Power = true;
             _relay_ctrl.Load = true;
             relaysSet();
@@ -976,9 +990,11 @@ namespace powercal
                 msg = string.Format("Cirrus voltage before calibration not within limit values: {0:F8} < {1:F8} < {2:F8}", _voltage_low_limit, cv.Voltage, _voltage_high_limit);
                 throw new Exception(msg);
             }
-            if (cv.Current < _current_low_limit || cv.Current > _current_high_limit)
+            //if (cv.Current < _current_low_limit || cv.Current > _current_high_limit)
+            if (cv.Current < 0.01 || cv.Current > 1)
             {
-                msg = string.Format("Cirrus current before calibration not within limit values: {0:F8} < {1:F8} < {2:F8}", _current_low_limit, cv.Current, _current_high_limit);
+                //msg = string.Format("Cirrus current before calibration not within limit values: {0:F8} < {1:F8} < {2:F8}", _current_low_limit, cv.Current, _current_high_limit);
+                msg = string.Format("Cirrus current before calibration not within limit values: {0:F8} < {1:F8} < {2:F8}", 0.01, cv.Current, 1);
                 throw new Exception(msg);
             }
 
@@ -1014,9 +1030,11 @@ namespace powercal
                 msg = string.Format("Meter voltage before calibration not within limit values: {0:F8} < {1:F8} < {2:F8}", _voltage_low_limit, voltage_meter, _voltage_high_limit);
                 throw new Exception(msg);
             }
-            if (current_meter < _current_low_limit || current_meter > _current_high_limit)
+            //if (current_meter < _current_low_limit || current_meter > _current_high_limit)
+            if (current_meter < 0.01 || current_meter > 1)
             {
-                msg = string.Format("Meter current before calibration not within limit values: {0:F8} < {1:F8} < {2:F8}", _current_low_limit, current_meter, _current_high_limit);
+                //msg = string.Format("Meter current before calibration not within limit values: {0:F8} < {1:F8} < {2:F8}", _current_low_limit, current_meter, _current_high_limit);
+                msg = string.Format("Meter current before calibration not within limit values: {0:F8} < {1:F8} < {2:F8}", 0.01, current_meter, 1);
                 throw new Exception(msg);
             }
 
@@ -1201,6 +1219,8 @@ namespace powercal
 
         /// <summary>
         /// Remember the last board we used
+        /// 
+
         /// </summary>
         /// <param name="sender"></param>
         /// <param name="e"></param>
@@ -1208,6 +1228,11 @@ namespace powercal
         {
             Properties.Settings.Default.Last_Used_Board = this.comboBoxBoardTypes.Text;
             Properties.Settings.Default.Save();
+        }
+
+        private void FormMain_FormClosing(object sender, FormClosingEventArgs e)
+        {
+            _relay_ctrl.Close();
         }
 
     }
