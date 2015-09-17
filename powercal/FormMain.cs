@@ -13,6 +13,9 @@ using System.Collections;
 using System.Threading;
 using System.Text.RegularExpressions;
 
+using System.Runtime.Serialization;
+using System.Xml;
+
 using MinimalisticTelnet;
 using NationalInstruments;
 using NationalInstruments.DAQmx;
@@ -138,11 +141,8 @@ namespace powercal
             try
             {
                 _relay_ctrl = new RelayControler(rdevtype);
-                _relay_ctrl.AC_Power_LineNum = Properties.Settings.Default.DIO_ACPower_LineNum;
-                _relay_ctrl.Load_LineNum = Properties.Settings.Default.DIO_Load_LinNum;
-                _relay_ctrl.Ember_LineNum = Properties.Settings.Default.DIO_Ember_LineNum;
             }
-            catch (Exception ex)
+            catch (Exception)
             {
                 msg = string.Format("Unable to init relay controler \"{0}\".  Switching to Manual relay mode", rdevtype);
                 updateOutputStatus(msg);
@@ -151,6 +151,16 @@ namespace powercal
                 Properties.Settings.Default.Relay_Controller_Type = _relay_ctrl.Device_Type.ToString();
                 Properties.Settings.Default.Save();
             }
+            _relay_ctrl.AC_Power_LineNum = Properties.Settings.Default.DIO_ACPower_LineNum;
+            _relay_ctrl.Load_LineNum = Properties.Settings.Default.DIO_Load_LinNum;
+            _relay_ctrl.Ember_LineNum = Properties.Settings.Default.DIO_Ember_LineNum;
+            Dictionary<string, uint> dic = _relay_ctrl.GetDicLines();
+
+            FileStream writer = new FileStream("diclines.xml", FileMode.Create);
+            DataContractSerializer ser = new DataContractSerializer( dic.GetType() );
+            ser.WriteObject(writer, dic);
+            writer.Close();
+
 
             // Ember path
             if (!Directory.Exists(Properties.Settings.Default.Ember_BinPath))
@@ -165,6 +175,8 @@ namespace powercal
 
             kill_em3xx_load();
         }
+
+
 
         /// <summary>
         /// Removes any Ember temp files and reports it in output status
@@ -736,9 +748,9 @@ namespace powercal
                 Properties.Settings.Default.Relay_Controller_Type = dlg.comboBoxDIOCtrollerTypes.Text;
 
                 // DIO line assigment
-                Properties.Settings.Default.DIO_ACPower_LineNum = (int)dlg.NumericUpDownACPower.Value;
-                Properties.Settings.Default.DIO_Load_LinNum = (int)dlg.NumericUpDownLoad.Value;
-                Properties.Settings.Default.DIO_Ember_LineNum = (int)dlg.NumericUpDownEmber.Value;
+                Properties.Settings.Default.DIO_ACPower_LineNum = (uint)dlg.NumericUpDownACPower.Value;
+                Properties.Settings.Default.DIO_Load_LinNum = (uint)dlg.NumericUpDownLoad.Value;
+                Properties.Settings.Default.DIO_Ember_LineNum = (uint)dlg.NumericUpDownEmber.Value;
 
                 // Ember
                 Properties.Settings.Default.Ember_BinPath = dlg.TextBoxEmberBinPath.Text;

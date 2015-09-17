@@ -177,7 +177,7 @@ namespace DIO
         /// <param name="pin"></param>
         /// <param name="value"></param>
         /// <returns></returns>
-        public FTDI.FT_STATUS SetPin(DIO_BUS bus, int pin, bool value)
+        public FTDI.FT_STATUS SetPin(DIO_BUS bus, uint pin, bool value)
         {
             Debug.Assert(pin < 8 && pin >= 0, "Pin number must be between 0 and 7");
 

@@ -5,13 +5,13 @@
     <Setting Name="Meter_COM_Port_Name" Type="System.String" Scope="User">
       <Value Profile="(Default)">COM1</Value>
     </Setting>
-    <Setting Name="DIO_ACPower_LineNum" Type="System.Int32" Scope="User">
+    <Setting Name="DIO_ACPower_LineNum" Type="System.UInt32" Scope="User">
       <Value Profile="(Default)">0</Value>
     </Setting>
-    <Setting Name="DIO_Load_LinNum" Type="System.Int32" Scope="User">
+    <Setting Name="DIO_Load_LinNum" Type="System.UInt32" Scope="User">
       <Value Profile="(Default)">1</Value>
     </Setting>
-    <Setting Name="DIO_Ember_LineNum" Type="System.Int32" Scope="User">
+    <Setting Name="DIO_Ember_LineNum" Type="System.UInt32" Scope="User">
       <Value Profile="(Default)">2</Value>
     </Setting>
     <Setting Name="Meter_Manual_Measurement" Type="System.Boolean" Scope="User">

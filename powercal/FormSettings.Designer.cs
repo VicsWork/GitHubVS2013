@@ -36,23 +36,28 @@
             this.buttonOK = new System.Windows.Forms.Button();
             this.buttonCancel = new System.Windows.Forms.Button();
             this.groupBoxDIO = new System.Windows.Forms.GroupBox();
-            this.toolTip1 = new System.Windows.Forms.ToolTip(this.components);
-            this.TextBoxEmberBinPath = new System.Windows.Forms.TextBox();
-            this.label7 = new System.Windows.Forms.Label();
-            this.buttonEmberBinPathBrowse = new System.Windows.Forms.Button();
-            this.NumericUpDownACPower = new System.Windows.Forms.NumericUpDown();
-            this.label3 = new System.Windows.Forms.Label();
-            this.NumericUpDownLoad = new System.Windows.Forms.NumericUpDown();
-            this.label4 = new System.Windows.Forms.Label();
-            this.NumericUpDownEmber = new System.Windows.Forms.NumericUpDown();
-            this.label6 = new System.Windows.Forms.Label();
-            this.comboBoxDIOCtrollerTypes = new System.Windows.Forms.ComboBox();
             this.label1 = new System.Windows.Forms.Label();
+            this.comboBoxDIOCtrollerTypes = new System.Windows.Forms.ComboBox();
+            this.label6 = new System.Windows.Forms.Label();
+            this.NumericUpDownEmber = new System.Windows.Forms.NumericUpDown();
+            this.label4 = new System.Windows.Forms.Label();
+            this.NumericUpDownLoad = new System.Windows.Forms.NumericUpDown();
+            this.label3 = new System.Windows.Forms.Label();
+            this.NumericUpDownACPower = new System.Windows.Forms.NumericUpDown();
+            this.toolTip1 = new System.Windows.Forms.ToolTip(this.components);
+            this.label5 = new System.Windows.Forms.Label();
+            this.numericUpDownVoltmeter = new System.Windows.Forms.NumericUpDown();
+            this.groupBox2 = new System.Windows.Forms.GroupBox();
+            this.buttonEmberBinPathBrowse = new System.Windows.Forms.Button();
+            this.label7 = new System.Windows.Forms.Label();
+            this.TextBoxEmberBinPath = new System.Windows.Forms.TextBox();
             this.groupBox1.SuspendLayout();
             this.groupBoxDIO.SuspendLayout();
-            ((System.ComponentModel.ISupportInitialize)(this.NumericUpDownACPower)).BeginInit();
-            ((System.ComponentModel.ISupportInitialize)(this.NumericUpDownLoad)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.NumericUpDownEmber)).BeginInit();
+            ((System.ComponentModel.ISupportInitialize)(this.NumericUpDownLoad)).BeginInit();
+            ((System.ComponentModel.ISupportInitialize)(this.NumericUpDownACPower)).BeginInit();
+            ((System.ComponentModel.ISupportInitialize)(this.numericUpDownVoltmeter)).BeginInit();
+            this.groupBox2.SuspendLayout();
             this.SuspendLayout();
             // 
             // TextBoxMeterCOM
@@ -79,7 +84,7 @@
             this.groupBox1.Controls.Add(this.label2);
             this.groupBox1.Location = new System.Drawing.Point(12, 12);
             this.groupBox1.Name = "groupBox1";
-            this.groupBox1.Size = new System.Drawing.Size(230, 140);
+            this.groupBox1.Size = new System.Drawing.Size(230, 74);
             this.groupBox1.TabIndex = 6;
             this.groupBox1.TabStop = false;
             this.groupBox1.Text = "Comunications";
@@ -98,7 +103,7 @@
             // buttonOK
             // 
             this.buttonOK.DialogResult = System.Windows.Forms.DialogResult.OK;
-            this.buttonOK.Location = new System.Drawing.Point(154, 211);
+            this.buttonOK.Location = new System.Drawing.Point(167, 263);
             this.buttonOK.Name = "buttonOK";
             this.buttonOK.Size = new System.Drawing.Size(75, 23);
             this.buttonOK.TabIndex = 7;
@@ -108,7 +113,7 @@
             // buttonCancel
             // 
             this.buttonCancel.DialogResult = System.Windows.Forms.DialogResult.Cancel;
-            this.buttonCancel.Location = new System.Drawing.Point(235, 211);
+            this.buttonCancel.Location = new System.Drawing.Point(248, 263);
             this.buttonCancel.Name = "buttonCancel";
             this.buttonCancel.Size = new System.Drawing.Size(75, 23);
             this.buttonCancel.TabIndex = 8;
@@ -116,6 +121,8 @@
             // 
             // groupBoxDIO
             // 
+            this.groupBoxDIO.Controls.Add(this.numericUpDownVoltmeter);
+            this.groupBoxDIO.Controls.Add(this.label5);
             this.groupBoxDIO.Controls.Add(this.label1);
             this.groupBoxDIO.Controls.Add(this.comboBoxDIOCtrollerTypes);
             this.groupBoxDIO.Controls.Add(this.label6);
@@ -124,110 +131,12 @@
             this.groupBoxDIO.Controls.Add(this.NumericUpDownLoad);
             this.groupBoxDIO.Controls.Add(this.label3);
             this.groupBoxDIO.Controls.Add(this.NumericUpDownACPower);
-            this.groupBoxDIO.Location = new System.Drawing.Point(277, 12);
+            this.groupBoxDIO.Location = new System.Drawing.Point(248, 12);
             this.groupBoxDIO.Name = "groupBoxDIO";
-            this.groupBoxDIO.Size = new System.Drawing.Size(161, 140);
+            this.groupBoxDIO.Size = new System.Drawing.Size(217, 147);
             this.groupBoxDIO.TabIndex = 9;
             this.groupBoxDIO.TabStop = false;
             this.groupBoxDIO.Text = "DIO Line";
-            // 
-            // TextBoxEmberBinPath
-            // 
-            this.TextBoxEmberBinPath.Location = new System.Drawing.Point(99, 173);
-            this.TextBoxEmberBinPath.Name = "TextBoxEmberBinPath";
-            this.TextBoxEmberBinPath.Size = new System.Drawing.Size(258, 20);
-            this.TextBoxEmberBinPath.TabIndex = 10;
-            // 
-            // label7
-            // 
-            this.label7.AutoSize = true;
-            this.label7.Location = new System.Drawing.Point(12, 176);
-            this.label7.Name = "label7";
-            this.label7.Size = new System.Drawing.Size(81, 13);
-            this.label7.TabIndex = 11;
-            this.label7.Text = "Ember bin path:";
-            // 
-            // buttonEmberBinPathBrowse
-            // 
-            this.buttonEmberBinPathBrowse.Location = new System.Drawing.Point(363, 171);
-            this.buttonEmberBinPathBrowse.Name = "buttonEmberBinPathBrowse";
-            this.buttonEmberBinPathBrowse.Size = new System.Drawing.Size(75, 23);
-            this.buttonEmberBinPathBrowse.TabIndex = 12;
-            this.buttonEmberBinPathBrowse.Text = "&Browse";
-            this.buttonEmberBinPathBrowse.UseVisualStyleBackColor = true;
-            this.buttonEmberBinPathBrowse.Click += new System.EventHandler(this.buttonEmberBinPathBrowse_Click);
-            // 
-            // NumericUpDownACPower
-            // 
-            this.NumericUpDownACPower.Location = new System.Drawing.Point(86, 60);
-            this.NumericUpDownACPower.Maximum = new decimal(new int[] {
-            7,
-            0,
-            0,
-            0});
-            this.NumericUpDownACPower.Name = "NumericUpDownACPower";
-            this.NumericUpDownACPower.Size = new System.Drawing.Size(31, 20);
-            this.NumericUpDownACPower.TabIndex = 0;
-            // 
-            // label3
-            // 
-            this.label3.AutoSize = true;
-            this.label3.Location = new System.Drawing.Point(26, 61);
-            this.label3.Name = "label3";
-            this.label3.Size = new System.Drawing.Size(54, 13);
-            this.label3.TabIndex = 1;
-            this.label3.Text = "AC Power";
-            // 
-            // NumericUpDownLoad
-            // 
-            this.NumericUpDownLoad.Location = new System.Drawing.Point(86, 83);
-            this.NumericUpDownLoad.Maximum = new decimal(new int[] {
-            7,
-            0,
-            0,
-            0});
-            this.NumericUpDownLoad.Name = "NumericUpDownLoad";
-            this.NumericUpDownLoad.Size = new System.Drawing.Size(31, 20);
-            this.NumericUpDownLoad.TabIndex = 2;
-            // 
-            // label4
-            // 
-            this.label4.AutoSize = true;
-            this.label4.Location = new System.Drawing.Point(26, 84);
-            this.label4.Name = "label4";
-            this.label4.Size = new System.Drawing.Size(31, 13);
-            this.label4.TabIndex = 3;
-            this.label4.Text = "Load";
-            // 
-            // NumericUpDownEmber
-            // 
-            this.NumericUpDownEmber.Location = new System.Drawing.Point(86, 105);
-            this.NumericUpDownEmber.Maximum = new decimal(new int[] {
-            7,
-            0,
-            0,
-            0});
-            this.NumericUpDownEmber.Name = "NumericUpDownEmber";
-            this.NumericUpDownEmber.Size = new System.Drawing.Size(31, 20);
-            this.NumericUpDownEmber.TabIndex = 6;
-            // 
-            // label6
-            // 
-            this.label6.AutoSize = true;
-            this.label6.Location = new System.Drawing.Point(26, 106);
-            this.label6.Name = "label6";
-            this.label6.Size = new System.Drawing.Size(37, 13);
-            this.label6.TabIndex = 7;
-            this.label6.Text = "Ember";
-            // 
-            // comboBoxDIOCtrollerTypes
-            // 
-            this.comboBoxDIOCtrollerTypes.FormattingEnabled = true;
-            this.comboBoxDIOCtrollerTypes.Location = new System.Drawing.Point(44, 21);
-            this.comboBoxDIOCtrollerTypes.Name = "comboBoxDIOCtrollerTypes";
-            this.comboBoxDIOCtrollerTypes.Size = new System.Drawing.Size(111, 21);
-            this.comboBoxDIOCtrollerTypes.TabIndex = 8;
-            this.comboBoxDIOCtrollerTypes.SelectedIndexChanged += new System.EventHandler(this.comboBoxDIOCtrollerTypes_SelectedIndexChanged);
             // 
             // label1
             // 
@@ -238,16 +147,144 @@
             this.label1.TabIndex = 9;
             this.label1.Text = "Type";
             // 
+            // comboBoxDIOCtrollerTypes
+            // 
+            this.comboBoxDIOCtrollerTypes.FormattingEnabled = true;
+            this.comboBoxDIOCtrollerTypes.Location = new System.Drawing.Point(44, 21);
+            this.comboBoxDIOCtrollerTypes.Name = "comboBoxDIOCtrollerTypes";
+            this.comboBoxDIOCtrollerTypes.Size = new System.Drawing.Size(111, 21);
+            this.comboBoxDIOCtrollerTypes.TabIndex = 8;
+            this.comboBoxDIOCtrollerTypes.SelectedIndexChanged += new System.EventHandler(this.comboBoxDIOCtrollerTypes_SelectedIndexChanged);
+            // 
+            // label6
+            // 
+            this.label6.AutoSize = true;
+            this.label6.Location = new System.Drawing.Point(111, 63);
+            this.label6.Name = "label6";
+            this.label6.Size = new System.Drawing.Size(37, 13);
+            this.label6.TabIndex = 7;
+            this.label6.Text = "Ember";
+            // 
+            // NumericUpDownEmber
+            // 
+            this.NumericUpDownEmber.Location = new System.Drawing.Point(167, 61);
+            this.NumericUpDownEmber.Maximum = new decimal(new int[] {
+            7,
+            0,
+            0,
+            0});
+            this.NumericUpDownEmber.Name = "NumericUpDownEmber";
+            this.NumericUpDownEmber.Size = new System.Drawing.Size(31, 20);
+            this.NumericUpDownEmber.TabIndex = 6;
+            // 
+            // label4
+            // 
+            this.label4.AutoSize = true;
+            this.label4.Location = new System.Drawing.Point(7, 85);
+            this.label4.Name = "label4";
+            this.label4.Size = new System.Drawing.Size(31, 13);
+            this.label4.TabIndex = 3;
+            this.label4.Text = "Load";
+            // 
+            // NumericUpDownLoad
+            // 
+            this.NumericUpDownLoad.Location = new System.Drawing.Point(67, 84);
+            this.NumericUpDownLoad.Maximum = new decimal(new int[] {
+            7,
+            0,
+            0,
+            0});
+            this.NumericUpDownLoad.Name = "NumericUpDownLoad";
+            this.NumericUpDownLoad.Size = new System.Drawing.Size(31, 20);
+            this.NumericUpDownLoad.TabIndex = 2;
+            // 
+            // label3
+            // 
+            this.label3.AutoSize = true;
+            this.label3.Location = new System.Drawing.Point(7, 62);
+            this.label3.Name = "label3";
+            this.label3.Size = new System.Drawing.Size(54, 13);
+            this.label3.TabIndex = 1;
+            this.label3.Text = "AC Power";
+            // 
+            // NumericUpDownACPower
+            // 
+            this.NumericUpDownACPower.Location = new System.Drawing.Point(67, 61);
+            this.NumericUpDownACPower.Maximum = new decimal(new int[] {
+            7,
+            0,
+            0,
+            0});
+            this.NumericUpDownACPower.Name = "NumericUpDownACPower";
+            this.NumericUpDownACPower.Size = new System.Drawing.Size(31, 20);
+            this.NumericUpDownACPower.TabIndex = 0;
+            // 
+            // label5
+            // 
+            this.label5.AutoSize = true;
+            this.label5.Location = new System.Drawing.Point(111, 91);
+            this.label5.Name = "label5";
+            this.label5.Size = new System.Drawing.Size(51, 13);
+            this.label5.TabIndex = 10;
+            this.label5.Text = "Voltmeter";
+            // 
+            // numericUpDownVoltmeter
+            // 
+            this.numericUpDownVoltmeter.Location = new System.Drawing.Point(168, 89);
+            this.numericUpDownVoltmeter.Maximum = new decimal(new int[] {
+            7,
+            0,
+            0,
+            0});
+            this.numericUpDownVoltmeter.Name = "numericUpDownVoltmeter";
+            this.numericUpDownVoltmeter.Size = new System.Drawing.Size(31, 20);
+            this.numericUpDownVoltmeter.TabIndex = 11;
+            // 
+            // groupBox2
+            // 
+            this.groupBox2.Controls.Add(this.buttonEmberBinPathBrowse);
+            this.groupBox2.Controls.Add(this.label7);
+            this.groupBox2.Controls.Add(this.TextBoxEmberBinPath);
+            this.groupBox2.Location = new System.Drawing.Point(12, 176);
+            this.groupBox2.Name = "groupBox2";
+            this.groupBox2.Size = new System.Drawing.Size(428, 62);
+            this.groupBox2.TabIndex = 13;
+            this.groupBox2.TabStop = false;
+            this.groupBox2.Text = "Ember";
+            // 
+            // buttonEmberBinPathBrowse
+            // 
+            this.buttonEmberBinPathBrowse.Location = new System.Drawing.Point(343, 17);
+            this.buttonEmberBinPathBrowse.Name = "buttonEmberBinPathBrowse";
+            this.buttonEmberBinPathBrowse.Size = new System.Drawing.Size(75, 23);
+            this.buttonEmberBinPathBrowse.TabIndex = 15;
+            this.buttonEmberBinPathBrowse.Text = "&Browse";
+            this.buttonEmberBinPathBrowse.UseVisualStyleBackColor = true;
+            // 
+            // label7
+            // 
+            this.label7.AutoSize = true;
+            this.label7.Location = new System.Drawing.Point(6, 22);
+            this.label7.Name = "label7";
+            this.label7.Size = new System.Drawing.Size(32, 13);
+            this.label7.TabIndex = 14;
+            this.label7.Text = "Path:";
+            // 
+            // TextBoxEmberBinPath
+            // 
+            this.TextBoxEmberBinPath.Location = new System.Drawing.Point(40, 19);
+            this.TextBoxEmberBinPath.Name = "TextBoxEmberBinPath";
+            this.TextBoxEmberBinPath.Size = new System.Drawing.Size(297, 20);
+            this.TextBoxEmberBinPath.TabIndex = 13;
+            // 
             // FormSettings
             // 
             this.AcceptButton = this.buttonOK;
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.CancelButton = this.buttonCancel;
-            this.ClientSize = new System.Drawing.Size(560, 311);
-            this.Controls.Add(this.buttonEmberBinPathBrowse);
-            this.Controls.Add(this.label7);
-            this.Controls.Add(this.TextBoxEmberBinPath);
+            this.ClientSize = new System.Drawing.Size(486, 324);
+            this.Controls.Add(this.groupBox2);
             this.Controls.Add(this.groupBoxDIO);
             this.Controls.Add(this.buttonCancel);
             this.Controls.Add(this.buttonOK);
@@ -261,11 +298,13 @@
             this.groupBox1.PerformLayout();
             this.groupBoxDIO.ResumeLayout(false);
             this.groupBoxDIO.PerformLayout();
-            ((System.ComponentModel.ISupportInitialize)(this.NumericUpDownACPower)).EndInit();
-            ((System.ComponentModel.ISupportInitialize)(this.NumericUpDownLoad)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this.NumericUpDownEmber)).EndInit();
+            ((System.ComponentModel.ISupportInitialize)(this.NumericUpDownLoad)).EndInit();
+            ((System.ComponentModel.ISupportInitialize)(this.NumericUpDownACPower)).EndInit();
+            ((System.ComponentModel.ISupportInitialize)(this.numericUpDownVoltmeter)).EndInit();
+            this.groupBox2.ResumeLayout(false);
+            this.groupBox2.PerformLayout();
             this.ResumeLayout(false);
-            this.PerformLayout();
 
         }
 
@@ -279,9 +318,6 @@
         private System.Windows.Forms.GroupBox groupBoxDIO;
         private System.Windows.Forms.ToolTip toolTip1;
         public System.Windows.Forms.CheckBox CheckBoxManualMultiMeter;
-        private System.Windows.Forms.Label label7;
-        public System.Windows.Forms.TextBox TextBoxEmberBinPath;
-        private System.Windows.Forms.Button buttonEmberBinPathBrowse;
         private System.Windows.Forms.Label label1;
         private System.Windows.Forms.Label label6;
         public System.Windows.Forms.NumericUpDown NumericUpDownEmber;
@@ -290,5 +326,11 @@
         private System.Windows.Forms.Label label3;
         public System.Windows.Forms.NumericUpDown NumericUpDownACPower;
         public System.Windows.Forms.ComboBox comboBoxDIOCtrollerTypes;
+        public System.Windows.Forms.NumericUpDown numericUpDownVoltmeter;
+        private System.Windows.Forms.Label label5;
+        private System.Windows.Forms.GroupBox groupBox2;
+        private System.Windows.Forms.Button buttonEmberBinPathBrowse;
+        private System.Windows.Forms.Label label7;
+        public System.Windows.Forms.TextBox TextBoxEmberBinPath;
     }
 }

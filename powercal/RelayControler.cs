@@ -9,12 +9,22 @@ using DIO;
 
 namespace powercal
 {
+
     /// <summary>
     /// Class to control the DIO lines connecte dto the different relays
     /// </summary>
     public class RelayControler
     {
         public enum Device_Types { Manual, NI_USB6008, FT232H };
+
+        /// <summary>
+        /// Dic to store line numbers
+        /// </summary>
+        private Dictionary<string, uint> _dic_lines = new Dictionary<string, uint>();
+        /// <summary>
+        /// Dic to store line state (true = ON, false = OFF)
+        /// </summary>
+        private Dictionary<string, bool> _dic_values = new Dictionary<string, bool>();
 
         Device_Types _dev_type;
 
@@ -43,12 +53,35 @@ namespace powercal
 
         }
 
+        public void SetDicLines(Dictionary<string, uint> dic_lines)
+        {
+            _dic_lines = dic_lines.ToDictionary(entry => entry.Key, entry => entry.Value);
+        }
+
+        public Dictionary<string, uint> GetDicLines()
+        {
+            return _dic_lines;
+        }
+
+        public void AddLine(string key, uint line_num, bool init_value = false)
+        {
+            if (_dic_lines.ContainsKey(key))
+                throw new Exception(string.Format("Line Key \"{0} \" already present", key));
+            if (_dic_values.ContainsKey(key))
+                throw new Exception(string.Format("Value Key \"{0} \" already present", key));
+
+            _dic_lines.Add(key, line_num);
+            _dic_values.Add(key, init_value);
+
+        }
+
+
         public bool AC_Power
         {
             get { return ReadLine(_acPowerLbl); }
             set { WriteLine(_acPowerLbl, value); }
         }
-        public int AC_Power_LineNum
+        public uint AC_Power_LineNum
         {
             get { return _dic_lines[_acPowerLbl]; }
             set { _dic_lines[_acPowerLbl] = value; }
@@ -64,7 +97,7 @@ namespace powercal
             get { return ReadLine(_loadLbl); }
             set { WriteLine(_loadLbl, value); }
         }
-        public int Load_LineNum
+        public uint Load_LineNum
         {
             get { return _dic_lines[_loadLbl]; }
             set { _dic_lines[_loadLbl] = value; }
@@ -75,21 +108,13 @@ namespace powercal
             get { return ReadLine(_emberLbl); }
             set { WriteLine(_emberLbl, value); }
         }
-        public int Ember_LineNum
+        public uint Ember_LineNum
         {
             get { return _dic_lines[_emberLbl]; }
             set { _dic_lines[_emberLbl] = value; }
         }
 
 
-        /// <summary>
-        /// Dic to store line numbers
-        /// </summary>
-        private Dictionary<string, int> _dic_lines = new Dictionary<string, int>();
-        /// <summary>
-        /// Dic to store line state (true = ON, false = OFF)
-        /// </summary>
-        private Dictionary<string, bool> _dic_values = new Dictionary<string, bool>();
 
         /// <summary>
         /// The NI DIO port info
@@ -132,7 +157,7 @@ namespace powercal
             _ftdi_dev_index = _ft232hdio.GetFirstDevIndex();
             if (_ftdi_dev_index < 0)
                 throw new Exception("Uanble to find an F232H device");
-            
+
         }
 
         public void ResetDevice()
@@ -186,7 +211,7 @@ namespace powercal
             }
             else
             {
-                int linenum = _dic_lines[linename];
+                uint linenum = _dic_lines[linename];
                 WriteLine(linenum, value);
             }
         }
@@ -196,7 +221,7 @@ namespace powercal
         /// </summary>
         /// <param name="linenum"></param>
         /// <param name="value"></param>
-        public void WriteLine(int linenum, bool value)
+        public void WriteLine(uint linenum, bool value)
         {
             string linename = GetName(linenum);
             _dic_values[linename] = value;
@@ -241,7 +266,7 @@ namespace powercal
             }
             else
             {
-                int linenum = _dic_lines[linename];
+                uint linenum = _dic_lines[linename];
                 return ReadLine(linenum);
             }
         }
@@ -251,12 +276,12 @@ namespace powercal
         /// </summary>
         /// <param name="linenum"></param>
         /// <returns></returns>
-        public string GetName(int linenum)
+        public string GetName(uint linenum)
         {
             string name = null;
             foreach (string key in _dic_lines.Keys)
             {
-                int value = _dic_lines[key];
+                uint value = _dic_lines[key];
                 if (value == linenum)
                 {
                     name = key;
@@ -273,7 +298,7 @@ namespace powercal
         /// </summary>
         /// <param name="linenum"></param>
         /// <returns></returns>
-        public bool ReadLine(int linenum)
+        public bool ReadLine(uint linenum)
         {
             if (_dev_type == Device_Types.Manual)
             {

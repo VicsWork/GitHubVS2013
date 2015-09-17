@@ -38,9 +38,9 @@ namespace powercal.Properties {
         [global::System.Configuration.UserScopedSettingAttribute()]
         [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
         [global::System.Configuration.DefaultSettingValueAttribute("0")]
-        public int DIO_ACPower_LineNum {
+        public uint DIO_ACPower_LineNum {
             get {
-                return ((int)(this["DIO_ACPower_LineNum"]));
+                return ((uint)(this["DIO_ACPower_LineNum"]));
             }
             set {
                 this["DIO_ACPower_LineNum"] = value;
@@ -50,9 +50,9 @@ namespace powercal.Properties {
         [global::System.Configuration.UserScopedSettingAttribute()]
         [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
         [global::System.Configuration.DefaultSettingValueAttribute("1")]
-        public int DIO_Load_LinNum {
+        public uint DIO_Load_LinNum {
             get {
-                return ((int)(this["DIO_Load_LinNum"]));
+                return ((uint)(this["DIO_Load_LinNum"]));
             }
             set {
                 this["DIO_Load_LinNum"] = value;
@@ -62,9 +62,9 @@ namespace powercal.Properties {
         [global::System.Configuration.UserScopedSettingAttribute()]
         [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
         [global::System.Configuration.DefaultSettingValueAttribute("2")]
-        public int DIO_Ember_LineNum {
+        public uint DIO_Ember_LineNum {
             get {
-                return ((int)(this["DIO_Ember_LineNum"]));
+                return ((uint)(this["DIO_Ember_LineNum"]));
             }
             set {
                 this["DIO_Ember_LineNum"] = value;
