@@ -47,8 +47,14 @@ namespace powercal
             }
         }
 
+        /// <summary>
+        /// File used to save line settings
+        /// </summary>
         private string _diclines_settings_file = "powercal.relaycontroller.diclines.xml";
 
+        /// <summary>
+        /// Save the dictionaty lines settings
+        /// </summary>
         public void DicLines_SaveSettings()
         {
             FileStream writer = new FileStream(_diclines_settings_file, FileMode.Create);
@@ -57,6 +63,10 @@ namespace powercal
             writer.Close();
         }
 
+        /// <summary>
+        /// Read line settings from file
+        /// </summary>
+        /// <returns></returns>
         public Dictionary<string, uint> DicLines_ReadSettings()
         {
             if (!File.Exists(_diclines_settings_file))
@@ -82,11 +92,10 @@ namespace powercal
             return _dic_lines;
         }
 
-        public void DicLines_Set(Dictionary<string, uint> dic_lines)
-        {
-            _dic_lines = dic_lines.ToDictionary(entry => entry.Key, entry => entry.Value);
-        }
-
+        /// <summary>
+        /// Gets the lines dictinary
+        /// </summary>
+        /// <returns></returns>
         public Dictionary<string, uint> DicLines_Get()
         {
             return _dic_lines;
@@ -103,7 +112,6 @@ namespace powercal
             _dic_values.Add(key, init_value);
 
         }
-
 
 
         /// <summary>
@@ -148,7 +156,9 @@ namespace powercal
             _ft232hdio.ResetPort();
             _ftdi_dev_index = _ft232hdio.GetFirstDevIndex();
             if (_ftdi_dev_index < 0)
+            {
                 throw new Exception("Uanble to find an F232H device");
+            }
 
         }
 
@@ -157,6 +167,14 @@ namespace powercal
             if (_dev_type == Device_Types.FT232H)
             {
                 _ft232hdio.ResetDevice();
+            }
+        }
+
+        public void Open()
+        {
+            if (_dev_type == Device_Types.FT232H)
+            {
+                _ft232hdio.Open( (uint)_ftdi_dev_index);
             }
         }
 
@@ -237,10 +255,9 @@ namespace powercal
 
             if (_dev_type == Device_Types.FT232H)
             {
-                _ft232hdio.Close();
-                _ft232hdio.Open(Convert.ToUInt32(_ftdi_dev_index));
+                //_ft232hdio.Open(Convert.ToUInt32(_ftdi_dev_index));
                 _ft232hdio.SetPin(_ftdi_bus, linenum, value);
-                _ft232hdio.Close();
+                //_ft232hdio.Close();
                 return;
             }
         }

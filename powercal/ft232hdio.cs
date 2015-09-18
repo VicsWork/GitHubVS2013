@@ -50,6 +50,7 @@ namespace DIO
         /// <param name="index"></param>
         public void Open(uint index)
         {
+            _ftdi.Close();
             FTDI.FT_STATUS status = _ftdi.OpenByIndex(index);
             if (status != FTDI.FT_STATUS.FT_OK)
             {
@@ -231,6 +232,17 @@ namespace DIO
             FTDI.FT_STATUS status = _ftdi.Close();
             return status;
         }
+
+        /// <summary>
+        /// Close the port
+        /// </summary>
+        /// <returns></returns>
+        public FTDI.FT_STATUS Rescan()
+        {
+            FTDI.FT_STATUS status = _ftdi.Rescan();
+            return status;
+        }
+
 
     }
 }

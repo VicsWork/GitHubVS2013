@@ -5,9 +5,6 @@
     <Setting Name="Meter_COM_Port_Name" Type="System.String" Scope="User">
       <Value Profile="(Default)">COM1</Value>
     </Setting>
-    <Setting Name="Meter_Manual_Measurement" Type="System.Boolean" Scope="User">
-      <Value Profile="(Default)">False</Value>
-    </Setting>
     <Setting Name="Ember_BinPath" Type="System.String" Scope="User">
       <Value Profile="(Default)">C:\Program Files (x86)\Ember\ISA3 Utilities\bin</Value>
     </Setting>
@@ -16,6 +13,9 @@
     </Setting>
     <Setting Name="Last_Used_Board" Type="System.String" Scope="User">
       <Value Profile="(Default)" />
+    </Setting>
+    <Setting Name="Meter_Manual_Measurement" Type="System.Boolean" Scope="User">
+      <Value Profile="(Default)">False</Value>
     </Setting>
   </Settings>
 </SettingsFile>

@@ -178,6 +178,16 @@ namespace powercal
         }
 
         /// <summary>
+        /// Sets up the meter for V DC measurement
+        /// </summary>
+        public void SetupForVDC()
+        {
+            writeLine(":CONF:VOLT:DC 1000,0.01");
+            writeLine(":TRIG:SOUR BUS");
+        }
+
+
+        /// <summary>
         /// Sets up the meter for I AC measurement
         /// </summary>
         public void SetupForIAC()

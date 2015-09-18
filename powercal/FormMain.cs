@@ -42,10 +42,6 @@ namespace powercal
         MultiMeter _meter = null;
         RelayControler _relay_ctrl;
 
-        string _key_acPower = "AC Power";
-        string _key_load = "Load";
-        string _key_ember = "Ember";
-        string _key_volts = "Voltmeter";
 
         /// <summary>
         /// The app folder where we save most logs, etc
@@ -59,15 +55,18 @@ namespace powercal
         /// <summary>
         /// Voltage and current limits
         /// </summary>
-        double _voltage_low_limit = 0.0;
-        double _voltage_high_limit = 0.0;
-        double _current_high_limit = 0.0;
-        double _current_low_limit = 0.0;
+        double _voltage_ac_low_limit = 0.0;
+        double _voltage_ac_high_limit = 0.0;
+
+        double _voltage_dc_low_limit = 0.0;
+        double _voltage_dc_high_limit = 0.0;
+
         /// <summary>
         /// Voltage and current reference value
         /// </summary>
-        int _voltage_reference = 0;
-        int _current_reference = 0;
+        int _voltage_ac_reference = 0;
+        int _current_ac_reference = 0;
+
         /// <summary>
         /// Prefix to custom pload and oinfo commands (soon to be auto configured)
         /// </summary>
@@ -98,6 +97,9 @@ namespace powercal
 
         delegate void SetTextCallback(string txt);
 
+        /// <summary>
+        /// The main form constructor
+        /// </summary>
         public FormMain()
         {
 
@@ -169,8 +171,7 @@ namespace powercal
                 Properties.Settings.Default.Relay_Controller_Type = _relay_ctrl.Device_Type.ToString();
                 Properties.Settings.Default.Save();
             }
-
-
+            _relay_ctrl.WriteAll(false);
 
             // Ember path
             if (!Directory.Exists(Properties.Settings.Default.Ember_BinPath))
@@ -185,8 +186,6 @@ namespace powercal
 
             kill_em3xx_load();
         }
-
-
 
         /// <summary>
         /// Removes any Ember temp files and reports it in output status
@@ -472,38 +471,43 @@ namespace powercal
         /// </summary>
         private void set_board_calibration_values()
         {
-            // Default values (USA)
-            double voltage_load = 120;
-            double voltage_delta = voltage_load * 0.2;
-            double current_load = voltage_load / 500; // 500 Ohms
-            double current_delta = current_load * 0.3;
+            double voltage_dc = 3.3;
+            double voltage_dc_delta = 0.1;
 
-            _voltage_reference = 240;
-            _current_reference = 15;
+
+            // Default values (USA)
+            double voltage_ac_load = 120;
+            double voltage_ac_delta = voltage_ac_load * 0.2;
+            double current_ac_load = voltage_ac_load / 500; // 500 Ohms
+            double current_ac_delta = current_ac_load * 0.3;
+
+            _voltage_ac_reference = 240;
+            _current_ac_reference = 15;
             _cmd_prefix = "cs5490"; // UART interface
 
             powercal.BoardTypes board_type = (powercal.BoardTypes)Enum.Parse(typeof(powercal.BoardTypes), comboBoxBoardTypes.Text);
             switch (board_type)
             {
                 case BoardTypes.Humpback:
-                    voltage_load = 240;
-                    current_load = voltage_load / 2000; // 2K Ohms
-                    voltage_delta = voltage_load * 0.3;
-                    current_delta = current_load * 0.4;
+                    voltage_ac_load = 240;
+                    current_ac_load = voltage_ac_load / 2000; // 2K Ohms
+                    voltage_ac_delta = voltage_ac_load * 0.3;
+                    current_ac_delta = current_ac_load * 0.4;
                     break;
                 case BoardTypes.Zebrashark:
                     _cmd_prefix = "cs5480";  // SPI interface
                     break;
                 case BoardTypes.Milkshark:
                 case BoardTypes.Mudshark:
-                    _current_reference = 10;
+                    _current_ac_reference = 10;
                     break;
             }
 
-            _voltage_high_limit = voltage_load + voltage_delta;
-            _voltage_low_limit = voltage_load - voltage_delta;
-            _current_high_limit = current_load + 3 * current_delta;  // On Hornshark current measurement is very high with gain set to 1
-            _current_low_limit = current_load - current_delta;
+            _voltage_ac_high_limit = voltage_ac_load + voltage_ac_delta;
+            _voltage_ac_low_limit = voltage_ac_load - voltage_ac_delta;
+
+            _voltage_dc_high_limit = voltage_dc + voltage_dc_delta;
+            _voltage_dc_low_limit = voltage_dc - voltage_dc_delta;
 
         }
 
@@ -544,7 +548,7 @@ namespace powercal
                 string current_hexstr = match.Groups[1].Value;
                 int current_int = Convert.ToInt32(current_hexstr, 16);
                 current_cs = RegHex_ToDouble(current_int);
-                current_cs = current_cs * _current_reference / 0.6;
+                current_cs = current_cs * _current_ac_reference / 0.6;
 
                 voltage_cs = 0.0;
                 match = Regex.Match(datain, rawVoltagePattern);
@@ -557,7 +561,7 @@ namespace powercal
                 string voltage_hexstr = match.Groups[1].Value;
                 int volatge_int = Convert.ToInt32(voltage_hexstr, 16);
                 voltage_cs = RegHex_ToDouble(volatge_int);
-                voltage_cs = voltage_cs * _voltage_reference / 0.6;
+                voltage_cs = voltage_cs * _voltage_ac_reference / 0.6;
 
             }
 
@@ -637,8 +641,8 @@ namespace powercal
             Ember ember = new Ember();
             ember.EmberBinPath = Properties.Settings.Default.Ember_BinPath;
             ember.BatchFilePath = _ember_batchfile_path;
-            ember.VoltageRefereceValue = _voltage_reference;
-            ember.CurrentRefereceValue = _current_reference;
+            ember.VoltageRefereceValue = _voltage_ac_reference;
+            ember.CurrentRefereceValue = _current_ac_reference;
             switch (board_type)
             {
                 case (powercal.BoardTypes.Humpback):
@@ -733,11 +737,10 @@ namespace powercal
 
             // DIO line assigment
             Dictionary<string,uint> relay_lines = _relay_ctrl.DicLines_ReadSettings();
-
-            dlg.NumericUpDown_ACPower.Value = relay_lines[_key_acPower];
-            dlg.NumericUpDown_Load.Value = relay_lines[_key_load];
-            dlg.NumericUpDown_Ember.Value = relay_lines[_key_ember];
-            dlg.numericUpDown_Voltmeter.Value = relay_lines[_key_volts];
+            dlg.NumericUpDown_ACPower.Value = relay_lines[powercal.Relay_Lines.Power ];
+            dlg.NumericUpDown_Load.Value = relay_lines[ powercal.Relay_Lines.Load ];
+            dlg.NumericUpDown_Ember.Value = relay_lines[ powercal.Relay_Lines.Ember ];
+            dlg.numericUpDown_Voltmeter.Value = relay_lines[ powercal.Relay_Lines.Voltmeter ];
 
             // Ember
             dlg.TextBoxEmberBinPath.Text = Properties.Settings.Default.Ember_BinPath;
@@ -751,13 +754,16 @@ namespace powercal
 
                 // DIO controller type
                 Properties.Settings.Default.Relay_Controller_Type = dlg.comboBoxDIOCtrollerTypes.Text;
+                RelayControler.Device_Types rdevtype = (RelayControler.Device_Types)Enum.Parse(typeof(RelayControler.Device_Types), Properties.Settings.Default.Relay_Controller_Type);
+                _relay_ctrl = new RelayControler(rdevtype);
 
                 // DIO line assigment
-                relay_lines[_key_acPower] = (uint)dlg.NumericUpDown_ACPower.Value;
-                relay_lines[_key_load] = (uint)dlg.NumericUpDown_Load.Value;
-                relay_lines[_key_ember] = (uint)dlg.NumericUpDown_Ember.Value;
-                relay_lines[_key_volts] = (uint)dlg.numericUpDown_Voltmeter.Value;
+                relay_lines[ powercal.Relay_Lines.Power ] = (uint)dlg.NumericUpDown_ACPower.Value;
+                relay_lines[ powercal.Relay_Lines.Load ] = (uint)dlg.NumericUpDown_Load.Value;
+                relay_lines[ powercal.Relay_Lines.Ember ] = (uint)dlg.NumericUpDown_Ember.Value;
+                relay_lines[ powercal.Relay_Lines.Voltmeter ] = (uint)dlg.numericUpDown_Voltmeter.Value;
                 _relay_ctrl.DicLines_SaveSettings();
+
 
                 // Ember
                 Properties.Settings.Default.Ember_BinPath = dlg.TextBoxEmberBinPath.Text;
@@ -777,7 +783,6 @@ namespace powercal
             FormPowerMeter dlg = new FormPowerMeter();
             dlg.Show();
         }
-
 
         /// <summary>
         /// Starts the process responsible to open the Ember box isa channels
@@ -911,30 +916,181 @@ namespace powercal
         }
 
         /// <summary>
+        /// Invokes the NI DIO test dialog
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        private void toolStripMenuItem_Click_NI(object sender, EventArgs e)
+        {
+            FormNIDigitalPortTest dlg = new FormNIDigitalPortTest();
+            dlg.Show();
+        }
+
+        /// <summary>
+        /// Invokes the FTDI test dialog
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        private void toolStripMenuItem_Click_FT232H(object sender, EventArgs e)
+        {
+            FormFT232H_DIO_Test dlg = new FormFT232H_DIO_Test();
+            dlg.Show();
+        }
+
+        /// <summary>
+        /// Remember the last board we used
+        /// 
+
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        private void comboBoxBoardTypes_SelectedIndexChanged(object sender, EventArgs e)
+        {
+            Properties.Settings.Default.Last_Used_Board = this.comboBoxBoardTypes.Text;
+            Properties.Settings.Default.Save();
+        }
+
+        private void FormMain_FormClosing(object sender, FormClosingEventArgs e)
+        {
+            _relay_ctrl.Close();
+        }
+
+        private void verify_voltage_ac()
+        {
+            updateRunStatus("Verify Voltage AC");
+            _meter.OpenComPort();
+            _meter.SetToRemote();
+            _meter.ClearError();
+            _meter.SetupForVAC();
+
+            string meter_voltage_str = _meter.Measure();
+            meter_voltage_str = _meter.Measure();
+            double meter_voltage = Double.Parse(meter_voltage_str);
+            string msg = string.Format("Meter AC Voltage at {0:F8} V", meter_voltage);
+            updateOutputStatus(msg);
+
+            _meter.CloseSerialPort();
+
+            if (meter_voltage < _voltage_ac_low_limit || meter_voltage > _voltage_ac_high_limit)
+            {
+                msg = string.Format("Volatge AC is not within limits values: {0:F8} < {1:F8} < {2:F8}", _voltage_ac_low_limit, meter_voltage, _voltage_ac_high_limit);
+                traceLog(msg);
+                throw new Exception(msg);
+            }
+
+        }
+
+        private void verify_voltage_dc()
+        {
+            updateRunStatus("Verify Voltage DC");
+            _meter.OpenComPort();
+            _meter.SetToRemote();
+            _meter.ClearError();
+            _meter.SetupForVDC();
+
+            string meter_voltage_str = _meter.Measure();
+            double meter_voltage_dc = Double.Parse(meter_voltage_str);
+            _meter.SetupForVAC();
+            meter_voltage_str = _meter.Measure();
+            double meter_voltage_ac = Double.Parse(meter_voltage_str);
+
+            string msg = string.Format("Meter DC Voltage at {0:F8} V.  AC {1:F8}", meter_voltage_dc, meter_voltage_ac);
+            updateOutputStatus(msg);
+
+            _meter.CloseSerialPort();
+
+            if (meter_voltage_ac >= 1.0 )
+            {
+                msg = string.Format("AC volatge detected at {0:F8}, DC Voltage {1:F8}", meter_voltage_ac, meter_voltage_dc);
+                traceLog(msg);
+                throw new Exception(msg);
+            }
+
+            if (meter_voltage_dc < _voltage_dc_low_limit || meter_voltage_dc > _voltage_dc_high_limit)
+            {
+                msg = string.Format("Volatge DC is not within limits values: {0:F8} < {1:F8} < {2:F8}", _voltage_dc_low_limit, meter_voltage_dc, _voltage_dc_high_limit);
+                traceLog(msg);
+                throw new Exception(msg);
+            }
+        }
+
+        /// <summary>
+        /// Run Calibration
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        private void buttonClick_Run(object sender, EventArgs e)
+        {
+            //this.buttonRun.Enabled = false;
+
+            this.textBoxOutputStatus.Clear();
+            initTextBoxRunStatus();
+
+            kill_em3xx_load();
+
+            try
+            {
+                Stopwatch stopWatch = new Stopwatch();
+                stopWatch.Start();
+
+                cleanupEmberTempPatchFile();
+
+                set_board_calibration_values();
+
+                string meterPortName = Properties.Settings.Default.Meter_COM_Port_Name;
+                _meter = new MultiMeter(meterPortName);
+
+                _relay_ctrl.Open();
+
+                calibrate();
+
+                _relay_ctrl.Close();
+
+                stopWatch.Stop();
+
+                TimeSpan ts = stopWatch.Elapsed;
+                // Format and display the TimeSpan value. 
+                string elapsedTime = String.Format("Elaspsed time {0:00} seconds", ts.TotalSeconds);
+
+                updateOutputStatus(elapsedTime);
+
+                if (_meter != null)
+                    _meter.CloseSerialPort();
+
+            }
+            catch (Exception ex)
+            {
+                this.textBoxRunStatus.BackColor = Color.Red;
+                this.textBoxRunStatus.ForeColor = Color.White;
+                updateRunStatus("FAIL");
+                updateOutputStatus(ex.Message);
+
+                _relay_ctrl.WriteLine(powercal.Relay_Lines.Ember, false);
+                _relay_ctrl.WriteLine(powercal.Relay_Lines.Power, false);
+                _relay_ctrl.WriteLine(powercal.Relay_Lines.Load, false);
+                relaysSet();
+
+                if (_meter != null)
+                    _meter.CloseSerialPort();
+            }
+
+            kill_em3xx_load();
+            cleanupEmberTempPatchFile();
+
+            this.buttonRun.Enabled = true;
+        }
+
+        /// <summary>
         /// Calibrates using just the Ember
         /// Voltage and Current register values are gathered using custom commands
         /// </summary>
         private void calibrate()
         {
-            // Remember to set power to external on ember
-
-            // Set values depending on board type tested
-            set_board_calibration_values();
-
             bool manual_measure = Properties.Settings.Default.Meter_Manual_Measurement;
             powercal.BoardTypes board_type = (powercal.BoardTypes)Enum.Parse(typeof(powercal.BoardTypes), comboBoxBoardTypes.Text);
 
             string msg;
             updateOutputStatus("===============================Start Calibration==============================");
-
-            // Trun AC ON
-            //_relay_ctrl.ResetDevice();
-            _relay_ctrl.WriteLine(powercal.Relay_Lines.Ember, true);
-            _relay_ctrl.WriteLine(powercal.Relay_Lines.Load, false);
-            _relay_ctrl.WriteLine(powercal.Relay_Lines.Power, true);
-            _relay_ctrl.WriteLine(powercal.Relay_Lines.Load, true);
-            relaysSet();
-            Thread.Sleep(3000);
 
             // Open Ember isa channels
             updateRunStatus("Start Ember isachan");
@@ -943,7 +1099,38 @@ namespace powercal
             // Create a new telnet connection
             updateRunStatus("Start telnet");
             TelnetConnection telnet_connection = new TelnetConnection("localhost", 4900);
-            string datain = telnet_connection.Read();
+            string datain;
+
+            if (_relay_ctrl.Device_Type == RelayControler.Device_Types.Manual)
+            {
+                // Trun AC ON
+                _relay_ctrl.WriteLine(powercal.Relay_Lines.Ember, true);
+                _relay_ctrl.WriteLine(powercal.Relay_Lines.Load, false);
+                _relay_ctrl.WriteLine(powercal.Relay_Lines.Power, true);
+                _relay_ctrl.WriteLine(powercal.Relay_Lines.Load, true);
+                relaysSet();
+
+            }
+            else
+            {
+                _relay_ctrl.WriteLine(powercal.Relay_Lines.Voltmeter, false);
+                _relay_ctrl.WriteLine(powercal.Relay_Lines.Ember, false);
+                _relay_ctrl.WriteLine(powercal.Relay_Lines.Load, false);
+                _relay_ctrl.WriteLine(powercal.Relay_Lines.Power, true);
+                _relay_ctrl.WriteLine(powercal.Relay_Lines.Voltmeter, true);
+                relaysSet();
+
+                verify_voltage_dc();
+
+                // Should be safe to connect Ember
+                _relay_ctrl.WriteLine(powercal.Relay_Lines.Ember, true);
+            }
+
+
+            Thread.Sleep(3000);
+            datain = telnet_connection.Read();
+            traceLog(datain);
+
 
             // Patch gain to 1
             updateRunStatus("Patch Gain to 1");
@@ -964,35 +1151,9 @@ namespace powercal
             datain = telnet_connection.Read();
             traceLog(datain);
 
-
-            // Setup multi-meter
-            // Take a measurement with load on
-            string meterPortName = Properties.Settings.Default.Meter_COM_Port_Name;
-            _meter = new MultiMeter(meterPortName);
-            if (!manual_measure)
-            {
-                updateRunStatus("Setup multi-meter");
-                _meter.OpenComPort();
-                _meter.SetToRemote();
-                _meter.ClearError();
-                _meter.SetupForVAC();
-
-                string meter_load_voltage_str = _meter.Measure();
-                meter_load_voltage_str = _meter.Measure();
-                double meter_load_voltage = Double.Parse(meter_load_voltage_str);
-                msg = string.Format("Meter Load Voltage at {0:F8} V", meter_load_voltage);
-                updateOutputStatus(msg);
-
-                _meter.CloseSerialPort();
-                //string idn = _meter.IDN();
-
-                if (meter_load_voltage < _voltage_low_limit || meter_load_voltage > _voltage_high_limit)
-                {
-                    msg = string.Format("Meter measured Vrms before calibration is not within limits values: {0:F8} < {1:F8} < {2:F8}", _voltage_low_limit, meter_load_voltage, _voltage_high_limit);
-                    traceLog(msg);
-                    throw new Exception(msg);
-                }
-            }
+            _relay_ctrl.WriteLine(powercal.Relay_Lines.Load, true);
+            _relay_ctrl.WriteLine(powercal.Relay_Lines.Voltmeter, false);
+            verify_voltage_ac();
 
             string cmd_prefix = get_custom_command_prefix(telnet_connection);
 
@@ -1005,9 +1166,9 @@ namespace powercal
             msg = string.Format("Cirrus I = {0:F8}, V = {1:F8}, P = {2:F8}", cv.Current, cv.Voltage, cv.Current * cv.Voltage);
             updateOutputStatus(msg);
 
-            if (cv.Voltage < _voltage_low_limit || cv.Voltage > _voltage_high_limit)
+            if (cv.Voltage < _voltage_ac_low_limit || cv.Voltage > _voltage_ac_high_limit)
             {
-                msg = string.Format("Cirrus voltage before calibration not within limit values: {0:F8} < {1:F8} < {2:F8}", _voltage_low_limit, cv.Voltage, _voltage_high_limit);
+                msg = string.Format("Cirrus voltage before calibration not within limit values: {0:F8} < {1:F8} < {2:F8}", _voltage_ac_low_limit, cv.Voltage, _voltage_ac_high_limit);
                 throw new Exception(msg);
             }
             //if (cv.Current < _current_low_limit || cv.Current > _current_high_limit)
@@ -1045,9 +1206,9 @@ namespace powercal
             msg = string.Format("Meter I = {0:F8}, V = {1:F8}, P = {2:F8}", current_meter, voltage_meter, current_meter * voltage_meter);
             updateOutputStatus(msg);
 
-            if (voltage_meter < _voltage_low_limit || voltage_meter > _voltage_high_limit)
+            if (voltage_meter < _voltage_ac_low_limit || voltage_meter > _voltage_ac_high_limit)
             {
-                msg = string.Format("Meter voltage before calibration not within limit values: {0:F8} < {1:F8} < {2:F8}", _voltage_low_limit, voltage_meter, _voltage_high_limit);
+                msg = string.Format("Meter voltage before calibration not within limit values: {0:F8} < {1:F8} < {2:F8}", _voltage_ac_low_limit, voltage_meter, _voltage_ac_high_limit);
                 throw new Exception(msg);
             }
             //if (current_meter < _current_low_limit || current_meter > _current_high_limit)
@@ -1155,103 +1316,6 @@ namespace powercal
 
             updateOutputStatus("================================End Calibration===============================");
 
-        }
-
-        /// <summary>
-        /// Run Calibration
-        /// </summary>
-        /// <param name="sender"></param>
-        /// <param name="e"></param>
-        private void buttonRun_Click(object sender, EventArgs e)
-        {
-            //this.buttonRun.Enabled = false;
-
-            this.textBoxOutputStatus.Clear();
-            initTextBoxRunStatus();
-
-            kill_em3xx_load();
-
-            try
-            {
-                Stopwatch stopWatch = new Stopwatch();
-                stopWatch.Start();
-
-                cleanupEmberTempPatchFile();
-
-                calibrate();
-
-                stopWatch.Stop();
-
-                TimeSpan ts = stopWatch.Elapsed;
-                // Format and display the TimeSpan value. 
-                string elapsedTime = String.Format("Elaspsed time {0:00} seconds", ts.TotalSeconds);
-                
-                updateOutputStatus(elapsedTime);
-
-                if (_meter != null)
-                    _meter.CloseSerialPort();
-
-            }
-            catch (Exception ex)
-            {
-                this.textBoxRunStatus.BackColor = Color.Red;
-                this.textBoxRunStatus.ForeColor = Color.White;
-                updateRunStatus("FAIL");
-                updateOutputStatus(ex.Message);
-
-                _relay_ctrl.WriteLine(powercal.Relay_Lines.Ember, false);
-                _relay_ctrl.WriteLine(powercal.Relay_Lines.Power, false);
-                _relay_ctrl.WriteLine(powercal.Relay_Lines.Load, false);
-                relaysSet();
-
-                if (_meter != null)
-                    _meter.CloseSerialPort();
-            }
-
-            kill_em3xx_load();
-            cleanupEmberTempPatchFile();
-
-            this.buttonRun.Enabled = true;
-        }
-
-        /// <summary>
-        /// Invokes the NI DIO test dialog
-        /// </summary>
-        /// <param name="sender"></param>
-        /// <param name="e"></param>
-        private void toolStripMenuItem_Click_NI(object sender, EventArgs e)
-        {
-            FormNIDigitalPortTest dlg = new FormNIDigitalPortTest();
-            dlg.Show();
-        }
-
-        /// <summary>
-        /// Invokes the FTDI test dialog
-        /// </summary>
-        /// <param name="sender"></param>
-        /// <param name="e"></param>
-        private void toolStripMenuItem_Click_FT232H(object sender, EventArgs e)
-        {
-            FormFT232H_DIO_Test dlg = new FormFT232H_DIO_Test();
-            dlg.Show();
-        }
-
-        /// <summary>
-        /// Remember the last board we used
-        /// 
-
-        /// </summary>
-        /// <param name="sender"></param>
-        /// <param name="e"></param>
-        private void comboBoxBoardTypes_SelectedIndexChanged(object sender, EventArgs e)
-        {
-            Properties.Settings.Default.Last_Used_Board = this.comboBoxBoardTypes.Text;
-            Properties.Settings.Default.Save();
-        }
-
-        private void FormMain_FormClosing(object sender, FormClosingEventArgs e)
-        {
-            _relay_ctrl.Close();
         }
 
     }

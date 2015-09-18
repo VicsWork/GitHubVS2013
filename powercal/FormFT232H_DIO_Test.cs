@@ -40,6 +40,8 @@ namespace powercal
             labelVoltmeter.Text += string.Format("({0})", linenum);
             numericUpDown_Voltmeter.Tag = linenum;
 
+            _relayCtrl.Open();
+
         }
 
         private void numericUpDown_ValueChanged(object sender, EventArgs e)
@@ -47,6 +49,7 @@ namespace powercal
             NumericUpDown ctrl = (NumericUpDown)sender;
             uint line_num = (uint)ctrl.Tag;
             bool value = Convert.ToBoolean(ctrl.Value);
+
 
             _relayCtrl.WriteLine(line_num, value);
         }

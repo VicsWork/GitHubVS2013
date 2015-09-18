@@ -88,7 +88,7 @@
             this.buttonRun.TabIndex = 6;
             this.buttonRun.Text = "&Run";
             this.buttonRun.UseVisualStyleBackColor = true;
-            this.buttonRun.Click += new System.EventHandler(this.buttonRun_Click);
+            this.buttonRun.Click += new System.EventHandler(this.buttonClick_Run);
             // 
             // comboBoxBoardTypes
             // 

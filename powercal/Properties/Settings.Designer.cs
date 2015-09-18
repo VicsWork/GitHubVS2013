@@ -37,18 +37,6 @@ namespace powercal.Properties {
         
         [global::System.Configuration.UserScopedSettingAttribute()]
         [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
-        [global::System.Configuration.DefaultSettingValueAttribute("False")]
-        public bool Meter_Manual_Measurement {
-            get {
-                return ((bool)(this["Meter_Manual_Measurement"]));
-            }
-            set {
-                this["Meter_Manual_Measurement"] = value;
-            }
-        }
-        
-        [global::System.Configuration.UserScopedSettingAttribute()]
-        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
         [global::System.Configuration.DefaultSettingValueAttribute("C:\\Program Files (x86)\\Ember\\ISA3 Utilities\\bin")]
         public string Ember_BinPath {
             get {
@@ -80,6 +68,18 @@ namespace powercal.Properties {
             }
             set {
                 this["Last_Used_Board"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("False")]
+        public bool Meter_Manual_Measurement {
+            get {
+                return ((bool)(this["Meter_Manual_Measurement"]));
+            }
+            set {
+                this["Meter_Manual_Measurement"] = value;
             }
         }
     }
