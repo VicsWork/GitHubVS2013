@@ -37,42 +37,6 @@ namespace powercal.Properties {
         
         [global::System.Configuration.UserScopedSettingAttribute()]
         [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
-        [global::System.Configuration.DefaultSettingValueAttribute("0")]
-        public uint DIO_ACPower_LineNum {
-            get {
-                return ((uint)(this["DIO_ACPower_LineNum"]));
-            }
-            set {
-                this["DIO_ACPower_LineNum"] = value;
-            }
-        }
-        
-        [global::System.Configuration.UserScopedSettingAttribute()]
-        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
-        [global::System.Configuration.DefaultSettingValueAttribute("1")]
-        public uint DIO_Load_LinNum {
-            get {
-                return ((uint)(this["DIO_Load_LinNum"]));
-            }
-            set {
-                this["DIO_Load_LinNum"] = value;
-            }
-        }
-        
-        [global::System.Configuration.UserScopedSettingAttribute()]
-        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
-        [global::System.Configuration.DefaultSettingValueAttribute("2")]
-        public uint DIO_Ember_LineNum {
-            get {
-                return ((uint)(this["DIO_Ember_LineNum"]));
-            }
-            set {
-                this["DIO_Ember_LineNum"] = value;
-            }
-        }
-        
-        [global::System.Configuration.UserScopedSettingAttribute()]
-        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
         [global::System.Configuration.DefaultSettingValueAttribute("False")]
         public bool Meter_Manual_Measurement {
             get {

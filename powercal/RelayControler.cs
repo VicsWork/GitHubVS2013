@@ -3,6 +3,8 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Diagnostics;
+using System.IO;
+using System.Runtime.Serialization;
 
 using NationalInstruments.DAQmx;
 using DIO;
@@ -27,43 +29,74 @@ namespace powercal
         private Dictionary<string, bool> _dic_values = new Dictionary<string, bool>();
 
         Device_Types _dev_type;
+        public Device_Types Device_Type { get { return _dev_type; } }
 
         string _acPowerLbl = "AC Power";
         string _loadLbl = "Load";
         string _emberLbl = "Ember";
 
-        public Device_Types Device_Type { get { return _dev_type; } }
 
         /// <summary>
         /// Inits internal dictionary that holds line number and state info
         /// </summary>
         private void _initDicLines()
         {
-            // Dic to store line numbers
-            _dic_lines.Clear();
-            _dic_lines.Add(_acPowerLbl, 1);
-            _dic_lines.Add(_loadLbl, 2);
-            _dic_lines.Add(_emberLbl, 4);
+            DicLines_ReadSettings();
 
             // Dic to store line state (true = ON, false = OFF)
             _dic_values.Clear();
-            _dic_values.Add(_acPowerLbl, false);
-            _dic_values.Add(_loadLbl, false);
-            _dic_values.Add(_emberLbl, false);
-
+            foreach (string key in _dic_lines.Keys)
+            {
+                _dic_values.Add(key, false);
+            }
         }
 
-        public void SetDicLines(Dictionary<string, uint> dic_lines)
+        private string _diclines_settings_file = "powercal.relaycontroller.diclines.xml";
+
+        public void DicLines_SaveSettings()
+        {
+            FileStream writer = new FileStream(_diclines_settings_file, FileMode.Create);
+            DataContractSerializer ser = new DataContractSerializer(_dic_lines.GetType());
+            ser.WriteObject(writer, _dic_lines);
+            writer.Close();
+        }
+
+        public Dictionary<string, uint> DicLines_ReadSettings()
+        {
+            if (!File.Exists(_diclines_settings_file))
+            {
+                DicLines_SaveSettings();
+            }
+
+            FileStream reader = new FileStream(_diclines_settings_file, FileMode.Open);
+            DataContractSerializer ser = new DataContractSerializer(_dic_lines.GetType());
+            try
+            {
+                _dic_lines = (Dictionary<string, uint>)ser.ReadObject(reader);
+            }
+            catch (Exception)
+            {
+                reader.Close();
+                DicLines_SaveSettings();
+                reader = new FileStream(_diclines_settings_file, FileMode.Open);
+                _dic_lines = (Dictionary<string, uint>)ser.ReadObject(reader);
+            }
+            reader.Close();
+
+            return _dic_lines;
+        }
+
+        public void DicLines_Set(Dictionary<string, uint> dic_lines)
         {
             _dic_lines = dic_lines.ToDictionary(entry => entry.Key, entry => entry.Value);
         }
 
-        public Dictionary<string, uint> GetDicLines()
+        public Dictionary<string, uint> DicLines_Get()
         {
             return _dic_lines;
         }
 
-        public void AddLine(string key, uint line_num, bool init_value = false)
+        public void DicLines_AddLine(string key, uint line_num, bool init_value = false)
         {
             if (_dic_lines.ContainsKey(key))
                 throw new Exception(string.Format("Line Key \"{0} \" already present", key));
@@ -141,7 +174,9 @@ namespace powercal
             _dev_type = devtype;
 
             if (_dev_type == Device_Types.NI_USB6008)
+            {
                 initNI_USB6008();
+            }
             else if (_dev_type == Device_Types.FT232H)
             {
                 initFT232H();
@@ -201,17 +236,17 @@ namespace powercal
         /// <summary>
         /// Writes to the specified line name
         /// </summary>
-        /// <param name="linename"></param>
+        /// <param name="key"></param>
         /// <param name="value"></param>
-        public void WriteLine(string linename, bool value)
+        public void WriteLine(string key, bool value)
         {
             if (_dev_type == Device_Types.Manual)
             {
-                _dic_values[linename] = value;
+                _dic_values[key] = value;
             }
             else
             {
-                uint linenum = _dic_lines[linename];
+                uint linenum = _dic_lines[key];
                 WriteLine(linenum, value);
             }
         }

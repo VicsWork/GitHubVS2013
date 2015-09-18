@@ -77,7 +77,7 @@
             this.clearToolStripMenuItem.Name = "clearToolStripMenuItem";
             this.clearToolStripMenuItem.Size = new System.Drawing.Size(101, 22);
             this.clearToolStripMenuItem.Text = "&Clear";
-            this.clearToolStripMenuItem.Click += new System.EventHandler(this.clearToolStripMenuItem_Click);
+            this.clearToolStripMenuItem.Click += new System.EventHandler(this.toolStripMenuItem_Click_Clear);
             // 
             // buttonRun
             // 
@@ -127,7 +127,7 @@
             this.settingsToolStripMenuItem.Name = "settingsToolStripMenuItem";
             this.settingsToolStripMenuItem.Size = new System.Drawing.Size(61, 20);
             this.settingsToolStripMenuItem.Text = "&Settings";
-            this.settingsToolStripMenuItem.Click += new System.EventHandler(this.settingsToolStripMenuItem_Click);
+            this.settingsToolStripMenuItem.Click += new System.EventHandler(this.toolStripMenuItem_Click_Settings);
             // 
             // testToolStripMenuItem
             // 
@@ -145,7 +145,7 @@
             this.serialToolStripMenuItem.Name = "serialToolStripMenuItem";
             this.serialToolStripMenuItem.Size = new System.Drawing.Size(149, 22);
             this.serialToolStripMenuItem.Text = "Serial Port";
-            this.serialToolStripMenuItem.Click += new System.EventHandler(this.serialToolStripMenuItem_Click);
+            this.serialToolStripMenuItem.Click += new System.EventHandler(this.toolStripMenuItem_Click_Serial);
             // 
             // digitalOutputToolStripMenuItem
             // 
@@ -161,35 +161,35 @@
             this.nIToolStripMenuItem.Name = "nIToolStripMenuItem";
             this.nIToolStripMenuItem.Size = new System.Drawing.Size(114, 22);
             this.nIToolStripMenuItem.Text = "NI";
-            this.nIToolStripMenuItem.Click += new System.EventHandler(this.nIToolStripMenuItem_Click);
+            this.nIToolStripMenuItem.Click += new System.EventHandler(this.toolStripMenuItem_Click_NI);
             // 
             // fT232HToolStripMenuItem
             // 
             this.fT232HToolStripMenuItem.Name = "fT232HToolStripMenuItem";
             this.fT232HToolStripMenuItem.Size = new System.Drawing.Size(114, 22);
             this.fT232HToolStripMenuItem.Text = "FT232H";
-            this.fT232HToolStripMenuItem.Click += new System.EventHandler(this.fT232HToolStripMenuItem_Click);
+            this.fT232HToolStripMenuItem.Click += new System.EventHandler(this.toolStripMenuItem_Click_FT232H);
             // 
             // calculatorToolStripMenuItem
             // 
             this.calculatorToolStripMenuItem.Name = "calculatorToolStripMenuItem";
             this.calculatorToolStripMenuItem.Size = new System.Drawing.Size(149, 22);
             this.calculatorToolStripMenuItem.Text = "&Calculator";
-            this.calculatorToolStripMenuItem.Click += new System.EventHandler(this.calculatorToolStripMenuItem_Click);
+            this.calculatorToolStripMenuItem.Click += new System.EventHandler(this.toolStripMenuItem_Click_Calculator);
             // 
             // toolStripMenuItemPowerMeter
             // 
             this.toolStripMenuItemPowerMeter.Name = "toolStripMenuItemPowerMeter";
             this.toolStripMenuItemPowerMeter.Size = new System.Drawing.Size(149, 22);
             this.toolStripMenuItemPowerMeter.Text = "Power Meter";
-            this.toolStripMenuItemPowerMeter.Click += new System.EventHandler(this.toolStripMenuItemPowerMeter_Click);
+            this.toolStripMenuItemPowerMeter.Click += new System.EventHandler(this.toolStripMenuItem_Click_PowerMeter);
             // 
             // aboutToolStripMenuItem
             // 
             this.aboutToolStripMenuItem.Name = "aboutToolStripMenuItem";
             this.aboutToolStripMenuItem.Size = new System.Drawing.Size(52, 20);
             this.aboutToolStripMenuItem.Text = "About";
-            this.aboutToolStripMenuItem.Click += new System.EventHandler(this.aboutToolStripMenuItem_Click);
+            this.aboutToolStripMenuItem.Click += new System.EventHandler(this.toolStripMenuItem_Click_About);
             // 
             // textBoxRunStatus
             // 

@@ -24,10 +24,28 @@ namespace powercal
 {
     enum BoardTypes { Hornshark, Mudshark, Humpback, Hooktooth, Milkshark, Zebrashark };
 
+    public class Relay_Lines {
+        
+        static string _key_acPower = "AC Power";
+        static string _key_load = "Load";
+        static string _key_ember = "Ember";
+        static string _key_volts = "Voltmeter";
+
+        public static string Power { get { return _key_acPower; } }
+        public static string Load { get { return _key_load; } }
+        public static string Ember { get { return _key_ember; } }
+        public static string Voltmeter { get { return _key_volts; } }
+    }
+
     public partial class FormMain : Form
     {
         MultiMeter _meter = null;
         RelayControler _relay_ctrl;
+
+        string _key_acPower = "AC Power";
+        string _key_load = "Load";
+        string _key_ember = "Ember";
+        string _key_volts = "Voltmeter";
 
         /// <summary>
         /// The app folder where we save most logs, etc
@@ -151,15 +169,7 @@ namespace powercal
                 Properties.Settings.Default.Relay_Controller_Type = _relay_ctrl.Device_Type.ToString();
                 Properties.Settings.Default.Save();
             }
-            _relay_ctrl.AC_Power_LineNum = Properties.Settings.Default.DIO_ACPower_LineNum;
-            _relay_ctrl.Load_LineNum = Properties.Settings.Default.DIO_Load_LinNum;
-            _relay_ctrl.Ember_LineNum = Properties.Settings.Default.DIO_Ember_LineNum;
-            Dictionary<string, uint> dic = _relay_ctrl.GetDicLines();
 
-            FileStream writer = new FileStream("diclines.xml", FileMode.Create);
-            DataContractSerializer ser = new DataContractSerializer( dic.GetType() );
-            ser.WriteObject(writer, dic);
-            writer.Close();
 
 
             // Ember path
@@ -340,7 +350,7 @@ namespace powercal
         /// </summary>
         /// <param name="sender"></param>
         /// <param name="e"></param>
-        private void serialToolStripMenuItem_Click(object sender, EventArgs e)
+        private void toolStripMenuItem_Click_Serial(object sender, EventArgs e)
         {
             FormSerialTest dlg = new FormSerialTest();
             //DialogResult result = dlg.ShowDialog();
@@ -352,7 +362,7 @@ namespace powercal
         /// </summary>
         /// <param name="sender"></param>
         /// <param name="e"></param>
-        private void aboutToolStripMenuItem_Click(object sender, EventArgs e)
+        private void toolStripMenuItem_Click_About(object sender, EventArgs e)
         {
             AboutBox1 dlg = new AboutBox1();
             DialogResult result = dlg.ShowDialog();
@@ -452,7 +462,7 @@ namespace powercal
             }
         }
 
-        private void clearToolStripMenuItem_Click(object sender, EventArgs e)
+        private void toolStripMenuItem_Click_Clear(object sender, EventArgs e)
         {
             this.textBoxOutputStatus.Clear();
         }
@@ -714,7 +724,7 @@ namespace powercal
         /// </summary>
         /// <param name="sender"></param>
         /// <param name="e"></param>
-        private void settingsToolStripMenuItem_Click(object sender, EventArgs e)
+        private void toolStripMenuItem_Click_Settings(object sender, EventArgs e)
         {
             FormSettings dlg = new FormSettings();
 
@@ -730,9 +740,12 @@ namespace powercal
             dlg.comboBoxDIOCtrollerTypes.Text = Properties.Settings.Default.Relay_Controller_Type;
 
             // DIO line assigment
-            dlg.NumericUpDownACPower.Value = Properties.Settings.Default.DIO_ACPower_LineNum;
-            dlg.NumericUpDownLoad.Value = Properties.Settings.Default.DIO_Load_LinNum;
-            dlg.NumericUpDownEmber.Value = Properties.Settings.Default.DIO_Ember_LineNum;
+            Dictionary<string,uint> relay_lines = _relay_ctrl.DicLines_ReadSettings();
+
+            dlg.NumericUpDown_ACPower.Value = relay_lines[_key_acPower];
+            dlg.NumericUpDown_Load.Value = relay_lines[_key_load];
+            dlg.NumericUpDown_Ember.Value = relay_lines[_key_ember];
+            dlg.numericUpDown_Voltmeter.Value = relay_lines[_key_volts];
 
             // Ember
             dlg.TextBoxEmberBinPath.Text = Properties.Settings.Default.Ember_BinPath;
@@ -748,9 +761,11 @@ namespace powercal
                 Properties.Settings.Default.Relay_Controller_Type = dlg.comboBoxDIOCtrollerTypes.Text;
 
                 // DIO line assigment
-                Properties.Settings.Default.DIO_ACPower_LineNum = (uint)dlg.NumericUpDownACPower.Value;
-                Properties.Settings.Default.DIO_Load_LinNum = (uint)dlg.NumericUpDownLoad.Value;
-                Properties.Settings.Default.DIO_Ember_LineNum = (uint)dlg.NumericUpDownEmber.Value;
+                relay_lines[_key_acPower] = (uint)dlg.NumericUpDown_ACPower.Value;
+                relay_lines[_key_load] = (uint)dlg.NumericUpDown_Load.Value;
+                relay_lines[_key_ember] = (uint)dlg.NumericUpDown_Ember.Value;
+                relay_lines[_key_volts] = (uint)dlg.numericUpDown_Voltmeter.Value;
+                _relay_ctrl.DicLines_SaveSettings();
 
                 // Ember
                 Properties.Settings.Default.Ember_BinPath = dlg.TextBoxEmberBinPath.Text;
@@ -759,13 +774,13 @@ namespace powercal
             }
         }
 
-        private void calculatorToolStripMenuItem_Click(object sender, EventArgs e)
+        private void toolStripMenuItem_Click_Calculator(object sender, EventArgs e)
         {
             FormCalculator dlg = new FormCalculator();
             dlg.ShowDialog();
         }
 
-        private void toolStripMenuItemPowerMeter_Click(object sender, EventArgs e)
+        private void toolStripMenuItem_Click_PowerMeter(object sender, EventArgs e)
         {
             FormPowerMeter dlg = new FormPowerMeter();
             dlg.Show();
@@ -921,12 +936,13 @@ namespace powercal
             updateOutputStatus("===============================Start Calibration==============================");
 
             // Trun AC ON
-            _relay_ctrl.ResetDevice();
+            //_relay_ctrl.ResetDevice();
             _relay_ctrl.Ember = true;
             _relay_ctrl.Load = false;
             _relay_ctrl.AC_Power = true;
             _relay_ctrl.Load = true;
             relaysSet();
+            Thread.Sleep(3000);
 
             // Open Ember isa channels
             updateRunStatus("Start Ember isachan");
@@ -1212,7 +1228,7 @@ namespace powercal
         /// </summary>
         /// <param name="sender"></param>
         /// <param name="e"></param>
-        private void nIToolStripMenuItem_Click(object sender, EventArgs e)
+        private void toolStripMenuItem_Click_NI(object sender, EventArgs e)
         {
             FormNIDigitalPortTest dlg = new FormNIDigitalPortTest();
             dlg.Show();
@@ -1223,7 +1239,7 @@ namespace powercal
         /// </summary>
         /// <param name="sender"></param>
         /// <param name="e"></param>
-        private void fT232HToolStripMenuItem_Click(object sender, EventArgs e)
+        private void toolStripMenuItem_Click_FT232H(object sender, EventArgs e)
         {
             FormFT232H_DIO_Test dlg = new FormFT232H_DIO_Test();
             dlg.Show();

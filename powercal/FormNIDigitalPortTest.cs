@@ -24,15 +24,16 @@ namespace powercal
             initPhysicalChannelComboBox();
 
             // Add line numbers to labels
-            uint linenum = Properties.Settings.Default.DIO_ACPower_LineNum;
-            _relayCtrl.AC_Power_LineNum = linenum;
+            Dictionary<string, uint> lines = _relayCtrl.DicLines_ReadSettings();
+            uint linenum = lines[powercal.Relay_Lines.Power];
+            _relayCtrl.AC_Power_LineNum = lines[powercal.Relay_Lines.Power]; ;
             labelACPower.Text += string.Format("({0})", linenum);
 
-            linenum = Properties.Settings.Default.DIO_Load_LinNum;
+            linenum = lines[powercal.Relay_Lines.Load];
             _relayCtrl.Load_LineNum = linenum;
             labelLoad.Text += string.Format("({0})", linenum);
 
-            linenum = Properties.Settings.Default.DIO_Ember_LineNum;
+            linenum = lines[powercal.Relay_Lines.Ember];
             _relayCtrl.Ember_LineNum = linenum;
             labelOutput.Text += string.Format("({0})", linenum);
 

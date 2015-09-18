@@ -39,24 +39,24 @@
             this.label1 = new System.Windows.Forms.Label();
             this.comboBoxDIOCtrollerTypes = new System.Windows.Forms.ComboBox();
             this.label6 = new System.Windows.Forms.Label();
-            this.NumericUpDownEmber = new System.Windows.Forms.NumericUpDown();
+            this.NumericUpDown_Ember = new System.Windows.Forms.NumericUpDown();
             this.label4 = new System.Windows.Forms.Label();
-            this.NumericUpDownLoad = new System.Windows.Forms.NumericUpDown();
+            this.NumericUpDown_Load = new System.Windows.Forms.NumericUpDown();
             this.label3 = new System.Windows.Forms.Label();
-            this.NumericUpDownACPower = new System.Windows.Forms.NumericUpDown();
+            this.NumericUpDown_ACPower = new System.Windows.Forms.NumericUpDown();
             this.toolTip1 = new System.Windows.Forms.ToolTip(this.components);
             this.label5 = new System.Windows.Forms.Label();
-            this.numericUpDownVoltmeter = new System.Windows.Forms.NumericUpDown();
+            this.numericUpDown_Voltmeter = new System.Windows.Forms.NumericUpDown();
             this.groupBox2 = new System.Windows.Forms.GroupBox();
             this.buttonEmberBinPathBrowse = new System.Windows.Forms.Button();
             this.label7 = new System.Windows.Forms.Label();
             this.TextBoxEmberBinPath = new System.Windows.Forms.TextBox();
             this.groupBox1.SuspendLayout();
             this.groupBoxDIO.SuspendLayout();
-            ((System.ComponentModel.ISupportInitialize)(this.NumericUpDownEmber)).BeginInit();
-            ((System.ComponentModel.ISupportInitialize)(this.NumericUpDownLoad)).BeginInit();
-            ((System.ComponentModel.ISupportInitialize)(this.NumericUpDownACPower)).BeginInit();
-            ((System.ComponentModel.ISupportInitialize)(this.numericUpDownVoltmeter)).BeginInit();
+            ((System.ComponentModel.ISupportInitialize)(this.NumericUpDown_Ember)).BeginInit();
+            ((System.ComponentModel.ISupportInitialize)(this.NumericUpDown_Load)).BeginInit();
+            ((System.ComponentModel.ISupportInitialize)(this.NumericUpDown_ACPower)).BeginInit();
+            ((System.ComponentModel.ISupportInitialize)(this.numericUpDown_Voltmeter)).BeginInit();
             this.groupBox2.SuspendLayout();
             this.SuspendLayout();
             // 
@@ -121,16 +121,16 @@
             // 
             // groupBoxDIO
             // 
-            this.groupBoxDIO.Controls.Add(this.numericUpDownVoltmeter);
+            this.groupBoxDIO.Controls.Add(this.numericUpDown_Voltmeter);
             this.groupBoxDIO.Controls.Add(this.label5);
             this.groupBoxDIO.Controls.Add(this.label1);
             this.groupBoxDIO.Controls.Add(this.comboBoxDIOCtrollerTypes);
             this.groupBoxDIO.Controls.Add(this.label6);
-            this.groupBoxDIO.Controls.Add(this.NumericUpDownEmber);
+            this.groupBoxDIO.Controls.Add(this.NumericUpDown_Ember);
             this.groupBoxDIO.Controls.Add(this.label4);
-            this.groupBoxDIO.Controls.Add(this.NumericUpDownLoad);
+            this.groupBoxDIO.Controls.Add(this.NumericUpDown_Load);
             this.groupBoxDIO.Controls.Add(this.label3);
-            this.groupBoxDIO.Controls.Add(this.NumericUpDownACPower);
+            this.groupBoxDIO.Controls.Add(this.NumericUpDown_ACPower);
             this.groupBoxDIO.Location = new System.Drawing.Point(248, 12);
             this.groupBoxDIO.Name = "groupBoxDIO";
             this.groupBoxDIO.Size = new System.Drawing.Size(217, 147);
@@ -167,15 +167,15 @@
             // 
             // NumericUpDownEmber
             // 
-            this.NumericUpDownEmber.Location = new System.Drawing.Point(167, 61);
-            this.NumericUpDownEmber.Maximum = new decimal(new int[] {
+            this.NumericUpDown_Ember.Location = new System.Drawing.Point(167, 61);
+            this.NumericUpDown_Ember.Maximum = new decimal(new int[] {
             7,
             0,
             0,
             0});
-            this.NumericUpDownEmber.Name = "NumericUpDownEmber";
-            this.NumericUpDownEmber.Size = new System.Drawing.Size(31, 20);
-            this.NumericUpDownEmber.TabIndex = 6;
+            this.NumericUpDown_Ember.Name = "NumericUpDownEmber";
+            this.NumericUpDown_Ember.Size = new System.Drawing.Size(31, 20);
+            this.NumericUpDown_Ember.TabIndex = 6;
             // 
             // label4
             // 
@@ -188,15 +188,15 @@
             // 
             // NumericUpDownLoad
             // 
-            this.NumericUpDownLoad.Location = new System.Drawing.Point(67, 84);
-            this.NumericUpDownLoad.Maximum = new decimal(new int[] {
+            this.NumericUpDown_Load.Location = new System.Drawing.Point(67, 84);
+            this.NumericUpDown_Load.Maximum = new decimal(new int[] {
             7,
             0,
             0,
             0});
-            this.NumericUpDownLoad.Name = "NumericUpDownLoad";
-            this.NumericUpDownLoad.Size = new System.Drawing.Size(31, 20);
-            this.NumericUpDownLoad.TabIndex = 2;
+            this.NumericUpDown_Load.Name = "NumericUpDownLoad";
+            this.NumericUpDown_Load.Size = new System.Drawing.Size(31, 20);
+            this.NumericUpDown_Load.TabIndex = 2;
             // 
             // label3
             // 
@@ -209,15 +209,15 @@
             // 
             // NumericUpDownACPower
             // 
-            this.NumericUpDownACPower.Location = new System.Drawing.Point(67, 61);
-            this.NumericUpDownACPower.Maximum = new decimal(new int[] {
+            this.NumericUpDown_ACPower.Location = new System.Drawing.Point(67, 61);
+            this.NumericUpDown_ACPower.Maximum = new decimal(new int[] {
             7,
             0,
             0,
             0});
-            this.NumericUpDownACPower.Name = "NumericUpDownACPower";
-            this.NumericUpDownACPower.Size = new System.Drawing.Size(31, 20);
-            this.NumericUpDownACPower.TabIndex = 0;
+            this.NumericUpDown_ACPower.Name = "NumericUpDownACPower";
+            this.NumericUpDown_ACPower.Size = new System.Drawing.Size(31, 20);
+            this.NumericUpDown_ACPower.TabIndex = 0;
             // 
             // label5
             // 
@@ -230,15 +230,15 @@
             // 
             // numericUpDownVoltmeter
             // 
-            this.numericUpDownVoltmeter.Location = new System.Drawing.Point(168, 89);
-            this.numericUpDownVoltmeter.Maximum = new decimal(new int[] {
+            this.numericUpDown_Voltmeter.Location = new System.Drawing.Point(168, 89);
+            this.numericUpDown_Voltmeter.Maximum = new decimal(new int[] {
             7,
             0,
             0,
             0});
-            this.numericUpDownVoltmeter.Name = "numericUpDownVoltmeter";
-            this.numericUpDownVoltmeter.Size = new System.Drawing.Size(31, 20);
-            this.numericUpDownVoltmeter.TabIndex = 11;
+            this.numericUpDown_Voltmeter.Name = "numericUpDownVoltmeter";
+            this.numericUpDown_Voltmeter.Size = new System.Drawing.Size(31, 20);
+            this.numericUpDown_Voltmeter.TabIndex = 11;
             // 
             // groupBox2
             // 
@@ -298,10 +298,10 @@
             this.groupBox1.PerformLayout();
             this.groupBoxDIO.ResumeLayout(false);
             this.groupBoxDIO.PerformLayout();
-            ((System.ComponentModel.ISupportInitialize)(this.NumericUpDownEmber)).EndInit();
-            ((System.ComponentModel.ISupportInitialize)(this.NumericUpDownLoad)).EndInit();
-            ((System.ComponentModel.ISupportInitialize)(this.NumericUpDownACPower)).EndInit();
-            ((System.ComponentModel.ISupportInitialize)(this.numericUpDownVoltmeter)).EndInit();
+            ((System.ComponentModel.ISupportInitialize)(this.NumericUpDown_Ember)).EndInit();
+            ((System.ComponentModel.ISupportInitialize)(this.NumericUpDown_Load)).EndInit();
+            ((System.ComponentModel.ISupportInitialize)(this.NumericUpDown_ACPower)).EndInit();
+            ((System.ComponentModel.ISupportInitialize)(this.numericUpDown_Voltmeter)).EndInit();
             this.groupBox2.ResumeLayout(false);
             this.groupBox2.PerformLayout();
             this.ResumeLayout(false);
@@ -320,13 +320,13 @@
         public System.Windows.Forms.CheckBox CheckBoxManualMultiMeter;
         private System.Windows.Forms.Label label1;
         private System.Windows.Forms.Label label6;
-        public System.Windows.Forms.NumericUpDown NumericUpDownEmber;
+        public System.Windows.Forms.NumericUpDown NumericUpDown_Ember;
         private System.Windows.Forms.Label label4;
-        public System.Windows.Forms.NumericUpDown NumericUpDownLoad;
+        public System.Windows.Forms.NumericUpDown NumericUpDown_Load;
         private System.Windows.Forms.Label label3;
-        public System.Windows.Forms.NumericUpDown NumericUpDownACPower;
+        public System.Windows.Forms.NumericUpDown NumericUpDown_ACPower;
         public System.Windows.Forms.ComboBox comboBoxDIOCtrollerTypes;
-        public System.Windows.Forms.NumericUpDown numericUpDownVoltmeter;
+        public System.Windows.Forms.NumericUpDown numericUpDown_Voltmeter;
         private System.Windows.Forms.Label label5;
         private System.Windows.Forms.GroupBox groupBox2;
         private System.Windows.Forms.Button buttonEmberBinPathBrowse;
