@@ -699,15 +699,7 @@ namespace powercal
                     break;
                 }
 
-                switch (board_type)
-                {
-                    case (powercal.BoardTypes.Zebrashark):
-                        _relay_ctrl.AC_Power = false;
-                        relaysSet();
-                        _relay_ctrl.AC_Power = true;
-                        relaysSet();
-                        break;
-                }
+                reset_handler(board_type);
 
             }
 
@@ -885,9 +877,9 @@ namespace powercal
                 case BoardTypes.Mudshark:
                     // Force reset by cycle power
                     updateRunStatus("Reset by cycle power");
-                    _relay_ctrl.AC_Power = false;
+                    _relay_ctrl.WriteLine(powercal.Relay_Lines.Power, false);
                     relaysSet();
-                    _relay_ctrl.AC_Power = true;
+                    _relay_ctrl.WriteLine(powercal.Relay_Lines.Power, true);
                     relaysSet();
                     Thread.Sleep(1000);
                     break;
@@ -937,10 +929,10 @@ namespace powercal
 
             // Trun AC ON
             //_relay_ctrl.ResetDevice();
-            _relay_ctrl.Ember = true;
-            _relay_ctrl.Load = false;
-            _relay_ctrl.AC_Power = true;
-            _relay_ctrl.Load = true;
+            _relay_ctrl.WriteLine(powercal.Relay_Lines.Ember, true);
+            _relay_ctrl.WriteLine(powercal.Relay_Lines.Load, false);
+            _relay_ctrl.WriteLine(powercal.Relay_Lines.Power, true);
+            _relay_ctrl.WriteLine(powercal.Relay_Lines.Load, true);
             relaysSet();
             Thread.Sleep(3000);
 
@@ -1123,9 +1115,8 @@ namespace powercal
             closeEmberISAChannels();
 
             // Disconnect Power
-            _relay_ctrl.AC_Power = false;
-            _relay_ctrl.Ember = false;
-            //_relay_ctrl.Load = false;
+            _relay_ctrl.WriteLine(powercal.Relay_Lines.Power, false);
+            _relay_ctrl.WriteLine(powercal.Relay_Lines.Ember, false);
             relaysSet();
 
             // Check calibration
@@ -1208,9 +1199,9 @@ namespace powercal
                 updateRunStatus("FAIL");
                 updateOutputStatus(ex.Message);
 
-                _relay_ctrl.Ember = false;
-                _relay_ctrl.AC_Power = false;
-                _relay_ctrl.Load = false;
+                _relay_ctrl.WriteLine(powercal.Relay_Lines.Ember, false);
+                _relay_ctrl.WriteLine(powercal.Relay_Lines.Power, false);
+                _relay_ctrl.WriteLine(powercal.Relay_Lines.Load, false);
                 relaysSet();
 
                 if (_meter != null)

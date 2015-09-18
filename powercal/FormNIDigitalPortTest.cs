@@ -23,19 +23,24 @@ namespace powercal
 
             initPhysicalChannelComboBox();
 
-            // Add line numbers to labels
+            // Add line numbers to labels and tag the control with the line number
             Dictionary<string, uint> lines = _relayCtrl.DicLines_ReadSettings();
+
             uint linenum = lines[powercal.Relay_Lines.Power];
-            _relayCtrl.AC_Power_LineNum = lines[powercal.Relay_Lines.Power]; ;
             labelACPower.Text += string.Format("({0})", linenum);
+            NumericUpDown_ACPower.Tag = linenum;
 
             linenum = lines[powercal.Relay_Lines.Load];
-            _relayCtrl.Load_LineNum = linenum;
             labelLoad.Text += string.Format("({0})", linenum);
+            NumericUpDown_Load.Tag = linenum;
 
             linenum = lines[powercal.Relay_Lines.Ember];
-            _relayCtrl.Ember_LineNum = linenum;
-            labelOutput.Text += string.Format("({0})", linenum);
+            labelEmber.Text += string.Format("({0})", linenum);
+            NumericUpDown_Ember.Tag = linenum;
+
+            linenum = lines[powercal.Relay_Lines.Voltmeter];
+            labelVoltmeter.Text += string.Format("({0})", linenum);
+            numericUpDown_Voltmeter.Tag = linenum;
 
             if (this.physicalChannelComboBox.Text != "")
             {
@@ -73,9 +78,9 @@ namespace powercal
             try
             {
                 // Reads all values from DIO and updates the numeric up and down control
-                NumericUpDownACPower.Value = Convert.ToDecimal(_relayCtrl.AC_Power);
-                NumericUpDownLoad.Value = Convert.ToDecimal(_relayCtrl.Load);
-                NumericUpDownOutput.Value = Convert.ToDecimal(_relayCtrl.Ember);
+                NumericUpDown_ACPower.Value = Convert.ToDecimal( _relayCtrl.ReadLine(powercal.Relay_Lines.Power) );
+                NumericUpDown_Load.Value = Convert.ToDecimal(_relayCtrl.ReadLine(powercal.Relay_Lines.Load) );
+                NumericUpDown_Ember.Value = Convert.ToDecimal(_relayCtrl.ReadLine(powercal.Relay_Lines.Ember) );
             }
             catch (Exception ex)
             {
@@ -167,25 +172,16 @@ namespace powercal
             return data;
         }
 
-        private void NumericUpDownACPower_ValueChanged(object sender, EventArgs e)
+        private void NumericUpDownr_ValueChanged(object sender, EventArgs e)
         {
-            NumericUpDown num = (NumericUpDown)sender;
-            _relayCtrl.AC_Power = Convert.ToBoolean(num.Value);
+            NumericUpDown ctrl = (NumericUpDown)sender;
+            uint line_num = (uint) ctrl.Tag;
+            bool value = Convert.ToBoolean(ctrl.Value);
+
+            _relayCtrl.WriteLine(line_num, value);
+
             NumericUpDowndataToWrite.Value = rearPort();
         }
 
-        private void NumericUpDownLoad_ValueChanged(object sender, EventArgs e)
-        {
-            NumericUpDown num = (NumericUpDown)sender;
-            _relayCtrl.Load = Convert.ToBoolean(num.Value);
-            NumericUpDowndataToWrite.Value = rearPort();
-        }
-
-        private void NumericUpDownOutput_ValueChanged(object sender, EventArgs e)
-        {
-            NumericUpDown num = (NumericUpDown)sender;
-            _relayCtrl.Ember = Convert.ToBoolean(num.Value);
-            NumericUpDowndataToWrite.Value = rearPort();
-        }
     }
 }

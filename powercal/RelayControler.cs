@@ -31,10 +31,6 @@ namespace powercal
         Device_Types _dev_type;
         public Device_Types Device_Type { get { return _dev_type; } }
 
-        string _acPowerLbl = "AC Power";
-        string _loadLbl = "Load";
-        string _emberLbl = "Ember";
-
 
         /// <summary>
         /// Inits internal dictionary that holds line number and state info
@@ -106,45 +102,6 @@ namespace powercal
             _dic_lines.Add(key, line_num);
             _dic_values.Add(key, init_value);
 
-        }
-
-
-        public bool AC_Power
-        {
-            get { return ReadLine(_acPowerLbl); }
-            set { WriteLine(_acPowerLbl, value); }
-        }
-        public uint AC_Power_LineNum
-        {
-            get { return _dic_lines[_acPowerLbl]; }
-            set { _dic_lines[_acPowerLbl] = value; }
-        }
-        public string AC_Power_Label
-        {
-            get { return _acPowerLbl; }
-            set { _acPowerLbl = value; }
-        }
-
-        public bool Load
-        {
-            get { return ReadLine(_loadLbl); }
-            set { WriteLine(_loadLbl, value); }
-        }
-        public uint Load_LineNum
-        {
-            get { return _dic_lines[_loadLbl]; }
-            set { _dic_lines[_loadLbl] = value; }
-        }
-
-        public bool Ember
-        {
-            get { return ReadLine(_emberLbl); }
-            set { WriteLine(_emberLbl, value); }
-        }
-        public uint Ember_LineNum
-        {
-            get { return _dic_lines[_emberLbl]; }
-            set { _dic_lines[_emberLbl] = value; }
         }
 
 
