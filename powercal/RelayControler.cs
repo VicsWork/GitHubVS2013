@@ -177,7 +177,8 @@ namespace powercal
         {
             if (_dev_type == Device_Types.FT232H)
             {
-                _ft232hdio.Open( (uint)_ftdi_dev_index);
+                _ft232hdio.Open((uint)_ftdi_dev_index);
+                _ft232hdio.SetModeMPSSE();
             }
         }
 

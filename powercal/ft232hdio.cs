@@ -54,19 +54,30 @@ namespace DIO
             FTDI.FT_STATUS status = _ftdi.OpenByIndex(index);
             if (status != FTDI.FT_STATUS.FT_OK)
             {
-                ResetDevice();
                 throw new Exception( string.Format("Problem opening FTDI device at index {0}", index) );
             }
 
-            // Enable MPSSE
-            status = _ftdi.SetBitMode(0xFF, FTDI.FT_BIT_MODES.FT_BIT_MODE_MPSSE);
-            if (status != FTDI.FT_STATUS.FT_OK)
-            {
-                throw new Exception(string.Format("Problem setting FTDI bitmode for device at index {0}", index));
-            }
+            //// Enable MPSSE
+            //status = _ftdi.SetBitMode(0xFF, FTDI.FT_BIT_MODES.FT_BIT_MODE_MPSSE);
+            //if (status != FTDI.FT_STATUS.FT_OK)
+            //{
+            //    throw new Exception(string.Format("Problem setting FTDI bitmode for device at index {0}", index));
+            //}
             //_ftdi.SetBitMode(0, 0);
             //_ftdi.SetBitMode(0, 2);
 
+        }
+
+        public FTDI.FT_STATUS SetModeMPSSE()
+        {
+            // Enable MPSSE
+            FTDI.FT_STATUS status = _ftdi.SetBitMode(0xFF, FTDI.FT_BIT_MODES.FT_BIT_MODE_MPSSE);
+            if (status != FTDI.FT_STATUS.FT_OK)
+            {
+                throw new Exception(string.Format("Problem setting FTDI bitmode"));
+            }
+
+            return status;
         }
 
         /// <summary>
