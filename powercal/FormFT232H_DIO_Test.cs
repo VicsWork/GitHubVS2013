@@ -7,16 +7,22 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms;
+using System.Threading;
 
 namespace powercal
 {
     public partial class FormFT232H_DIO_Test : Form
     {
-        RelayControler _relayCtrl = new RelayControler(RelayControler.Device_Types.FT232H);
+        RelayControler _relayCtrl;
 
-        public FormFT232H_DIO_Test()
+        public FormFT232H_DIO_Test(RelayControler relayCtrl)
         {
             InitializeComponent();
+
+            if (relayCtrl.Device_Type != RelayControler.Device_Types.FT232H)
+                throw new Exception("Incorrect relay controller");
+            else
+                this._relayCtrl = relayCtrl;
 
             int dev_id = _relayCtrl.FTDI_DEVICE_ID;
             this.physicalChannelLabel.Text = string.Format("{0} {1} {2}", _relayCtrl.FTDI_DEVICE_YPE, _relayCtrl.FTDI_DEVICE_ID, _relayCtrl.FTDI_BUS); 
@@ -40,8 +46,6 @@ namespace powercal
             labelVoltmeter.Text += string.Format("({0})", linenum);
             numericUpDown_Voltmeter.Tag = linenum;
 
-            _relayCtrl.Open();
-
         }
 
         private void numericUpDown_ValueChanged(object sender, EventArgs e)
@@ -57,6 +61,13 @@ namespace powercal
         private void FormFT232H_DIO_Test_FormClosed(object sender, FormClosedEventArgs e)
         {
             _relayCtrl.Close();
+        }
+
+        private void button1_Click(object sender, EventArgs e)
+        {
+            _relayCtrl.WriteAll(false);
+            Thread.Sleep(500);
+            _relayCtrl.WriteAll(true);
         }
 
     }

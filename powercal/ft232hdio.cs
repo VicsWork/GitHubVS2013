@@ -50,10 +50,11 @@ namespace DIO
         /// <param name="index"></param>
         public void Open(uint index)
         {
-            _ftdi.Close();
+            //_ftdi.Close();
             FTDI.FT_STATUS status = _ftdi.OpenByIndex(index);
             if (status != FTDI.FT_STATUS.FT_OK)
             {
+                ResetDevice();
                 throw new Exception( string.Format("Problem opening FTDI device at index {0}", index) );
             }
 

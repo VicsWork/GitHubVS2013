@@ -24,8 +24,9 @@ namespace powercal
 {
     enum BoardTypes { Hornshark, Mudshark, Humpback, Hooktooth, Milkshark, Zebrashark };
 
-    public class Relay_Lines {
-        
+    public class Relay_Lines
+    {
+
         static string _key_acPower = "AC Power";
         static string _key_load = "Load";
         static string _key_ember = "Ember";
@@ -41,6 +42,8 @@ namespace powercal
     {
         MultiMeter _meter = null;
         RelayControler _relay_ctrl;
+
+        TelnetConnection _telnet_connection;
 
 
         /// <summary>
@@ -126,7 +129,7 @@ namespace powercal
             aboutdlg.Dispose();
 
             // Init the status text box
-            initTextBoxRunStatus();
+            runStatus_Init();
 
             // Make sure we have a selection for board types
             this.comboBoxBoardTypes.Items.AddRange(Enum.GetNames(typeof(powercal.BoardTypes)));
@@ -171,7 +174,9 @@ namespace powercal
                 Properties.Settings.Default.Relay_Controller_Type = _relay_ctrl.Device_Type.ToString();
                 Properties.Settings.Default.Save();
             }
+            _relay_ctrl.Open();
             _relay_ctrl.WriteAll(false);
+            _relay_ctrl.Close();
 
             // Ember path
             if (!Directory.Exists(Properties.Settings.Default.Ember_BinPath))
@@ -272,11 +277,12 @@ namespace powercal
         /// <summary>
         /// Inits the run status text box
         /// </summary>
-        void initTextBoxRunStatus()
+        void runStatus_Init()
         {
             this.textBoxRunStatus.BackColor = Color.White;
             this.textBoxRunStatus.ForeColor = Color.Black;
             this.textBoxRunStatus.Clear();
+            this.textBoxRunStatus.Update();
         }
 
         /// <summary>
@@ -333,7 +339,7 @@ namespace powercal
         /// Updates the run status text box
         /// </summary>
         /// <param name="txt"></param>
-        private void updateRunStatus(string txt)
+        private void runStatus_Update(string txt)
         {
             this.textBoxRunStatus.Text = txt;
             this.textBoxRunStatus.Update();
@@ -730,17 +736,17 @@ namespace powercal
 
             // Pupulate DIO controller types
             dlg.comboBoxDIOCtrollerTypes.Items.Clear();
-            Array relay_types = Enum.GetValues( typeof(RelayControler.Device_Types) );
+            Array relay_types = Enum.GetValues(typeof(RelayControler.Device_Types));
             foreach (RelayControler.Device_Types relay_type in relay_types)
                 dlg.comboBoxDIOCtrollerTypes.Items.Add(relay_type.ToString());
             dlg.comboBoxDIOCtrollerTypes.Text = Properties.Settings.Default.Relay_Controller_Type;
 
             // DIO line assigment
-            Dictionary<string,uint> relay_lines = _relay_ctrl.DicLines_ReadSettings();
-            dlg.NumericUpDown_ACPower.Value = relay_lines[powercal.Relay_Lines.Power ];
-            dlg.NumericUpDown_Load.Value = relay_lines[ powercal.Relay_Lines.Load ];
-            dlg.NumericUpDown_Ember.Value = relay_lines[ powercal.Relay_Lines.Ember ];
-            dlg.numericUpDown_Voltmeter.Value = relay_lines[ powercal.Relay_Lines.Voltmeter ];
+            Dictionary<string, uint> relay_lines = _relay_ctrl.DicLines_ReadSettings();
+            dlg.NumericUpDown_ACPower.Value = relay_lines[powercal.Relay_Lines.Power];
+            dlg.NumericUpDown_Load.Value = relay_lines[powercal.Relay_Lines.Load];
+            dlg.NumericUpDown_Ember.Value = relay_lines[powercal.Relay_Lines.Ember];
+            dlg.numericUpDown_Voltmeter.Value = relay_lines[powercal.Relay_Lines.Voltmeter];
 
             // Ember
             dlg.TextBoxEmberBinPath.Text = Properties.Settings.Default.Ember_BinPath;
@@ -758,10 +764,10 @@ namespace powercal
                 _relay_ctrl = new RelayControler(rdevtype);
 
                 // DIO line assigment
-                relay_lines[ powercal.Relay_Lines.Power ] = (uint)dlg.NumericUpDown_ACPower.Value;
-                relay_lines[ powercal.Relay_Lines.Load ] = (uint)dlg.NumericUpDown_Load.Value;
-                relay_lines[ powercal.Relay_Lines.Ember ] = (uint)dlg.NumericUpDown_Ember.Value;
-                relay_lines[ powercal.Relay_Lines.Voltmeter ] = (uint)dlg.numericUpDown_Voltmeter.Value;
+                relay_lines[powercal.Relay_Lines.Power] = (uint)dlg.NumericUpDown_ACPower.Value;
+                relay_lines[powercal.Relay_Lines.Load] = (uint)dlg.NumericUpDown_Load.Value;
+                relay_lines[powercal.Relay_Lines.Ember] = (uint)dlg.NumericUpDown_Ember.Value;
+                relay_lines[powercal.Relay_Lines.Voltmeter] = (uint)dlg.numericUpDown_Voltmeter.Value;
                 _relay_ctrl.DicLines_SaveSettings();
 
 
@@ -807,6 +813,7 @@ namespace powercal
             _p_ember_isachan.OutputDataReceived += p_ember_isachan_OutputDataReceived;
             _p_ember_isachan.ErrorDataReceived += p_ember_isachan_ErrorDataReceived;
             _p_ember_isachan.Start();
+
             _p_ember_isachan.BeginOutputReadLine();
             _p_ember_isachan.BeginErrorReadLine();
 
@@ -818,10 +825,13 @@ namespace powercal
         /// </summary>
         private void closeEmberISAChannels()
         {
-            _p_ember_isachan.CancelErrorRead();
-            _p_ember_isachan.CancelOutputRead();
-            _p_ember_isachan.Kill();
-            _p_ember_isachan.Close();
+            if (_p_ember_isachan != null)
+            {
+                _p_ember_isachan.CancelErrorRead();
+                _p_ember_isachan.CancelOutputRead();
+                _p_ember_isachan.Kill();
+                _p_ember_isachan.Close();
+            }
         }
 
         /// <summary>
@@ -881,7 +891,7 @@ namespace powercal
                 case BoardTypes.Hornshark:
                 case BoardTypes.Mudshark:
                     // Force reset by cycle power
-                    updateRunStatus("Reset by cycle power");
+                    runStatus_Update("Reset by cycle power");
                     _relay_ctrl.WriteLine(powercal.Relay_Lines.Power, false);
                     relaysSet();
                     _relay_ctrl.WriteLine(powercal.Relay_Lines.Power, true);
@@ -905,8 +915,8 @@ namespace powercal
                 case BoardTypes.Hornshark:
                 case BoardTypes.Humpback:
                 case BoardTypes.Zebrashark:
-                    updateRunStatus( string.Format("Set UUT Relay {0}", value.ToString() ) );
-                    if(value)
+                    runStatus_Update(string.Format("Set UUT Relay {0}", value.ToString()));
+                    if (value)
                         telnet_connection.WriteLine("write 1 6 0 1 0x10 {01}");
                     else
                         telnet_connection.WriteLine("write 1 6 0 1 0x10 {00}");
@@ -933,7 +943,10 @@ namespace powercal
         /// <param name="e"></param>
         private void toolStripMenuItem_Click_FT232H(object sender, EventArgs e)
         {
-            FormFT232H_DIO_Test dlg = new FormFT232H_DIO_Test();
+            _relay_ctrl.Close();
+            Thread.Sleep(500);
+            _relay_ctrl.Open();
+            FormFT232H_DIO_Test dlg = new FormFT232H_DIO_Test(_relay_ctrl);
             dlg.Show();
         }
 
@@ -957,7 +970,7 @@ namespace powercal
 
         private void verify_voltage_ac()
         {
-            updateRunStatus("Verify Voltage AC");
+            runStatus_Update("Verify Voltage AC");
             _meter.OpenComPort();
             _meter.SetToRemote();
             _meter.ClearError();
@@ -982,7 +995,7 @@ namespace powercal
 
         private void verify_voltage_dc()
         {
-            updateRunStatus("Verify Voltage DC");
+            runStatus_Update("Verify Voltage DC");
             _meter.OpenComPort();
             _meter.SetToRemote();
             _meter.ClearError();
@@ -999,7 +1012,7 @@ namespace powercal
 
             _meter.CloseSerialPort();
 
-            if (meter_voltage_ac >= 1.0 )
+            if (meter_voltage_ac >= 1.0)
             {
                 msg = string.Format("AC volatge detected at {0:F8}, DC Voltage {1:F8}", meter_voltage_ac, meter_voltage_dc);
                 traceLog(msg);
@@ -1024,9 +1037,9 @@ namespace powercal
             //this.buttonRun.Enabled = false;
 
             this.textBoxOutputStatus.Clear();
-            initTextBoxRunStatus();
-
+            runStatus_Init();
             kill_em3xx_load();
+            _p_ember_isachan = null;
 
             try
             {
@@ -1041,6 +1054,16 @@ namespace powercal
                 _meter = new MultiMeter(meterPortName);
 
                 _relay_ctrl.Open();
+
+                // Open Ember isa channels
+                //updateRunStatus("Start Ember isachan");
+                traceLog("Start Ember isachan");
+                openEmberISAChannels();
+
+                // Create a new telnet connection
+                //updateRunStatus("Start telnet");
+                traceLog("Start telnet");
+                _telnet_connection = new TelnetConnection("localhost", 4900);
 
                 calibrate();
 
@@ -1062,16 +1085,27 @@ namespace powercal
             {
                 this.textBoxRunStatus.BackColor = Color.Red;
                 this.textBoxRunStatus.ForeColor = Color.White;
-                updateRunStatus("FAIL");
+                runStatus_Update("FAIL");
                 updateOutputStatus(ex.Message);
 
                 _relay_ctrl.WriteLine(powercal.Relay_Lines.Ember, false);
                 _relay_ctrl.WriteLine(powercal.Relay_Lines.Power, false);
                 _relay_ctrl.WriteLine(powercal.Relay_Lines.Load, false);
-                relaysSet();
+                _relay_ctrl.Close();
 
                 if (_meter != null)
                     _meter.CloseSerialPort();
+            }
+
+            //updateRunStatus("Close Ember isachan");
+            this.traceLog("Close Ember isachan");
+            closeEmberISAChannels();
+
+            if (_telnet_connection != null)
+            {
+                //updateRunStatus("Close telnet");
+                this.traceLog("Close telnet");
+                _telnet_connection.Close();
             }
 
             kill_em3xx_load();
@@ -1086,20 +1120,11 @@ namespace powercal
         /// </summary>
         private void calibrate()
         {
+            string datain, msg;
             bool manual_measure = Properties.Settings.Default.Meter_Manual_Measurement;
             powercal.BoardTypes board_type = (powercal.BoardTypes)Enum.Parse(typeof(powercal.BoardTypes), comboBoxBoardTypes.Text);
 
-            string msg;
             updateOutputStatus("===============================Start Calibration==============================");
-
-            // Open Ember isa channels
-            updateRunStatus("Start Ember isachan");
-            openEmberISAChannels();
-
-            // Create a new telnet connection
-            updateRunStatus("Start telnet");
-            TelnetConnection telnet_connection = new TelnetConnection("localhost", 4900);
-            string datain;
 
             if (_relay_ctrl.Device_Type == RelayControler.Device_Types.Manual)
             {
@@ -1109,6 +1134,7 @@ namespace powercal
                 _relay_ctrl.WriteLine(powercal.Relay_Lines.Power, true);
                 _relay_ctrl.WriteLine(powercal.Relay_Lines.Load, true);
                 relaysSet();
+                Thread.Sleep(2000);
 
             }
             else
@@ -1120,49 +1146,48 @@ namespace powercal
                 _relay_ctrl.WriteLine(powercal.Relay_Lines.Voltmeter, true);
                 relaysSet();
 
+                Thread.Sleep(2000);
                 verify_voltage_dc();
+
+                _relay_ctrl.WriteLine(powercal.Relay_Lines.Voltmeter, false);
 
                 // Should be safe to connect Ember
                 _relay_ctrl.WriteLine(powercal.Relay_Lines.Ember, true);
             }
 
-
-            Thread.Sleep(3000);
-            datain = telnet_connection.Read();
+            datain = _telnet_connection.Read();
             traceLog(datain);
 
-
             // Patch gain to 1
-            updateRunStatus("Patch Gain to 1");
+            runStatus_Update("Patch Gain to 1");
             msg = patch(board_type, 0x400000, 0x400000);
             traceLog(msg);
 
-            Thread.Sleep(3000);
-            datain = telnet_connection.Read();
+            Thread.Sleep(1000);
+            datain = _telnet_connection.Read();
             traceLog(datain);
 
             // Force reset by cycle power
-            reset_handler(board_type);
-
+            //reset_handler(board_type);
             // Close UUT relay
-            set_board_relay(board_type, telnet_connection, true);
-
-            Thread.Sleep(1000);
-            datain = telnet_connection.Read();
-            traceLog(datain);
+            //set_board_relay(board_type, telnet_connection, true);
+            //Thread.Sleep(1000);
+            //datain = telnet_connection.Read();
+            //traceLog(datain);
 
             _relay_ctrl.WriteLine(powercal.Relay_Lines.Load, true);
-            _relay_ctrl.WriteLine(powercal.Relay_Lines.Voltmeter, false);
+            Thread.Sleep(1000);
+            //_relay_ctrl.WriteLine(powercal.Relay_Lines.Voltmeter, false);
             verify_voltage_ac();
 
-            string cmd_prefix = get_custom_command_prefix(telnet_connection);
+            string cmd_prefix = get_custom_command_prefix(_telnet_connection);
 
             // Get UUT currect/voltage values
-            updateRunStatus("Get UUT values");
-            CS_Current_Voltage cv = ember_parse_pinfo_registers(telnet_connection);
+            runStatus_Update("Get UUT values");
+            CS_Current_Voltage cv = ember_parse_pinfo_registers(_telnet_connection);
             msg = string.Format("Cirrus I = {0:F8}, V = {1:F8}, P = {2:F8}", cv.Current, cv.Voltage, cv.Current * cv.Voltage);
             traceLog(msg);
-            cv = ember_parse_pinfo_registers(telnet_connection);
+            cv = ember_parse_pinfo_registers(_telnet_connection);
             msg = string.Format("Cirrus I = {0:F8}, V = {1:F8}, P = {2:F8}", cv.Current, cv.Voltage, cv.Current * cv.Voltage);
             updateOutputStatus(msg);
 
@@ -1180,7 +1205,7 @@ namespace powercal
             }
 
             /// The meter measurements
-            updateRunStatus("Meter measurements");
+            runStatus_Update("Meter measurements");
             _meter.OpenComPort();
             _meter.SetupForIAC();
 
@@ -1220,7 +1245,7 @@ namespace powercal
             }
 
             // Gain calucalation
-            updateRunStatus("Gain calucalation");
+            runStatus_Update("Gain calucalation");
             double current_gain = current_meter / cv.Current;
             //double current_gain = current_meter / current_cs;
             int current_gain_int = (int)(current_gain * 0x400000);
@@ -1233,30 +1258,30 @@ namespace powercal
             updateOutputStatus(msg);
 
             // Patch new gain
-            updateRunStatus("Patch Gain");
+            runStatus_Update("Patch Gain");
             msg = patch(board_type, voltage_gain_int, current_gain_int);
 
             Thread.Sleep(3000);
-            datain = telnet_connection.Read();
+            datain = _telnet_connection.Read();
             traceLog(datain);
 
             // Force reset by cycle power
             reset_handler(board_type);
 
-            datain = telnet_connection.Read();
+            datain = _telnet_connection.Read();
             traceLog(datain);
 
-            telnet_connection.WriteLine(string.Format("cu {0}_pinfo", _cmd_prefix));
+            _telnet_connection.WriteLine(string.Format("cu {0}_pinfo", _cmd_prefix));
             Thread.Sleep(500);
-            datain = telnet_connection.Read();
+            datain = _telnet_connection.Read();
             traceLog(datain);
 
             // Get UUT currect/voltage values
-            updateRunStatus("Get UUT calibrated values");
-            cv = ember_parse_pinfo_registers(telnet_connection);
+            runStatus_Update("Get UUT calibrated values");
+            cv = ember_parse_pinfo_registers(_telnet_connection);
             msg = string.Format("Cirrus I = {0:F8}, V = {1:F8}, P = {2:F8}", cv.Current, cv.Voltage, cv.Current * cv.Voltage);
             traceLog(msg);
-            cv = ember_parse_pinfo_registers(telnet_connection);
+            cv = ember_parse_pinfo_registers(_telnet_connection);
             msg = string.Format("Cirrus I = {0:F8}, V = {1:F8}, P = {2:F8}", cv.Current, cv.Voltage, cv.Current * cv.Voltage);
             updateOutputStatus(msg);
 
@@ -1266,14 +1291,6 @@ namespace powercal
             //datain = telnet_connection.Read();
             //traceLog(datain);
 
-            _p_ember_isachan.CancelOutputRead();
-            _p_ember_isachan.CancelErrorRead();
-
-            updateRunStatus("Close telnet");
-            telnet_connection.Close();
-
-            updateRunStatus("Close Ember isachan");
-            closeEmberISAChannels();
 
             // Disconnect Power
             _relay_ctrl.WriteLine(powercal.Relay_Lines.Power, false);

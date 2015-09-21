@@ -5,6 +5,7 @@ using System.Text;
 using System.Diagnostics;
 using System.IO;
 using System.Runtime.Serialization;
+using System.Threading;
 
 using NationalInstruments.DAQmx;
 using DIO;
@@ -18,6 +19,8 @@ namespace powercal
     public class RelayControler
     {
         public enum Device_Types { Manual, NI_USB6008, FT232H };
+
+        int _delay_after_set_pin = 200;
 
         /// <summary>
         /// Dic to store line numbers
@@ -255,9 +258,8 @@ namespace powercal
 
             if (_dev_type == Device_Types.FT232H)
             {
-                //_ft232hdio.Open(Convert.ToUInt32(_ftdi_dev_index));
                 _ft232hdio.SetPin(_ftdi_bus, linenum, value);
-                //_ft232hdio.Close();
+                Thread.Sleep(_delay_after_set_pin);
                 return;
             }
         }
