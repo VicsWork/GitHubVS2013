@@ -156,7 +156,7 @@ namespace powercal
         private void initFT232H()
         {
             _ft232hdio = new FT232HDIO();
-            _ft232hdio.ResetPort();
+            //_ft232hdio.ResetPort();
             _ftdi_dev_index = _ft232hdio.GetFirstDevIndex();
             if (_ftdi_dev_index < 0)
             {

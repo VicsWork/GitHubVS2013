@@ -457,7 +457,8 @@ namespace powercal
                 Process[] processes = System.Diagnostics.Process.GetProcessesByName("em3xx_load");
                 foreach (Process process in processes)
                 {
-                    process.Kill();
+                    if(!process.HasExited)
+                        process.Kill();
                 }
             }
             catch (Exception ex)
@@ -764,6 +765,7 @@ namespace powercal
                 _relay_ctrl = new RelayControler(rdevtype);
 
                 // DIO line assigment
+                relay_lines = _relay_ctrl.DicLines_ReadSettings();
                 relay_lines[powercal.Relay_Lines.Power] = (uint)dlg.NumericUpDown_ACPower.Value;
                 relay_lines[powercal.Relay_Lines.Load] = (uint)dlg.NumericUpDown_Load.Value;
                 relay_lines[powercal.Relay_Lines.Ember] = (uint)dlg.NumericUpDown_Ember.Value;
@@ -829,7 +831,8 @@ namespace powercal
             {
                 _p_ember_isachan.CancelErrorRead();
                 _p_ember_isachan.CancelOutputRead();
-                _p_ember_isachan.Kill();
+                if(!_p_ember_isachan.HasExited)
+                    _p_ember_isachan.Kill();
                 _p_ember_isachan.Close();
             }
         }
@@ -944,7 +947,8 @@ namespace powercal
         private void toolStripMenuItem_Click_FT232H(object sender, EventArgs e)
         {
             _relay_ctrl.Close();
-            Thread.Sleep(500);
+            RelayControler.Device_Types rdevtype = (RelayControler.Device_Types)Enum.Parse(typeof(RelayControler.Device_Types), Properties.Settings.Default.Relay_Controller_Type);
+            _relay_ctrl = new RelayControler(rdevtype);
             _relay_ctrl.Open();
             FormFT232H_DIO_Test dlg = new FormFT232H_DIO_Test(_relay_ctrl);
             dlg.Show();

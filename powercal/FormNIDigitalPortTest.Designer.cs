@@ -178,6 +178,7 @@
             this.NumericUpDown_Ember.Name = "NumericUpDown_Ember";
             this.NumericUpDown_Ember.Size = new System.Drawing.Size(31, 20);
             this.NumericUpDown_Ember.TabIndex = 6;
+            this.NumericUpDown_Ember.ValueChanged += new System.EventHandler(this.NumericUpDownr_ValueChanged);
             this.NumericUpDown_Ember.VisibleChanged += new System.EventHandler(this.NumericUpDownr_ValueChanged);
             // 
             // labelLoad

@@ -50,21 +50,16 @@ namespace DIO
         /// <param name="index"></param>
         public void Open(uint index)
         {
-            //_ftdi.Close();
+            if(_ftdi.IsOpen)
+                _ftdi.Close();
             FTDI.FT_STATUS status = _ftdi.OpenByIndex(index);
             if (status != FTDI.FT_STATUS.FT_OK)
             {
                 throw new Exception( string.Format("Problem opening FTDI device at index {0}", index) );
             }
 
-            //// Enable MPSSE
-            //status = _ftdi.SetBitMode(0xFF, FTDI.FT_BIT_MODES.FT_BIT_MODE_MPSSE);
-            //if (status != FTDI.FT_STATUS.FT_OK)
-            //{
-            //    throw new Exception(string.Format("Problem setting FTDI bitmode for device at index {0}", index));
-            //}
-            //_ftdi.SetBitMode(0, 0);
-            //_ftdi.SetBitMode(0, 2);
+            _ftdi.SetBitMode(0, 0);
+            _ftdi.SetBitMode(0, 2);
 
         }
 
@@ -231,7 +226,15 @@ namespace DIO
         public FTDI.FT_STATUS ResetPort()
         {
             FTDI.FT_STATUS status = _ftdi.ResetPort();
-            status = _ftdi.Purge(FTDI.FT_PURGE.FT_PURGE_RX | FTDI.FT_PURGE.FT_PURGE_TX);
+
+            //status = _ftdi.SetDeadmanTimeout(200000);
+            //status = _ftdi.RestartInTask();
+            //status = _ftdi.Reload(0, 0);
+            //status = _ftdi.Close();
+            //status = _ftdi.CyclePort();
+            //status = _ftdi.ResetPort();
+
+            //status = _ftdi.Purge(FTDI.FT_PURGE.FT_PURGE_RX | FTDI.FT_PURGE.FT_PURGE_TX);
             return status;
         }
 

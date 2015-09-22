@@ -80,7 +80,8 @@ namespace powercal
                 // Reads all values from DIO and updates the numeric up and down control
                 NumericUpDown_ACPower.Value = Convert.ToDecimal( _relayCtrl.ReadLine(powercal.Relay_Lines.Power) );
                 NumericUpDown_Load.Value = Convert.ToDecimal(_relayCtrl.ReadLine(powercal.Relay_Lines.Load) );
-                NumericUpDown_Ember.Value = Convert.ToDecimal(_relayCtrl.ReadLine(powercal.Relay_Lines.Ember) );
+                NumericUpDown_Ember.Value = Convert.ToDecimal(_relayCtrl.ReadLine(powercal.Relay_Lines.Ember));
+                numericUpDown_Voltmeter.Value = Convert.ToDecimal(_relayCtrl.ReadLine(powercal.Relay_Lines.Voltmeter));
             }
             catch (Exception ex)
             {
