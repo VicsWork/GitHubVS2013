@@ -20,7 +20,7 @@ namespace powercal
     {
         public enum Device_Types { Manual, NI_USB6008, FT232H };
 
-        int _delay_after_set_pin = 200;
+        //int _delay_after_set_pin = 200;
 
         /// <summary>
         /// Dic to store line numbers
@@ -260,7 +260,7 @@ namespace powercal
             if (_dev_type == Device_Types.FT232H)
             {
                 _ft232hdio.SetPin(_ftdi_bus, linenum, value);
-                Thread.Sleep(_delay_after_set_pin);
+                //Thread.Sleep(_delay_after_set_pin);
                 return;
             }
         }

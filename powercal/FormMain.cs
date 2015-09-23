@@ -140,8 +140,6 @@ namespace powercal
                 comboBoxBoardTypes.SelectedIndex = index;
 
 
-            cleanupEmberTempPatchFile();
-
             // Report COM ports found in system
             string[] ports = SerialPort.GetPortNames();
             string msg = "";
@@ -674,6 +672,8 @@ namespace powercal
             // Retry patch loop if fail
             while (true)
             {
+                cleanupEmberTempPatchFile();
+
                 patchit_fail = false;
                 exception_msg = "";
                 coding_output = "";
@@ -709,8 +709,6 @@ namespace powercal
                 {
                     break;
                 }
-
-                reset_handler(board_type);
 
             }
 
@@ -881,28 +879,6 @@ namespace powercal
             return cmd_pre;
         }
 
-        /// <summary>
-        /// Handels a board reset
-        /// </summary>
-        /// <param name="board_type"></param>
-        void reset_handler(BoardTypes board_type)
-        {
-
-            switch (board_type)
-            {
-                // These boards are hanging on reset
-                case BoardTypes.Hornshark:
-                case BoardTypes.Mudshark:
-                    // Force reset by cycle power
-                    runStatus_Update("Reset by cycle power");
-                    _relay_ctrl.WriteLine(powercal.Relay_Lines.Power, false);
-                    relaysSet();
-                    _relay_ctrl.WriteLine(powercal.Relay_Lines.Power, true);
-                    relaysSet();
-                    Thread.Sleep(1000);
-                    break;
-            }
-        }
 
         /// <summary>
         /// Closes the board releay using custom command
@@ -1050,8 +1026,6 @@ namespace powercal
                 Stopwatch stopWatch = new Stopwatch();
                 stopWatch.Start();
 
-                cleanupEmberTempPatchFile();
-
                 set_board_calibration_values();
 
                 string meterPortName = Properties.Settings.Default.Meter_COM_Port_Name;
@@ -1113,7 +1087,6 @@ namespace powercal
             }
 
             kill_em3xx_load();
-            cleanupEmberTempPatchFile();
 
             this.buttonRun.Enabled = true;
         }
@@ -1266,12 +1239,6 @@ namespace powercal
             msg = patch(board_type, voltage_gain_int, current_gain_int);
 
             Thread.Sleep(3000);
-            datain = _telnet_connection.Read();
-            traceLog(datain);
-
-            // Force reset by cycle power
-            reset_handler(board_type);
-
             datain = _telnet_connection.Read();
             traceLog(datain);
 
