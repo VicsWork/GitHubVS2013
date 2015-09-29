@@ -56,14 +56,16 @@
             | System.Windows.Forms.AnchorStyles.Left) 
             | System.Windows.Forms.AnchorStyles.Right)));
             this.textBoxOutputStatus.ContextMenuStrip = this.contextMenuStatusTextBox;
+            this.textBoxOutputStatus.Font = new System.Drawing.Font("Microsoft Sans Serif", 9.75F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.textBoxOutputStatus.ForeColor = System.Drawing.SystemColors.WindowText;
             this.textBoxOutputStatus.Location = new System.Drawing.Point(12, 126);
             this.textBoxOutputStatus.Multiline = true;
             this.textBoxOutputStatus.Name = "textBoxOutputStatus";
             this.textBoxOutputStatus.ReadOnly = true;
-            this.textBoxOutputStatus.ScrollBars = System.Windows.Forms.ScrollBars.Vertical;
+            this.textBoxOutputStatus.ScrollBars = System.Windows.Forms.ScrollBars.Both;
             this.textBoxOutputStatus.Size = new System.Drawing.Size(702, 407);
             this.textBoxOutputStatus.TabIndex = 2;
+            this.textBoxOutputStatus.WordWrap = false;
             // 
             // contextMenuStatusTextBox
             // 
@@ -202,7 +204,7 @@
             this.textBoxRunStatus.Text = "test";
             this.textBoxRunStatus.WordWrap = false;
             // 
-            // FormMain
+            // Form_Main
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(96F, 96F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Dpi;
@@ -215,7 +217,7 @@
             this.Controls.Add(this.textBoxOutputStatus);
             this.MainMenuStrip = this.menuStripMain;
             this.MinimumSize = new System.Drawing.Size(300, 300);
-            this.Name = "FormMain";
+            this.Name = "Form_Main";
             this.Text = "FormMain";
             this.FormClosing += new System.Windows.Forms.FormClosingEventHandler(this.FormMain_FormClosing);
             this.contextMenuStatusTextBox.ResumeLayout(false);

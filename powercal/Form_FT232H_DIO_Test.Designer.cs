@@ -70,6 +70,7 @@
             // 
             // groupBoxDIOLines
             // 
+            this.groupBoxDIOLines.Controls.Add(this.NumericUpDown_ACPower);
             this.groupBoxDIOLines.Controls.Add(this.numericUpDown_Voltmeter);
             this.groupBoxDIOLines.Controls.Add(this.labelVoltmeter);
             this.groupBoxDIOLines.Controls.Add(this.labelEmber);
@@ -77,11 +78,10 @@
             this.groupBoxDIOLines.Controls.Add(this.labelLoad);
             this.groupBoxDIOLines.Controls.Add(this.NumericUpDown_Load);
             this.groupBoxDIOLines.Controls.Add(this.labelACPower);
-            this.groupBoxDIOLines.Controls.Add(this.NumericUpDown_ACPower);
             this.groupBoxDIOLines.Location = new System.Drawing.Point(28, 102);
             this.groupBoxDIOLines.Name = "groupBoxDIOLines";
             this.groupBoxDIOLines.Size = new System.Drawing.Size(258, 120);
-            this.groupBoxDIOLines.TabIndex = 11;
+            this.groupBoxDIOLines.TabIndex = 0;
             this.groupBoxDIOLines.TabStop = false;
             this.groupBoxDIOLines.Text = "DIO Line Values";
             // 
@@ -89,13 +89,13 @@
             // 
             this.numericUpDown_Voltmeter.Location = new System.Drawing.Point(213, 66);
             this.numericUpDown_Voltmeter.Maximum = new decimal(new int[] {
-            7,
+            1,
             0,
             0,
             0});
             this.numericUpDown_Voltmeter.Name = "numericUpDown_Voltmeter";
             this.numericUpDown_Voltmeter.Size = new System.Drawing.Size(31, 20);
-            this.numericUpDown_Voltmeter.TabIndex = 13;
+            this.numericUpDown_Voltmeter.TabIndex = 3;
             this.numericUpDown_Voltmeter.ValueChanged += new System.EventHandler(this.numericUpDown_ValueChanged);
             // 
             // labelVoltmeter
@@ -126,7 +126,7 @@
             0});
             this.NumericUpDown_Ember.Name = "NumericUpDown_Ember";
             this.NumericUpDown_Ember.Size = new System.Drawing.Size(31, 20);
-            this.NumericUpDown_Ember.TabIndex = 6;
+            this.NumericUpDown_Ember.TabIndex = 1;
             this.NumericUpDown_Ember.ValueChanged += new System.EventHandler(this.numericUpDown_ValueChanged);
             // 
             // labelLoad
@@ -178,12 +178,12 @@
             this.button1.Location = new System.Drawing.Point(211, 41);
             this.button1.Name = "button1";
             this.button1.Size = new System.Drawing.Size(75, 23);
-            this.button1.TabIndex = 12;
+            this.button1.TabIndex = 1;
             this.button1.Text = "&Stress";
             this.button1.UseVisualStyleBackColor = true;
             this.button1.Click += new System.EventHandler(this.button1_Click);
             // 
-            // FormFT232H_DIO_Test
+            // Form_FT232H_DIO_Test
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
@@ -191,7 +191,7 @@
             this.Controls.Add(this.button1);
             this.Controls.Add(this.groupBoxDIOLines);
             this.Controls.Add(this.channelParametersGroupBox);
-            this.Name = "FormFT232H_DIO_Test";
+            this.Name = "Form_FT232H_DIO_Test";
             this.Text = "FormFT232H_DIO_Test";
             this.FormClosed += new System.Windows.Forms.FormClosedEventHandler(this.FormFT232H_DIO_Test_FormClosed);
             this.channelParametersGroupBox.ResumeLayout(false);

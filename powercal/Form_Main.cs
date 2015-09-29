@@ -490,9 +490,6 @@ namespace powercal
                 case BoardTypes.Mudshark:
                     _current_ac_reference = 10;
                     break;
-                case BoardTypes.Hornshark:
-                    _current_ac_reference = 25;
-                    break;
             }
 
             _voltage_ac_high_limit = voltage_ac_load + voltage_ac_delta;
