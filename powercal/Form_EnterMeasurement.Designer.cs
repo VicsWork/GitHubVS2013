@@ -1,6 +1,6 @@
 ﻿namespace powercal
 {
-    partial class FormEnterMeasurement
+    partial class Form_EnterMeasurement
     {
         /// <summary>
         /// Required designer variable.

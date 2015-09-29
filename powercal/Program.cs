@@ -21,7 +21,7 @@ namespace powercal
             AppDomain.CurrentDomain.UnhandledException += CurrentDomain_UnhandledException;
 
 
-            Application.Run(new FormMain());
+            Application.Run(new Form_Main());
         }
 
         static void CurrentDomain_UnhandledException(object sender, UnhandledExceptionEventArgs e)

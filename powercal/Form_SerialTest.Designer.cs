@@ -1,6 +1,6 @@
 ﻿namespace powercal
 {
-    partial class FormSerialTest
+    partial class Form_SerialTest
     {
         /// <summary>
         /// Required designer variable.

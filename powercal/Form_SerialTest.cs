@@ -13,12 +13,12 @@ using System.IO.Ports;
 
 namespace powercal
 {
-    public partial class FormSerialTest : Form
+    public partial class Form_SerialTest : Form
     {
         SerialPort _serialPort = new SerialPort();
         delegate void SetTextCallback();
 
-        public FormSerialTest()
+        public Form_SerialTest()
         {
             InitializeComponent();
 

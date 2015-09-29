@@ -13,12 +13,12 @@ namespace powercal
     /// <summary>
     /// Simple form to enter a single value
     /// </summary>
-    public partial class FormEnterMeasurement : Form
+    public partial class Form_EnterMeasurement : Form
     {
         /// <summary>
         /// Constructor
         /// </summary>
-        public FormEnterMeasurement()
+        public Form_EnterMeasurement()
         {
             InitializeComponent();
         }

@@ -1,6 +1,6 @@
 ﻿namespace powercal
 {
-    partial class FormPowerMeter
+    partial class Form_PowerMeter
     {
         /// <summary>
         /// Required designer variable.

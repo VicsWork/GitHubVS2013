@@ -38,7 +38,7 @@ namespace powercal
         public static string Voltmeter { get { return _key_volts; } }
     }
 
-    public partial class FormMain : Form
+    public partial class Form_Main : Form
     {
         MultiMeter _meter = null;
         RelayControler _relay_ctrl;
@@ -103,15 +103,12 @@ namespace powercal
         /// <summary>
         /// The main form constructor
         /// </summary>
-        public FormMain()
+        public Form_Main()
         {
 
             Stream outResultsFile = File.Create("output.txt");
             var textListener = new TextWriterTraceListener(outResultsFile);
             Trace.Listeners.Add(textListener);
-
-            // All dio port 0 lines to 0
-            dio_write(0);
 
             InitializeComponent();
 
@@ -355,7 +352,7 @@ namespace powercal
         /// <param name="e"></param>
         private void toolStripMenuItem_Click_Serial(object sender, EventArgs e)
         {
-            FormSerialTest dlg = new FormSerialTest();
+            Form_SerialTest dlg = new Form_SerialTest();
             //DialogResult result = dlg.ShowDialog();
             dlg.Show();
         }
@@ -455,7 +452,7 @@ namespace powercal
                 Process[] processes = System.Diagnostics.Process.GetProcessesByName("em3xx_load");
                 foreach (Process process in processes)
                 {
-                    if(!process.HasExited)
+                    if (!process.HasExited)
                         process.Kill();
                 }
             }
@@ -505,6 +502,9 @@ namespace powercal
                 case BoardTypes.Milkshark:
                 case BoardTypes.Mudshark:
                     _current_ac_reference = 10;
+                    break;
+                case BoardTypes.Hornshark:
+                    _current_ac_reference = 25;
                     break;
             }
 
@@ -727,7 +727,7 @@ namespace powercal
         /// <param name="e"></param>
         private void toolStripMenuItem_Click_Settings(object sender, EventArgs e)
         {
-            FormSettings dlg = new FormSettings();
+            Form_Settings dlg = new Form_Settings();
 
             // COM ports
             dlg.CheckBoxManualMultiMeter.Checked = Properties.Settings.Default.Meter_Manual_Measurement;
@@ -780,13 +780,13 @@ namespace powercal
 
         private void toolStripMenuItem_Click_Calculator(object sender, EventArgs e)
         {
-            FormCalculator dlg = new FormCalculator();
+            Form_Calculator dlg = new Form_Calculator();
             dlg.ShowDialog();
         }
 
         private void toolStripMenuItem_Click_PowerMeter(object sender, EventArgs e)
         {
-            FormPowerMeter dlg = new FormPowerMeter();
+            Form_PowerMeter dlg = new Form_PowerMeter();
             dlg.Show();
         }
 
@@ -829,7 +829,7 @@ namespace powercal
             {
                 _p_ember_isachan.CancelErrorRead();
                 _p_ember_isachan.CancelOutputRead();
-                if(!_p_ember_isachan.HasExited)
+                if (!_p_ember_isachan.HasExited)
                     _p_ember_isachan.Kill();
                 _p_ember_isachan.Close();
             }
@@ -911,7 +911,7 @@ namespace powercal
         /// <param name="e"></param>
         private void toolStripMenuItem_Click_NI(object sender, EventArgs e)
         {
-            FormNIDigitalPortTest dlg = new FormNIDigitalPortTest();
+            Form_NIDigitalPortTest dlg = new Form_NIDigitalPortTest();
             dlg.Show();
         }
 
@@ -926,7 +926,7 @@ namespace powercal
             RelayControler.Device_Types rdevtype = (RelayControler.Device_Types)Enum.Parse(typeof(RelayControler.Device_Types), Properties.Settings.Default.Relay_Controller_Type);
             _relay_ctrl = new RelayControler(rdevtype);
             _relay_ctrl.Open();
-            FormFT232H_DIO_Test dlg = new FormFT232H_DIO_Test(_relay_ctrl);
+            Form_FT232H_DIO_Test dlg = new Form_FT232H_DIO_Test(_relay_ctrl);
             dlg.Show();
         }
 
@@ -950,6 +950,10 @@ namespace powercal
 
         private void verify_voltage_ac()
         {
+            bool manual_measure = Properties.Settings.Default.Meter_Manual_Measurement;
+            if (manual_measure)
+                return;
+
             runStatus_Update("Verify Voltage AC");
             _meter.OpenComPort();
             _meter.SetToRemote();
@@ -975,6 +979,10 @@ namespace powercal
 
         private void verify_voltage_dc()
         {
+            bool manual_measure = Properties.Settings.Default.Meter_Manual_Measurement;
+            if (manual_measure)
+                return;
+
             runStatus_Update("Verify Voltage DC");
             _meter.OpenComPort();
             _meter.SetToRemote();
@@ -1124,6 +1132,7 @@ namespace powercal
                 relaysSet();
 
                 Thread.Sleep(2000);
+
                 verify_voltage_dc();
 
                 _relay_ctrl.WriteLine(powercal.Relay_Lines.Voltmeter, false);
@@ -1183,27 +1192,40 @@ namespace powercal
 
             /// The meter measurements
             runStatus_Update("Meter measurements");
-            _meter.OpenComPort();
-            _meter.SetupForIAC();
 
-            string current_meter_str = _meter.Measure();
-            current_meter_str = _meter.Measure();
-            double current_meter = Double.Parse(current_meter_str);
+            double current_meter;
+            if (manual_measure)
+            {
+                Form_EnterMeasurement dlg = new Form_EnterMeasurement();
+                current_meter = dlg.GetMeasurement("Enter AC Current");
+            }
+            else
+            {
+                _meter.OpenComPort();
+                _meter.SetupForIAC();
+                string current_meter_str = _meter.Measure();
+                current_meter_str = _meter.Measure();
+                current_meter = Double.Parse(current_meter_str);
+            }
             msg = string.Format("Meter I = {0:F8}", current_meter);
             traceLog(msg);
-            current_meter_str = _meter.Measure();
-            current_meter = Double.Parse(current_meter_str);
 
-            _meter.SetupForVAC();
-            string voltage_meter_str = _meter.Measure();
-            voltage_meter_str = _meter.Measure();
-            double voltage_meter = Double.Parse(voltage_meter_str);
+            double voltage_meter;
+            if (manual_measure)
+            {
+                Form_EnterMeasurement dlg = new Form_EnterMeasurement();
+                voltage_meter = dlg.GetMeasurement("Enter AC Voltage");
+            }
+            else
+            {
+                _meter.SetupForVAC();
+                string voltage_meter_str = _meter.Measure();
+                voltage_meter_str = _meter.Measure();
+                _meter.CloseSerialPort();
+                voltage_meter = Double.Parse(voltage_meter_str);
+            }
             msg = string.Format("Meter V = {0:F8}", voltage_meter);
             traceLog(msg);
-            voltage_meter_str = _meter.Measure();
-            voltage_meter = Double.Parse(voltage_meter_str);
-
-            _meter.CloseSerialPort();
 
             msg = string.Format("Meter I = {0:F8}, V = {1:F8}, P = {2:F8}", current_meter, voltage_meter, current_meter * voltage_meter);
             updateOutputStatus(msg);
@@ -1288,15 +1310,17 @@ namespace powercal
                 throw new Exception(msg);
             }
 
-            // Measure Voltage after power off
-            _meter.OpenComPort();
-            _meter.SetupForVAC();
-            voltage_meter_str = _meter.Measure();
-            _meter.CloseSerialPort();
-            voltage_meter = Double.Parse(voltage_meter_str);
-            msg = string.Format("Meter V = {0:F8}", voltage_meter);
-            traceLog(msg);
-            updateOutputStatus(msg);
+            if (!manual_measure)
+            {
+                // Measure Voltage after power off
+                _meter.OpenComPort();
+                _meter.SetupForVAC();
+                string voltage_meter_str = _meter.Measure();
+                _meter.CloseSerialPort();
+                msg = string.Format("Meter V = {0:F8}", voltage_meter);
+                traceLog(msg);
+                updateOutputStatus(msg);
+            }
 
             this.textBoxRunStatus.BackColor = Color.Green;
             this.textBoxRunStatus.ForeColor = Color.White;

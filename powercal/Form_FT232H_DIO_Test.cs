@@ -11,11 +11,11 @@ using System.Threading;
 
 namespace powercal
 {
-    public partial class FormFT232H_DIO_Test : Form
+    public partial class Form_FT232H_DIO_Test : Form
     {
         RelayControler _relayCtrl;
 
-        public FormFT232H_DIO_Test(RelayControler relayCtrl)
+        public Form_FT232H_DIO_Test(RelayControler relayCtrl)
         {
             InitializeComponent();
 

@@ -10,9 +10,9 @@ using System.Windows.Forms;
 
 namespace powercal
 {
-    public partial class FormCalculator : Form
+    public partial class Form_Calculator : Form
     {
-        public FormCalculator()
+        public Form_Calculator()
         {
             InitializeComponent();
         }

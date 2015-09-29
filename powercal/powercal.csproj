@@ -101,53 +101,53 @@
       <DependentUpon>AboutBox1.cs</DependentUpon>
     </Compile>
     <Compile Include="Ember.cs" />
-    <Compile Include="FormCalculator.cs">
+    <Compile Include="Form_Calculator.cs">
       <SubType>Form</SubType>
     </Compile>
-    <Compile Include="FormCalculator.Designer.cs">
-      <DependentUpon>FormCalculator.cs</DependentUpon>
+    <Compile Include="Form_Calculator.Designer.cs">
+      <DependentUpon>Form_Calculator.cs</DependentUpon>
     </Compile>
-    <Compile Include="FormEnterMeasurement.cs">
+    <Compile Include="Form_EnterMeasurement.cs">
       <SubType>Form</SubType>
     </Compile>
-    <Compile Include="FormEnterMeasurement.Designer.cs">
-      <DependentUpon>FormEnterMeasurement.cs</DependentUpon>
+    <Compile Include="Form_EnterMeasurement.Designer.cs">
+      <DependentUpon>Form_EnterMeasurement.cs</DependentUpon>
     </Compile>
-    <Compile Include="FormFT232H_DIO_Test.cs">
+    <Compile Include="Form_FT232H_DIO_Test.cs">
       <SubType>Form</SubType>
     </Compile>
-    <Compile Include="FormFT232H_DIO_Test.Designer.cs">
-      <DependentUpon>FormFT232H_DIO_Test.cs</DependentUpon>
+    <Compile Include="Form_FT232H_DIO_Test.Designer.cs">
+      <DependentUpon>Form_FT232H_DIO_Test.cs</DependentUpon>
     </Compile>
-    <Compile Include="FormPowerMeter.cs">
+    <Compile Include="Form_PowerMeter.cs">
       <SubType>Form</SubType>
     </Compile>
-    <Compile Include="FormPowerMeter.Designer.cs">
-      <DependentUpon>FormPowerMeter.cs</DependentUpon>
+    <Compile Include="Form_PowerMeter.Designer.cs">
+      <DependentUpon>Form_PowerMeter.cs</DependentUpon>
     </Compile>
-    <Compile Include="FormSettings.cs">
+    <Compile Include="Form_Settings.cs">
       <SubType>Form</SubType>
     </Compile>
-    <Compile Include="FormSettings.Designer.cs">
-      <DependentUpon>FormSettings.cs</DependentUpon>
+    <Compile Include="Form_Settings.Designer.cs">
+      <DependentUpon>Form_Settings.cs</DependentUpon>
     </Compile>
-    <Compile Include="FormNIDigitalPortTest.cs">
+    <Compile Include="Form_NIDigitalPortTest.cs">
       <SubType>Form</SubType>
     </Compile>
-    <Compile Include="FormNIDigitalPortTest.Designer.cs">
-      <DependentUpon>FormNIDigitalPortTest.cs</DependentUpon>
+    <Compile Include="Form_NIDigitalPortTest.Designer.cs">
+      <DependentUpon>Form_NIDigitalPortTest.cs</DependentUpon>
     </Compile>
-    <Compile Include="FormMain.cs">
+    <Compile Include="Form_Main.cs">
       <SubType>Form</SubType>
     </Compile>
-    <Compile Include="FormMain.Designer.cs">
-      <DependentUpon>FormMain.cs</DependentUpon>
+    <Compile Include="Form_Main.Designer.cs">
+      <DependentUpon>Form_Main.cs</DependentUpon>
     </Compile>
-    <Compile Include="FormSerialTest.cs">
+    <Compile Include="Form_SerialTest.cs">
       <SubType>Form</SubType>
     </Compile>
-    <Compile Include="FormSerialTest.Designer.cs">
-      <DependentUpon>FormSerialTest.cs</DependentUpon>
+    <Compile Include="Form_SerialTest.Designer.cs">
+      <DependentUpon>Form_SerialTest.cs</DependentUpon>
     </Compile>
     <Compile Include="ft232hdio.cs" />
     <Compile Include="MultiMeter.cs" />
@@ -158,29 +158,29 @@
     <EmbeddedResource Include="AboutBox1.resx">
       <DependentUpon>AboutBox1.cs</DependentUpon>
     </EmbeddedResource>
-    <EmbeddedResource Include="FormCalculator.resx">
-      <DependentUpon>FormCalculator.cs</DependentUpon>
+    <EmbeddedResource Include="Form_Calculator.resx">
+      <DependentUpon>Form_Calculator.cs</DependentUpon>
     </EmbeddedResource>
-    <EmbeddedResource Include="FormEnterMeasurement.resx">
-      <DependentUpon>FormEnterMeasurement.cs</DependentUpon>
+    <EmbeddedResource Include="Form_EnterMeasurement.resx">
+      <DependentUpon>Form_EnterMeasurement.cs</DependentUpon>
     </EmbeddedResource>
-    <EmbeddedResource Include="FormFT232H_DIO_Test.resx">
-      <DependentUpon>FormFT232H_DIO_Test.cs</DependentUpon>
+    <EmbeddedResource Include="Form_FT232H_DIO_Test.resx">
+      <DependentUpon>Form_FT232H_DIO_Test.cs</DependentUpon>
     </EmbeddedResource>
-    <EmbeddedResource Include="FormPowerMeter.resx">
-      <DependentUpon>FormPowerMeter.cs</DependentUpon>
+    <EmbeddedResource Include="Form_PowerMeter.resx">
+      <DependentUpon>Form_PowerMeter.cs</DependentUpon>
     </EmbeddedResource>
-    <EmbeddedResource Include="FormSettings.resx">
-      <DependentUpon>FormSettings.cs</DependentUpon>
+    <EmbeddedResource Include="Form_Settings.resx">
+      <DependentUpon>Form_Settings.cs</DependentUpon>
     </EmbeddedResource>
-    <EmbeddedResource Include="FormNIDigitalPortTest.resx">
-      <DependentUpon>FormNIDigitalPortTest.cs</DependentUpon>
+    <EmbeddedResource Include="Form_NIDigitalPortTest.resx">
+      <DependentUpon>Form_NIDigitalPortTest.cs</DependentUpon>
     </EmbeddedResource>
-    <EmbeddedResource Include="FormMain.resx">
-      <DependentUpon>FormMain.cs</DependentUpon>
+    <EmbeddedResource Include="Form_Main.resx">
+      <DependentUpon>Form_Main.cs</DependentUpon>
     </EmbeddedResource>
-    <EmbeddedResource Include="FormSerialTest.resx">
-      <DependentUpon>FormSerialTest.cs</DependentUpon>
+    <EmbeddedResource Include="Form_SerialTest.resx">
+      <DependentUpon>Form_SerialTest.cs</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="Properties\Resources.resx">
       <Generator>ResXFileCodeGenerator</Generator>

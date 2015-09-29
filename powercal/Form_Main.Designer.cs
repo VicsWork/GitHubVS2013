@@ -1,6 +1,6 @@
 ﻿namespace powercal
 {
-    partial class FormMain
+    partial class Form_Main
     {
         /// <summary>
         /// Required designer variable.

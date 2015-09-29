@@ -10,14 +10,14 @@ using NationalInstruments.DAQmx;
 
 namespace powercal
 {
-    public partial class FormNIDigitalPortTest : Form
+    public partial class Form_NIDigitalPortTest : Form
     {
         RelayControler _relayCtrl = new RelayControler(RelayControler.Device_Types.NI_USB6008);
 
         /// <summary>
         /// Class use to performe tests on DIO board
         /// </summary>
-        public FormNIDigitalPortTest()
+        public Form_NIDigitalPortTest()
         {
             InitializeComponent();
 
