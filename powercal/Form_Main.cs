@@ -24,19 +24,6 @@ namespace powercal
 {
     enum BoardTypes { Hornshark, Mudshark, Humpback, Hooktooth, Milkshark, Zebrashark };
 
-    public class Relay_Lines
-    {
-
-        static string _key_acPower = "AC Power";
-        static string _key_load = "Load";
-        static string _key_ember = "Ember";
-        static string _key_volts = "Voltmeter";
-
-        public static string Power { get { return _key_acPower; } }
-        public static string Load { get { return _key_load; } }
-        public static string Ember { get { return _key_ember; } }
-        public static string Voltmeter { get { return _key_volts; } }
-    }
 
     public partial class Form_Main : Form
     {
@@ -1330,6 +1317,20 @@ namespace powercal
 
         }
 
+    }
+
+    public class Relay_Lines
+    {
+
+        static string _key_acPower = "AC Power";
+        static string _key_load = "Load";
+        static string _key_ember = "Ember";
+        static string _key_volts = "Voltmeter";
+
+        public static string Power { get { return _key_acPower; } }
+        public static string Load { get { return _key_load; } }
+        public static string Ember { get { return _key_ember; } }
+        public static string Voltmeter { get { return _key_volts; } }
     }
 
 }
