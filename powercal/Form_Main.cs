@@ -172,6 +172,8 @@ namespace powercal
             updateOutputStatus(msg);
 
             kill_em3xx_load();
+
+            //runStatus_Update("Ready for " + comboBoxBoardTypes.Text);
         }
 
         /// <summary>
@@ -315,6 +317,7 @@ namespace powercal
         {
             string line = string.Format("{0:G}: {1}\r\n", DateTime.Now, txt);
             Trace.WriteLine(line);
+            Trace.Flush();
         }
 
         /// <summary>
@@ -329,7 +332,7 @@ namespace powercal
 
             string line = string.Format("{0:G}: {1}", DateTime.Now, txt);
             Trace.WriteLine(line);
-
+            Trace.Flush();
         }
 
         /// <summary>
@@ -925,11 +928,18 @@ namespace powercal
         {
             Properties.Settings.Default.Last_Used_Board = this.comboBoxBoardTypes.Text;
             Properties.Settings.Default.Save();
+
+            runStatus_Update("Ready for " + comboBoxBoardTypes.Text);
+
         }
 
         private void FormMain_FormClosing(object sender, FormClosingEventArgs e)
         {
             _relay_ctrl.Close();
+
+            Trace.Flush();
+            Trace.Close();
+
         }
 
         private void verify_voltage_ac()
@@ -1006,8 +1016,11 @@ namespace powercal
         /// <param name="e"></param>
         private void buttonClick_Run(object sender, EventArgs e)
         {
-            //this.buttonRun.Enabled = false;
+            Stopwatch stopWatch = new Stopwatch();
+            stopWatch.Start();
 
+            string error_msg = "";
+            bool manual_measure = Properties.Settings.Default.Meter_Manual_Measurement;
             this.textBoxOutputStatus.Clear();
             runStatus_Init();
             kill_em3xx_load();
@@ -1015,9 +1028,6 @@ namespace powercal
 
             try
             {
-                Stopwatch stopWatch = new Stopwatch();
-                stopWatch.Start();
-
                 set_board_calibration_values();
 
                 string meterPortName = Properties.Settings.Default.Meter_COM_Port_Name;
@@ -1037,43 +1047,49 @@ namespace powercal
 
                 calibrate();
 
-                _relay_ctrl.Close();
-
-                stopWatch.Stop();
-
-                TimeSpan ts = stopWatch.Elapsed;
-                // Format and display the TimeSpan value. 
-                string elapsedTime = String.Format("Elaspsed time {0:00} seconds", ts.TotalSeconds);
-
-                updateOutputStatus(elapsedTime);
-
-                if (_meter != null)
-                    _meter.CloseSerialPort();
-
             }
             catch (Exception ex)
             {
-                this.textBoxRunStatus.BackColor = Color.Red;
-                this.textBoxRunStatus.ForeColor = Color.White;
-                runStatus_Update("FAIL");
-                updateOutputStatus(ex.Message);
+                error_msg = ex.Message;
 
                 _relay_ctrl.WriteLine(powercal.Relay_Lines.Ember, false);
                 _relay_ctrl.WriteLine(powercal.Relay_Lines.Power, false);
                 _relay_ctrl.WriteLine(powercal.Relay_Lines.Load, false);
-                _relay_ctrl.Close();
-
-                if (_meter != null)
-                    _meter.CloseSerialPort();
             }
 
-            //updateRunStatus("Close Ember isachan");
+            if (_meter != null)
+                _meter.CloseSerialPort();
+
+            if(_relay_ctrl != null)
+                _relay_ctrl.Close();
+
+            if (!manual_measure)
+            {
+                double voltage_meter = wait_for_power_off();
+                string msg = string.Format("Meter VAC = {0:F8}", voltage_meter);
+                traceLog(msg);
+                updateOutputStatus(msg);
+            }
+
+            if (error_msg == "")
+            {
+                this.textBoxRunStatus.BackColor = Color.Green;
+                this.textBoxRunStatus.ForeColor = Color.White;
+                runStatus_Update("PASS");
+            }
+            else
+            {
+                this.textBoxRunStatus.BackColor = Color.Red;
+                this.textBoxRunStatus.ForeColor = Color.White;
+                runStatus_Update("FAIL");
+                updateOutputStatus(error_msg);
+            }
+
             this.traceLog("Close Ember isachan");
             closeEmberISAChannels();
 
             if (_telnet_connection != null)
             {
-                //updateRunStatus("Close telnet");
                 this.traceLog("Close telnet");
                 _telnet_connection.Close();
             }
@@ -1081,6 +1097,42 @@ namespace powercal
             kill_em3xx_load();
 
             this.buttonRun.Enabled = true;
+
+            stopWatch.Stop();
+
+            TimeSpan ts = stopWatch.Elapsed;
+            // Format and display the TimeSpan value. 
+            string elapsedTime = String.Format("Elaspsed time {0:00} seconds", ts.TotalSeconds);
+
+            updateOutputStatus(elapsedTime);
+
+        }
+
+        double wait_for_power_off()
+        {
+            // Measure Voltage after power off
+            _meter.OpenComPort();
+            _meter.SetupForVAC();
+
+            double voltage_meter = -1.0;
+            int n = 0;
+            while (true)
+            {
+                string voltage_meter_str = _meter.Measure();
+                voltage_meter = Double.Parse(voltage_meter_str);
+                if (voltage_meter < 1.0)
+                    break;
+                if (n > 100)
+                {
+                    _meter.CloseSerialPort();
+                    string msg = string.Format("Power not off. VAC = {0:F8}", voltage_meter);
+                    throw new Exception(msg);
+                }
+            }
+
+            _meter.CloseSerialPort();
+
+            return voltage_meter;
         }
 
         /// <summary>
@@ -1243,6 +1295,7 @@ namespace powercal
             // Patch new gain
             runStatus_Update("Patch Gain");
             msg = patch(board_type, voltage_gain_int, current_gain_int);
+            traceLog(msg);
 
             Thread.Sleep(3000);
             datain = _telnet_connection.Read();
@@ -1262,16 +1315,10 @@ namespace powercal
             msg = string.Format("Cirrus I = {0:F8}, V = {1:F8}, P = {2:F8}", cv.Current, cv.Voltage, cv.Current * cv.Voltage);
             updateOutputStatus(msg);
 
-            // Open UUT relay
-            //set_board_relay(board_type, telnet_connection, false);
-            //Thread.Sleep(1000);
-            //datain = telnet_connection.Read();
-            //traceLog(datain);
-
 
             // Disconnect Power
-            _relay_ctrl.WriteLine(powercal.Relay_Lines.Power, false);
-            _relay_ctrl.WriteLine(powercal.Relay_Lines.Ember, false);
+            _relay_ctrl.WriteLine(Relay_Lines.Power, false);
+            _relay_ctrl.WriteLine(Relay_Lines.Ember, false);
             relaysSet();
 
             // Check calibration
@@ -1296,11 +1343,7 @@ namespace powercal
 
             if (!manual_measure)
             {
-                // Measure Voltage after power off
-                _meter.OpenComPort();
-                _meter.SetupForVAC();
-                string voltage_meter_str = _meter.Measure();
-                _meter.CloseSerialPort();
+                voltage_meter = wait_for_power_off();
                 msg = string.Format("Meter V = {0:F8}", voltage_meter);
                 traceLog(msg);
                 updateOutputStatus(msg);
@@ -1309,6 +1352,7 @@ namespace powercal
             this.textBoxRunStatus.BackColor = Color.Green;
             this.textBoxRunStatus.ForeColor = Color.White;
             this.textBoxRunStatus.Text = "PASS";
+            this.textBoxOutputStatus.Update();
 
             updateOutputStatus("================================End Calibration===============================");
 

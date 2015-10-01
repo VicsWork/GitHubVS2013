@@ -63,7 +63,7 @@
             this.textBoxOutputStatus.Name = "textBoxOutputStatus";
             this.textBoxOutputStatus.ReadOnly = true;
             this.textBoxOutputStatus.ScrollBars = System.Windows.Forms.ScrollBars.Both;
-            this.textBoxOutputStatus.Size = new System.Drawing.Size(702, 407);
+            this.textBoxOutputStatus.Size = new System.Drawing.Size(808, 407);
             this.textBoxOutputStatus.TabIndex = 2;
             this.textBoxOutputStatus.WordWrap = false;
             // 
@@ -84,7 +84,7 @@
             // buttonRun
             // 
             this.buttonRun.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
-            this.buttonRun.Location = new System.Drawing.Point(639, 27);
+            this.buttonRun.Location = new System.Drawing.Point(745, 35);
             this.buttonRun.Name = "buttonRun";
             this.buttonRun.Size = new System.Drawing.Size(75, 23);
             this.buttonRun.TabIndex = 6;
@@ -120,7 +120,7 @@
             this.aboutToolStripMenuItem});
             this.menuStripMain.Location = new System.Drawing.Point(0, 0);
             this.menuStripMain.Name = "menuStripMain";
-            this.menuStripMain.Size = new System.Drawing.Size(726, 24);
+            this.menuStripMain.Size = new System.Drawing.Size(832, 24);
             this.menuStripMain.TabIndex = 9;
             this.menuStripMain.Text = "menuStrip1";
             // 
@@ -195,11 +195,13 @@
             // 
             // textBoxRunStatus
             // 
+            this.textBoxRunStatus.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
+            | System.Windows.Forms.AnchorStyles.Right)));
             this.textBoxRunStatus.Font = new System.Drawing.Font("Microsoft Sans Serif", 27.75F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.textBoxRunStatus.Location = new System.Drawing.Point(12, 71);
             this.textBoxRunStatus.Name = "textBoxRunStatus";
             this.textBoxRunStatus.ReadOnly = true;
-            this.textBoxRunStatus.Size = new System.Drawing.Size(702, 49);
+            this.textBoxRunStatus.Size = new System.Drawing.Size(808, 49);
             this.textBoxRunStatus.TabIndex = 10;
             this.textBoxRunStatus.Text = "test";
             this.textBoxRunStatus.WordWrap = false;
@@ -208,7 +210,7 @@
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(96F, 96F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Dpi;
-            this.ClientSize = new System.Drawing.Size(726, 557);
+            this.ClientSize = new System.Drawing.Size(832, 557);
             this.Controls.Add(this.textBoxRunStatus);
             this.Controls.Add(this.menuStripMain);
             this.Controls.Add(this.label1);
@@ -216,7 +218,7 @@
             this.Controls.Add(this.buttonRun);
             this.Controls.Add(this.textBoxOutputStatus);
             this.MainMenuStrip = this.menuStripMain;
-            this.MinimumSize = new System.Drawing.Size(300, 300);
+            this.MinimumSize = new System.Drawing.Size(400, 400);
             this.Name = "Form_Main";
             this.Text = "FormMain";
             this.FormClosing += new System.Windows.Forms.FormClosingEventHandler(this.FormMain_FormClosing);
