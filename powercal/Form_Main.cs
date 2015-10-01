@@ -32,7 +32,6 @@ namespace powercal
 
         TelnetConnection _telnet_connection;
 
-
         /// <summary>
         /// The app folder where we save most logs, etc
         /// </summary>
@@ -173,7 +172,6 @@ namespace powercal
 
             kill_em3xx_load();
 
-            //runStatus_Update("Ready for " + comboBoxBoardTypes.Text);
         }
 
         /// <summary>
@@ -933,13 +931,22 @@ namespace powercal
 
         }
 
+        protected override bool ProcessCmdKey(ref Message msg, Keys keyData)
+        {
+            if (keyData == Keys.Space)
+            {
+                this.buttonClick_Run(this, EventArgs.Empty);
+            }
+
+            return base.ProcessCmdKey(ref msg, keyData);
+        }
+ 
         private void FormMain_FormClosing(object sender, FormClosingEventArgs e)
         {
             _relay_ctrl.Close();
 
             Trace.Flush();
             Trace.Close();
-
         }
 
         private void verify_voltage_ac()
@@ -1007,6 +1014,37 @@ namespace powercal
                 traceLog(msg);
                 throw new Exception(msg);
             }
+        }
+
+        /// <summary>
+        /// Wait for VAC power to be off
+        /// </summary>
+        /// <returns></returns>
+        double wait_for_power_off()
+        {
+            // Measure Voltage after power off
+            _meter.OpenComPort();
+            _meter.SetupForVAC();
+
+            double voltage_meter = -1.0;
+            int n = 0;
+            while (true)
+            {
+                string voltage_meter_str = _meter.Measure();
+                voltage_meter = Double.Parse(voltage_meter_str);
+                if (voltage_meter < 1.0)
+                    break;
+                if (n > 100)
+                {
+                    _meter.CloseSerialPort();
+                    string msg = string.Format("Power not off. VAC = {0:F8}", voltage_meter);
+                    throw new Exception(msg);
+                }
+            }
+
+            _meter.CloseSerialPort();
+
+            return voltage_meter;
         }
 
         /// <summary>
@@ -1108,32 +1146,6 @@ namespace powercal
 
         }
 
-        double wait_for_power_off()
-        {
-            // Measure Voltage after power off
-            _meter.OpenComPort();
-            _meter.SetupForVAC();
-
-            double voltage_meter = -1.0;
-            int n = 0;
-            while (true)
-            {
-                string voltage_meter_str = _meter.Measure();
-                voltage_meter = Double.Parse(voltage_meter_str);
-                if (voltage_meter < 1.0)
-                    break;
-                if (n > 100)
-                {
-                    _meter.CloseSerialPort();
-                    string msg = string.Format("Power not off. VAC = {0:F8}", voltage_meter);
-                    throw new Exception(msg);
-                }
-            }
-
-            _meter.CloseSerialPort();
-
-            return voltage_meter;
-        }
 
         /// <summary>
         /// Calibrates using just the Ember
@@ -1341,21 +1353,13 @@ namespace powercal
                 throw new Exception(msg);
             }
 
-            if (!manual_measure)
-            {
-                voltage_meter = wait_for_power_off();
-                msg = string.Format("Meter V = {0:F8}", voltage_meter);
-                traceLog(msg);
-                updateOutputStatus(msg);
-            }
-
-            this.textBoxRunStatus.BackColor = Color.Green;
-            this.textBoxRunStatus.ForeColor = Color.White;
-            this.textBoxRunStatus.Text = "PASS";
-            this.textBoxOutputStatus.Update();
-
             updateOutputStatus("================================End Calibration===============================");
+        }
 
+        private void Form_Main_KeyDown(object sender, KeyEventArgs e)
+        {
+            if (e.KeyValue == 10)
+                this.buttonClick_Run(sender, e);
         }
 
     }
