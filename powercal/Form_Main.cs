@@ -32,6 +32,8 @@ namespace powercal
 
         TelnetConnection _telnet_connection;
 
+        Stopwatch _stopwatch_end_calibration = new Stopwatch();
+
         /// <summary>
         /// The app folder where we save most logs, etc
         /// </summary>
@@ -91,12 +93,13 @@ namespace powercal
         /// </summary>
         public Form_Main()
         {
-
             Stream outResultsFile = File.Create("output.txt");
             var textListener = new TextWriterTraceListener(outResultsFile);
             Trace.Listeners.Add(textListener);
 
             InitializeComponent();
+
+            _stopwatch_end_calibration.Start();
 
             // Create the app data folder
             if (!Directory.Exists(_app_data_dir))
@@ -1054,98 +1057,113 @@ namespace powercal
         /// <param name="e"></param>
         private void buttonClick_Run(object sender, EventArgs e)
         {
-            Stopwatch stopWatch = new Stopwatch();
-            stopWatch.Start();
+            _stopwatch_end_calibration.Stop();
+            if (_stopwatch_end_calibration.Elapsed.TotalSeconds < 3.0)
+            {
+                _stopwatch_end_calibration.Restart();
+                return;
+            }
 
-            string error_msg = "";
-            bool manual_measure = Properties.Settings.Default.Meter_Manual_Measurement;
-            this.textBoxOutputStatus.Clear();
-            runStatus_Init();
-            kill_em3xx_load();
-            _p_ember_isachan = null;
-
+            UseWaitCursor = true;
             try
             {
-                set_board_calibration_values();
+                Stopwatch calibration_StopWatch = new Stopwatch();
+                calibration_StopWatch.Start();
 
-                string meterPortName = Properties.Settings.Default.Meter_COM_Port_Name;
-                _meter = new MultiMeter(meterPortName);
+                string error_msg = "";
+                bool manual_measure = Properties.Settings.Default.Meter_Manual_Measurement;
+                this.textBoxOutputStatus.Clear();
+                runStatus_Init();
+                kill_em3xx_load();
+                _p_ember_isachan = null;
 
-                _relay_ctrl.Open();
+                try
+                {
+                    set_board_calibration_values();
 
-                // Open Ember isa channels
-                //updateRunStatus("Start Ember isachan");
-                traceLog("Start Ember isachan");
-                openEmberISAChannels();
+                    string meterPortName = Properties.Settings.Default.Meter_COM_Port_Name;
+                    _meter = new MultiMeter(meterPortName);
 
-                // Create a new telnet connection
-                //updateRunStatus("Start telnet");
-                traceLog("Start telnet");
-                _telnet_connection = new TelnetConnection("localhost", 4900);
+                    _relay_ctrl.Open();
 
-                calibrate();
+                    // Open Ember isa channels
+                    //updateRunStatus("Start Ember isachan");
+                    traceLog("Start Ember isachan");
+                    openEmberISAChannels();
 
+                    // Create a new telnet connection
+                    //updateRunStatus("Start telnet");
+                    traceLog("Start telnet");
+                    _telnet_connection = new TelnetConnection("localhost", 4900);
+
+                    calibrate();
+
+                }
+                catch (Exception ex)
+                {
+                    error_msg = ex.Message;
+
+                    _relay_ctrl.WriteLine(powercal.Relay_Lines.Ember, false);
+                    _relay_ctrl.WriteLine(powercal.Relay_Lines.Power, false);
+                    _relay_ctrl.WriteLine(powercal.Relay_Lines.Load, false);
+                }
+
+                if (_meter != null)
+                    _meter.CloseSerialPort();
+
+                if (_relay_ctrl != null)
+                    _relay_ctrl.Close();
+
+                if (!manual_measure)
+                {
+                    double voltage_meter = wait_for_power_off();
+                    string msg = string.Format("Meter VAC = {0:F8}", voltage_meter);
+                    traceLog(msg);
+                    updateOutputStatus(msg);
+                }
+
+                if (error_msg == "")
+                {
+                    this.textBoxRunStatus.BackColor = Color.Green;
+                    this.textBoxRunStatus.ForeColor = Color.White;
+                    runStatus_Update("PASS");
+                }
+                else
+                {
+                    this.textBoxRunStatus.BackColor = Color.Red;
+                    this.textBoxRunStatus.ForeColor = Color.White;
+                    runStatus_Update("FAIL");
+                    updateOutputStatus(error_msg);
+                }
+
+                this.traceLog("Close Ember isachan");
+                closeEmberISAChannels();
+
+                if (_telnet_connection != null)
+                {
+                    this.traceLog("Close telnet");
+                    _telnet_connection.Close();
+                }
+
+                kill_em3xx_load();
+
+                this.buttonRun.Enabled = true;
+
+                calibration_StopWatch.Stop();
+
+                TimeSpan ts = calibration_StopWatch.Elapsed;
+                // Format and display the TimeSpan value. 
+                string elapsedTime = String.Format("Elaspsed time {0:00} seconds", ts.TotalSeconds);
+
+                updateOutputStatus(elapsedTime);
             }
-            catch (Exception ex)
+            finally
             {
-                error_msg = ex.Message;
-
-                _relay_ctrl.WriteLine(powercal.Relay_Lines.Ember, false);
-                _relay_ctrl.WriteLine(powercal.Relay_Lines.Power, false);
-                _relay_ctrl.WriteLine(powercal.Relay_Lines.Load, false);
+                UseWaitCursor = false;
+                _stopwatch_end_calibration.Restart();
             }
-
-            if (_meter != null)
-                _meter.CloseSerialPort();
-
-            if(_relay_ctrl != null)
-                _relay_ctrl.Close();
-
-            if (!manual_measure)
-            {
-                double voltage_meter = wait_for_power_off();
-                string msg = string.Format("Meter VAC = {0:F8}", voltage_meter);
-                traceLog(msg);
-                updateOutputStatus(msg);
-            }
-
-            if (error_msg == "")
-            {
-                this.textBoxRunStatus.BackColor = Color.Green;
-                this.textBoxRunStatus.ForeColor = Color.White;
-                runStatus_Update("PASS");
-            }
-            else
-            {
-                this.textBoxRunStatus.BackColor = Color.Red;
-                this.textBoxRunStatus.ForeColor = Color.White;
-                runStatus_Update("FAIL");
-                updateOutputStatus(error_msg);
-            }
-
-            this.traceLog("Close Ember isachan");
-            closeEmberISAChannels();
-
-            if (_telnet_connection != null)
-            {
-                this.traceLog("Close telnet");
-                _telnet_connection.Close();
-            }
-
-            kill_em3xx_load();
-
-            this.buttonRun.Enabled = true;
-
-            stopWatch.Stop();
-
-            TimeSpan ts = stopWatch.Elapsed;
-            // Format and display the TimeSpan value. 
-            string elapsedTime = String.Format("Elaspsed time {0:00} seconds", ts.TotalSeconds);
-
-            updateOutputStatus(elapsedTime);
 
         }
-
 
         /// <summary>
         /// Calibrates using just the Ember
@@ -1291,8 +1309,8 @@ namespace powercal
                 throw new Exception(msg);
             }
 
-            // Gain calucalation
-            runStatus_Update("Gain calucalation");
+            // Gain calculations
+            runStatus_Update("Gain calculations");
             double current_gain = current_meter / cv.Current;
             //double current_gain = current_meter / current_cs;
             int current_gain_int = (int)(current_gain * 0x400000);
@@ -1354,12 +1372,6 @@ namespace powercal
             }
 
             updateOutputStatus("================================End Calibration===============================");
-        }
-
-        private void Form_Main_KeyDown(object sender, KeyEventArgs e)
-        {
-            if (e.KeyValue == 10)
-                this.buttonClick_Run(sender, e);
         }
 
     }
