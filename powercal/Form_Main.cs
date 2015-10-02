@@ -88,8 +88,6 @@ namespace powercal
 
             InitializeComponent();
 
-            _stopwatch_end_calibration.Start();
-
             // Create the app data folder
             if (!Directory.Exists(_app_data_dir))
             {
@@ -911,8 +909,7 @@ namespace powercal
         /// <param name="e"></param>
         private void buttonClick_Run(object sender, EventArgs e)
         {
-            _stopwatch_end_calibration.Stop();
-            if (_stopwatch_end_calibration.Elapsed.TotalSeconds < 3.0)
+            if (_stopwatch_end_calibration.Elapsed.TotalSeconds > 0.0 && _stopwatch_end_calibration.Elapsed.TotalSeconds < 5.0)
             {
                 _stopwatch_end_calibration.Restart();
                 return;
