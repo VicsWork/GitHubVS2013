@@ -11,6 +11,7 @@ using System.IO;
 using System.IO.Ports;
 using System.Collections;
 using System.Threading;
+using System.Threading.Tasks;
 using System.Text.RegularExpressions;
 
 using System.Runtime.Serialization;
@@ -20,14 +21,12 @@ using System.ServiceModel;
 using System.ServiceModel.Description;
 
 using MinimalisticTelnet;
-using NationalInstruments;
-using NationalInstruments.DAQmx;
 
 namespace powercal
 {
     enum BoardTypes { Hornshark, Mudshark, Humpback, Hooktooth, Milkshark, Zebrashark };
 
-    public partial class Form_Main : Form,  ICalibrationService
+    public partial class Form_Main : Form, ICalibrationService
     {
         MultiMeter _meter = null;
         RelayControler _relay_ctrl;
@@ -56,8 +55,13 @@ namespace powercal
         double _voltage_dc_high_limit = 0.0;
 
         /// <summary>
-        /// Voltage and current reference value
+        /// Voltage and current gain and reference address and values
         /// </summary>
+        int _voltage_gain_adress = 0;
+        int _current_gain_adress = 0;
+        int _referece_adress = 0;
+        int _ac_offset_adress = 0;
+
         int _voltage_ac_reference = 0;
         int _current_ac_reference = 0;
 
@@ -282,6 +286,21 @@ namespace powercal
             }
         }
 
+
+        void setOutputStatusText(string text)
+        {
+            if (this.textBoxOutputStatus.InvokeRequired)
+            {
+                SetTextCallback d = new SetTextCallback(setOutputStatusText);
+                this.Invoke(d, new object[] { text });
+            }
+            else
+            {
+                this.textBoxOutputStatus.AppendText(text);
+                this.textBoxOutputStatus.Update();
+            }
+        }
+
         /// <summary>
         /// Updates the output status text box and log file
         /// </summary>
@@ -292,8 +311,7 @@ namespace powercal
 
             Trace.WriteLine(line);
 
-            this.textBoxOutputStatus.AppendText(line);
-            this.textBoxOutputStatus.Update();
+            setOutputStatusText(line);
 
             using (StreamWriter sw = File.AppendText(_log_file))
             {
@@ -305,22 +323,35 @@ namespace powercal
         /// Writes to the trace
         /// </summary>
         /// <param name="txt"></param>
-        private void traceLog(string txt)
+        void traceLog(string txt)
         {
             string line = string.Format("{0:G}: {1}\r\n", DateTime.Now, txt);
             Trace.WriteLine(line);
             Trace.Flush();
         }
 
+        void setRunStatusText(string text)
+        {
+            if (this.textBoxOutputStatus.InvokeRequired)
+            {
+                SetTextCallback d = new SetTextCallback(setRunStatusText);
+                this.Invoke(d, new object[] { text });
+            }
+            else
+            {
+                this.textBoxRunStatus.Text = text;
+                this.textBoxRunStatus.Update();
+            }
+        }
+
         /// <summary>
         /// Updates the run status text box
         /// </summary>
         /// <param name="txt"></param>
-        private void runStatus_Update(string txt)
+        void runStatus_Update(string txt)
         {
-            this.textBoxRunStatus.Text = txt;
-            this.textBoxRunStatus.Update();
-            updateOutputStatus(txt);
+            setRunStatusText(txt);
+            setOutputStatus(txt);
 
             string line = string.Format("{0:G}: {1}", DateTime.Now, txt);
             Trace.WriteLine(line);
@@ -399,32 +430,6 @@ namespace powercal
         }
 
         /// <summary>
-        /// Writes to first DIO port if one if found
-        /// </summary>
-        /// <param name="value">value to write</param>
-        private void dio_write(int value)
-        {
-            try
-            {
-                string[] channels = DaqSystem.Local.GetPhysicalChannels(PhysicalChannelTypes.DOPort, PhysicalChannelAccess.External);
-                if (channels.Length > 0)
-                {
-                    using (Task digitalWriteTask = new Task())
-                    {
-                        digitalWriteTask.DOChannels.CreateChannel(channels[0], "port0", ChannelLineGrouping.OneChannelForAllLines);
-                        DigitalSingleChannelWriter writer = new DigitalSingleChannelWriter(digitalWriteTask.Stream);
-                        writer.WriteSingleSamplePort(true, (UInt32)value);
-                    }
-                }
-
-            }
-            catch (Exception ex)
-            {
-                MessageBox.Show(ex.Message);
-            }
-        }
-
-        /// <summary>
         /// Kills any em3xx_load process running in the system
         /// </summary>
         private void kill_em3xx_load()
@@ -458,12 +463,16 @@ namespace powercal
             double voltage_dc = 3.3;
             double voltage_dc_delta = 0.1;
 
-
             // Default values (USA)
             double voltage_ac_load = 120;
             double voltage_ac_delta = voltage_ac_load * 0.2;
             double current_ac_load = voltage_ac_load / 500; // 500 Ohms
             double current_ac_delta = current_ac_load * 0.3;
+
+            _voltage_gain_adress = 0x08040980;
+            _current_gain_adress = 0x08040984;
+            _referece_adress = 0x08040988;
+            _ac_offset_adress = 0x080409CC;
 
             _voltage_ac_reference = 240;
             _current_ac_reference = 15;
@@ -477,6 +486,12 @@ namespace powercal
                     current_ac_load = voltage_ac_load / 2000; // 2K Ohms
                     voltage_ac_delta = voltage_ac_load * 0.3;
                     current_ac_delta = current_ac_load * 0.4;
+
+                    _voltage_gain_adress = 0x08080980;
+                    _current_gain_adress = 0x08080984;
+                    _referece_adress = 0x08080988;
+                    _ac_offset_adress = 0x080809CC;
+
                     break;
                 case BoardTypes.Zebrashark:
                     //_cmd_prefix = "cs5480";  // SPI interface
@@ -494,7 +509,6 @@ namespace powercal
             _voltage_dc_low_limit = voltage_dc - voltage_dc_delta;
 
         }
-
 
         /// <summary>
         /// Handels error data from the em3xx_load process
@@ -530,29 +544,17 @@ namespace powercal
         /// <param name="voltage_gain"></param>
         /// <param name="current_gain"></param>
         /// <returns></returns>
-        string patch(BoardTypes board_type, int voltage_gain, int current_gain)
+        string patch(int voltage_gain, int current_gain)
         {
             Ember ember = new Ember();
             ember.EmberBinPath = Properties.Settings.Default.Ember_BinPath;
             ember.BatchFilePath = _ember_batchfile_path;
             ember.VoltageRefereceValue = _voltage_ac_reference;
             ember.CurrentRefereceValue = _current_ac_reference;
-            switch (board_type)
-            {
-                case (powercal.BoardTypes.Humpback):
-                    ember.VoltageAdress = 0x08080980;
-                    ember.CurrentAdress = 0x08080984;
-                    ember.RefereceAdress = 0x08080988;
-                    ember.ACOffsetAdress = 0x080809CC;
-                    break;
-                case (powercal.BoardTypes.Zebrashark):
-                case (powercal.BoardTypes.Hooktooth):
-                case (powercal.BoardTypes.Milkshark):
-                    ember.VoltageAdress = 0x08040980;
-                    ember.CurrentAdress = 0x08040984;
-                    ember.ACOffsetAdress = 0x080409CC;
-                    break;
-            }
+            ember.VoltageAdress = _voltage_gain_adress;
+            ember.CurrentAdress = _current_gain_adress;
+            ember.RefereceAdress = _referece_adress;
+            ember.ACOffsetAdress = _ac_offset_adress;
             ember.CreateCalibrationPatchBath(voltage_gain, current_gain);
 
             bool patchit_fail = false;
@@ -586,6 +588,9 @@ namespace powercal
 
                 if (patchit_fail)
                 {
+                    // Trun power off for safety
+                    _relay_ctrl.WriteLine(Relay_Lines.Power, false);
+
                     string retry_err_msg = exception_msg;
                     int max_len = 1000;
                     if (retry_err_msg.Length > max_len)
@@ -593,12 +598,16 @@ namespace powercal
                     DialogResult dlg_rc = MessageBox.Show(retry_err_msg, "Patching fail", MessageBoxButtons.RetryCancel);
                     if (dlg_rc == System.Windows.Forms.DialogResult.Cancel)
                         break;
+
+                    // Turn power back on
+                    _relay_ctrl.WriteLine(Relay_Lines.Power, true);
+                    Thread.Sleep(1000);
+
                 }
                 else
                 {
                     break;
                 }
-
             }
 
             if (patchit_fail)
@@ -799,7 +808,7 @@ namespace powercal
 
             return base.ProcessCmdKey(ref msg, keyData);
         }
- 
+
         private void FormMain_FormClosing(object sender, FormClosingEventArgs e)
         {
             _relay_ctrl.Close();
@@ -913,13 +922,11 @@ namespace powercal
         /// <param name="e"></param>
         private void buttonClick_Run(object sender, EventArgs e)
         {
-            _stopwatch_calibration_stopped.Reset();
-            if (_stopwatch_calibration_stopped.Elapsed.TotalSeconds > 0.0 && _stopwatch_calibration_stopped.Elapsed.TotalSeconds < 5.0)
+            if (_stopwatch_calibration_stopped.Elapsed.TotalMilliseconds < 500)
             {
                 _stopwatch_calibration_stopped.Restart();
                 return;
             }
-
 
             this.UseWaitCursor = true;
             try
@@ -941,17 +948,19 @@ namespace powercal
                     string meterPortName = Properties.Settings.Default.Meter_COM_Port_Name;
                     _meter = new MultiMeter(meterPortName);
 
-                    _relay_ctrl.Open();
-
-                    // Open Ember isa channels
-                    //updateRunStatus("Start Ember isachan");
-                    traceLog("Start Ember isachan");
-                    openEmberISAChannels();
 
                     // Create a new telnet connection
                     //updateRunStatus("Start telnet");
-                    traceLog("Start telnet");
-                    _telnet_connection = new TelnetConnection("localhost", 4900);
+                    //traceLog("Start telnet");
+                    //_telnet_connection = new TelnetConnection("localhost", 4900);
+
+                    //Task task = new Task(calibrate);
+                    //task.ContinueWith(CalibrateExceptionHandler, TaskContinuationOptions.OnlyOnFaulted);
+                    //task.Start();
+                    //while (!task.IsCompleted)
+                    //{
+                    //    Thread.Sleep(500);
+                    //}
 
                     calibrate();
 
@@ -1023,18 +1032,25 @@ namespace powercal
 
         }
 
+        static void CalibrateExceptionHandler(Task task)
+        {
+            var exception = task.Exception;
+            string errmsg = exception.InnerException.Message;
+        }
+
         /// <summary>
         /// Calibrates using just the Ember
         /// Voltage and Current register values are gathered using custom commands
         /// </summary>
-        private void calibrate()
+        void calibrate()
         {
             string datain, msg;
             bool manual_measure = Properties.Settings.Default.Meter_Manual_Measurement;
-            powercal.BoardTypes board_type = (powercal.BoardTypes)Enum.Parse(typeof(powercal.BoardTypes), comboBoxBoardTypes.Text);
+            //powercal.BoardTypes board_type = (powercal.BoardTypes)Enum.Parse(typeof(powercal.BoardTypes), comboBoxBoardTypes.Text);
 
             updateOutputStatus("===============================Start Calibration==============================");
 
+            _relay_ctrl.Open();
             if (_relay_ctrl.Device_Type == RelayControler.Device_Types.Manual)
             {
                 // Trun AC ON
@@ -1065,12 +1081,22 @@ namespace powercal
                 _relay_ctrl.WriteLine(powercal.Relay_Lines.Ember, true);
             }
 
+            // Open Ember isa channels
+            //updateRunStatus("Start Ember isachan");
+            traceLog("Start Ember isachan");
+            openEmberISAChannels();
+
+            // Create a new telnet connection
+            //updateRunStatus("Start telnet");
+            traceLog("Start telnet");
+            _telnet_connection = new TelnetConnection("localhost", 4900);
+
             datain = _telnet_connection.Read();
             traceLog(datain);
 
             // Patch gain to 1
             runStatus_Update("Patch Gain to 1");
-            msg = patch(board_type, 0x400000, 0x400000);
+            msg = patch(0x400000, 0x400000);
             traceLog(msg);
 
             Thread.Sleep(1000);
@@ -1184,7 +1210,7 @@ namespace powercal
 
             // Patch new gain
             runStatus_Update("Patch Gain");
-            msg = patch(board_type, voltage_gain_int, current_gain_int);
+            msg = patch(voltage_gain_int, current_gain_int);
             traceLog(msg);
 
             Thread.Sleep(3000);

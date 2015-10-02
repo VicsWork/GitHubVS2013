@@ -214,7 +214,7 @@ namespace powercal
         /// </summary>
         /// <param name="value"></param>
         /// <returns>The last 3 bytes of int value</returns>
-        byte[] bit24IntToByteArray(int value)
+        static byte[] bit24IntToByteArray(int value)
         {
             // Converts a 24bit value to a 3 byte array
             // Oreder by LSB to MSB
