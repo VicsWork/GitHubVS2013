@@ -16,6 +16,9 @@ using System.Text.RegularExpressions;
 using System.Runtime.Serialization;
 using System.Xml;
 
+using System.ServiceModel;
+using System.ServiceModel.Description;
+
 using MinimalisticTelnet;
 using NationalInstruments;
 using NationalInstruments.DAQmx;
@@ -24,8 +27,7 @@ namespace powercal
 {
     enum BoardTypes { Hornshark, Mudshark, Humpback, Hooktooth, Milkshark, Zebrashark };
 
-
-    public partial class Form_Main : Form
+    public partial class Form_Main : Form,  ICalibrationService
     {
         MultiMeter _meter = null;
         RelayControler _relay_ctrl;
@@ -59,12 +61,6 @@ namespace powercal
         int _current_ac_reference = 0;
 
         /// <summary>
-        /// Prefix to custom pload and oinfo commands (soon to be auto configured)
-        /// </summary>
-        string _cmd_prefix = "cs5490"; // UART interface
-
-
-        /// <summary>
         /// Path to where the Ember programing batch file is created
         /// </summary>
         string _ember_batchfile_path = Path.Combine(_app_data_dir, "patchit.bat");
@@ -74,19 +70,12 @@ namespace powercal
         Process _p_ember_isachan;
 
 
-        public struct CS_Current_Voltage
-        {
-            public double Current;
-            public double Voltage;
-
-            public CS_Current_Voltage(double i = 0.0, double v = 0.0)
-            {
-                Current = i;
-                Voltage = v;
-            }
-        }
-
         delegate void SetTextCallback(string txt);
+
+        public void Calibrate(string boardtype)
+        {
+            MessageBox.Show(boardtype);
+        }
 
         /// <summary>
         /// The main form constructor
@@ -476,7 +465,7 @@ namespace powercal
 
             _voltage_ac_reference = 240;
             _current_ac_reference = 15;
-            _cmd_prefix = "cs5490"; // UART interface
+            //_cmd_prefix = "cs5490"; // UART interface
 
             powercal.BoardTypes board_type = (powercal.BoardTypes)Enum.Parse(typeof(powercal.BoardTypes), comboBoxBoardTypes.Text);
             switch (board_type)
@@ -488,7 +477,7 @@ namespace powercal
                     current_ac_delta = current_ac_load * 0.4;
                     break;
                 case BoardTypes.Zebrashark:
-                    _cmd_prefix = "cs5480";  // SPI interface
+                    //_cmd_prefix = "cs5480";  // SPI interface
                     break;
                 case BoardTypes.Milkshark:
                 case BoardTypes.Mudshark:
@@ -504,96 +493,6 @@ namespace powercal
 
         }
 
-        /// <summary>
-        /// Sends a pload command and returns the current and voltage values
-        /// </summary>
-        /// <param name="tc">Telnet connection to the EMber</param>
-        /// <param name="board_type">What board are we using</param>
-        /// <returns>Current/Voltage structure values</returns>
-        CS_Current_Voltage ember_parse_pinfo_registers(TelnetConnection tc)
-        {
-            string rawCurrentPattern = "Raw IRMS: ([0-9,A-F]{8})";
-            string rawVoltagePattern = "Raw VRMS: ([0-9,A-F]{8})";
-            double current_cs = 0.0;
-            double voltage_cs = 0.0;
-
-            tc.WriteLine(string.Format("cu {0}_pload", _cmd_prefix));
-            Thread.Sleep(500);
-            string datain = tc.Read();
-            Trace.WriteLine(datain);
-            string msg;
-            if (datain.Length > 0)
-            {
-                Match on_off_match = Regex.Match(datain, "Changing OnOff .*");
-                if (on_off_match.Success)
-                {
-                    msg = on_off_match.Value;
-                    updateOutputStatus(msg);
-                }
-
-                Match match = Regex.Match(datain, rawCurrentPattern);
-                if (match.Groups.Count != 2)
-                {
-                    msg = string.Format("Unable to parse pinfo for current.  Output was:{0}", datain);
-                    throw new Exception(msg);
-                }
-
-                string current_hexstr = match.Groups[1].Value;
-                int current_int = Convert.ToInt32(current_hexstr, 16);
-                current_cs = RegHex_ToDouble(current_int);
-                current_cs = current_cs * _current_ac_reference / 0.6;
-
-                voltage_cs = 0.0;
-                match = Regex.Match(datain, rawVoltagePattern);
-                if (match.Groups.Count != 2)
-                {
-                    msg = string.Format("Unable to parse pinfo for voltage.  Output was:{0}", datain);
-                    throw new Exception(msg);
-                }
-
-                string voltage_hexstr = match.Groups[1].Value;
-                int volatge_int = Convert.ToInt32(voltage_hexstr, 16);
-                voltage_cs = RegHex_ToDouble(volatge_int);
-                voltage_cs = voltage_cs * _voltage_ac_reference / 0.6;
-
-            }
-
-            CS_Current_Voltage current_voltage = new CS_Current_Voltage(i: current_cs, v: voltage_cs);
-            return current_voltage;
-        }
-
-        /// <summary>
-        /// Converts a 24bit hex (3 bytes) CS register value to a double
-        /// </summary>
-        /// <example>
-        /// byte[] rx_data = new byte[3];
-        /// rx_data[2] = 0x5c;
-        /// rx_data[1] = 0x28;
-        /// rx_data[0] = 0xf6;
-        /// Should return midrange =~ 0.36
-        /// </example>
-        /// <param name="rx_data">data byte array byte[2] <=> MSB ... byte[0] <=> LSB</param>
-        /// <returns>range 0 <= value < 1.0</returns>
-        private static double RegHex_ToDouble(int data)
-        {
-            // Maximum 1 =~ 0xFFFFFF
-            // Max rms 0.6 =~ 0x999999
-            // Half rms 0.36 =~ 0x5C28F6
-            double value = ((double)data) / 0x1000000; // 2^24
-            return value;
-        }
-
-        /// <summary>
-        /// Converts a hex string (3 bytes) CS register vaue to a double
-        /// </summary>
-        /// <param name="hexstr"></param>
-        /// <returns>range 0 <= value < 1.0</returns>
-        /// <seealso cref="double RegHex_ToDouble(int data)"/>
-        private static double RegHex_ToDouble(string hexstr)
-        {
-            int val_int = Convert.ToInt32(hexstr, 16);
-            return RegHex_ToDouble(val_int); ;
-        }
 
         /// <summary>
         /// Handels error data from the em3xx_load process
@@ -822,51 +721,6 @@ namespace powercal
                 _p_ember_isachan.Close();
             }
         }
-
-        /// <summary>
-        /// Telnets to the Ember and prints custom commands
-        /// Parses command list and tries to find the pload or pinfo comand prefix
-        /// It is usually "cs5480_" in the case of SPDI or "cs5490_" in the case of UART comunications
-        /// Exception is thrown if not pload command is found after typing "cu"
-        /// </summary>
-        /// <returns></returns>
-        private string get_custom_command_prefix(TelnetConnection telnet_connection)
-        {
-            string cmd_pre = null;
-
-            int try_count = 0;
-            string data = "";
-
-            while (true)
-            {
-                telnet_connection.WriteLine("cu");
-                data += telnet_connection.Read();
-                if (data.Contains("pload"))
-                    break;
-                try_count++;
-                if (try_count > 3)
-                    break;
-            }
-
-            string msg = "";
-            if (!data.Contains("pload"))
-            {
-                msg = string.Format("Unable to get custum command output list from Ember.  Output was: {0}", data);
-                throw new Exception(msg);
-            }
-
-            string pattern = @"(cs[0-9]{4})_pload\r\n";
-            Match match = Regex.Match(data, pattern);
-            if (match.Groups.Count != 2)
-            {
-                msg = string.Format("Unable to parse custom command list for pload.  Output was:{0}", data);
-                throw new Exception(msg);
-            }
-
-            cmd_pre = match.Groups[1].Value;
-            return cmd_pre;
-        }
-
 
         /// <summary>
         /// Closes the board releay using custom command
@@ -1232,14 +1086,16 @@ namespace powercal
             //_relay_ctrl.WriteLine(powercal.Relay_Lines.Voltmeter, false);
             verify_voltage_ac();
 
-            string cmd_prefix = get_custom_command_prefix(_telnet_connection);
+            string cmd_prefix = TCLI.Get_Custom_Command_Prefix(_telnet_connection);
+            traceLog("cmd_prefix = " + cmd_prefix);
 
             // Get UUT currect/voltage values
             runStatus_Update("Get UUT values");
-            CS_Current_Voltage cv = ember_parse_pinfo_registers(_telnet_connection);
+            TCLI.Current_Voltage cv = TCLI.Parse_Pload_Registers(_telnet_connection, cmd_prefix, _voltage_ac_reference, _current_ac_reference);
             msg = string.Format("Cirrus I = {0:F8}, V = {1:F8}, P = {2:F8}", cv.Current, cv.Voltage, cv.Current * cv.Voltage);
             traceLog(msg);
-            cv = ember_parse_pinfo_registers(_telnet_connection);
+            cv = TCLI.Parse_Pload_Registers(_telnet_connection, cmd_prefix, _voltage_ac_reference, _current_ac_reference);
+
             msg = string.Format("Cirrus I = {0:F8}, V = {1:F8}, P = {2:F8}", cv.Current, cv.Voltage, cv.Current * cv.Voltage);
             updateOutputStatus(msg);
 
@@ -1331,20 +1187,19 @@ namespace powercal
             datain = _telnet_connection.Read();
             traceLog(datain);
 
-            _telnet_connection.WriteLine(string.Format("cu {0}_pinfo", _cmd_prefix));
+            _telnet_connection.WriteLine(string.Format("cu {0}_pinfo", cmd_prefix));
             Thread.Sleep(500);
             datain = _telnet_connection.Read();
             traceLog(datain);
 
             // Get UUT currect/voltage values
             runStatus_Update("Get UUT calibrated values");
-            cv = ember_parse_pinfo_registers(_telnet_connection);
+            cv = TCLI.Parse_Pload_Registers(_telnet_connection, cmd_prefix, _voltage_ac_reference, _current_ac_reference);
             msg = string.Format("Cirrus I = {0:F8}, V = {1:F8}, P = {2:F8}", cv.Current, cv.Voltage, cv.Current * cv.Voltage);
             traceLog(msg);
-            cv = ember_parse_pinfo_registers(_telnet_connection);
+            cv = TCLI.Parse_Pload_Registers(_telnet_connection, cmd_prefix, _voltage_ac_reference, _current_ac_reference);
             msg = string.Format("Cirrus I = {0:F8}, V = {1:F8}, P = {2:F8}", cv.Current, cv.Voltage, cv.Current * cv.Voltage);
             updateOutputStatus(msg);
-
 
             // Disconnect Power
             _relay_ctrl.WriteLine(Relay_Lines.Power, false);
