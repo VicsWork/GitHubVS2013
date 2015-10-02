@@ -46,8 +46,12 @@
             this.toolStripMenuItemPowerMeter = new System.Windows.Forms.ToolStripMenuItem();
             this.aboutToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.textBoxRunStatus = new System.Windows.Forms.TextBox();
+            this.statusStrip1 = new System.Windows.Forms.StatusStrip();
+            this.toolStripStatusLabel = new System.Windows.Forms.ToolStripStatusLabel();
+            this.timer_Update_Idle = new System.Windows.Forms.Timer(this.components);
             this.contextMenuStatusTextBox.SuspendLayout();
             this.menuStripMain.SuspendLayout();
+            this.statusStrip1.SuspendLayout();
             this.SuspendLayout();
             // 
             // textBoxOutputStatus
@@ -206,11 +210,34 @@
             this.textBoxRunStatus.Text = "test";
             this.textBoxRunStatus.WordWrap = false;
             // 
+            // statusStrip1
+            // 
+            this.statusStrip1.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
+            this.toolStripStatusLabel});
+            this.statusStrip1.Location = new System.Drawing.Point(0, 535);
+            this.statusStrip1.Name = "statusStrip1";
+            this.statusStrip1.Size = new System.Drawing.Size(832, 22);
+            this.statusStrip1.TabIndex = 11;
+            // 
+            // toolStripStatusLabel
+            // 
+            this.toolStripStatusLabel.Name = "toolStripStatusLabel";
+            this.toolStripStatusLabel.Size = new System.Drawing.Size(786, 17);
+            this.toolStripStatusLabel.Spring = true;
+            this.toolStripStatusLabel.TextAlign = System.Drawing.ContentAlignment.MiddleRight;
+            // 
+            // timer_Update_Idle
+            // 
+            this.timer_Update_Idle.Enabled = true;
+            this.timer_Update_Idle.Interval = 1000;
+            this.timer_Update_Idle.Tick += new System.EventHandler(this.timer_Update_Idle_Tick);
+            // 
             // Form_Main
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(96F, 96F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Dpi;
             this.ClientSize = new System.Drawing.Size(832, 557);
+            this.Controls.Add(this.statusStrip1);
             this.Controls.Add(this.textBoxRunStatus);
             this.Controls.Add(this.menuStripMain);
             this.Controls.Add(this.label1);
@@ -225,6 +252,8 @@
             this.contextMenuStatusTextBox.ResumeLayout(false);
             this.menuStripMain.ResumeLayout(false);
             this.menuStripMain.PerformLayout();
+            this.statusStrip1.ResumeLayout(false);
+            this.statusStrip1.PerformLayout();
             this.ResumeLayout(false);
             this.PerformLayout();
 
@@ -249,6 +278,9 @@
         private System.Windows.Forms.ToolStripMenuItem toolStripMenuItemPowerMeter;
         private System.Windows.Forms.ToolStripMenuItem nIToolStripMenuItem;
         private System.Windows.Forms.ToolStripMenuItem fT232HToolStripMenuItem;
+        private System.Windows.Forms.StatusStrip statusStrip1;
+        private System.Windows.Forms.ToolStripStatusLabel toolStripStatusLabel;
+        private System.Windows.Forms.Timer timer_Update_Idle;
     }
 }
 

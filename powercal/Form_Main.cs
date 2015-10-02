@@ -34,7 +34,8 @@ namespace powercal
 
         TelnetConnection _telnet_connection;
 
-        Stopwatch _stopwatch_end_calibration = new Stopwatch();
+        Stopwatch _stopwatch_calibration_running = new Stopwatch();
+        Stopwatch _stopwatch_calibration_stopped = new Stopwatch();
 
         /// <summary>
         /// The app folder where we save most logs, etc
@@ -87,6 +88,9 @@ namespace powercal
             Trace.Listeners.Add(textListener);
 
             InitializeComponent();
+
+            _stopwatch_calibration_running.Reset();
+            _stopwatch_calibration_stopped.Start();
 
             // Create the app data folder
             if (!Directory.Exists(_app_data_dir))
@@ -909,21 +913,23 @@ namespace powercal
         /// <param name="e"></param>
         private void buttonClick_Run(object sender, EventArgs e)
         {
-            if (_stopwatch_end_calibration.Elapsed.TotalSeconds > 0.0 && _stopwatch_end_calibration.Elapsed.TotalSeconds < 5.0)
+            _stopwatch_calibration_stopped.Reset();
+            if (_stopwatch_calibration_stopped.Elapsed.TotalSeconds > 0.0 && _stopwatch_calibration_stopped.Elapsed.TotalSeconds < 5.0)
             {
-                _stopwatch_end_calibration.Restart();
+                _stopwatch_calibration_stopped.Restart();
                 return;
             }
 
-            UseWaitCursor = true;
+
+            this.UseWaitCursor = true;
             try
             {
-                Stopwatch calibration_StopWatch = new Stopwatch();
-                calibration_StopWatch.Start();
-
+                _stopwatch_calibration_running.Restart();
                 string error_msg = "";
                 bool manual_measure = Properties.Settings.Default.Meter_Manual_Measurement;
                 this.textBoxOutputStatus.Clear();
+                toolStripStatusLabel.Text = "";
+                statusStrip1.Update();
                 runStatus_Init();
                 kill_em3xx_load();
                 _p_ember_isachan = null;
@@ -1000,9 +1006,9 @@ namespace powercal
 
                 this.buttonRun.Enabled = true;
 
-                calibration_StopWatch.Stop();
+                _stopwatch_calibration_running.Stop();
 
-                TimeSpan ts = calibration_StopWatch.Elapsed;
+                TimeSpan ts = _stopwatch_calibration_running.Elapsed;
                 // Format and display the TimeSpan value. 
                 string elapsedTime = String.Format("Elaspsed time {0:00} seconds", ts.TotalSeconds);
 
@@ -1011,7 +1017,8 @@ namespace powercal
             finally
             {
                 UseWaitCursor = false;
-                _stopwatch_end_calibration.Restart();
+                _stopwatch_calibration_running.Reset();
+                _stopwatch_calibration_stopped.Restart();
             }
 
         }
@@ -1224,6 +1231,18 @@ namespace powercal
             }
 
             updateOutputStatus("================================End Calibration===============================");
+        }
+
+        private void timer_Update_Idle_Tick(object sender, EventArgs e)
+        {
+            if (_stopwatch_calibration_running.Elapsed.Ticks > 0)
+            {
+                this.toolStripStatusLabel.Text = string.Format("Running {0:dd\\.hh\\:mm\\:ss}", _stopwatch_calibration_running.Elapsed);
+            }
+            else if (_stopwatch_calibration_stopped.Elapsed.Ticks > 0)
+            {
+                this.toolStripStatusLabel.Text = string.Format("Idel {0:dd\\.hh\\:mm\\:ss}", _stopwatch_calibration_stopped.Elapsed);
+            }
         }
 
     }
