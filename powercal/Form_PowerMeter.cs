@@ -15,8 +15,6 @@ namespace powercal
     public partial class Form_PowerMeter : Form
     {
 
-        TelnetConnection _telnet_connection;
-
         public Form_PowerMeter()
         {
             InitializeComponent();
