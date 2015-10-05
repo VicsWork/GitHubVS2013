@@ -553,28 +553,10 @@ namespace powercal
         /// </summary>
         private void openEmberISAChannels()
         {
-            _p_ember_isachan = new Process()
-            {
-                StartInfo = new ProcessStartInfo()
-                {
-                    FileName = Path.Combine(Properties.Settings.Default.Ember_BinPath, "em3xx_load.exe"),
-                    Arguments = "--isachan=all",
-
-                    UseShellExecute = false,
-                    CreateNoWindow = true,
-                    RedirectStandardOutput = true,
-                    RedirectStandardError = true,
-                    RedirectStandardInput = false
-                }
-            };
-            _p_ember_isachan.EnableRaisingEvents = true;
-            _p_ember_isachan.OutputDataReceived += p_ember_isachan_OutputDataReceived;
-            _p_ember_isachan.ErrorDataReceived += p_ember_isachan_ErrorDataReceived;
-            _p_ember_isachan.Start();
-
-            _p_ember_isachan.BeginOutputReadLine();
-            _p_ember_isachan.BeginErrorReadLine();
-
+            Ember ember = new Ember();
+            ember.Process_ISAChan_Error_Event += p_ember_isachan_ErrorDataReceived;
+            ember.Process_ISAChan_Output_Event += p_ember_isachan_OutputDataReceived;
+            _p_ember_isachan = ember.OpenEmberISAChannels();
         }
 
         /// <summary>

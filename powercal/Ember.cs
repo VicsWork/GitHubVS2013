@@ -43,6 +43,58 @@ namespace powercal
         private int _voltageRefValue = 0xF0;
         private int _currentRefValue = 0x0F;
 
+        public delegate void Process_ISAChan_Error_Handler(object sender, DataReceivedEventArgs e);
+        public event Process_ISAChan_Error_Handler Process_ISAChan_Error_Event;
+
+        public delegate void Process_ISAChan_Output_Handler(object sender, DataReceivedEventArgs e);
+        public event Process_ISAChan_Output_Handler Process_ISAChan_Output_Event;
+
+        /// <summary>
+        /// Starts the process responsible to open the Ember box isa channels
+        /// </summary>
+        public Process OpenEmberISAChannels()
+        {
+            Process process_ember_isachan = new Process()
+            {
+                StartInfo = new ProcessStartInfo()
+                {
+                    FileName = Path.Combine(Properties.Settings.Default.Ember_BinPath, "em3xx_load.exe"),
+                    Arguments = "--isachan=all",
+
+                    UseShellExecute = false,
+                    CreateNoWindow = true,
+                    RedirectStandardOutput = true,
+                    RedirectStandardError = true,
+                    RedirectStandardInput = false
+                }
+            };
+            process_ember_isachan.EnableRaisingEvents = true;
+            process_ember_isachan.OutputDataReceived += process_ember_isachan_OutputDataReceived;
+            process_ember_isachan.ErrorDataReceived += process_ember_isachan_ErrorDataReceived;
+            process_ember_isachan.Start();
+
+            process_ember_isachan.BeginOutputReadLine();
+            process_ember_isachan.BeginErrorReadLine();
+
+            return process_ember_isachan;
+        }
+
+        void process_ember_isachan_ErrorDataReceived(object sender, DataReceivedEventArgs e)
+        {
+            if (Process_ISAChan_Error_Event != null)
+            {
+                Process_ISAChan_Error_Event(sender, e);
+            }
+        }
+
+        void process_ember_isachan_OutputDataReceived(object sender, DataReceivedEventArgs e)
+        {
+            if (Process_ISAChan_Output_Event != null)
+            {
+                Process_ISAChan_Output_Event(sender, e);
+            }
+        }
+
         /// <summary>
         /// Runs a calibartion batch file
         /// </summary>

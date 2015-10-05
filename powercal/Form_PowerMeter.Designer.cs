@@ -28,8 +28,10 @@
         /// </summary>
         private void InitializeComponent()
         {
+            this.components = new System.ComponentModel.Container();
             this.labelPowerCS = new System.Windows.Forms.Label();
             this.buttonStartCS = new System.Windows.Forms.Button();
+            this.timerISAChan = new System.Windows.Forms.Timer(this.components);
             this.SuspendLayout();
             // 
             // labelPowerCS
@@ -52,15 +54,23 @@
             this.buttonStartCS.UseVisualStyleBackColor = true;
             this.buttonStartCS.Click += new System.EventHandler(this.buttonStartCS_Click);
             // 
-            // FormPowerMeter
+            // timerISAChan
+            // 
+            this.timerISAChan.Enabled = true;
+            this.timerISAChan.Interval = 1000;
+            this.timerISAChan.Tick += new System.EventHandler(this.timerISAChan_Tick);
+            // 
+            // Form_PowerMeter
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(581, 366);
             this.Controls.Add(this.buttonStartCS);
             this.Controls.Add(this.labelPowerCS);
-            this.Name = "FormPowerMeter";
+            this.Name = "Form_PowerMeter";
             this.Text = "Power Meter";
+            this.FormClosing += new System.Windows.Forms.FormClosingEventHandler(this.Form_PowerMeter_FormClosing);
+            this.Load += new System.EventHandler(this.Form_PowerMeter_Load);
             this.ResumeLayout(false);
             this.PerformLayout();
 
@@ -70,5 +80,6 @@
 
         private System.Windows.Forms.Label labelPowerCS;
         private System.Windows.Forms.Button buttonStartCS;
+        private System.Windows.Forms.Timer timerISAChan;
     }
 }
