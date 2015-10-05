@@ -222,7 +222,7 @@
             // toolStripStatusLabel
             // 
             this.toolStripStatusLabel.Name = "toolStripStatusLabel";
-            this.toolStripStatusLabel.Size = new System.Drawing.Size(786, 17);
+            this.toolStripStatusLabel.Size = new System.Drawing.Size(817, 17);
             this.toolStripStatusLabel.Spring = true;
             this.toolStripStatusLabel.TextAlign = System.Drawing.ContentAlignment.MiddleRight;
             // 
@@ -249,6 +249,7 @@
             this.Name = "Form_Main";
             this.Text = "FormMain";
             this.FormClosing += new System.Windows.Forms.FormClosingEventHandler(this.FormMain_FormClosing);
+            this.Shown += new System.EventHandler(this.Form_Main_Shown);
             this.contextMenuStatusTextBox.ResumeLayout(false);
             this.menuStripMain.ResumeLayout(false);
             this.menuStripMain.PerformLayout();

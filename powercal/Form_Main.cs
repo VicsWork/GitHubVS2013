@@ -56,16 +56,10 @@ namespace powercal
         /// </summary>
         Process _p_ember_isachan;
 
-
         delegate void SetTextCallback(string txt);
         delegate void SetTextColorCallback(string txt, Color forecolor, Color backcolor);
         delegate void SetEnablementCallback(Boolean enable);
         delegate void UpdateCallback();
-
-        public void Calibrate(string boardtype)
-        {
-            MessageBox.Show(boardtype);
-        }
 
         /// <summary>
         /// The main form constructor
@@ -257,6 +251,10 @@ namespace powercal
                     this.Cursor = this.DefaultCursor;
                     //this.Update();
                 }
+                else
+                {
+                    this.UseWaitCursor = true;
+                }
 
             }
         }
@@ -350,14 +348,12 @@ namespace powercal
         {
             setRunStatusText(txt);
             setOutputStatus(txt);
-            //TraceLogger.Log(txt);
         }
 
         void updateRunStatus(string txt, Color forecolor, Color backcolor)
         {
             setRunStatusTextColor(txt, forecolor, backcolor);
             setOutputStatus(txt);
-            TraceLogger.Log(txt);
         }
 
         /// <summary>
@@ -426,7 +422,6 @@ namespace powercal
         private void relay_log_status()
         {
             string status = _relay_ctrl.ToStatusText();
-            TraceLogger.Log(status);
             updateOutputStatus(status);
         }
 
@@ -456,7 +451,6 @@ namespace powercal
             this.textBoxOutputStatus.Clear();
         }
 
-
         /// <summary>
         /// Handels error data from the em3xx_load process
         /// </summary>
@@ -483,7 +477,6 @@ namespace powercal
             //setOutputStatus(str);
             TraceLogger.Log(str);
         }
-
 
         /// <summary>
         /// Invikes the settings dialog
@@ -725,84 +718,73 @@ namespace powercal
         /// <param name="e"></param>
         private void buttonClick_Run(object sender, EventArgs e)
         {
+            // Clear the error
+            _calibration_error_msg = null;
+
             if (!this.buttonRun.Enabled)
                 return;
-            setEnablement(false);
-              _calibration_error_msg = null;
 
+            // Just in case we look for an invalid calibrate re-run too fast
             if (_stopwatch_calibration_stopped.Elapsed.TotalMilliseconds < 500)
             {
                 _stopwatch_calibration_stopped.Restart();
                 return;
             }
 
-            this.UseWaitCursor = true;
+            // Disable the app
+            setEnablement(false);
+
+            _stopwatch_calibration_running.Restart();
+
+            runStatus_Init();
+            setRunStatusText("Start Calibration");
+
+            this.textBoxOutputStatus.Clear();
+            
+            toolStripStatusLabel.Text = "";
+            statusStrip1.Update();
+            
+            kill_em3xx_load();
+            _p_ember_isachan = null;
+
             try
             {
-                _stopwatch_calibration_running.Restart();
-                
-                this.textBoxOutputStatus.Clear();
-
-                toolStripStatusLabel.Text = "";
-                statusStrip1.Update();
-
-                runStatus_Init();
-                setRunStatusText("Start Calibration");
-
-                kill_em3xx_load();
-                _p_ember_isachan = null;
-
-                try
+                bool manual_measure = Properties.Settings.Default.Meter_Manual_Measurement;
+                if (manual_measure)
                 {
-                    bool manual_measure = Properties.Settings.Default.Meter_Manual_Measurement;
-                    if (manual_measure)
-                    {
-                        _meter = null;
-                    }
-                    else
-                    {
-                        string meterPortName = Properties.Settings.Default.Meter_COM_Port_Name;
-                        _meter = new MultiMeter(meterPortName);
-                    }
-
-
-                    TraceLogger.Log("Start Ember isachan");
-                    openEmberISAChannels();
-
-                    // Create a new telnet connection
-                    TraceLogger.Log("Start telnet");
-                    _telnet_connection = new TelnetConnection("localhost", 4900);
-
-                    powercal.BoardTypes board_type = (powercal.BoardTypes)Enum.Parse(typeof(powercal.BoardTypes), comboBoxBoardTypes.Text);
-
-                    Calibrate calibrate = new Calibrate(board_type, _relay_ctrl, _telnet_connection, _meter);
-                    calibrate.Status_Event += calibrate_Status_event;
-                    calibrate.Run_Status_Event += calibrate_Run_Status_Event;
-                    calibrate.Relay_Event += calibrate_Relay_Event;
-                    calibrate.Completed_Status_Event += calibrate_Completed_Status_Event;
-                    Task task = new Task(calibrate.Run);
-                    task.ContinueWith(calibrate_exception_handler, TaskContinuationOptions.OnlyOnFaulted);
-                    task.Start();
-
-                    //calibrate();
-
+                    _meter = null;
                 }
-                catch (Exception ex)
+                else
                 {
-                    _calibration_error_msg = ex.Message;
-                    calibration_done();
+                    _meter = new MultiMeter(Properties.Settings.Default.Meter_COM_Port_Name);
                 }
+
+
+                TraceLogger.Log("Start Ember isachan");
+                openEmberISAChannels();
+
+                // Create a new telnet connection
+                TraceLogger.Log("Start telnet");
+                _telnet_connection = new TelnetConnection("localhost", 4900);
+
+                powercal.BoardTypes board_type = (powercal.BoardTypes)Enum.Parse(typeof(powercal.BoardTypes), comboBoxBoardTypes.Text);
+
+                Calibrate calibrate = new Calibrate(board_type, _relay_ctrl, _telnet_connection, _meter);
+                calibrate.Status_Event += calibrate_Status_event;
+                calibrate.Run_Status_Event += calibrate_Run_Status_Event;
+                calibrate.Relay_Event += calibrate_Relay_Event;
+                Task task = new Task(calibrate.Run);
+                task.ContinueWith(calibrate_exception_handler, TaskContinuationOptions.OnlyOnFaulted);
+                task.ContinueWith(calibration_done_handler, TaskContinuationOptions.OnlyOnRanToCompletion);
+                task.Start();
 
             }
-            finally
+            catch (Exception ex)
             {
+                _calibration_error_msg = ex.Message;
+                calibration_done();
             }
 
-        }
-
-        void calibrate_Completed_Status_Event(object sender)
-        {
-            calibration_done();
         }
 
         void calibration_done()
@@ -827,7 +809,7 @@ namespace powercal
             if (_calibration_error_msg == null || _calibration_error_msg == "")
             {
                 updateRunStatus("PASS", Color.White, Color.Green);
-                
+
             }
             else
             {
@@ -846,13 +828,9 @@ namespace powercal
 
             kill_em3xx_load();
 
-
             _stopwatch_calibration_running.Stop();
-
             TimeSpan ts = _stopwatch_calibration_running.Elapsed;
-            // Format and display the TimeSpan value. 
             string elapsedTime = String.Format("Elaspsed time {0:00} seconds", ts.TotalSeconds);
-
             updateOutputStatus(elapsedTime);
 
             _stopwatch_calibration_running.Reset();
@@ -860,6 +838,11 @@ namespace powercal
 
             setEnablement(true);
 
+        }
+
+        void calibration_done_handler(Task task)
+        {
+            calibration_done();
         }
 
         void calibrate_exception_handler(Task task)
@@ -896,6 +879,16 @@ namespace powercal
             {
                 this.toolStripStatusLabel.Text = string.Format("Idel {0:dd\\.hh\\:mm\\:ss}", _stopwatch_calibration_stopped.Elapsed);
             }
+        }
+
+        private void Form_Main_Shown(object sender, EventArgs e)
+        {
+            buttonRun.Focus();
+        }
+
+        public void Calibrate(string boardtype)
+        {
+            MessageBox.Show(boardtype);
         }
 
     }

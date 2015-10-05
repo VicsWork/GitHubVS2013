@@ -23,9 +23,6 @@ namespace powercal
         public delegate void RunStatusHandler(object sender, string status_txt);
         public event RunStatusHandler Run_Status_Event;
 
-        public delegate void CompletedStatusHandler(object sender);
-        public event CompletedStatusHandler Completed_Status_Event;
-
         BoardTypes _board_type;
         RelayControler _relay_ctrl;
         TelnetConnection _telnet_connection;
@@ -343,7 +340,6 @@ namespace powercal
 
             fire_status("================================End Calibration===============================");
 
-            fire_completed_status();
         }
 
         void verify_voltage_dc()
@@ -526,14 +522,6 @@ namespace powercal
             if (Relay_Event != null)
             {
                 Relay_Event(this, _relay_ctrl);
-            }
-        }
-
-        void fire_completed_status()
-        {
-            if (Completed_Status_Event != null)
-            {
-                Completed_Status_Event(this);
             }
         }
 
