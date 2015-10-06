@@ -8,6 +8,7 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms;
 using System.Diagnostics;
+using System.Threading;
 
 using MinimalisticTelnet;
 
@@ -15,32 +16,80 @@ namespace powercal
 {
     public partial class Form_PowerMeter : Form
     {
-        Process _p_ember_isachan;
         string _isachan_error;
         TelnetConnection _telnet_connection = null;
         string _cmd_prefix;
+        Ember _ember;
+
+        public delegate void CLIValueHandler(object sender, string text);
+        public event CLIValueHandler CLIValue_Event;
+
+        delegate void SetTextCallback(string txt);
+
+        CancellationTokenSource _tokenSrc = new CancellationTokenSource();
+        Task _task;
+
 
         public Form_PowerMeter()
         {
             InitializeComponent();
 
-            openEmberISAChannels();
+            _ember = new Ember();
+            _ember.Process_ISAChan_Error_Event += ember_Process_ISAChan_Error_Event;
+            _ember.CloseISAChannels();
+            _ember.OpenISAChannels();
 
             _telnet_connection = new TelnetConnection("localhost", 4900);
             _cmd_prefix = TCLI.Get_Custom_Command_Prefix(_telnet_connection);
 
+            this.CLIValue_Event += Form_PowerMeter_CLIValue_Event;
         }
 
-        private void buttonStartCS_Click(object sender, EventArgs e)
+        void Form_PowerMeter_CLIValue_Event(object sender, string text)
+        {
+            setCLIText(text);
+        }
+
+        void setCLIText(string text)
+        {
+            if (this.labelPowerCS.InvokeRequired)
+            {
+                SetTextCallback d = new SetTextCallback(setCLIText);
+                this.Invoke(d, new object[] { text });
+            }
+            else
+            {
+                //this.labelPowerCS.Text = string.Format("{0:F8}", cv.Voltage);
+                this.labelPowerCS.Text = text;
+                //this.labelPowerCS.Update();
+            }
+        }
+
+        void buttonStartCS_Click(object sender, EventArgs e)
+        {
+            //Task task = new Task(readCLIValues);
+            var token = _tokenSrc.Token;
+            _task = new Task(() => readCLIValues(token), token);
+            _task.Start();
+        }
+
+        void readCLIValues(CancellationToken ct)
         {
             while (true)
             {
-                TCLI.Current_Voltage cv = get_uut_data();
-                this.labelPowerCS.Text = string.Format("{0:F8}", cv.Voltage);
-                this.labelPowerCS.Update();
-            }
+                if (ct.IsCancellationRequested)
+                    break;
 
+                TCLI.Current_Voltage cv = get_uut_data();
+
+                if (CLIValue_Event != null)
+                {
+                    string txt = string.Format("{0:F8}", cv.Voltage);
+                    CLIValue_Event(this, txt);
+                }
+            }
         }
+
 
         TCLI.Current_Voltage get_uut_data()
         {
@@ -52,71 +101,34 @@ namespace powercal
 
         }
 
-        /// <summary>
-        /// Starts the process responsible to open the Ember box isa channels
-        /// </summary>
-        void openEmberISAChannels()
-        {
-            Ember ember = new Ember();
-            ember.Process_ISAChan_Error_Event += ember_Process_ISAChan_Error_Event;
-            //ember.Process_ISAChan_Output_Event += p_ember_isachan_OutputDataReceived;
-            _p_ember_isachan = ember.OpenISAChannels();
-        }
-
         void ember_Process_ISAChan_Error_Event(object sender, DataReceivedEventArgs e)
         {
             _isachan_error += e.Data + "\n";
         }
 
-        /// <summary>
-        /// Closes the Ember process that open the isa channels
-        /// <seealso cref="openEmberISAChannels"/>
-        /// </summary>
-        void closeEmberISAChannels()
-        {
-            if (_p_ember_isachan != null)
-            {
-                _p_ember_isachan.CancelErrorRead();
-                _p_ember_isachan.CancelOutputRead();
-                if (!_p_ember_isachan.HasExited)
-                    _p_ember_isachan.Kill();
-                _p_ember_isachan.Close();
-            }
-        }
-
         private void timerISAChan_Tick(object sender, EventArgs e)
         {
-            if (_isachan_error != null || _isachan_error == "")
-            {
-                _isachan_error = null;
-                closeEmberISAChannels();
-                openEmberISAChannels();
-            }
-
-            if (_cmd_prefix == null)
-            {
-                if (_telnet_connection != null)
-                {
-                    _telnet_connection.Close();
-                }
-
-                try
-                {
-                    _telnet_connection = new TelnetConnection("localhost", 4900);
-                    _cmd_prefix = TCLI.Get_Custom_Command_Prefix(_telnet_connection);
-                }
-                catch { };
-            }
         }
 
         private void Form_PowerMeter_FormClosing(object sender, FormClosingEventArgs e)
         {
+
+            try
+            {
+                _tokenSrc.Cancel();
+                _task.Wait(_tokenSrc.Token);
+            }
+            catch (Exception)
+            {
+            }
+
+            //_task.Wait();
+
             if (_telnet_connection != null)
             {
                 _telnet_connection.Close();
             }
-
-            closeEmberISAChannels();
+            _ember.CloseISAChannels();
         }
 
     }
