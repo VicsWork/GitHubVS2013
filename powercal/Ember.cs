@@ -43,6 +43,8 @@ namespace powercal
         private int _voltageRefValue = 0xF0;
         private int _currentRefValue = 0x0F;
 
+        Process _process_ember_isachan;
+
         public delegate void Process_ISAChan_Error_Handler(object sender, DataReceivedEventArgs e);
         public event Process_ISAChan_Error_Handler Process_ISAChan_Error_Event;
 
@@ -52,9 +54,11 @@ namespace powercal
         /// <summary>
         /// Starts the process responsible to open the Ember box isa channels
         /// </summary>
-        public Process OpenEmberISAChannels()
+        public Process OpenISAChannels()
         {
-            Process process_ember_isachan = new Process()
+            Kill_em3xx_load();
+
+            _process_ember_isachan = new Process()
             {
                 StartInfo = new ProcessStartInfo()
                 {
@@ -68,18 +72,34 @@ namespace powercal
                     RedirectStandardInput = false
                 }
             };
-            process_ember_isachan.EnableRaisingEvents = true;
-            process_ember_isachan.OutputDataReceived += process_ember_isachan_OutputDataReceived;
-            process_ember_isachan.ErrorDataReceived += process_ember_isachan_ErrorDataReceived;
-            process_ember_isachan.Start();
+            _process_ember_isachan.EnableRaisingEvents = true;
+            _process_ember_isachan.OutputDataReceived += process_isachan_OutputDataReceived;
+            _process_ember_isachan.ErrorDataReceived += process_isachan_ErrorDataReceived;
+            _process_ember_isachan.Start();
 
-            process_ember_isachan.BeginOutputReadLine();
-            process_ember_isachan.BeginErrorReadLine();
+            _process_ember_isachan.BeginOutputReadLine();
+            _process_ember_isachan.BeginErrorReadLine();
 
-            return process_ember_isachan;
+            return _process_ember_isachan;
         }
 
-        void process_ember_isachan_ErrorDataReceived(object sender, DataReceivedEventArgs e)
+        /// <summary>
+        /// Closes the Ember process that open the isa channels
+        /// <seealso cref="openEmberISAChannels"/>
+        /// </summary>
+        public void CloseISAChannels()
+        {
+            if (_process_ember_isachan != null)
+            {
+                _process_ember_isachan.CancelErrorRead();
+                _process_ember_isachan.CancelOutputRead();
+                if (!_process_ember_isachan.HasExited)
+                    _process_ember_isachan.Kill();
+                _process_ember_isachan.Close();
+            }
+        }
+
+        void process_isachan_ErrorDataReceived(object sender, DataReceivedEventArgs e)
         {
             if (Process_ISAChan_Error_Event != null)
             {
@@ -87,7 +107,7 @@ namespace powercal
             }
         }
 
-        void process_ember_isachan_OutputDataReceived(object sender, DataReceivedEventArgs e)
+        void process_isachan_OutputDataReceived(object sender, DataReceivedEventArgs e)
         {
             if (Process_ISAChan_Output_Event != null)
             {
@@ -260,6 +280,27 @@ namespace powercal
             
             return removed_list.ToArray();
         }
+
+        /// <summary>
+        /// Kills any em3xx_load process running in the system
+        /// </summary>
+        public static void Kill_em3xx_load()
+        {
+            try
+            {
+                Process[] processes = System.Diagnostics.Process.GetProcessesByName("em3xx_load");
+                foreach (Process process in processes)
+                {
+                    if (!process.HasExited)
+                        process.Kill();
+                }
+            }
+            catch (Exception ex)
+            {
+                string msg = string.Format("Error killing em3xx_load.\r\n{0}", ex.Message);
+            }
+        }
+
 
         /// <summary>
         /// Breaks an int into 3 bytes

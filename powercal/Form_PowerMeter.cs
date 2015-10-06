@@ -60,7 +60,7 @@ namespace powercal
             Ember ember = new Ember();
             ember.Process_ISAChan_Error_Event += ember_Process_ISAChan_Error_Event;
             //ember.Process_ISAChan_Output_Event += p_ember_isachan_OutputDataReceived;
-            _p_ember_isachan = ember.OpenEmberISAChannels();
+            _p_ember_isachan = ember.OpenISAChannels();
         }
 
         void ember_Process_ISAChan_Error_Event(object sender, DataReceivedEventArgs e)

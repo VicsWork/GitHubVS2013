@@ -30,8 +30,9 @@ namespace powercal
     {
         MultiMeter _meter = null;
         RelayControler _relay_ctrl;
-
         TelnetConnection _telnet_connection;
+        Ember _ember;
+        Calibrate _calibrate = new Calibrate();
 
         Stopwatch _stopwatch_calibration_running = new Stopwatch();
         Stopwatch _stopwatch_calibration_stopped = new Stopwatch();
@@ -51,10 +52,6 @@ namespace powercal
         /// Path to where the Ember programing batch file is created
         /// </summary>
         string _ember_batchfile_path = Path.Combine(_app_data_dir, "patchit.bat");
-        /// <summary>
-        /// Process used to open Ember box ports (isachan=all)
-        /// </summary>
-        Process _p_ember_isachan;
 
         delegate void SetTextCallback(string txt);
         delegate void SetTextColorCallback(string txt, Color forecolor, Color backcolor);
@@ -147,8 +144,13 @@ namespace powercal
             }
             updateOutputStatus(msg);
 
-            kill_em3xx_load();
+            _ember = new Ember();
+            _ember.Process_ISAChan_Error_Event += p_ember_isachan_ErrorDataReceived;
+            _ember.Process_ISAChan_Output_Event += p_ember_isachan_OutputDataReceived;
 
+            _calibrate.Status_Event += calibrate_Status_event;
+            _calibrate.Run_Status_Event += calibrate_Run_Status_Event;
+            _calibrate.Relay_Event += calibrate_Relay_Event;
         }
 
         /// <summary>
@@ -425,27 +427,6 @@ namespace powercal
             updateOutputStatus(status);
         }
 
-        /// <summary>
-        /// Kills any em3xx_load process running in the system
-        /// </summary>
-        private void kill_em3xx_load()
-        {
-            try
-            {
-                Process[] processes = System.Diagnostics.Process.GetProcessesByName("em3xx_load");
-                foreach (Process process in processes)
-                {
-                    if (!process.HasExited)
-                        process.Kill();
-                }
-            }
-            catch (Exception ex)
-            {
-                string msg = string.Format("Error killing em3xx_load.\r\n{0}", ex.Message);
-                updateOutputStatus(msg);
-            }
-        }
-
         private void toolStripMenuItem_Click_Clear(object sender, EventArgs e)
         {
             this.textBoxOutputStatus.Clear();
@@ -549,33 +530,6 @@ namespace powercal
         }
 
         /// <summary>
-        /// Starts the process responsible to open the Ember box isa channels
-        /// </summary>
-        private void openEmberISAChannels()
-        {
-            Ember ember = new Ember();
-            ember.Process_ISAChan_Error_Event += p_ember_isachan_ErrorDataReceived;
-            ember.Process_ISAChan_Output_Event += p_ember_isachan_OutputDataReceived;
-            _p_ember_isachan = ember.OpenEmberISAChannels();
-        }
-
-        /// <summary>
-        /// Closes the Ember process that open the isa channels
-        /// <seealso cref="openEmberISAChannels"/>
-        /// </summary>
-        private void closeEmberISAChannels()
-        {
-            if (_p_ember_isachan != null)
-            {
-                _p_ember_isachan.CancelErrorRead();
-                _p_ember_isachan.CancelOutputRead();
-                if (!_p_ember_isachan.HasExited)
-                    _p_ember_isachan.Kill();
-                _p_ember_isachan.Close();
-            }
-        }
-
-        /// <summary>
         /// Closes the board releay using custom command
         /// </summary>
         /// <param name="board_type"></param>
@@ -668,29 +622,53 @@ namespace powercal
             if (_meter == null)
                 return -1;
 
+            _relay_ctrl.WriteLine(Relay_Lines.Voltmeter, false);
             // Measure Voltage after power off
             _meter.OpenComPort();
-            _meter.SetupForVAC();
 
-            double voltage_meter = -1.0;
+            _meter.SetupForVAC();
+            double vac = -1.0;
             int n = 0;
+            string msg;
             while (true)
             {
                 string voltage_meter_str = _meter.Measure();
-                voltage_meter = Double.Parse(voltage_meter_str);
-                if (voltage_meter < 1.0)
+                vac = Double.Parse(voltage_meter_str);
+                if (vac < 1.0)
                     break;
-                if (n > 100)
+                if (n > 10)
                 {
                     _meter.CloseSerialPort();
-                    string msg = string.Format("Power not off. VAC = {0:F8}", voltage_meter);
+                    msg = string.Format("Warning.  Failed to power off. VAC = {0:F8}", vac);
+                    throw new Exception(msg);
+                }
+            }
+
+            _relay_ctrl.WriteLine(Relay_Lines.Voltmeter, true);
+            _meter.SetupForVDC();
+
+            double vdc = -1.0;
+            n = 0;
+            while (true)
+            {
+                string voltage_meter_str = _meter.Measure();
+                vdc = Double.Parse(voltage_meter_str);
+                if (vdc < 1.0)
+                    break;
+                if (n > 10)
+                {
+                    _meter.CloseSerialPort();
+                    msg = string.Format("Warning DC voltage detected after power off. VDC = {0:F8}", vdc);
                     throw new Exception(msg);
                 }
             }
 
             _meter.CloseSerialPort();
 
-            return voltage_meter;
+            msg = string.Format("Meter VAC = {0:F8}.  VDC  = {0:F8}.", vac, vdc);
+            updateOutputStatus(msg);
+
+            return vac;
         }
 
         /// <summary>
@@ -726,9 +704,6 @@ namespace powercal
             toolStripStatusLabel.Text = "";
             statusStrip1.Update();
             
-            kill_em3xx_load();
-            _p_ember_isachan = null;
-
             try
             {
                 bool manual_measure = Properties.Settings.Default.Meter_Manual_Measurement;
@@ -743,7 +718,7 @@ namespace powercal
 
 
                 TraceLogger.Log("Start Ember isachan");
-                openEmberISAChannels();
+                _ember.OpenISAChannels();
 
                 // Create a new telnet connection
                 TraceLogger.Log("Start telnet");
@@ -751,14 +726,15 @@ namespace powercal
 
                 powercal.BoardTypes board_type = (powercal.BoardTypes)Enum.Parse(typeof(powercal.BoardTypes), comboBoxBoardTypes.Text);
 
-                Calibrate calibrate = new Calibrate(board_type, _relay_ctrl, _telnet_connection, _meter);
-                calibrate.Status_Event += calibrate_Status_event;
-                calibrate.Run_Status_Event += calibrate_Run_Status_Event;
-                calibrate.Relay_Event += calibrate_Relay_Event;
-                Task task = new Task(calibrate.Run);
-                task.ContinueWith(calibrate_exception_handler, TaskContinuationOptions.OnlyOnFaulted);
-                task.ContinueWith(calibration_done_handler, TaskContinuationOptions.OnlyOnRanToCompletion);
-                task.Start();
+                _calibrate.BoardType = board_type;
+                _calibrate.RelayController = _relay_ctrl;
+                _calibrate.TelnetConnection = _telnet_connection;
+                _calibrate.MultiMeter = _meter;
+
+                Task task_calibrate = new Task(_calibrate.Run);
+                task_calibrate.ContinueWith(calibrate_exception_handler, TaskContinuationOptions.OnlyOnFaulted);
+                task_calibrate.ContinueWith(calibration_done_handler, TaskContinuationOptions.OnlyOnRanToCompletion);
+                task_calibrate.Start();
 
             }
             catch (Exception ex)
@@ -782,13 +758,10 @@ namespace powercal
             if (_meter != null)
             {
                 _meter.CloseSerialPort();
-                double voltage_meter = wait_for_power_off();
-                string msg = string.Format("Meter VAC = {0:F8}", voltage_meter);
-                TraceLogger.Log(msg);
-                updateOutputStatus(msg);
+                wait_for_power_off();
             }
 
-            if (_calibration_error_msg == null || _calibration_error_msg == "")
+            if (_calibration_error_msg == null)
             {
                 updateRunStatus("PASS", Color.White, Color.Green);
 
@@ -800,15 +773,13 @@ namespace powercal
             }
 
             TraceLogger.Log("Close Ember isachan");
-            closeEmberISAChannels();
+            _ember.CloseISAChannels();
 
             if (_telnet_connection != null)
             {
                 TraceLogger.Log("Close telnet");
                 _telnet_connection.Close();
             }
-
-            kill_em3xx_load();
 
             _stopwatch_calibration_running.Stop();
             TimeSpan ts = _stopwatch_calibration_running.Elapsed;

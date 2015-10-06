@@ -59,15 +59,29 @@ namespace powercal
         /// </summary>
         string _ember_batchfile_path = Path.Combine(_app_data_dir, "patchit.bat");
 
+        public BoardTypes BoardType { 
+            get { return _board_type; } 
+            set 
+            { 
+                _board_type = value;
+                set_board_calibration_values();
+            } 
+        }
+        public RelayControler RelayController { get { return _relay_ctrl; } set { _relay_ctrl = value; } }
+        public TelnetConnection TelnetConnection { get { return _telnet_connection; } set { _telnet_connection = value; } }
+        public MultiMeter MultiMeter { get { return _meter; } set { _meter = value; } }
+
+        public Calibrate() { }
+
         public Calibrate(BoardTypes boardtype, RelayControler relay_controller, TelnetConnection telnet_connection, MultiMeter meter)
         {
-            _board_type = boardtype;
-            set_board_calibration_values();
+            this.BoardType = boardtype;
+            //_board_type = boardtype;
+            //set_board_calibration_values();
 
             _relay_ctrl = relay_controller;
             _telnet_connection = telnet_connection;
             _meter = meter;
-
         }
 
         /// <summary>
@@ -137,30 +151,31 @@ namespace powercal
             if (_relay_ctrl.Device_Type == RelayControler.Device_Types.Manual)
             {
                 // Trun AC ON
-                _relay_ctrl.WriteLine(powercal.Relay_Lines.Ember, true);
-                _relay_ctrl.WriteLine(powercal.Relay_Lines.Load, false);
-                _relay_ctrl.WriteLine(powercal.Relay_Lines.Power, true);
-                _relay_ctrl.WriteLine(powercal.Relay_Lines.Load, true);
+                _relay_ctrl.WriteLine(Relay_Lines.Ember, true);
+                _relay_ctrl.WriteLine(Relay_Lines.Load, false);
+                _relay_ctrl.WriteLine(Relay_Lines.Power, true);
+                _relay_ctrl.WriteLine(Relay_Lines.Load, true);
                 fire_relay_status();
                 Thread.Sleep(2000);
             }
             else
             {
-                _relay_ctrl.WriteLine(powercal.Relay_Lines.Voltmeter, false);
-                _relay_ctrl.WriteLine(powercal.Relay_Lines.Ember, false);
-                _relay_ctrl.WriteLine(powercal.Relay_Lines.Load, false);
-                _relay_ctrl.WriteLine(powercal.Relay_Lines.Power, true);
-                _relay_ctrl.WriteLine(powercal.Relay_Lines.Voltmeter, true);
+                _relay_ctrl.WriteLine(Relay_Lines.Voltmeter, false);
+                _relay_ctrl.WriteLine(Relay_Lines.Ember, false);
+                _relay_ctrl.WriteLine(Relay_Lines.Load, false);
+                _relay_ctrl.WriteLine(Relay_Lines.Power, true);
+                _relay_ctrl.WriteLine(Relay_Lines.Voltmeter, true);
                 fire_relay_status();
 
-                Thread.Sleep(2000);
+                Thread.Sleep(1000);
 
                 verify_voltage_dc();
 
-                _relay_ctrl.WriteLine(powercal.Relay_Lines.Voltmeter, false);
+                _relay_ctrl.WriteLine(Relay_Lines.Voltmeter, false);
 
                 // Should be safe to connect Ember
-                _relay_ctrl.WriteLine(powercal.Relay_Lines.Ember, true);
+                _relay_ctrl.WriteLine(Relay_Lines.Ember, true);
+                Thread.Sleep(1000);
             }
 
 /*
@@ -194,9 +209,9 @@ namespace powercal
             //datain = telnet_connection.Read();
             //traceLog(datain);
 
-            _relay_ctrl.WriteLine(powercal.Relay_Lines.Load, true);
+            _relay_ctrl.WriteLine(Relay_Lines.Load, true);
             Thread.Sleep(1000);
-            //_relay_ctrl.WriteLine(powercal.Relay_Lines.Voltmeter, false);
+            //_relay_ctrl.WriteLine(Relay_Lines.Voltmeter, false);
             verify_voltage_ac();
 
             string cmd_prefix = TCLI.Get_Custom_Command_Prefix(_telnet_connection);
@@ -471,7 +486,7 @@ namespace powercal
 
                     // Turn power back on
                     _relay_ctrl.WriteLine(Relay_Lines.Power, true);
-                    Thread.Sleep(1000);
+                    Thread.Sleep(3000);
 
                 }
                 else
