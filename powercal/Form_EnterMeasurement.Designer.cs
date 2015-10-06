@@ -28,6 +28,7 @@
         /// </summary>
         private void InitializeComponent()
         {
+            System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(Form_EnterMeasurement));
             this.label = new System.Windows.Forms.Label();
             this.textBox1 = new System.Windows.Forms.TextBox();
             this.buttonOK = new System.Windows.Forms.Button();
@@ -59,7 +60,7 @@
             this.buttonOK.UseVisualStyleBackColor = true;
             this.buttonOK.Click += new System.EventHandler(this.buttonOK_Click);
             // 
-            // FormEnterMeasurement
+            // Form_EnterMeasurement
             // 
             this.AcceptButton = this.buttonOK;
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
@@ -68,7 +69,8 @@
             this.Controls.Add(this.buttonOK);
             this.Controls.Add(this.textBox1);
             this.Controls.Add(this.label);
-            this.Name = "FormEnterMeasurement";
+            this.Icon = ((System.Drawing.Icon)(resources.GetObject("$this.Icon")));
+            this.Name = "Form_EnterMeasurement";
             this.Text = "Enter Measurement";
             this.ResumeLayout(false);
             this.PerformLayout();

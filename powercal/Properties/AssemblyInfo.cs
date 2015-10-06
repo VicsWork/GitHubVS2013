@@ -10,7 +10,7 @@ using System.Runtime.InteropServices;
 [assembly: AssemblyConfiguration("")]
 [assembly: AssemblyCompany("Centralite")]
 [assembly: AssemblyProduct("Power Calibration")]
-[assembly: AssemblyCopyright("Copyright © Centralite2015")]
+[assembly: AssemblyCopyright("Copyright © Centralite 2015")]
 [assembly: AssemblyTrademark("")]
 [assembly: AssemblyCulture("")]
 

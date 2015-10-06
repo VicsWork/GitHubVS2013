@@ -29,6 +29,7 @@
         private void InitializeComponent()
         {
             this.components = new System.ComponentModel.Container();
+            System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(Form_SerialTest));
             this.comboBoxPorts = new System.Windows.Forms.ComboBox();
             this.textBoxSend = new System.Windows.Forms.TextBox();
             this.buttonSend = new System.Windows.Forms.Button();
@@ -242,7 +243,7 @@
             this.label7.TabIndex = 18;
             this.label7.Text = "SBits:";
             // 
-            // FormSerialTest
+            // Form_SerialTest
             // 
             this.AcceptButton = this.buttonSend;
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
@@ -266,8 +267,9 @@
             this.Controls.Add(this.buttonSend);
             this.Controls.Add(this.textBoxSend);
             this.Controls.Add(this.comboBoxPorts);
+            this.Icon = ((System.Drawing.Icon)(resources.GetObject("$this.Icon")));
             this.MinimumSize = new System.Drawing.Size(552, 300);
-            this.Name = "FormSerialTest";
+            this.Name = "Form_SerialTest";
             this.Text = "Serial Test";
             this.FormClosing += new System.Windows.Forms.FormClosingEventHandler(this.FormSerialTest_FormClosing);
             this.contextMenuReceivedTextBox.ResumeLayout(false);

@@ -29,6 +29,7 @@
         private void InitializeComponent()
         {
             this.components = new System.ComponentModel.Container();
+            System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(Form_PowerMeter));
             this.labelPowerCS = new System.Windows.Forms.Label();
             this.buttonStartCS = new System.Windows.Forms.Button();
             this.timerISAChan = new System.Windows.Forms.Timer(this.components);
@@ -67,6 +68,7 @@
             this.ClientSize = new System.Drawing.Size(581, 366);
             this.Controls.Add(this.buttonStartCS);
             this.Controls.Add(this.labelPowerCS);
+            this.Icon = ((System.Drawing.Icon)(resources.GetObject("$this.Icon")));
             this.Name = "Form_PowerMeter";
             this.Text = "Power Meter";
             this.FormClosing += new System.Windows.Forms.FormClosingEventHandler(this.Form_PowerMeter_FormClosing);
