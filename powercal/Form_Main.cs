@@ -722,7 +722,9 @@ namespace powercal
 
                 // Create a new telnet connection
                 TraceLogger.Log("Start telnet");
-                _telnet_connection = new TelnetConnection("localhost", 4900);
+
+                //_ember.Probe_IP_Address = "172.19.14.121";
+                _telnet_connection = new TelnetConnection(_ember.Probe_IP_Address, 4900);
 
                 powercal.BoardTypes board_type = (powercal.BoardTypes)Enum.Parse(typeof(powercal.BoardTypes), comboBoxBoardTypes.Text);
 

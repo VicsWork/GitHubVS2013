@@ -30,8 +30,10 @@ namespace powercal
         private string _ember_exe = "em3xx_load";
         private string _ember_bin_path = "C:\\Program Files (x86)\\Ember\\ISA3 Utilities\\bin";
 
+        string _probe_ip_address = "localhost";
+        public string Probe_IP_Address { get { return _probe_ip_address; } set { _probe_ip_address = value; } }
         //private int _usb_port = 0;
-        
+
         private int _voltageAddress = 0x08040980;
         private int _currentAddress = 0x08040984;
         private int _refAddress = 0x08040988;
@@ -58,13 +60,16 @@ namespace powercal
         {
             Kill_em3xx_load();
 
+            if (_probe_ip_address != "localhost")
+                return null;
+
             _process_ember_isachan = new Process()
             {
                 StartInfo = new ProcessStartInfo()
                 {
                     FileName = Path.Combine(Properties.Settings.Default.Ember_BinPath, "em3xx_load.exe"),
-                    Arguments = "--isachan=all",
 
+                    Arguments = "--isachan=all",
                     UseShellExecute = false,
                     CreateNoWindow = true,
                     RedirectStandardOutput = true,
@@ -72,6 +77,10 @@ namespace powercal
                     RedirectStandardInput = false
                 }
             };
+
+            if (_probe_ip_address != "localhost")
+                _process_ember_isachan.StartInfo.Arguments += string.Format(" --ip={0}", _probe_ip_address);
+
             _process_ember_isachan.EnableRaisingEvents = true;
             _process_ember_isachan.OutputDataReceived += process_isachan_OutputDataReceived;
             _process_ember_isachan.ErrorDataReceived += process_isachan_ErrorDataReceived;
@@ -139,7 +148,7 @@ namespace powercal
                 if (n > 10)
                 {
                     p.Kill();
-                    output = p.StandardOutput.ReadToEnd(); 
+                    output = p.StandardOutput.ReadToEnd();
                     error = p.StandardError.ReadToEnd();
                     string msg = string.Format("Timeout running {0}.\r\n", _batch_file);
                     if (output != null && output.Length > 0)
@@ -257,11 +266,12 @@ namespace powercal
 
             string path = Environment.GetEnvironmentVariable("LOCALAPPDATA");
             path = Path.Combine(path, @"VirtualStore\Program Files (x86)\Ember\ISA3 Utilities\bin");
-            
+
             if (Directory.Exists(path))
             {
                 string[] files = Directory.GetFiles(path, "em3xx_load_temp_patch_file_*.s37");
-                foreach(string file in files){
+                foreach (string file in files)
+                {
                     File.Delete(file);
                     removed_list.Add(file);
                 }
@@ -277,7 +287,7 @@ namespace powercal
                     removed_list.Add(file);
                 }
             }
-            
+
             return removed_list.ToArray();
         }
 

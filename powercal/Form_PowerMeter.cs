@@ -37,9 +37,10 @@ namespace powercal
             _ember = new Ember();
             _ember.Process_ISAChan_Error_Event += ember_Process_ISAChan_Error_Event;
             _ember.CloseISAChannels();
+            _ember.Probe_IP_Address = "172.19.14.121";
             _ember.OpenISAChannels();
 
-            _telnet_connection = new TelnetConnection("localhost", 4900);
+            _telnet_connection = new TelnetConnection(_ember.Probe_IP_Address, 4900);
             _cmd_prefix = TCLI.Get_Custom_Command_Prefix(_telnet_connection);
 
             this.CLIValue_Event += Form_PowerMeter_CLIValue_Event;
@@ -52,6 +53,9 @@ namespace powercal
 
         void setCLIText(string text)
         {
+            if (_tokenSrc.IsCancellationRequested)
+                return;
+
             if (this.labelPowerCS.InvokeRequired)
             {
                 SetTextCallback d = new SetTextCallback(setCLIText);
@@ -67,10 +71,6 @@ namespace powercal
 
         void buttonStartCS_Click(object sender, EventArgs e)
         {
-            //Task task = new Task(readCLIValues);
-            var token = _tokenSrc.Token;
-            _task = new Task(() => readCLIValues(token), token);
-            _task.Start();
         }
 
         void readCLIValues(CancellationToken ct)
@@ -98,7 +98,9 @@ namespace powercal
 
         private void Form_PowerMeter_Load(object sender, EventArgs e)
         {
-
+            var token = _tokenSrc.Token;
+            _task = new Task(() => readCLIValues(token), token);
+            _task.Start();
         }
 
         void ember_Process_ISAChan_Error_Event(object sender, DataReceivedEventArgs e)
@@ -116,19 +118,20 @@ namespace powercal
             try
             {
                 _tokenSrc.Cancel();
-                _task.Wait(_tokenSrc.Token);
+                //_task.Wait(_tokenSrc.Token);
             }
             catch (Exception)
             {
             }
 
-            //_task.Wait();
+            while (!_task.IsCompleted)
+                Thread.Sleep(1000);
 
             if (_telnet_connection != null)
-            {
                 _telnet_connection.Close();
-            }
-            _ember.CloseISAChannels();
+
+            if(_ember != null)
+                _ember.CloseISAChannels();
         }
 
     }
