@@ -20,8 +20,11 @@
     <Setting Name="Ember_Interface" Type="System.String" Scope="User">
       <Value Profile="(Default)">IP</Value>
     </Setting>
-    <Setting Name="Ember_Interface_Address" Type="System.String" Scope="User">
+    <Setting Name="Ember_Interface_IP_Address" Type="System.String" Scope="User">
       <Value Profile="(Default)">172.19.14.121</Value>
+    </Setting>
+    <Setting Name="Ember_Interface_USB_Address" Type="System.String" Scope="User">
+      <Value Profile="(Default)">0</Value>
     </Setting>
   </Settings>
 </SettingsFile>

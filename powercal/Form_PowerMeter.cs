@@ -37,12 +37,21 @@ namespace powercal
 
             _ember = new Ember();
             _ember.Process_ISAChan_Error_Event += ember_Process_ISAChan_Error_Event;
+
             _ember.Interface = (Ember.Interfaces)Enum.Parse(typeof(Ember.Interfaces), interface_type);
             _ember.Interface_Address = interface_address;
-            _ember.CloseISAChannels();
-            _ember.OpenISAChannels();
 
-            _telnet_connection = new TelnetConnection(_ember.Interface_Address, 4900);
+            if (_ember.Interface == Ember.Interfaces.USB)
+            {
+                _ember.CloseISAChannels();
+                _ember.OpenISAChannels();
+            }
+
+            string telnet_address = "localhost";
+            if (_ember.Interface == Ember.Interfaces.IP)
+                telnet_address = _ember.Interface_Address;
+            _telnet_connection = new TelnetConnection(telnet_address, 4900);
+
             _cmd_prefix = TCLI.Get_Custom_Command_Prefix(_telnet_connection);
 
 

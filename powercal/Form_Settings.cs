@@ -15,6 +15,24 @@ namespace powercal
         public Form_Settings()
         {
             InitializeComponent();
+
+            CheckBoxManualMultiMeter.Checked = Properties.Settings.Default.Meter_Manual_Measurement;
+            TextBoxMeterCOM.Text = Properties.Settings.Default.Meter_COM_Port_Name;
+
+            // Pupulate DIO controller types
+            comboBoxDIOCtrollerTypes.Items.Clear();
+            Array relay_types = Enum.GetValues(typeof(RelayControler.Device_Types));
+            foreach (RelayControler.Device_Types relay_type in relay_types)
+                comboBoxDIOCtrollerTypes.Items.Add(relay_type.ToString());
+            comboBoxDIOCtrollerTypes.Text = Properties.Settings.Default.Relay_Controller_Type;
+
+            // Ember
+            comboBoxEmberInterface.Text = Properties.Settings.Default.Ember_Interface;
+            if (Properties.Settings.Default.Ember_Interface == "IP")
+                textBoxEmberInterfaceAddress.Text = Properties.Settings.Default.Ember_Interface_IP_Address;
+            else
+                textBoxEmberInterfaceAddress.Text = Properties.Settings.Default.Ember_Interface_USB_Address;
+            TextBoxEmberBinPath.Text = Properties.Settings.Default.Ember_BinPath;
         }
 
         private void buttonOK_Click(object sender, EventArgs e)
@@ -66,6 +84,26 @@ namespace powercal
                 setLineEnablement(false);
             else
                 setLineEnablement(true);
+        }
+
+        private void comboBoxEmberInterface_SelectedIndexChanged(object sender, EventArgs e)
+        {
+            Properties.Settings.Default.Ember_Interface = comboBoxEmberInterface.Text;
+            Properties.Settings.Default.Save();
+
+            if (comboBoxEmberInterface.Text == "IP")
+                textBoxEmberInterfaceAddress.Text = Properties.Settings.Default.Ember_Interface_IP_Address;
+            else
+                textBoxEmberInterfaceAddress.Text = Properties.Settings.Default.Ember_Interface_USB_Address;
+        }
+
+        private void textBoxEmberInterfaceAddress_TextChanged(object sender, EventArgs e)
+        {
+            if (comboBoxEmberInterface.Text == "IP")
+                Properties.Settings.Default.Ember_Interface_IP_Address = textBoxEmberInterfaceAddress.Text;
+            else
+                Properties.Settings.Default.Ember_Interface_USB_Address = textBoxEmberInterfaceAddress.Text;
+            Properties.Settings.Default.Save();
         }
 
     }

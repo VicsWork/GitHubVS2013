@@ -98,12 +98,24 @@ namespace powercal.Properties {
         [global::System.Configuration.UserScopedSettingAttribute()]
         [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
         [global::System.Configuration.DefaultSettingValueAttribute("172.19.14.121")]
-        public string Ember_Interface_Address {
+        public string Ember_Interface_IP_Address {
             get {
-                return ((string)(this["Ember_Interface_Address"]));
+                return ((string)(this["Ember_Interface_IP_Address"]));
             }
             set {
-                this["Ember_Interface_Address"] = value;
+                this["Ember_Interface_IP_Address"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("0")]
+        public string Ember_Interface_USB_Address {
+            get {
+                return ((string)(this["Ember_Interface_USB_Address"]));
+            }
+            set {
+                this["Ember_Interface_USB_Address"] = value;
             }
         }
     }

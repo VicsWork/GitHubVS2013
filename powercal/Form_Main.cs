@@ -470,28 +470,12 @@ namespace powercal
         {
             Form_Settings dlg = new Form_Settings();
 
-            // COM ports
-            dlg.CheckBoxManualMultiMeter.Checked = Properties.Settings.Default.Meter_Manual_Measurement;
-            dlg.TextBoxMeterCOM.Text = Properties.Settings.Default.Meter_COM_Port_Name;
-
-            // Pupulate DIO controller types
-            dlg.comboBoxDIOCtrollerTypes.Items.Clear();
-            Array relay_types = Enum.GetValues(typeof(RelayControler.Device_Types));
-            foreach (RelayControler.Device_Types relay_type in relay_types)
-                dlg.comboBoxDIOCtrollerTypes.Items.Add(relay_type.ToString());
-            dlg.comboBoxDIOCtrollerTypes.Text = Properties.Settings.Default.Relay_Controller_Type;
-
             // DIO line assigment
             Dictionary<string, uint> relay_lines = _relay_ctrl.DicLines_ReadSettings();
             dlg.NumericUpDown_ACPower.Value = relay_lines[powercal.Relay_Lines.Power];
             dlg.NumericUpDown_Load.Value = relay_lines[powercal.Relay_Lines.Load];
             dlg.NumericUpDown_Ember.Value = relay_lines[powercal.Relay_Lines.Ember];
             dlg.numericUpDown_Voltmeter.Value = relay_lines[powercal.Relay_Lines.Voltmeter];
-
-            // Ember
-            dlg.comboBoxEmberInterface.Text = Properties.Settings.Default.Ember_Interface;
-            dlg.textBoxEmberInterfaceAddress.Text = Properties.Settings.Default.Ember_Interface_Address;
-            dlg.TextBoxEmberBinPath.Text = Properties.Settings.Default.Ember_BinPath;
 
             DialogResult rc = dlg.ShowDialog();
             if (rc == DialogResult.OK)
@@ -513,11 +497,13 @@ namespace powercal
                 relay_lines[powercal.Relay_Lines.Voltmeter] = (uint)dlg.numericUpDown_Voltmeter.Value;
                 _relay_ctrl.DicLines_SaveSettings();
 
-
                 // Ember
                 Properties.Settings.Default.Ember_Interface = dlg.comboBoxEmberInterface.Text;
                 Properties.Settings.Default.Ember_BinPath = dlg.TextBoxEmberBinPath.Text;
-                Properties.Settings.Default.Ember_Interface_Address = dlg.textBoxEmberInterfaceAddress.Text;
+                if(dlg.comboBoxEmberInterface.Text == "IP")
+                    Properties.Settings.Default.Ember_Interface_IP_Address = dlg.textBoxEmberInterfaceAddress.Text;
+                else
+                    Properties.Settings.Default.Ember_Interface_USB_Address = dlg.textBoxEmberInterfaceAddress.Text;
 
                 Properties.Settings.Default.Save();
             }
@@ -545,7 +531,7 @@ namespace powercal
                 
 
                 _power_meter_dlg = new Form_PowerMeter(
-                    Properties.Settings.Default.Ember_Interface, Properties.Settings.Default.Ember_Interface_Address,
+                    Properties.Settings.Default.Ember_Interface, Properties.Settings.Default.Ember_Interface_IP_Address,
                     calibrate.Voltage_Referencer, calibrate.Current_Referencer);
                 
                 _power_meter_dlg.FormClosed += power_meter_dlg_FormClosed;
@@ -762,7 +748,7 @@ namespace powercal
                 TraceLogger.Log("Start Ember isachan");
                 Ember.Interfaces ember_interface = (Ember.Interfaces)Enum.Parse(typeof(Ember.Interfaces), Properties.Settings.Default.Ember_Interface);
                 _ember.Interface = ember_interface;
-                _ember.Interface_Address = Properties.Settings.Default.Ember_Interface_Address;
+                _ember.Interface_Address = Properties.Settings.Default.Ember_Interface_IP_Address;
                 if(_ember.Interface == Ember.Interfaces.USB)
                     _ember.OpenISAChannels();
 

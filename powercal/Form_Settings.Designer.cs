@@ -48,13 +48,13 @@
             this.NumericUpDown_ACPower = new System.Windows.Forms.NumericUpDown();
             this.toolTip1 = new System.Windows.Forms.ToolTip(this.components);
             this.groupBox2 = new System.Windows.Forms.GroupBox();
+            this.textBoxEmberInterfaceAddress = new System.Windows.Forms.TextBox();
+            this.label9 = new System.Windows.Forms.Label();
+            this.comboBoxEmberInterface = new System.Windows.Forms.ComboBox();
+            this.label8 = new System.Windows.Forms.Label();
             this.buttonEmberBinPathBrowse = new System.Windows.Forms.Button();
             this.label7 = new System.Windows.Forms.Label();
             this.TextBoxEmberBinPath = new System.Windows.Forms.TextBox();
-            this.label8 = new System.Windows.Forms.Label();
-            this.comboBoxEmberInterface = new System.Windows.Forms.ComboBox();
-            this.label9 = new System.Windows.Forms.Label();
-            this.textBoxEmberInterfaceAddress = new System.Windows.Forms.TextBox();
             this.groupBox1.SuspendLayout();
             this.groupBoxDIO.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.numericUpDown_Voltmeter)).BeginInit();
@@ -260,6 +260,44 @@
             this.groupBox2.TabStop = false;
             this.groupBox2.Text = "Ember";
             // 
+            // textBoxEmberInterfaceAddress
+            // 
+            this.textBoxEmberInterfaceAddress.Location = new System.Drawing.Point(209, 35);
+            this.textBoxEmberInterfaceAddress.Name = "textBoxEmberInterfaceAddress";
+            this.textBoxEmberInterfaceAddress.Size = new System.Drawing.Size(125, 20);
+            this.textBoxEmberInterfaceAddress.TabIndex = 20;
+            this.textBoxEmberInterfaceAddress.TextChanged += new System.EventHandler(this.textBoxEmberInterfaceAddress_TextChanged);
+            // 
+            // label9
+            // 
+            this.label9.AutoSize = true;
+            this.label9.Location = new System.Drawing.Point(155, 38);
+            this.label9.Name = "label9";
+            this.label9.Size = new System.Drawing.Size(48, 13);
+            this.label9.TabIndex = 19;
+            this.label9.Text = "Address:";
+            // 
+            // comboBoxEmberInterface
+            // 
+            this.comboBoxEmberInterface.FormattingEnabled = true;
+            this.comboBoxEmberInterface.Items.AddRange(new object[] {
+            "USB",
+            "IP"});
+            this.comboBoxEmberInterface.Location = new System.Drawing.Point(64, 35);
+            this.comboBoxEmberInterface.Name = "comboBoxEmberInterface";
+            this.comboBoxEmberInterface.Size = new System.Drawing.Size(64, 21);
+            this.comboBoxEmberInterface.TabIndex = 18;
+            this.comboBoxEmberInterface.SelectedIndexChanged += new System.EventHandler(this.comboBoxEmberInterface_SelectedIndexChanged);
+            // 
+            // label8
+            // 
+            this.label8.AutoSize = true;
+            this.label8.Location = new System.Drawing.Point(6, 38);
+            this.label8.Name = "label8";
+            this.label8.Size = new System.Drawing.Size(52, 13);
+            this.label8.TabIndex = 17;
+            this.label8.Text = "Interface:";
+            // 
             // buttonEmberBinPathBrowse
             // 
             this.buttonEmberBinPathBrowse.Location = new System.Drawing.Point(387, 75);
@@ -284,42 +322,6 @@
             this.TextBoxEmberBinPath.Name = "TextBoxEmberBinPath";
             this.TextBoxEmberBinPath.Size = new System.Drawing.Size(344, 20);
             this.TextBoxEmberBinPath.TabIndex = 13;
-            // 
-            // label8
-            // 
-            this.label8.AutoSize = true;
-            this.label8.Location = new System.Drawing.Point(6, 38);
-            this.label8.Name = "label8";
-            this.label8.Size = new System.Drawing.Size(52, 13);
-            this.label8.TabIndex = 17;
-            this.label8.Text = "Interface:";
-            // 
-            // comboBoxEmberInterface
-            // 
-            this.comboBoxEmberInterface.FormattingEnabled = true;
-            this.comboBoxEmberInterface.Items.AddRange(new object[] {
-            "USB",
-            "IP"});
-            this.comboBoxEmberInterface.Location = new System.Drawing.Point(64, 35);
-            this.comboBoxEmberInterface.Name = "comboBoxEmberInterface";
-            this.comboBoxEmberInterface.Size = new System.Drawing.Size(64, 21);
-            this.comboBoxEmberInterface.TabIndex = 18;
-            // 
-            // label9
-            // 
-            this.label9.AutoSize = true;
-            this.label9.Location = new System.Drawing.Point(155, 38);
-            this.label9.Name = "label9";
-            this.label9.Size = new System.Drawing.Size(48, 13);
-            this.label9.TabIndex = 19;
-            this.label9.Text = "Address:";
-            // 
-            // textBoxEmberInterfaceAddress
-            // 
-            this.textBoxEmberInterfaceAddress.Location = new System.Drawing.Point(209, 35);
-            this.textBoxEmberInterfaceAddress.Name = "textBoxEmberInterfaceAddress";
-            this.textBoxEmberInterfaceAddress.Size = new System.Drawing.Size(125, 20);
-            this.textBoxEmberInterfaceAddress.TabIndex = 20;
             // 
             // Form_Settings
             // 
