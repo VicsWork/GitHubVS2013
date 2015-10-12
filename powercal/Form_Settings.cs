@@ -33,6 +33,10 @@ namespace powercal
             else
                 textBoxEmberInterfaceAddress.Text = Properties.Settings.Default.Ember_Interface_USB_Address;
             TextBoxEmberBinPath.Text = Properties.Settings.Default.Ember_BinPath;
+
+            TextBoxCodingX.Text = string.Format("{0}", Properties.Settings.Default.Coding_StatusX);
+            TextBoxCodingY.Text = string.Format("{0}", Properties.Settings.Default.Coding_StatusY);
+
         }
 
         private void buttonOK_Click(object sender, EventArgs e)
@@ -104,6 +108,28 @@ namespace powercal
             else
                 Properties.Settings.Default.Ember_Interface_USB_Address = textBoxEmberInterfaceAddress.Text;
             Properties.Settings.Default.Save();
+        }
+
+        private void buttonCodingSetXY_Click(object sender, EventArgs e)
+        {
+            MouseHook.Start();
+            MouseHook.MouseAction += MouseHook_MouseAction;
+        }
+
+        void MouseHook_MouseAction(object sender, EventArgs e)
+        {
+            MouseHook.Stop();
+
+            MouseHook.POINT p = new MouseHook.POINT();
+            MouseHook.GetCursorPos(out p);
+
+            TextBoxCodingX.Text = string.Format("{0}", p.x);
+            TextBoxCodingY.Text = string.Format("{0}", p.y);
+
+            Properties.Settings.Default.Coding_StatusX = p.x;
+            Properties.Settings.Default.Coding_StatusY = p.y;
+            Properties.Settings.Default.Save();
+
         }
 
     }

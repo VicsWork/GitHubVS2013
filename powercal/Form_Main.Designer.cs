@@ -33,7 +33,7 @@
             this.textBoxOutputStatus = new System.Windows.Forms.TextBox();
             this.contextMenuStatusTextBox = new System.Windows.Forms.ContextMenuStrip(this.components);
             this.clearToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
-            this.buttonRun = new System.Windows.Forms.Button();
+            this.buttonCalibrate = new System.Windows.Forms.Button();
             this.comboBoxBoardTypes = new System.Windows.Forms.ComboBox();
             this.label1 = new System.Windows.Forms.Label();
             this.menuStripMain = new System.Windows.Forms.MenuStrip();
@@ -50,6 +50,7 @@
             this.statusStrip1 = new System.Windows.Forms.StatusStrip();
             this.toolStripStatusLabel = new System.Windows.Forms.ToolStripStatusLabel();
             this.timer_Update_Idle = new System.Windows.Forms.Timer(this.components);
+            this.buttonCode = new System.Windows.Forms.Button();
             this.contextMenuStatusTextBox.SuspendLayout();
             this.menuStripMain.SuspendLayout();
             this.statusStrip1.SuspendLayout();
@@ -86,16 +87,16 @@
             this.clearToolStripMenuItem.Text = "&Clear";
             this.clearToolStripMenuItem.Click += new System.EventHandler(this.toolStripMenuItem_Click_Clear);
             // 
-            // buttonRun
+            // buttonCalibrate
             // 
-            this.buttonRun.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
-            this.buttonRun.Location = new System.Drawing.Point(745, 35);
-            this.buttonRun.Name = "buttonRun";
-            this.buttonRun.Size = new System.Drawing.Size(75, 23);
-            this.buttonRun.TabIndex = 6;
-            this.buttonRun.Text = "&Run";
-            this.buttonRun.UseVisualStyleBackColor = true;
-            this.buttonRun.Click += new System.EventHandler(this.buttonClick_Run);
+            this.buttonCalibrate.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
+            this.buttonCalibrate.Location = new System.Drawing.Point(635, 35);
+            this.buttonCalibrate.Name = "buttonCalibrate";
+            this.buttonCalibrate.Size = new System.Drawing.Size(75, 23);
+            this.buttonCalibrate.TabIndex = 6;
+            this.buttonCalibrate.Text = "Ca&librate";
+            this.buttonCalibrate.UseVisualStyleBackColor = true;
+            this.buttonCalibrate.Click += new System.EventHandler(this.buttonClick_Calibrate);
             // 
             // comboBoxBoardTypes
             // 
@@ -233,17 +234,29 @@
             this.timer_Update_Idle.Interval = 1000;
             this.timer_Update_Idle.Tick += new System.EventHandler(this.timer_Update_Idle_Tick);
             // 
+            // buttonCode
+            // 
+            this.buttonCode.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
+            this.buttonCode.Location = new System.Drawing.Point(554, 35);
+            this.buttonCode.Name = "buttonCode";
+            this.buttonCode.Size = new System.Drawing.Size(75, 23);
+            this.buttonCode.TabIndex = 12;
+            this.buttonCode.Text = "&Code";
+            this.buttonCode.UseVisualStyleBackColor = true;
+            this.buttonCode.Click += new System.EventHandler(this.buttonClick_Code);
+            // 
             // Form_Main
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(96F, 96F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Dpi;
             this.ClientSize = new System.Drawing.Size(832, 557);
+            this.Controls.Add(this.buttonCode);
             this.Controls.Add(this.statusStrip1);
             this.Controls.Add(this.textBoxRunStatus);
             this.Controls.Add(this.menuStripMain);
             this.Controls.Add(this.label1);
             this.Controls.Add(this.comboBoxBoardTypes);
-            this.Controls.Add(this.buttonRun);
+            this.Controls.Add(this.buttonCalibrate);
             this.Controls.Add(this.textBoxOutputStatus);
             this.Icon = ((System.Drawing.Icon)(resources.GetObject("$this.Icon")));
             this.MainMenuStrip = this.menuStripMain;
@@ -265,7 +278,7 @@
         #endregion
 
         private System.Windows.Forms.TextBox textBoxOutputStatus;
-        private System.Windows.Forms.Button buttonRun;
+        private System.Windows.Forms.Button buttonCalibrate;
         private System.Windows.Forms.ComboBox comboBoxBoardTypes;
         private System.Windows.Forms.Label label1;
         private System.Windows.Forms.ContextMenuStrip contextMenuStatusTextBox;
@@ -284,6 +297,7 @@
         private System.Windows.Forms.StatusStrip statusStrip1;
         private System.Windows.Forms.ToolStripStatusLabel toolStripStatusLabel;
         private System.Windows.Forms.Timer timer_Update_Idle;
+        private System.Windows.Forms.Button buttonCode;
     }
 }
 

@@ -61,6 +61,14 @@ namespace powercal
         Form_PowerMeter _power_meter_dlg = null;
 
         /// <summary>
+        /// Coding
+        /// </summary>
+        Point _coding_state_color_point;
+        string _coding_error_msg;
+        CancellationTokenSource _coding_token_src_cancel = new CancellationTokenSource();
+        
+
+        /// <summary>
         /// The main form constructor
         /// </summary>
         public Form_Main()
@@ -117,7 +125,8 @@ namespace powercal
             bool detected_meter = autoDetectMeterCOMPort();
 
             // Init relay controller
-            RelayControler.Device_Types rdevtype = (RelayControler.Device_Types)Enum.Parse(typeof(RelayControler.Device_Types), Properties.Settings.Default.Relay_Controller_Type);
+            RelayControler.Device_Types rdevtype = (RelayControler.Device_Types)Enum.Parse(
+                typeof(RelayControler.Device_Types), Properties.Settings.Default.Relay_Controller_Type);
             try
             {
                 _relay_ctrl = new RelayControler(rdevtype);
@@ -179,7 +188,8 @@ namespace powercal
                         detected = true;
                         Properties.Settings.Default.Meter_COM_Port_Name = portname;
                         Properties.Settings.Default.Save();
-                        string msg = string.Format("Multimetter '{0}' comunications port autodetected at {1}", idn.TrimEnd('\n'), Properties.Settings.Default.Meter_COM_Port_Name);
+                        string msg = string.Format("Multimetter '{0}' comunications port autodetected at {1}", idn.TrimEnd('\n'),
+                            Properties.Settings.Default.Meter_COM_Port_Name);
                         updateOutputStatus(msg);
                         break;
                     }
@@ -193,7 +203,8 @@ namespace powercal
             }
             if (!detected)
             {
-                string msg = string.Format("Unable to detect Multimetter comunications port. Using {0}.  Measurements set to manual mode", Properties.Settings.Default.Meter_COM_Port_Name);
+                string msg = string.Format("Unable to detect Multimetter comunications port. Using {0}.  Measurements set to manual mode",
+                    Properties.Settings.Default.Meter_COM_Port_Name);
 
                 Properties.Settings.Default.Meter_Manual_Measurement = true;
                 Properties.Settings.Default.Save();
@@ -245,11 +256,19 @@ namespace powercal
             }
             else
             {
-                this.buttonRun.Enabled = enable;
+                this.buttonCalibrate.Enabled = enable;
                 this.comboBoxBoardTypes.Enabled = enable;
                 this.menuStripMain.Enabled = enable;
 
-                if (this.buttonRun.Enabled)
+                if (enable)
+                    this.buttonCode.Text = "&Code";
+                else
+                {
+                    this.buttonCode.Text = "&Cancel";
+                    //buttonClick_Code.
+                }
+
+                if (buttonCalibrate.Enabled)
                 {
                     UseWaitCursor = false;
                     this.Cursor = this.DefaultCursor;
@@ -486,7 +505,8 @@ namespace powercal
 
                 // DIO controller type
                 Properties.Settings.Default.Relay_Controller_Type = dlg.comboBoxDIOCtrollerTypes.Text;
-                RelayControler.Device_Types rdevtype = (RelayControler.Device_Types)Enum.Parse(typeof(RelayControler.Device_Types), Properties.Settings.Default.Relay_Controller_Type);
+                RelayControler.Device_Types rdevtype = (RelayControler.Device_Types)Enum.Parse(typeof(RelayControler.Device_Types),
+                    Properties.Settings.Default.Relay_Controller_Type);
                 _relay_ctrl = new RelayControler(rdevtype);
 
                 // DIO line assigment
@@ -630,8 +650,8 @@ namespace powercal
         {
             if (keyData == Keys.Space)
             {
-                if (this.buttonRun.Enabled)
-                    this.buttonClick_Run(this, EventArgs.Empty);
+                if (this.buttonCalibrate.Enabled)
+                    this.buttonClick_Calibrate(this, EventArgs.Empty);
             }
 
             return base.ProcessCmdKey(ref msg, keyData);
@@ -708,12 +728,12 @@ namespace powercal
         /// </summary>
         /// <param name="sender"></param>
         /// <param name="e"></param>
-        private void buttonClick_Run(object sender, EventArgs e)
+        private void buttonClick_Calibrate(object sender, EventArgs e)
         {
             // Clear the error
             _calibration_error_msg = null;
 
-            if (!this.buttonRun.Enabled)
+            if (!this.buttonCalibrate.Enabled)
                 return;
 
             // Just in case we look for an invalid calibrate re-run too fast
@@ -885,12 +905,84 @@ namespace powercal
 
         private void Form_Main_Shown(object sender, EventArgs e)
         {
-            buttonRun.Focus();
+            buttonCalibrate.Focus();
         }
 
         public void Calibrate(string boardtype)
         {
             MessageBox.Show(boardtype);
+        }
+
+        private void buttonClick_Code(object sender, EventArgs e)
+        {
+            if (buttonCode.Text == "&Cancel")
+            {
+                _coding_token_src_cancel.Cancel();
+                return;
+            }
+
+
+            // Disable the app
+            setEnablement(false);
+
+            setRunStatusText("Start Coding");
+            updateOutputStatus("===============================Start Coding==============================");
+
+            _coding_error_msg = null;
+
+            _coding_state_color_point.X = Properties.Settings.Default.Coding_StatusX;
+            _coding_state_color_point.Y = Properties.Settings.Default.Coding_StatusY;
+
+            Coder coder = new Coder(_coding_state_color_point, new TimeSpan(0, 2, 0));
+            CancellationToken token = _coding_token_src_cancel.Token;
+            Task task = new Task(() => coder.Code(token), token);
+            task.ContinueWith(coding_exception_handler, TaskContinuationOptions.OnlyOnFaulted);
+            task.ContinueWith(coding_done_handler, TaskContinuationOptions.OnlyOnRanToCompletion);
+            task.Start();
+        }
+
+        void coding_done()
+        {
+            if (_coding_token_src_cancel.IsCancellationRequested)
+            {
+                updateRunStatus("Cancelled", Color.Black, Color.Yellow);
+            }
+            else
+            {
+
+                if (_coding_error_msg == null)
+                {
+                    updateRunStatus("PASS", Color.White, Color.Green);
+
+                }
+                else
+                {
+                    updateRunStatus("FAIL", Color.White, Color.Red);
+                    updateOutputStatus(_coding_error_msg);
+                }
+            }
+
+            updateOutputStatus("===============================End Coding==============================");
+
+            // Enable the app
+            setEnablement(true);
+
+        }
+        void coding_done_handler(Task task)
+        {
+            bool canceled = task.IsCanceled;
+            var exception = task.Exception;
+
+            coding_done();
+        }
+
+        void coding_exception_handler(Task task)
+        {
+            var exception = task.Exception;
+            string errmsg = exception.InnerException.Message;
+            _coding_error_msg = errmsg;
+
+            coding_done();
         }
 
     }

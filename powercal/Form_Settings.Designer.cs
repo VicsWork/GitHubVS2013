@@ -55,6 +55,12 @@
             this.buttonEmberBinPathBrowse = new System.Windows.Forms.Button();
             this.label7 = new System.Windows.Forms.Label();
             this.TextBoxEmberBinPath = new System.Windows.Forms.TextBox();
+            this.groupBoxCoding = new System.Windows.Forms.GroupBox();
+            this.buttonCodingSetXY = new System.Windows.Forms.Button();
+            this.TextBoxCodingX = new System.Windows.Forms.TextBox();
+            this.label10 = new System.Windows.Forms.Label();
+            this.label11 = new System.Windows.Forms.Label();
+            this.TextBoxCodingY = new System.Windows.Forms.TextBox();
             this.groupBox1.SuspendLayout();
             this.groupBoxDIO.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.numericUpDown_Voltmeter)).BeginInit();
@@ -62,6 +68,7 @@
             ((System.ComponentModel.ISupportInitialize)(this.NumericUpDown_Load)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.NumericUpDown_ACPower)).BeginInit();
             this.groupBox2.SuspendLayout();
+            this.groupBoxCoding.SuspendLayout();
             this.SuspendLayout();
             // 
             // TextBoxMeterCOM
@@ -88,7 +95,7 @@
             this.groupBox1.Controls.Add(this.label2);
             this.groupBox1.Location = new System.Drawing.Point(250, 150);
             this.groupBox1.Name = "groupBox1";
-            this.groupBox1.Size = new System.Drawing.Size(230, 140);
+            this.groupBox1.Size = new System.Drawing.Size(230, 68);
             this.groupBox1.TabIndex = 6;
             this.groupBox1.TabStop = false;
             this.groupBox1.Text = "Measurement";
@@ -323,6 +330,64 @@
             this.TextBoxEmberBinPath.Size = new System.Drawing.Size(344, 20);
             this.TextBoxEmberBinPath.TabIndex = 13;
             // 
+            // groupBoxCoding
+            // 
+            this.groupBoxCoding.Controls.Add(this.label11);
+            this.groupBoxCoding.Controls.Add(this.TextBoxCodingY);
+            this.groupBoxCoding.Controls.Add(this.label10);
+            this.groupBoxCoding.Controls.Add(this.TextBoxCodingX);
+            this.groupBoxCoding.Controls.Add(this.buttonCodingSetXY);
+            this.groupBoxCoding.Location = new System.Drawing.Point(250, 227);
+            this.groupBoxCoding.Name = "groupBoxCoding";
+            this.groupBoxCoding.Size = new System.Drawing.Size(230, 63);
+            this.groupBoxCoding.TabIndex = 14;
+            this.groupBoxCoding.TabStop = false;
+            this.groupBoxCoding.Text = "Coding XY Status Coordinates";
+            // 
+            // buttonCodingSetXY
+            // 
+            this.buttonCodingSetXY.Location = new System.Drawing.Point(142, 29);
+            this.buttonCodingSetXY.Name = "buttonCodingSetXY";
+            this.buttonCodingSetXY.Size = new System.Drawing.Size(42, 23);
+            this.buttonCodingSetXY.TabIndex = 0;
+            this.buttonCodingSetXY.Text = "Set";
+            this.buttonCodingSetXY.UseVisualStyleBackColor = true;
+            this.buttonCodingSetXY.Click += new System.EventHandler(this.buttonCodingSetXY_Click);
+            // 
+            // TextBoxCodingX
+            // 
+            this.TextBoxCodingX.Location = new System.Drawing.Point(26, 31);
+            this.TextBoxCodingX.Name = "TextBoxCodingX";
+            this.TextBoxCodingX.Size = new System.Drawing.Size(42, 20);
+            this.TextBoxCodingX.TabIndex = 1;
+            this.TextBoxCodingX.Text = "00000";
+            // 
+            // label10
+            // 
+            this.label10.AutoSize = true;
+            this.label10.Location = new System.Drawing.Point(6, 34);
+            this.label10.Name = "label10";
+            this.label10.Size = new System.Drawing.Size(14, 13);
+            this.label10.TabIndex = 2;
+            this.label10.Text = "X";
+            // 
+            // label11
+            // 
+            this.label11.AutoSize = true;
+            this.label11.Location = new System.Drawing.Point(74, 34);
+            this.label11.Name = "label11";
+            this.label11.Size = new System.Drawing.Size(14, 13);
+            this.label11.TabIndex = 4;
+            this.label11.Text = "Y";
+            // 
+            // TextBoxCodingY
+            // 
+            this.TextBoxCodingY.Location = new System.Drawing.Point(94, 31);
+            this.TextBoxCodingY.Name = "TextBoxCodingY";
+            this.TextBoxCodingY.Size = new System.Drawing.Size(42, 20);
+            this.TextBoxCodingY.TabIndex = 3;
+            this.TextBoxCodingY.Text = "00000";
+            // 
             // Form_Settings
             // 
             this.AcceptButton = this.buttonOK;
@@ -330,6 +395,7 @@
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.CancelButton = this.buttonCancel;
             this.ClientSize = new System.Drawing.Size(492, 350);
+            this.Controls.Add(this.groupBoxCoding);
             this.Controls.Add(this.groupBox2);
             this.Controls.Add(this.groupBoxDIO);
             this.Controls.Add(this.buttonCancel);
@@ -350,6 +416,8 @@
             ((System.ComponentModel.ISupportInitialize)(this.NumericUpDown_ACPower)).EndInit();
             this.groupBox2.ResumeLayout(false);
             this.groupBox2.PerformLayout();
+            this.groupBoxCoding.ResumeLayout(false);
+            this.groupBoxCoding.PerformLayout();
             this.ResumeLayout(false);
 
         }
@@ -382,5 +450,11 @@
         public System.Windows.Forms.ComboBox comboBoxEmberInterface;
         public System.Windows.Forms.TextBox textBoxEmberInterfaceAddress;
         private System.Windows.Forms.Label label9;
+        private System.Windows.Forms.GroupBox groupBoxCoding;
+        private System.Windows.Forms.Label label11;
+        private System.Windows.Forms.TextBox TextBoxCodingY;
+        private System.Windows.Forms.Label label10;
+        private System.Windows.Forms.Button buttonCodingSetXY;
+        public System.Windows.Forms.TextBox TextBoxCodingX;
     }
 }
