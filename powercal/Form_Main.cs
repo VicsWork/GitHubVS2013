@@ -528,10 +528,14 @@ namespace powercal
 
                 Calibrate calibrate = new Calibrate();
                 calibrate.BoardType = (BoardTypes)Enum.Parse(typeof(BoardTypes), comboBoxBoardTypes.Text);
-                
+
+                string ember_interface = Properties.Settings.Default.Ember_Interface;
+                string ember_address = Properties.Settings.Default.Ember_Interface_IP_Address;
+                if (Properties.Settings.Default.Ember_Interface == "USB")
+                    ember_address = Properties.Settings.Default.Ember_Interface_USB_Address;
 
                 _power_meter_dlg = new Form_PowerMeter(
-                    Properties.Settings.Default.Ember_Interface, Properties.Settings.Default.Ember_Interface_IP_Address,
+                    ember_interface, ember_address,
                     calibrate.Voltage_Referencer, calibrate.Current_Referencer);
                 
                 _power_meter_dlg.FormClosed += power_meter_dlg_FormClosed;
@@ -748,9 +752,17 @@ namespace powercal
                 TraceLogger.Log("Start Ember isachan");
                 Ember.Interfaces ember_interface = (Ember.Interfaces)Enum.Parse(typeof(Ember.Interfaces), Properties.Settings.Default.Ember_Interface);
                 _ember.Interface = ember_interface;
-                _ember.Interface_Address = Properties.Settings.Default.Ember_Interface_IP_Address;
-                if(_ember.Interface == Ember.Interfaces.USB)
+
+                if (_ember.Interface == Ember.Interfaces.USB)
+                {
+                    _ember.Interface_Address = Properties.Settings.Default.Ember_Interface_USB_Address;
                     _ember.OpenISAChannels();
+                }
+                else
+                {
+                    _ember.Interface_Address = Properties.Settings.Default.Ember_Interface_IP_Address;
+                }
+
 
                 // Create a new telnet connection
                 TraceLogger.Log("Start telnet");
@@ -809,7 +821,8 @@ namespace powercal
             }
 
             TraceLogger.Log("Close Ember isachan");
-            _ember.CloseISAChannels();
+            if(_ember.Interface == Ember.Interfaces.USB)
+                _ember.CloseISAChannels();
 
             if (_telnet_connection != null)
             {

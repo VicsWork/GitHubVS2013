@@ -86,6 +86,7 @@ namespace powercal
             _process_ember_isachan.EnableRaisingEvents = true;
             _process_ember_isachan.OutputDataReceived += process_isachan_OutputDataReceived;
             _process_ember_isachan.ErrorDataReceived += process_isachan_ErrorDataReceived;
+
             _process_ember_isachan.Start();
 
             _process_ember_isachan.BeginOutputReadLine();
@@ -102,11 +103,15 @@ namespace powercal
         {
             if (_process_ember_isachan != null)
             {
-                _process_ember_isachan.CancelErrorRead();
-                _process_ember_isachan.CancelOutputRead();
-                if (!_process_ember_isachan.HasExited)
-                    _process_ember_isachan.Kill();
-                _process_ember_isachan.Close();
+                try
+                {
+                    _process_ember_isachan.CancelErrorRead();
+                    _process_ember_isachan.CancelOutputRead();
+                    if (!_process_ember_isachan.HasExited)
+                        _process_ember_isachan.Kill();
+                    _process_ember_isachan.Close();
+                }
+                catch { }
             }
         }
 
