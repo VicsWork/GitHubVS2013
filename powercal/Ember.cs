@@ -30,8 +30,11 @@ namespace powercal
         private string _ember_exe = "em3xx_load";
         private string _ember_bin_path = "C:\\Program Files (x86)\\Ember\\ISA3 Utilities\\bin";
 
-        string _probe_ip_address = "localhost";
-        public string Probe_IP_Address { get { return _probe_ip_address; } set { _probe_ip_address = value; } }
+        public enum Interfaces  { USB, IP };
+        Interfaces _interface = Interfaces.USB;
+        public Interfaces Interface { get { return _interface; } set { _interface = value; } }
+        string _interface_address = "localhost";
+        public string Interface_Address { get { return _interface_address; } set { _interface_address = value; } }
         //private int _usb_port = 0;
 
         private int _voltageAddress = 0x08040980;
@@ -60,9 +63,6 @@ namespace powercal
         {
             Kill_em3xx_load();
 
-            if (_probe_ip_address != "localhost")
-                return null;
-
             _process_ember_isachan = new Process()
             {
                 StartInfo = new ProcessStartInfo()
@@ -78,8 +78,10 @@ namespace powercal
                 }
             };
 
-            if (_probe_ip_address != "localhost")
-                _process_ember_isachan.StartInfo.Arguments += string.Format(" --ip={0}", _probe_ip_address);
+            if (_interface == Interfaces.IP)
+                _process_ember_isachan.StartInfo.Arguments += string.Format(" --ip={0}", _interface_address);
+            else if(_interface == Interfaces.USB)
+                _process_ember_isachan.StartInfo.Arguments += string.Format(" --usb={0}", _interface_address);
 
             _process_ember_isachan.EnableRaisingEvents = true;
             _process_ember_isachan.OutputDataReceived += process_isachan_OutputDataReceived;

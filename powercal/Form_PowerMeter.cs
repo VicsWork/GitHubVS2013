@@ -31,17 +31,18 @@ namespace powercal
         double _uut_voltage_reference = 240;
         double _uut_current_reference = 15;
 
-        public Form_PowerMeter(double uut_voltage_reference, double uut_current_reference)
+        public Form_PowerMeter(string interface_type, string interface_address, double uut_voltage_reference, double uut_current_reference)
         {
             InitializeComponent();
 
             _ember = new Ember();
             _ember.Process_ISAChan_Error_Event += ember_Process_ISAChan_Error_Event;
+            _ember.Interface = (Ember.Interfaces)Enum.Parse(typeof(Ember.Interfaces), interface_type);
+            _ember.Interface_Address = interface_address;
             _ember.CloseISAChannels();
-            _ember.Probe_IP_Address = "172.19.14.121";
             _ember.OpenISAChannels();
 
-            _telnet_connection = new TelnetConnection(_ember.Probe_IP_Address, 4900);
+            _telnet_connection = new TelnetConnection(_ember.Interface_Address, 4900);
             _cmd_prefix = TCLI.Get_Custom_Command_Prefix(_telnet_connection);
 
 

@@ -82,5 +82,29 @@ namespace powercal.Properties {
                 this["Meter_Manual_Measurement"] = value;
             }
         }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("IP")]
+        public string Ember_Interface {
+            get {
+                return ((string)(this["Ember_Interface"]));
+            }
+            set {
+                this["Ember_Interface"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("172.19.14.121")]
+        public string Ember_Interface_Address {
+            get {
+                return ((string)(this["Ember_Interface_Address"]));
+            }
+            set {
+                this["Ember_Interface_Address"] = value;
+            }
+        }
     }
 }

@@ -36,6 +36,8 @@
             this.buttonOK = new System.Windows.Forms.Button();
             this.buttonCancel = new System.Windows.Forms.Button();
             this.groupBoxDIO = new System.Windows.Forms.GroupBox();
+            this.numericUpDown_Voltmeter = new System.Windows.Forms.NumericUpDown();
+            this.label5 = new System.Windows.Forms.Label();
             this.label1 = new System.Windows.Forms.Label();
             this.comboBoxDIOCtrollerTypes = new System.Windows.Forms.ComboBox();
             this.label6 = new System.Windows.Forms.Label();
@@ -45,18 +47,20 @@
             this.label3 = new System.Windows.Forms.Label();
             this.NumericUpDown_ACPower = new System.Windows.Forms.NumericUpDown();
             this.toolTip1 = new System.Windows.Forms.ToolTip(this.components);
-            this.label5 = new System.Windows.Forms.Label();
-            this.numericUpDown_Voltmeter = new System.Windows.Forms.NumericUpDown();
             this.groupBox2 = new System.Windows.Forms.GroupBox();
             this.buttonEmberBinPathBrowse = new System.Windows.Forms.Button();
             this.label7 = new System.Windows.Forms.Label();
             this.TextBoxEmberBinPath = new System.Windows.Forms.TextBox();
+            this.label8 = new System.Windows.Forms.Label();
+            this.comboBoxEmberInterface = new System.Windows.Forms.ComboBox();
+            this.label9 = new System.Windows.Forms.Label();
+            this.textBoxEmberInterfaceAddress = new System.Windows.Forms.TextBox();
             this.groupBox1.SuspendLayout();
             this.groupBoxDIO.SuspendLayout();
+            ((System.ComponentModel.ISupportInitialize)(this.numericUpDown_Voltmeter)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.NumericUpDown_Ember)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.NumericUpDown_Load)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.NumericUpDown_ACPower)).BeginInit();
-            ((System.ComponentModel.ISupportInitialize)(this.numericUpDown_Voltmeter)).BeginInit();
             this.groupBox2.SuspendLayout();
             this.SuspendLayout();
             // 
@@ -82,12 +86,12 @@
             this.groupBox1.Controls.Add(this.CheckBoxManualMultiMeter);
             this.groupBox1.Controls.Add(this.TextBoxMeterCOM);
             this.groupBox1.Controls.Add(this.label2);
-            this.groupBox1.Location = new System.Drawing.Point(12, 12);
+            this.groupBox1.Location = new System.Drawing.Point(250, 150);
             this.groupBox1.Name = "groupBox1";
-            this.groupBox1.Size = new System.Drawing.Size(230, 74);
+            this.groupBox1.Size = new System.Drawing.Size(230, 140);
             this.groupBox1.TabIndex = 6;
             this.groupBox1.TabStop = false;
-            this.groupBox1.Text = "Comunications";
+            this.groupBox1.Text = "Measurement";
             // 
             // CheckBoxManualMultiMeter
             // 
@@ -103,7 +107,7 @@
             // buttonOK
             // 
             this.buttonOK.DialogResult = System.Windows.Forms.DialogResult.OK;
-            this.buttonOK.Location = new System.Drawing.Point(167, 263);
+            this.buttonOK.Location = new System.Drawing.Point(170, 318);
             this.buttonOK.Name = "buttonOK";
             this.buttonOK.Size = new System.Drawing.Size(75, 23);
             this.buttonOK.TabIndex = 7;
@@ -113,7 +117,7 @@
             // buttonCancel
             // 
             this.buttonCancel.DialogResult = System.Windows.Forms.DialogResult.Cancel;
-            this.buttonCancel.Location = new System.Drawing.Point(248, 263);
+            this.buttonCancel.Location = new System.Drawing.Point(251, 318);
             this.buttonCancel.Name = "buttonCancel";
             this.buttonCancel.Size = new System.Drawing.Size(75, 23);
             this.buttonCancel.TabIndex = 8;
@@ -131,12 +135,33 @@
             this.groupBoxDIO.Controls.Add(this.NumericUpDown_Load);
             this.groupBoxDIO.Controls.Add(this.label3);
             this.groupBoxDIO.Controls.Add(this.NumericUpDown_ACPower);
-            this.groupBoxDIO.Location = new System.Drawing.Point(248, 12);
+            this.groupBoxDIO.Location = new System.Drawing.Point(12, 143);
             this.groupBoxDIO.Name = "groupBoxDIO";
             this.groupBoxDIO.Size = new System.Drawing.Size(217, 147);
             this.groupBoxDIO.TabIndex = 9;
             this.groupBoxDIO.TabStop = false;
             this.groupBoxDIO.Text = "DIO Line";
+            // 
+            // numericUpDown_Voltmeter
+            // 
+            this.numericUpDown_Voltmeter.Location = new System.Drawing.Point(168, 89);
+            this.numericUpDown_Voltmeter.Maximum = new decimal(new int[] {
+            7,
+            0,
+            0,
+            0});
+            this.numericUpDown_Voltmeter.Name = "numericUpDown_Voltmeter";
+            this.numericUpDown_Voltmeter.Size = new System.Drawing.Size(31, 20);
+            this.numericUpDown_Voltmeter.TabIndex = 11;
+            // 
+            // label5
+            // 
+            this.label5.AutoSize = true;
+            this.label5.Location = new System.Drawing.Point(111, 91);
+            this.label5.Name = "label5";
+            this.label5.Size = new System.Drawing.Size(51, 13);
+            this.label5.TabIndex = 10;
+            this.label5.Text = "Voltmeter";
             // 
             // label1
             // 
@@ -165,7 +190,7 @@
             this.label6.TabIndex = 7;
             this.label6.Text = "Ember";
             // 
-            // NumericUpDownEmber
+            // NumericUpDown_Ember
             // 
             this.NumericUpDown_Ember.Location = new System.Drawing.Point(167, 61);
             this.NumericUpDown_Ember.Maximum = new decimal(new int[] {
@@ -173,7 +198,7 @@
             0,
             0,
             0});
-            this.NumericUpDown_Ember.Name = "NumericUpDownEmber";
+            this.NumericUpDown_Ember.Name = "NumericUpDown_Ember";
             this.NumericUpDown_Ember.Size = new System.Drawing.Size(31, 20);
             this.NumericUpDown_Ember.TabIndex = 6;
             // 
@@ -186,7 +211,7 @@
             this.label4.TabIndex = 3;
             this.label4.Text = "Load";
             // 
-            // NumericUpDownLoad
+            // NumericUpDown_Load
             // 
             this.NumericUpDown_Load.Location = new System.Drawing.Point(67, 84);
             this.NumericUpDown_Load.Maximum = new decimal(new int[] {
@@ -194,7 +219,7 @@
             0,
             0,
             0});
-            this.NumericUpDown_Load.Name = "NumericUpDownLoad";
+            this.NumericUpDown_Load.Name = "NumericUpDown_Load";
             this.NumericUpDown_Load.Size = new System.Drawing.Size(31, 20);
             this.NumericUpDown_Load.TabIndex = 2;
             // 
@@ -207,7 +232,7 @@
             this.label3.TabIndex = 1;
             this.label3.Text = "AC Power";
             // 
-            // NumericUpDownACPower
+            // NumericUpDown_ACPower
             // 
             this.NumericUpDown_ACPower.Location = new System.Drawing.Point(67, 61);
             this.NumericUpDown_ACPower.Maximum = new decimal(new int[] {
@@ -215,46 +240,29 @@
             0,
             0,
             0});
-            this.NumericUpDown_ACPower.Name = "NumericUpDownACPower";
+            this.NumericUpDown_ACPower.Name = "NumericUpDown_ACPower";
             this.NumericUpDown_ACPower.Size = new System.Drawing.Size(31, 20);
             this.NumericUpDown_ACPower.TabIndex = 0;
             // 
-            // label5
-            // 
-            this.label5.AutoSize = true;
-            this.label5.Location = new System.Drawing.Point(111, 91);
-            this.label5.Name = "label5";
-            this.label5.Size = new System.Drawing.Size(51, 13);
-            this.label5.TabIndex = 10;
-            this.label5.Text = "Voltmeter";
-            // 
-            // numericUpDownVoltmeter
-            // 
-            this.numericUpDown_Voltmeter.Location = new System.Drawing.Point(168, 89);
-            this.numericUpDown_Voltmeter.Maximum = new decimal(new int[] {
-            7,
-            0,
-            0,
-            0});
-            this.numericUpDown_Voltmeter.Name = "numericUpDownVoltmeter";
-            this.numericUpDown_Voltmeter.Size = new System.Drawing.Size(31, 20);
-            this.numericUpDown_Voltmeter.TabIndex = 11;
-            // 
             // groupBox2
             // 
+            this.groupBox2.Controls.Add(this.textBoxEmberInterfaceAddress);
+            this.groupBox2.Controls.Add(this.label9);
+            this.groupBox2.Controls.Add(this.comboBoxEmberInterface);
+            this.groupBox2.Controls.Add(this.label8);
             this.groupBox2.Controls.Add(this.buttonEmberBinPathBrowse);
             this.groupBox2.Controls.Add(this.label7);
             this.groupBox2.Controls.Add(this.TextBoxEmberBinPath);
-            this.groupBox2.Location = new System.Drawing.Point(12, 176);
+            this.groupBox2.Location = new System.Drawing.Point(12, 12);
             this.groupBox2.Name = "groupBox2";
-            this.groupBox2.Size = new System.Drawing.Size(428, 62);
+            this.groupBox2.Size = new System.Drawing.Size(468, 125);
             this.groupBox2.TabIndex = 13;
             this.groupBox2.TabStop = false;
             this.groupBox2.Text = "Ember";
             // 
             // buttonEmberBinPathBrowse
             // 
-            this.buttonEmberBinPathBrowse.Location = new System.Drawing.Point(343, 17);
+            this.buttonEmberBinPathBrowse.Location = new System.Drawing.Point(387, 75);
             this.buttonEmberBinPathBrowse.Name = "buttonEmberBinPathBrowse";
             this.buttonEmberBinPathBrowse.Size = new System.Drawing.Size(75, 23);
             this.buttonEmberBinPathBrowse.TabIndex = 15;
@@ -264,7 +272,7 @@
             // label7
             // 
             this.label7.AutoSize = true;
-            this.label7.Location = new System.Drawing.Point(6, 22);
+            this.label7.Location = new System.Drawing.Point(3, 81);
             this.label7.Name = "label7";
             this.label7.Size = new System.Drawing.Size(32, 13);
             this.label7.TabIndex = 14;
@@ -272,18 +280,54 @@
             // 
             // TextBoxEmberBinPath
             // 
-            this.TextBoxEmberBinPath.Location = new System.Drawing.Point(40, 19);
+            this.TextBoxEmberBinPath.Location = new System.Drawing.Point(37, 78);
             this.TextBoxEmberBinPath.Name = "TextBoxEmberBinPath";
-            this.TextBoxEmberBinPath.Size = new System.Drawing.Size(297, 20);
+            this.TextBoxEmberBinPath.Size = new System.Drawing.Size(344, 20);
             this.TextBoxEmberBinPath.TabIndex = 13;
             // 
-            // FormSettings
+            // label8
+            // 
+            this.label8.AutoSize = true;
+            this.label8.Location = new System.Drawing.Point(6, 38);
+            this.label8.Name = "label8";
+            this.label8.Size = new System.Drawing.Size(52, 13);
+            this.label8.TabIndex = 17;
+            this.label8.Text = "Interface:";
+            // 
+            // comboBoxEmberInterface
+            // 
+            this.comboBoxEmberInterface.FormattingEnabled = true;
+            this.comboBoxEmberInterface.Items.AddRange(new object[] {
+            "USB",
+            "IP"});
+            this.comboBoxEmberInterface.Location = new System.Drawing.Point(64, 35);
+            this.comboBoxEmberInterface.Name = "comboBoxEmberInterface";
+            this.comboBoxEmberInterface.Size = new System.Drawing.Size(64, 21);
+            this.comboBoxEmberInterface.TabIndex = 18;
+            // 
+            // label9
+            // 
+            this.label9.AutoSize = true;
+            this.label9.Location = new System.Drawing.Point(155, 38);
+            this.label9.Name = "label9";
+            this.label9.Size = new System.Drawing.Size(48, 13);
+            this.label9.TabIndex = 19;
+            this.label9.Text = "Address:";
+            // 
+            // textBoxEmberInterfaceAddress
+            // 
+            this.textBoxEmberInterfaceAddress.Location = new System.Drawing.Point(209, 35);
+            this.textBoxEmberInterfaceAddress.Name = "textBoxEmberInterfaceAddress";
+            this.textBoxEmberInterfaceAddress.Size = new System.Drawing.Size(125, 20);
+            this.textBoxEmberInterfaceAddress.TabIndex = 20;
+            // 
+            // Form_Settings
             // 
             this.AcceptButton = this.buttonOK;
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.CancelButton = this.buttonCancel;
-            this.ClientSize = new System.Drawing.Size(486, 324);
+            this.ClientSize = new System.Drawing.Size(492, 350);
             this.Controls.Add(this.groupBox2);
             this.Controls.Add(this.groupBoxDIO);
             this.Controls.Add(this.buttonCancel);
@@ -291,17 +335,17 @@
             this.Controls.Add(this.groupBox1);
             this.FormBorderStyle = System.Windows.Forms.FormBorderStyle.FixedDialog;
             this.MaximizeBox = false;
-            this.Name = "FormSettings";
+            this.Name = "Form_Settings";
             this.Text = "Settings";
             this.Load += new System.EventHandler(this.FormSettings_Load);
             this.groupBox1.ResumeLayout(false);
             this.groupBox1.PerformLayout();
             this.groupBoxDIO.ResumeLayout(false);
             this.groupBoxDIO.PerformLayout();
+            ((System.ComponentModel.ISupportInitialize)(this.numericUpDown_Voltmeter)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this.NumericUpDown_Ember)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this.NumericUpDown_Load)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this.NumericUpDown_ACPower)).EndInit();
-            ((System.ComponentModel.ISupportInitialize)(this.numericUpDown_Voltmeter)).EndInit();
             this.groupBox2.ResumeLayout(false);
             this.groupBox2.PerformLayout();
             this.ResumeLayout(false);
@@ -332,5 +376,9 @@
         private System.Windows.Forms.Button buttonEmberBinPathBrowse;
         private System.Windows.Forms.Label label7;
         public System.Windows.Forms.TextBox TextBoxEmberBinPath;
+        private System.Windows.Forms.Label label8;
+        public System.Windows.Forms.ComboBox comboBoxEmberInterface;
+        public System.Windows.Forms.TextBox textBoxEmberInterfaceAddress;
+        private System.Windows.Forms.Label label9;
     }
 }

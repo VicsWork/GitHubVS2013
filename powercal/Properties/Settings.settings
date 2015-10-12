@@ -17,5 +17,11 @@
     <Setting Name="Meter_Manual_Measurement" Type="System.Boolean" Scope="User">
       <Value Profile="(Default)">False</Value>
     </Setting>
+    <Setting Name="Ember_Interface" Type="System.String" Scope="User">
+      <Value Profile="(Default)">IP</Value>
+    </Setting>
+    <Setting Name="Ember_Interface_Address" Type="System.String" Scope="User">
+      <Value Profile="(Default)">172.19.14.121</Value>
+    </Setting>
   </Settings>
 </SettingsFile>

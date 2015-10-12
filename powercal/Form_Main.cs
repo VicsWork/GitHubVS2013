@@ -489,6 +489,8 @@ namespace powercal
             dlg.numericUpDown_Voltmeter.Value = relay_lines[powercal.Relay_Lines.Voltmeter];
 
             // Ember
+            dlg.comboBoxEmberInterface.Text = Properties.Settings.Default.Ember_Interface;
+            dlg.textBoxEmberInterfaceAddress.Text = Properties.Settings.Default.Ember_Interface_Address;
             dlg.TextBoxEmberBinPath.Text = Properties.Settings.Default.Ember_BinPath;
 
             DialogResult rc = dlg.ShowDialog();
@@ -513,7 +515,9 @@ namespace powercal
 
 
                 // Ember
+                Properties.Settings.Default.Ember_Interface = dlg.comboBoxEmberInterface.Text;
                 Properties.Settings.Default.Ember_BinPath = dlg.TextBoxEmberBinPath.Text;
+                Properties.Settings.Default.Ember_Interface_Address = dlg.textBoxEmberInterfaceAddress.Text;
 
                 Properties.Settings.Default.Save();
             }
@@ -537,12 +541,15 @@ namespace powercal
                 Thread.Sleep(1000);
 
                 Calibrate calibrate = new Calibrate();
-                powercal.BoardTypes board_type = (powercal.BoardTypes)Enum.Parse(typeof(powercal.BoardTypes), comboBoxBoardTypes.Text);
-                calibrate.BoardType = board_type;
+                calibrate.BoardType = (BoardTypes)Enum.Parse(typeof(BoardTypes), comboBoxBoardTypes.Text);
                 
 
-                _power_meter_dlg = new Form_PowerMeter(calibrate.Voltage_Referencer, calibrate.Current_Referencer);
+                _power_meter_dlg = new Form_PowerMeter(
+                    Properties.Settings.Default.Ember_Interface, Properties.Settings.Default.Ember_Interface_Address,
+                    calibrate.Voltage_Referencer, calibrate.Current_Referencer);
+                
                 _power_meter_dlg.FormClosed += power_meter_dlg_FormClosed;
+
                 //_power_meter_dlg.Show();
                 _power_meter_dlg.ShowDialog();
             }
@@ -753,13 +760,19 @@ namespace powercal
 
 
                 TraceLogger.Log("Start Ember isachan");
-                _ember.OpenISAChannels();
+                Ember.Interfaces ember_interface = (Ember.Interfaces)Enum.Parse(typeof(Ember.Interfaces), Properties.Settings.Default.Ember_Interface);
+                _ember.Interface = ember_interface;
+                _ember.Interface_Address = Properties.Settings.Default.Ember_Interface_Address;
+                if(_ember.Interface == Ember.Interfaces.USB)
+                    _ember.OpenISAChannels();
 
                 // Create a new telnet connection
                 TraceLogger.Log("Start telnet");
 
-                _ember.Probe_IP_Address = "172.19.14.121";
-                _telnet_connection = new TelnetConnection(_ember.Probe_IP_Address, 4900);
+                string telnet_address = "localhost";
+                if (_ember.Interface == Ember.Interfaces.IP)
+                    telnet_address = _ember.Interface_Address;
+                _telnet_connection = new TelnetConnection(telnet_address, 4900);
 
                 powercal.BoardTypes board_type = (powercal.BoardTypes)Enum.Parse(typeof(powercal.BoardTypes), comboBoxBoardTypes.Text);
 

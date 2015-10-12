@@ -33,10 +33,10 @@
             this.labelPowerUUT = new System.Windows.Forms.Label();
             this.timerISAChan = new System.Windows.Forms.Timer(this.components);
             this.groupBox1 = new System.Windows.Forms.GroupBox();
-            this.label1 = new System.Windows.Forms.Label();
-            this.labelVoltageUUT = new System.Windows.Forms.Label();
-            this.label2 = new System.Windows.Forms.Label();
             this.labelCurrentUUT = new System.Windows.Forms.Label();
+            this.label2 = new System.Windows.Forms.Label();
+            this.labelVoltageUUT = new System.Windows.Forms.Label();
+            this.label1 = new System.Windows.Forms.Label();
             this.groupBox1.SuspendLayout();
             this.SuspendLayout();
             // 
@@ -70,23 +70,14 @@
             this.groupBox1.TabStop = false;
             this.groupBox1.Text = "UUT";
             // 
-            // label1
+            // labelCurrentUUT
             // 
-            this.label1.AutoSize = true;
-            this.label1.Location = new System.Drawing.Point(12, 87);
-            this.label1.Name = "label1";
-            this.label1.Size = new System.Drawing.Size(49, 13);
-            this.label1.TabIndex = 1;
-            this.label1.Text = "Voltage: ";
-            // 
-            // labelVoltageUUT
-            // 
-            this.labelVoltageUUT.AutoSize = true;
-            this.labelVoltageUUT.Location = new System.Drawing.Point(67, 87);
-            this.labelVoltageUUT.Name = "labelVoltageUUT";
-            this.labelVoltageUUT.Size = new System.Drawing.Size(28, 13);
-            this.labelVoltageUUT.TabIndex = 2;
-            this.labelVoltageUUT.Text = "0.00";
+            this.labelCurrentUUT.AutoSize = true;
+            this.labelCurrentUUT.Location = new System.Drawing.Point(67, 112);
+            this.labelCurrentUUT.Name = "labelCurrentUUT";
+            this.labelCurrentUUT.Size = new System.Drawing.Size(28, 13);
+            this.labelCurrentUUT.TabIndex = 4;
+            this.labelCurrentUUT.Text = "0.00";
             // 
             // label2
             // 
@@ -97,14 +88,23 @@
             this.label2.TabIndex = 3;
             this.label2.Text = "Current:";
             // 
-            // labelCurrentUUT
+            // labelVoltageUUT
             // 
-            this.labelCurrentUUT.AutoSize = true;
-            this.labelCurrentUUT.Location = new System.Drawing.Point(67, 112);
-            this.labelCurrentUUT.Name = "labelCurrentUUT";
-            this.labelCurrentUUT.Size = new System.Drawing.Size(28, 13);
-            this.labelCurrentUUT.TabIndex = 4;
-            this.labelCurrentUUT.Text = "0.00";
+            this.labelVoltageUUT.AutoSize = true;
+            this.labelVoltageUUT.Location = new System.Drawing.Point(67, 87);
+            this.labelVoltageUUT.Name = "labelVoltageUUT";
+            this.labelVoltageUUT.Size = new System.Drawing.Size(28, 13);
+            this.labelVoltageUUT.TabIndex = 2;
+            this.labelVoltageUUT.Text = "0.00";
+            // 
+            // label1
+            // 
+            this.label1.AutoSize = true;
+            this.label1.Location = new System.Drawing.Point(12, 87);
+            this.label1.Name = "label1";
+            this.label1.Size = new System.Drawing.Size(49, 13);
+            this.label1.TabIndex = 1;
+            this.label1.Text = "Voltage: ";
             // 
             // Form_PowerMeter
             // 
@@ -112,6 +112,7 @@
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(228, 228);
             this.Controls.Add(this.groupBox1);
+            this.FormBorderStyle = System.Windows.Forms.FormBorderStyle.FixedToolWindow;
             this.Icon = ((System.Drawing.Icon)(resources.GetObject("$this.Icon")));
             this.Name = "Form_PowerMeter";
             this.Text = "Power Meter";
