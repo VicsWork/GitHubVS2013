@@ -21,16 +21,17 @@ namespace powercal
         string _cmd_prefix;
         Ember _ember;
 
-        public delegate void CLIValueHandler(object sender, string text);
+        public delegate void CLIValueHandler(object sender, double voltage, double current);
         public event CLIValueHandler CLIValue_Event;
-
-        delegate void SetTextCallback(string txt);
+        delegate void SetTextCallback(double voltage, double current);
 
         CancellationTokenSource _tokenSrc = new CancellationTokenSource();
         Task _task;
 
+        double _uut_voltage_reference = 240;
+        double _uut_current_reference = 15;
 
-        public Form_PowerMeter()
+        public Form_PowerMeter(double uut_voltage_reference, double uut_current_reference)
         {
             InitializeComponent();
 
@@ -43,29 +44,33 @@ namespace powercal
             _telnet_connection = new TelnetConnection(_ember.Probe_IP_Address, 4900);
             _cmd_prefix = TCLI.Get_Custom_Command_Prefix(_telnet_connection);
 
+
+            _uut_voltage_reference = uut_voltage_reference;
+            _uut_current_reference = uut_current_reference;
+
             this.CLIValue_Event += Form_PowerMeter_CLIValue_Event;
         }
 
-        void Form_PowerMeter_CLIValue_Event(object sender, string text)
+        void Form_PowerMeter_CLIValue_Event(object sender, double voltage, double current)
         {
-            setCLIText(text);
+            setCLIText(voltage, current);
         }
 
-        void setCLIText(string text)
+        void setCLIText(double voltage, double current)
         {
             if (_tokenSrc.IsCancellationRequested)
                 return;
 
-            if (this.labelPowerCS.InvokeRequired)
+            if (this.InvokeRequired)
             {
                 SetTextCallback d = new SetTextCallback(setCLIText);
-                this.Invoke(d, new object[] { text });
+                this.Invoke(d, new object[] { voltage, current });
             }
             else
             {
-                //this.labelPowerCS.Text = string.Format("{0:F8}", cv.Voltage);
-                this.labelPowerCS.Text = text;
-                //this.labelPowerCS.Update();
+                labelPowerUUT.Text = string.Format("{0:F2}", voltage * current);
+                labelVoltageUUT.Text = string.Format("{0:F4}", voltage);
+                labelCurrentUUT.Text = string.Format("{0:F6}", current);
             }
         }
 
@@ -80,20 +85,26 @@ namespace powercal
                 if (ct.IsCancellationRequested)
                     break;
 
-                TCLI.Current_Voltage cv = get_uut_data();
-
-                if (CLIValue_Event != null)
+                try
                 {
-                    string txt = string.Format("{0:F8}", cv.Voltage);
-                    CLIValue_Event(this, txt);
+                    TCLI.Current_Voltage cv = get_uut_data(_uut_voltage_reference, _uut_current_reference);
+                    if (CLIValue_Event != null)
+                    {
+                        CLIValue_Event(this, cv.Voltage, cv.Current);
+                    }
+                }
+                catch (Exception e)
+                {
+                    if (!ct.IsCancellationRequested)
+                        throw e;
                 }
             }
         }
 
 
-        TCLI.Current_Voltage get_uut_data()
+        TCLI.Current_Voltage get_uut_data(double voltage_reference, double current_reference)
         {
-            return TCLI.Parse_Pload_Registers(_telnet_connection, _cmd_prefix, 240, 10);
+            return TCLI.Parse_Pload_Registers(_telnet_connection, _cmd_prefix, voltage_reference, current_reference);
         }
 
         private void Form_PowerMeter_Load(object sender, EventArgs e)
@@ -114,23 +125,12 @@ namespace powercal
 
         private void Form_PowerMeter_FormClosing(object sender, FormClosingEventArgs e)
         {
-
-            try
-            {
-                _tokenSrc.Cancel();
-                //_task.Wait(_tokenSrc.Token);
-            }
-            catch (Exception)
-            {
-            }
-
-            while (!_task.IsCompleted)
-                Thread.Sleep(1000);
+            _tokenSrc.Cancel();
 
             if (_telnet_connection != null)
                 _telnet_connection.Close();
 
-            if(_ember != null)
+            if (_ember != null)
                 _ember.CloseISAChannels();
         }
 

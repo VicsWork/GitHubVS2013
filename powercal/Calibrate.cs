@@ -67,6 +67,10 @@ namespace powercal
                 set_board_calibration_values();
             } 
         }
+
+        public double Voltage_Referencer { get { return _voltage_ac_reference; } }
+        public double Current_Referencer { get { return _current_ac_reference; } }
+
         public RelayControler RelayController { get { return _relay_ctrl; } set { _relay_ctrl = value; } }
         public TelnetConnection TelnetConnection { get { return _telnet_connection; } set { _telnet_connection = value; } }
         public MultiMeter MultiMeter { get { return _meter; } set { _meter = value; } }

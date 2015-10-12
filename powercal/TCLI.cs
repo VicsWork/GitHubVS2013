@@ -49,7 +49,8 @@ namespace powercal
             string datain = telnet_connection.Read();
             Trace.WriteLine(datain);
             string msg;
-            if (datain.Length > 0)
+
+            if (datain != null && datain.Length > 0)
             {
                 Match on_off_match = Regex.Match(datain, "Changing OnOff .*");
                 if (on_off_match.Success)

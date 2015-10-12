@@ -58,6 +58,8 @@ namespace powercal
         delegate void SetEnablementCallback(Boolean enable);
         delegate void UpdateCallback();
 
+        Form_PowerMeter _power_meter_dlg = null;
+
         /// <summary>
         /// The main form constructor
         /// </summary>
@@ -525,8 +527,41 @@ namespace powercal
 
         private void toolStripMenuItem_Click_PowerMeter(object sender, EventArgs e)
         {
-            Form_PowerMeter dlg = new Form_PowerMeter();
-            dlg.Show();
+            if (_power_meter_dlg == null)
+            {
+                _relay_ctrl.Open();
+                _relay_ctrl.WriteLine(Relay_Lines.Power, true);
+                _relay_ctrl.WriteLine(Relay_Lines.Ember, true);
+                _relay_ctrl.WriteLine(Relay_Lines.Load, true);
+                _relay_ctrl.Close();
+                Thread.Sleep(1000);
+
+                Calibrate calibrate = new Calibrate();
+                powercal.BoardTypes board_type = (powercal.BoardTypes)Enum.Parse(typeof(powercal.BoardTypes), comboBoxBoardTypes.Text);
+                calibrate.BoardType = board_type;
+                
+
+                _power_meter_dlg = new Form_PowerMeter(calibrate.Voltage_Referencer, calibrate.Current_Referencer);
+                _power_meter_dlg.FormClosed += power_meter_dlg_FormClosed;
+                //_power_meter_dlg.Show();
+                _power_meter_dlg.ShowDialog();
+            }
+            else
+            {
+                _power_meter_dlg.BringToFront();
+            }
+        }
+
+        void power_meter_dlg_FormClosed(object sender, FormClosedEventArgs e)
+        {
+            _power_meter_dlg = null;
+
+            _relay_ctrl.Open();
+            _relay_ctrl.WriteLine(Relay_Lines.Power, false);
+            _relay_ctrl.WriteLine(Relay_Lines.Ember, false);
+            _relay_ctrl.WriteLine(Relay_Lines.Load, false);
+            _relay_ctrl.Close();
+
         }
 
         /// <summary>
@@ -723,7 +758,7 @@ namespace powercal
                 // Create a new telnet connection
                 TraceLogger.Log("Start telnet");
 
-                //_ember.Probe_IP_Address = "172.19.14.121";
+                _ember.Probe_IP_Address = "172.19.14.121";
                 _telnet_connection = new TelnetConnection(_ember.Probe_IP_Address, 4900);
 
                 powercal.BoardTypes board_type = (powercal.BoardTypes)Enum.Parse(typeof(powercal.BoardTypes), comboBoxBoardTypes.Text);
