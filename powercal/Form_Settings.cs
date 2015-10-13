@@ -114,6 +114,8 @@ namespace powercal
         {
             MouseHook.Start();
             MouseHook.MouseAction += MouseHook_MouseAction;
+
+            buttonCodingSetXY.Enabled = false;
         }
 
         void MouseHook_MouseAction(object sender, EventArgs e)
@@ -130,6 +132,21 @@ namespace powercal
             Properties.Settings.Default.Coding_StatusY = p.y;
             Properties.Settings.Default.Save();
 
+            buttonCodingSetXY.Enabled = true;
+
+        }
+
+        private void TextBoxCodingX_TextChanged(object sender, EventArgs e)
+        {
+            Properties.Settings.Default.Coding_StatusX = Convert.ToInt32(TextBoxCodingX.Text);
+            Properties.Settings.Default.Save();
+
+        }
+
+        private void TextBoxCodingY_TextChanged(object sender, EventArgs e)
+        {
+            Properties.Settings.Default.Coding_StatusY = Convert.ToInt32(TextBoxCodingY.Text);
+            Properties.Settings.Default.Save();
         }
 
     }

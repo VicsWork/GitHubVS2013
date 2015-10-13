@@ -37,6 +37,9 @@ namespace powercal
         double _voltage_dc_low_limit = 0.0;
         double _voltage_dc_high_limit = 0.0;
 
+        public double Voltage_DC_Low_Limit { get { return _voltage_dc_low_limit; } }
+        public double Voltage_DC_High_Limit { get { return _voltage_dc_high_limit; } }
+
         /// <summary>
         /// Voltage and current gain and reference address and values
         /// </summary>
@@ -79,7 +82,7 @@ namespace powercal
 
         public Calibrate(BoardTypes boardtype, RelayControler relay_controller, TelnetConnection telnet_connection, MultiMeter meter)
         {
-            this.BoardType = boardtype;
+            BoardType = boardtype;
             //_board_type = boardtype;
             //set_board_calibration_values();
 
@@ -150,49 +153,6 @@ namespace powercal
         {
             string datain, msg;
 
-            fire_status("===============================Start Calibration==============================");
-            _relay_ctrl.Open();
-            if (_relay_ctrl.Device_Type == RelayControler.Device_Types.Manual)
-            {
-                // Trun AC ON
-                _relay_ctrl.WriteLine(Relay_Lines.Ember, true);
-                _relay_ctrl.WriteLine(Relay_Lines.Load, false);
-                _relay_ctrl.WriteLine(Relay_Lines.Power, true);
-                _relay_ctrl.WriteLine(Relay_Lines.Load, true);
-                fire_relay_status();
-                Thread.Sleep(2000);
-            }
-            else
-            {
-                _relay_ctrl.WriteLine(Relay_Lines.Voltmeter, false);
-                _relay_ctrl.WriteLine(Relay_Lines.Ember, false);
-                _relay_ctrl.WriteLine(Relay_Lines.Load, false);
-                _relay_ctrl.WriteLine(Relay_Lines.Power, true);
-                _relay_ctrl.WriteLine(Relay_Lines.Voltmeter, true);
-                fire_relay_status();
-
-                Thread.Sleep(1000);
-
-                verify_voltage_dc();
-
-                _relay_ctrl.WriteLine(Relay_Lines.Voltmeter, false);
-
-                // Should be safe to connect Ember
-                _relay_ctrl.WriteLine(Relay_Lines.Ember, true);
-                Thread.Sleep(1000);
-            }
-
-/*
-            // Open Ember isa channels
-            //updateRunStatus("Start Ember isachan");
-            traceLog("Start Ember isachan");
-            openEmberISAChannels();
-
-            // Create a new telnet connection
-            //updateRunStatus("Start telnet");
-            traceLog("Start telnet");
-            _telnet_connection = new TelnetConnection("localhost", 4900);
-*/
             datain = _telnet_connection.Read();
             TraceLogger.Log(datain);
 
@@ -204,14 +164,6 @@ namespace powercal
             Thread.Sleep(1000);
             datain = _telnet_connection.Read();
             TraceLogger.Log(datain);
-
-            // Force reset by cycle power
-            //reset_handler(board_type);
-            // Close UUT relay
-            //set_board_relay(board_type, telnet_connection, true);
-            //Thread.Sleep(1000);
-            //datain = telnet_connection.Read();
-            //traceLog(datain);
 
             _relay_ctrl.WriteLine(Relay_Lines.Load, true);
             Thread.Sleep(1000);
@@ -333,6 +285,7 @@ namespace powercal
             fire_status(msg);
 
             // Disconnect Power
+            _relay_ctrl.Open();
             _relay_ctrl.WriteLine(Relay_Lines.Power, false);
             _relay_ctrl.WriteLine(Relay_Lines.Ember, false);
             fire_relay_status();
@@ -353,46 +306,6 @@ namespace powercal
             if (cv.Current < low_limit || cv.Current > high_limit)
             {
                 msg = string.Format("Current after calibration not within limit values: {0:F8} < {1:F8} < {2:F8}", low_limit, cv.Current, high_limit);
-                TraceLogger.Log(msg);
-                throw new Exception(msg);
-            }
-
-            fire_status("================================End Calibration===============================");
-
-        }
-
-        void verify_voltage_dc()
-        {
-            if (_meter == null)
-                return;
-
-            fire_run_status("Verify Voltage DC");
-            _meter.OpenComPort();
-            _meter.SetToRemote();
-            _meter.ClearError();
-            _meter.SetupForVDC();
-
-            string meter_voltage_str = _meter.Measure();
-            double meter_voltage_dc = Double.Parse(meter_voltage_str);
-            _meter.SetupForVAC();
-            meter_voltage_str = _meter.Measure();
-            double meter_voltage_ac = Double.Parse(meter_voltage_str);
-
-            string msg = string.Format("Meter DC Voltage at {0:F8} V.  AC {1:F8}", meter_voltage_dc, meter_voltage_ac);
-            fire_status(msg);
-
-            _meter.CloseSerialPort();
-
-            if (meter_voltage_ac >= 1.0)
-            {
-                msg = string.Format("AC volatge detected at {0:F8}, DC Voltage {1:F8}", meter_voltage_ac, meter_voltage_dc);
-                TraceLogger.Log(msg);
-                throw new Exception(msg);
-            }
-
-            if (meter_voltage_dc < _voltage_dc_low_limit || meter_voltage_dc > _voltage_dc_high_limit)
-            {
-                msg = string.Format("Volatge DC is not within limits values: {0:F8} < {1:F8} < {2:F8}", _voltage_dc_low_limit, meter_voltage_dc, _voltage_dc_high_limit);
                 TraceLogger.Log(msg);
                 throw new Exception(msg);
             }

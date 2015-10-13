@@ -56,11 +56,11 @@
             this.label7 = new System.Windows.Forms.Label();
             this.TextBoxEmberBinPath = new System.Windows.Forms.TextBox();
             this.groupBoxCoding = new System.Windows.Forms.GroupBox();
-            this.buttonCodingSetXY = new System.Windows.Forms.Button();
-            this.TextBoxCodingX = new System.Windows.Forms.TextBox();
-            this.label10 = new System.Windows.Forms.Label();
             this.label11 = new System.Windows.Forms.Label();
             this.TextBoxCodingY = new System.Windows.Forms.TextBox();
+            this.label10 = new System.Windows.Forms.Label();
+            this.TextBoxCodingX = new System.Windows.Forms.TextBox();
+            this.buttonCodingSetXY = new System.Windows.Forms.Button();
             this.groupBox1.SuspendLayout();
             this.groupBoxDIO.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.numericUpDown_Voltmeter)).BeginInit();
@@ -344,33 +344,6 @@
             this.groupBoxCoding.TabStop = false;
             this.groupBoxCoding.Text = "Coding XY Status Coordinates";
             // 
-            // buttonCodingSetXY
-            // 
-            this.buttonCodingSetXY.Location = new System.Drawing.Point(142, 29);
-            this.buttonCodingSetXY.Name = "buttonCodingSetXY";
-            this.buttonCodingSetXY.Size = new System.Drawing.Size(42, 23);
-            this.buttonCodingSetXY.TabIndex = 0;
-            this.buttonCodingSetXY.Text = "Set";
-            this.buttonCodingSetXY.UseVisualStyleBackColor = true;
-            this.buttonCodingSetXY.Click += new System.EventHandler(this.buttonCodingSetXY_Click);
-            // 
-            // TextBoxCodingX
-            // 
-            this.TextBoxCodingX.Location = new System.Drawing.Point(26, 31);
-            this.TextBoxCodingX.Name = "TextBoxCodingX";
-            this.TextBoxCodingX.Size = new System.Drawing.Size(42, 20);
-            this.TextBoxCodingX.TabIndex = 1;
-            this.TextBoxCodingX.Text = "00000";
-            // 
-            // label10
-            // 
-            this.label10.AutoSize = true;
-            this.label10.Location = new System.Drawing.Point(6, 34);
-            this.label10.Name = "label10";
-            this.label10.Size = new System.Drawing.Size(14, 13);
-            this.label10.TabIndex = 2;
-            this.label10.Text = "X";
-            // 
             // label11
             // 
             this.label11.AutoSize = true;
@@ -387,6 +360,35 @@
             this.TextBoxCodingY.Size = new System.Drawing.Size(42, 20);
             this.TextBoxCodingY.TabIndex = 3;
             this.TextBoxCodingY.Text = "00000";
+            this.TextBoxCodingY.TextChanged += new System.EventHandler(this.TextBoxCodingY_TextChanged);
+            // 
+            // label10
+            // 
+            this.label10.AutoSize = true;
+            this.label10.Location = new System.Drawing.Point(6, 34);
+            this.label10.Name = "label10";
+            this.label10.Size = new System.Drawing.Size(14, 13);
+            this.label10.TabIndex = 2;
+            this.label10.Text = "X";
+            // 
+            // TextBoxCodingX
+            // 
+            this.TextBoxCodingX.Location = new System.Drawing.Point(26, 31);
+            this.TextBoxCodingX.Name = "TextBoxCodingX";
+            this.TextBoxCodingX.Size = new System.Drawing.Size(42, 20);
+            this.TextBoxCodingX.TabIndex = 1;
+            this.TextBoxCodingX.Text = "00000";
+            this.TextBoxCodingX.TextChanged += new System.EventHandler(this.TextBoxCodingX_TextChanged);
+            // 
+            // buttonCodingSetXY
+            // 
+            this.buttonCodingSetXY.Location = new System.Drawing.Point(142, 29);
+            this.buttonCodingSetXY.Name = "buttonCodingSetXY";
+            this.buttonCodingSetXY.Size = new System.Drawing.Size(42, 23);
+            this.buttonCodingSetXY.TabIndex = 0;
+            this.buttonCodingSetXY.Text = "Set";
+            this.buttonCodingSetXY.UseVisualStyleBackColor = true;
+            this.buttonCodingSetXY.Click += new System.EventHandler(this.buttonCodingSetXY_Click);
             // 
             // Form_Settings
             // 

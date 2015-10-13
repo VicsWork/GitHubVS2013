@@ -51,6 +51,7 @@
             this.toolStripStatusLabel = new System.Windows.Forms.ToolStripStatusLabel();
             this.timer_Update_Idle = new System.Windows.Forms.Timer(this.components);
             this.buttonCode = new System.Windows.Forms.Button();
+            this.buttonAll = new System.Windows.Forms.Button();
             this.contextMenuStatusTextBox.SuspendLayout();
             this.menuStripMain.SuspendLayout();
             this.statusStrip1.SuspendLayout();
@@ -90,7 +91,7 @@
             // buttonCalibrate
             // 
             this.buttonCalibrate.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
-            this.buttonCalibrate.Location = new System.Drawing.Point(635, 35);
+            this.buttonCalibrate.Location = new System.Drawing.Point(664, 35);
             this.buttonCalibrate.Name = "buttonCalibrate";
             this.buttonCalibrate.Size = new System.Drawing.Size(75, 23);
             this.buttonCalibrate.TabIndex = 6;
@@ -237,7 +238,7 @@
             // buttonCode
             // 
             this.buttonCode.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
-            this.buttonCode.Location = new System.Drawing.Point(554, 35);
+            this.buttonCode.Location = new System.Drawing.Point(583, 35);
             this.buttonCode.Name = "buttonCode";
             this.buttonCode.Size = new System.Drawing.Size(75, 23);
             this.buttonCode.TabIndex = 12;
@@ -245,11 +246,23 @@
             this.buttonCode.UseVisualStyleBackColor = true;
             this.buttonCode.Click += new System.EventHandler(this.buttonClick_Code);
             // 
+            // buttonAll
+            // 
+            this.buttonAll.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
+            this.buttonAll.Location = new System.Drawing.Point(745, 34);
+            this.buttonAll.Name = "buttonAll";
+            this.buttonAll.Size = new System.Drawing.Size(75, 23);
+            this.buttonAll.TabIndex = 13;
+            this.buttonAll.Text = "&All";
+            this.buttonAll.UseVisualStyleBackColor = true;
+            this.buttonAll.Click += new System.EventHandler(this.buttonClick_All);
+            // 
             // Form_Main
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(96F, 96F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Dpi;
             this.ClientSize = new System.Drawing.Size(832, 557);
+            this.Controls.Add(this.buttonAll);
             this.Controls.Add(this.buttonCode);
             this.Controls.Add(this.statusStrip1);
             this.Controls.Add(this.textBoxRunStatus);
@@ -298,6 +311,7 @@
         private System.Windows.Forms.ToolStripStatusLabel toolStripStatusLabel;
         private System.Windows.Forms.Timer timer_Update_Idle;
         private System.Windows.Forms.Button buttonCode;
+        private System.Windows.Forms.Button buttonAll;
     }
 }
 
