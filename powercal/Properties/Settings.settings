@@ -32,5 +32,8 @@
     <Setting Name="Coding_StatusY" Type="System.Int32" Scope="User">
       <Value Profile="(Default)">0</Value>
     </Setting>
+    <Setting Name="Shortcut_Spacebar_Action" Type="System.String" Scope="User">
+      <Value Profile="(Default)">All</Value>
+    </Setting>
   </Settings>
 </SettingsFile>

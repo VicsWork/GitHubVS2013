@@ -142,5 +142,17 @@ namespace powercal.Properties {
                 this["Coding_StatusY"] = value;
             }
         }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("All")]
+        public string Shortcut_Spacebar_Action {
+            get {
+                return ((string)(this["Shortcut_Spacebar_Action"]));
+            }
+            set {
+                this["Shortcut_Spacebar_Action"] = value;
+            }
+        }
     }
 }

@@ -412,7 +412,7 @@ namespace powercal
         /// </summary>
         /// <param name="sender"></param>
         /// <param name="e"></param>
-        private void toolStripMenuItem_Click_Serial(object sender, EventArgs e)
+        void toolStripMenuItem_Click_Serial(object sender, EventArgs e)
         {
             Form_SerialTest dlg = new Form_SerialTest();
             //DialogResult result = dlg.ShowDialog();
@@ -424,7 +424,7 @@ namespace powercal
         /// </summary>
         /// <param name="sender"></param>
         /// <param name="e"></param>
-        private void toolStripMenuItem_Click_About(object sender, EventArgs e)
+        void toolStripMenuItem_Click_About(object sender, EventArgs e)
         {
             AboutBox1 dlg = new AboutBox1();
             DialogResult result = dlg.ShowDialog();
@@ -434,7 +434,7 @@ namespace powercal
         /// Shows dialog with relays sates defined in the RelayControler when in manual mode
         /// </summary>
         /// <param name="relay_ctrl"></param>
-        private void relaysSet()
+        void relaysSet()
         {
 
             if (_relay_ctrl.Device_Type == RelayControler.Device_Types.Manual)
@@ -470,13 +470,13 @@ namespace powercal
         /// <summary>
         /// Loags the status of the relays
         /// </summary>
-        private void relay_log_status()
+        void relay_log_status()
         {
             string status = _relay_ctrl.ToStatusText();
             updateOutputStatus(status);
         }
 
-        private void toolStripMenuItem_Click_Clear(object sender, EventArgs e)
+        void toolStripMenuItem_Click_Clear(object sender, EventArgs e)
         {
             this.textBoxOutputStatus.Clear();
         }
@@ -513,7 +513,7 @@ namespace powercal
         /// </summary>
         /// <param name="sender"></param>
         /// <param name="e"></param>
-        private void toolStripMenuItem_Click_Settings(object sender, EventArgs e)
+        void toolStripMenuItem_Click_Settings(object sender, EventArgs e)
         {
             Form_Settings dlg = new Form_Settings();
 
@@ -571,13 +571,13 @@ namespace powercal
             }
         }
 
-        private void toolStripMenuItem_Click_Calculator(object sender, EventArgs e)
+        void toolStripMenuItem_Click_Calculator(object sender, EventArgs e)
         {
             Form_Calculator dlg = new Form_Calculator();
             dlg.ShowDialog();
         }
 
-        private void toolStripMenuItem_Click_PowerMeter(object sender, EventArgs e)
+        void toolStripMenuItem_Click_PowerMeter(object sender, EventArgs e)
         {
             if (_power_meter_dlg == null)
             {
@@ -694,8 +694,22 @@ namespace powercal
             switch (keyData)
             {
                 case Keys.Space:
-                    if (buttonAll.Enabled)
-                        buttonAll.PerformClick();
+                    string action = Properties.Settings.Default.Shortcut_Spacebar_Action;
+                    switch (action)
+                    {
+                        case "All":
+                            if (buttonAll.Enabled)
+                                buttonAll.PerformClick();
+                            break;
+                        case "Code":
+                            if (buttonCode.Enabled)
+                                buttonCode.PerformClick();
+                            break;
+                        case "Calibrate":
+                            if (buttonCalibrate.Enabled)
+                                buttonCalibrate.PerformClick();
+                            break;
+                    }
                     break;
                 case Keys.L:
                     if (buttonCalibrate.Enabled)
@@ -1182,7 +1196,7 @@ namespace powercal
             updateOutputStatus(
                 "===============================End Coding==============================");
 
-            if (_calibrate_after_code && _coding_error_msg == null && 
+            if (_calibrate_after_code && _coding_error_msg == null &&
                 !_coding_token_src_cancel.IsCancellationRequested)
             {
                 clickCalibrate();

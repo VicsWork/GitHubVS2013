@@ -61,6 +61,9 @@
             this.label10 = new System.Windows.Forms.Label();
             this.TextBoxCodingX = new System.Windows.Forms.TextBox();
             this.buttonCodingSetXY = new System.Windows.Forms.Button();
+            this.groupBox3 = new System.Windows.Forms.GroupBox();
+            this.comboBoxShortcutActions = new System.Windows.Forms.ComboBox();
+            this.label12 = new System.Windows.Forms.Label();
             this.groupBox1.SuspendLayout();
             this.groupBoxDIO.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.numericUpDown_Voltmeter)).BeginInit();
@@ -69,6 +72,7 @@
             ((System.ComponentModel.ISupportInitialize)(this.NumericUpDown_ACPower)).BeginInit();
             this.groupBox2.SuspendLayout();
             this.groupBoxCoding.SuspendLayout();
+            this.groupBox3.SuspendLayout();
             this.SuspendLayout();
             // 
             // TextBoxMeterCOM
@@ -114,7 +118,7 @@
             // buttonOK
             // 
             this.buttonOK.DialogResult = System.Windows.Forms.DialogResult.OK;
-            this.buttonOK.Location = new System.Drawing.Point(170, 318);
+            this.buttonOK.Location = new System.Drawing.Point(170, 333);
             this.buttonOK.Name = "buttonOK";
             this.buttonOK.Size = new System.Drawing.Size(75, 23);
             this.buttonOK.TabIndex = 7;
@@ -124,7 +128,7 @@
             // buttonCancel
             // 
             this.buttonCancel.DialogResult = System.Windows.Forms.DialogResult.Cancel;
-            this.buttonCancel.Location = new System.Drawing.Point(251, 318);
+            this.buttonCancel.Location = new System.Drawing.Point(251, 333);
             this.buttonCancel.Name = "buttonCancel";
             this.buttonCancel.Size = new System.Drawing.Size(75, 23);
             this.buttonCancel.TabIndex = 8;
@@ -144,7 +148,7 @@
             this.groupBoxDIO.Controls.Add(this.NumericUpDown_ACPower);
             this.groupBoxDIO.Location = new System.Drawing.Point(12, 143);
             this.groupBoxDIO.Name = "groupBoxDIO";
-            this.groupBoxDIO.Size = new System.Drawing.Size(217, 147);
+            this.groupBoxDIO.Size = new System.Drawing.Size(217, 118);
             this.groupBoxDIO.TabIndex = 9;
             this.groupBoxDIO.TabStop = false;
             this.groupBoxDIO.Text = "DIO Line";
@@ -299,7 +303,7 @@
             // label8
             // 
             this.label8.AutoSize = true;
-            this.label8.Location = new System.Drawing.Point(6, 38);
+            this.label8.Location = new System.Drawing.Point(9, 38);
             this.label8.Name = "label8";
             this.label8.Size = new System.Drawing.Size(52, 13);
             this.label8.TabIndex = 17;
@@ -317,7 +321,7 @@
             // label7
             // 
             this.label7.AutoSize = true;
-            this.label7.Location = new System.Drawing.Point(3, 81);
+            this.label7.Location = new System.Drawing.Point(7, 81);
             this.label7.Name = "label7";
             this.label7.Size = new System.Drawing.Size(32, 13);
             this.label7.TabIndex = 14;
@@ -325,9 +329,9 @@
             // 
             // TextBoxEmberBinPath
             // 
-            this.TextBoxEmberBinPath.Location = new System.Drawing.Point(37, 78);
+            this.TextBoxEmberBinPath.Location = new System.Drawing.Point(44, 78);
             this.TextBoxEmberBinPath.Name = "TextBoxEmberBinPath";
-            this.TextBoxEmberBinPath.Size = new System.Drawing.Size(344, 20);
+            this.TextBoxEmberBinPath.Size = new System.Drawing.Size(337, 20);
             this.TextBoxEmberBinPath.TabIndex = 13;
             // 
             // groupBoxCoding
@@ -337,9 +341,9 @@
             this.groupBoxCoding.Controls.Add(this.label10);
             this.groupBoxCoding.Controls.Add(this.TextBoxCodingX);
             this.groupBoxCoding.Controls.Add(this.buttonCodingSetXY);
-            this.groupBoxCoding.Location = new System.Drawing.Point(250, 227);
+            this.groupBoxCoding.Location = new System.Drawing.Point(250, 234);
             this.groupBoxCoding.Name = "groupBoxCoding";
-            this.groupBoxCoding.Size = new System.Drawing.Size(230, 63);
+            this.groupBoxCoding.Size = new System.Drawing.Size(230, 93);
             this.groupBoxCoding.TabIndex = 14;
             this.groupBoxCoding.TabStop = false;
             this.groupBoxCoding.Text = "Coding XY Status Coordinates";
@@ -347,7 +351,7 @@
             // label11
             // 
             this.label11.AutoSize = true;
-            this.label11.Location = new System.Drawing.Point(74, 34);
+            this.label11.Location = new System.Drawing.Point(71, 41);
             this.label11.Name = "label11";
             this.label11.Size = new System.Drawing.Size(14, 13);
             this.label11.TabIndex = 4;
@@ -355,7 +359,7 @@
             // 
             // TextBoxCodingY
             // 
-            this.TextBoxCodingY.Location = new System.Drawing.Point(94, 31);
+            this.TextBoxCodingY.Location = new System.Drawing.Point(91, 38);
             this.TextBoxCodingY.Name = "TextBoxCodingY";
             this.TextBoxCodingY.Size = new System.Drawing.Size(42, 20);
             this.TextBoxCodingY.TabIndex = 3;
@@ -365,7 +369,7 @@
             // label10
             // 
             this.label10.AutoSize = true;
-            this.label10.Location = new System.Drawing.Point(6, 34);
+            this.label10.Location = new System.Drawing.Point(3, 41);
             this.label10.Name = "label10";
             this.label10.Size = new System.Drawing.Size(14, 13);
             this.label10.TabIndex = 2;
@@ -373,7 +377,7 @@
             // 
             // TextBoxCodingX
             // 
-            this.TextBoxCodingX.Location = new System.Drawing.Point(26, 31);
+            this.TextBoxCodingX.Location = new System.Drawing.Point(23, 38);
             this.TextBoxCodingX.Name = "TextBoxCodingX";
             this.TextBoxCodingX.Size = new System.Drawing.Size(42, 20);
             this.TextBoxCodingX.TabIndex = 1;
@@ -382,7 +386,7 @@
             // 
             // buttonCodingSetXY
             // 
-            this.buttonCodingSetXY.Location = new System.Drawing.Point(142, 29);
+            this.buttonCodingSetXY.Location = new System.Drawing.Point(139, 36);
             this.buttonCodingSetXY.Name = "buttonCodingSetXY";
             this.buttonCodingSetXY.Size = new System.Drawing.Size(42, 23);
             this.buttonCodingSetXY.TabIndex = 0;
@@ -390,13 +394,47 @@
             this.buttonCodingSetXY.UseVisualStyleBackColor = true;
             this.buttonCodingSetXY.Click += new System.EventHandler(this.buttonCodingSetXY_Click);
             // 
+            // groupBox3
+            // 
+            this.groupBox3.Controls.Add(this.comboBoxShortcutActions);
+            this.groupBox3.Controls.Add(this.label12);
+            this.groupBox3.Location = new System.Drawing.Point(12, 268);
+            this.groupBox3.Name = "groupBox3";
+            this.groupBox3.Size = new System.Drawing.Size(217, 59);
+            this.groupBox3.TabIndex = 15;
+            this.groupBox3.TabStop = false;
+            this.groupBox3.Text = "Shortcuts";
+            // 
+            // comboBoxShortcutActions
+            // 
+            this.comboBoxShortcutActions.FormattingEnabled = true;
+            this.comboBoxShortcutActions.Items.AddRange(new object[] {
+            "All",
+            "Calibrate",
+            "Code"});
+            this.comboBoxShortcutActions.Location = new System.Drawing.Point(57, 17);
+            this.comboBoxShortcutActions.Name = "comboBoxShortcutActions";
+            this.comboBoxShortcutActions.Size = new System.Drawing.Size(121, 21);
+            this.comboBoxShortcutActions.TabIndex = 1;
+            this.comboBoxShortcutActions.SelectedIndexChanged += new System.EventHandler(this.comboBoxShortcutActions_SelectedIndexChanged);
+            // 
+            // label12
+            // 
+            this.label12.AutoSize = true;
+            this.label12.Location = new System.Drawing.Point(10, 20);
+            this.label12.Name = "label12";
+            this.label12.Size = new System.Drawing.Size(42, 13);
+            this.label12.TabIndex = 0;
+            this.label12.Text = "SPACE";
+            // 
             // Form_Settings
             // 
             this.AcceptButton = this.buttonOK;
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.CancelButton = this.buttonCancel;
-            this.ClientSize = new System.Drawing.Size(492, 350);
+            this.ClientSize = new System.Drawing.Size(492, 368);
+            this.Controls.Add(this.groupBox3);
             this.Controls.Add(this.groupBoxCoding);
             this.Controls.Add(this.groupBox2);
             this.Controls.Add(this.groupBoxDIO);
@@ -419,6 +457,8 @@
             this.groupBox2.PerformLayout();
             this.groupBoxCoding.ResumeLayout(false);
             this.groupBoxCoding.PerformLayout();
+            this.groupBox3.ResumeLayout(false);
+            this.groupBox3.PerformLayout();
             this.ResumeLayout(false);
 
         }
@@ -457,5 +497,8 @@
         private System.Windows.Forms.Label label10;
         private System.Windows.Forms.Button buttonCodingSetXY;
         public System.Windows.Forms.TextBox TextBoxCodingX;
+        private System.Windows.Forms.GroupBox groupBox3;
+        private System.Windows.Forms.ComboBox comboBoxShortcutActions;
+        private System.Windows.Forms.Label label12;
     }
 }

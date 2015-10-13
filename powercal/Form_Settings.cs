@@ -37,6 +37,7 @@ namespace powercal
             TextBoxCodingX.Text = string.Format("{0}", Properties.Settings.Default.Coding_StatusX);
             TextBoxCodingY.Text = string.Format("{0}", Properties.Settings.Default.Coding_StatusY);
 
+            comboBoxShortcutActions.Text = Properties.Settings.Default.Shortcut_Spacebar_Action;
         }
 
         private void buttonOK_Click(object sender, EventArgs e)
@@ -137,6 +138,11 @@ namespace powercal
         private void TextBoxCodingY_TextChanged(object sender, EventArgs e)
         {
             Properties.Settings.Default.Coding_StatusY = Convert.ToInt32(TextBoxCodingY.Text);
+        }
+
+        private void comboBoxShortcutActions_SelectedIndexChanged(object sender, EventArgs e)
+        {
+            Properties.Settings.Default.Shortcut_Spacebar_Action = comboBoxShortcutActions.Text;
         }
 
     }
