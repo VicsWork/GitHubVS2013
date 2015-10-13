@@ -145,6 +145,16 @@ namespace powercal
                 Properties.Settings.Default.Relay_Controller_Type = _relay_ctrl.Device_Type.ToString();
                 Properties.Settings.Default.Save();
             }
+            Dictionary<string, uint> dic = _relay_ctrl.DicLines_ReadSettings();
+            if (dic.Count == 0)
+            {
+                _relay_ctrl.DicLines_AddLine(Relay_Lines.Power, 0);
+                _relay_ctrl.DicLines_AddLine(Relay_Lines.Load, 1);
+                _relay_ctrl.DicLines_AddLine(Relay_Lines.Ember, 2);
+                _relay_ctrl.DicLines_AddLine(Relay_Lines.Voltmeter, 3);
+                _relay_ctrl.DicLines_SaveSettings();
+            }
+
             _relay_ctrl.Open();
             _relay_ctrl.WriteAll(false);
             _relay_ctrl.Close();
@@ -176,6 +186,7 @@ namespace powercal
             {
                 buttonCode.Enabled = true;
             }
+
         }
 
         /// <summary>
@@ -553,6 +564,10 @@ namespace powercal
                     buttonCode.Enabled = true;
                 }
 
+            }
+            else
+            {
+                Properties.Settings.Default.Reload();
             }
         }
 

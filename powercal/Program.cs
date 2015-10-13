@@ -26,12 +26,14 @@ namespace powercal
 
         static void CurrentDomain_UnhandledException(object sender, UnhandledExceptionEventArgs e)
         {
-            MessageBox.Show((e.ExceptionObject as Exception).Message, "Unhadled UI Exception");
+            MessageBox.Show((e.ExceptionObject as Exception).Message + 
+                "\r\n" + e.ToString(), "Unhadled UI Exception");
         }
 
         static void Application_ThreadException(object sender, System.Threading.ThreadExceptionEventArgs e)
         {
-            MessageBox.Show(e.Exception.Message, "Unhadled Thread Exception");
+            MessageBox.Show(e.Exception.Message + 
+                "\r\n" + e.Exception.StackTrace, "Unhadled Thread Exception");
         }
     }
 }

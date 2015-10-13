@@ -407,7 +407,6 @@
             this.MaximizeBox = false;
             this.Name = "Form_Settings";
             this.Text = "Settings";
-            this.Load += new System.EventHandler(this.FormSettings_Load);
             this.groupBox1.ResumeLayout(false);
             this.groupBox1.PerformLayout();
             this.groupBoxDIO.ResumeLayout(false);

@@ -75,6 +75,8 @@ namespace powercal
             if (!File.Exists(_diclines_settings_file))
             {
                 DicLines_SaveSettings();
+                //string msg = string.Format("Dictionary setting file not found at {0}", _diclines_settings_file);
+                //throw new Exception(msg);
             }
 
             FileStream reader = new FileStream(_diclines_settings_file, FileMode.Open);
@@ -113,7 +115,6 @@ namespace powercal
 
             _dic_lines.Add(key, line_num);
             _dic_values.Add(key, init_value);
-
         }
 
 

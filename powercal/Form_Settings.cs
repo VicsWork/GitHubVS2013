@@ -41,7 +41,8 @@ namespace powercal
 
         private void buttonOK_Click(object sender, EventArgs e)
         {
-            this.Close();
+            Properties.Settings.Default.Save();
+            Close();
         }
 
         private void setLineEnablement(bool enable)
@@ -53,10 +54,6 @@ namespace powercal
                     ctrl.Enabled = enable;
                 }
             }
-        }
-
-        private void FormSettings_Load(object sender, EventArgs e)
-        {
         }
 
         private void CheckBoxManualMultiMeter_CheckedChanged(object sender, EventArgs e)
@@ -93,7 +90,6 @@ namespace powercal
         private void comboBoxEmberInterface_SelectedIndexChanged(object sender, EventArgs e)
         {
             Properties.Settings.Default.Ember_Interface = comboBoxEmberInterface.Text;
-            Properties.Settings.Default.Save();
 
             if (comboBoxEmberInterface.Text == "IP")
                 textBoxEmberInterfaceAddress.Text = Properties.Settings.Default.Ember_Interface_IP_Address;
@@ -107,7 +103,6 @@ namespace powercal
                 Properties.Settings.Default.Ember_Interface_IP_Address = textBoxEmberInterfaceAddress.Text;
             else
                 Properties.Settings.Default.Ember_Interface_USB_Address = textBoxEmberInterfaceAddress.Text;
-            Properties.Settings.Default.Save();
         }
 
         private void buttonCodingSetXY_Click(object sender, EventArgs e)
@@ -130,23 +125,18 @@ namespace powercal
 
             Properties.Settings.Default.Coding_StatusX = p.x;
             Properties.Settings.Default.Coding_StatusY = p.y;
-            Properties.Settings.Default.Save();
 
             buttonCodingSetXY.Enabled = true;
-
         }
 
         private void TextBoxCodingX_TextChanged(object sender, EventArgs e)
         {
             Properties.Settings.Default.Coding_StatusX = Convert.ToInt32(TextBoxCodingX.Text);
-            Properties.Settings.Default.Save();
-
         }
 
         private void TextBoxCodingY_TextChanged(object sender, EventArgs e)
         {
             Properties.Settings.Default.Coding_StatusY = Convert.ToInt32(TextBoxCodingY.Text);
-            Properties.Settings.Default.Save();
         }
 
     }
