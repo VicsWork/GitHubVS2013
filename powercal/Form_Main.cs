@@ -1100,6 +1100,17 @@ namespace powercal
 
             try
             {
+                bool manual_measure = Properties.Settings.Default.Meter_Manual_Measurement;
+                if (manual_measure)
+                {
+                    _meter = null;
+                }
+                else
+                {
+                    _meter = new MultiMeter(Properties.Settings.Default.Meter_COM_Port_Name);
+                }
+
+
                 _coding_state_color_point.X = Properties.Settings.Default.Coding_StatusX;
                 _coding_state_color_point.Y = Properties.Settings.Default.Coding_StatusY;
 
