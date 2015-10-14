@@ -192,8 +192,8 @@ namespace powercal
             using (StreamWriter writer = File.CreateText(_batch_file))
             {
                 string txt;
-                //txt = string.Format("pushd \"{0}\"", _ember_bin_path);
-                //writer.WriteLine(txt);
+                txt = string.Format("pushd \"{0}\"", _ember_bin_path);
+                writer.WriteLine(txt);
 
                 //txt = string.Format("{0} --usb {1}", _ember_exe, _usb_port);
                 //writer.WriteLine(txt);
@@ -261,8 +261,8 @@ namespace powercal
 
                 writer.WriteLine(txt);
 
-                //txt = string.Format("popd");
-                //writer.WriteLine(txt);
+                txt = string.Format("popd");
+                writer.WriteLine(txt);
 
                 writer.Close();
             }

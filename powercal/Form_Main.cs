@@ -896,7 +896,7 @@ namespace powercal
             updateOutputStatus(
                 "=============================Start Calibration============================");
 
-            // Start coding
+            // Start Calibration
             try
             {
                 // Init the meter object
@@ -936,30 +936,42 @@ namespace powercal
                 // Open the relay controller and set the for coding
                 // Note, relay controller stays opened until task is done
                 _relay_ctrl.Open();
-                if (_relay_ctrl.Device_Type == RelayControler.Device_Types.Manual)
+                if (!_calibrate_after_code)
                 {
-                    // We don't check dc in manual mode, so just connect the ember and power
-                    _relay_ctrl.WriteLine(Relay_Lines.Ember, true);
-                    _relay_ctrl.WriteLine(Relay_Lines.Power, true);
-                    _relay_ctrl.WriteLine(Relay_Lines.Load, true);
-                    Thread.Sleep(1000);
+                    if (_relay_ctrl.Device_Type == RelayControler.Device_Types.Manual)
+                    {
+                        // We don't check dc in manual mode, so just connect the ember and power
+                        _relay_ctrl.WriteLine(Relay_Lines.Ember, true);
+                        _relay_ctrl.WriteLine(Relay_Lines.Power, true);
+                        _relay_ctrl.WriteLine(Relay_Lines.Load, true);
+                        Thread.Sleep(1000);
+                    }
+                    else
+                    {
+                        // Check dc before connecting ember
+                        _relay_ctrl.WriteLine(Relay_Lines.Ember, false);
+                        _relay_ctrl.WriteLine(Relay_Lines.Load, false);
+                        _relay_ctrl.WriteLine(Relay_Lines.Power, true);
+                        Thread.Sleep(1000);
+
+                        verify_voltage_dc(
+                            _calibrate.Voltage_DC_Low_Limit, _calibrate.Voltage_DC_High_Limit);
+
+                        // Should be safe to connect Ember
+                        _relay_ctrl.WriteLine(Relay_Lines.Ember, true);
+                        Thread.Sleep(1000);
+                    }
+                    relaysSet();
                 }
                 else
                 {
-                    // Check dc before connecting ember
-                    _relay_ctrl.WriteLine(Relay_Lines.Ember, false);
-                    _relay_ctrl.WriteLine(Relay_Lines.Load, false);
+                    _relay_ctrl.WriteLine(Relay_Lines.Power, false);
                     _relay_ctrl.WriteLine(Relay_Lines.Power, true);
                     Thread.Sleep(1000);
-
-                    verify_voltage_dc(
-                        _calibrate.Voltage_DC_Low_Limit, _calibrate.Voltage_DC_High_Limit);
-
-                    // Should be safe to connect Ember
-                    _relay_ctrl.WriteLine(Relay_Lines.Ember, true);
-                    Thread.Sleep(1000);
                 }
-                relaysSet();
+
+                //clear calibrate after code
+                _calibrate_after_code = false;
 
                 // Finish setting up the calibrate object
                 _calibrate.Ember = _ember;
@@ -1206,24 +1218,6 @@ namespace powercal
             // reactivate the window
             activate();
 
-            // Turn power off if we are not calibrating after this
-            if (!_calibrate_after_code)
-            {
-                if (_relay_ctrl != null)
-                {
-                    _relay_ctrl.WriteLine(powercal.Relay_Lines.Ember, false);
-                    _relay_ctrl.WriteLine(powercal.Relay_Lines.Power, false);
-                    _relay_ctrl.Close();
-                }
-                relaysSet();
-
-                if (_meter != null)
-                {
-                    _meter.CloseSerialPort();
-                    wait_for_power_off();
-                }
-            }
-
             // Check whether PASS, Cancelled or FAIL
             if (_coding_token_src_cancel.IsCancellationRequested)
             {
@@ -1243,6 +1237,25 @@ namespace powercal
                     _calibrate_after_code = false;
                     updateRunStatus("FAIL", Color.White, Color.Red);
                     updateOutputStatus(_coding_error_msg);
+                }
+            }
+
+            // Turn power off if we are not calibrating after this or
+            // there was a coding problem
+            if (!_calibrate_after_code || _coding_error_msg != null)
+            {
+                if (_relay_ctrl != null)
+                {
+                    _relay_ctrl.WriteLine(powercal.Relay_Lines.Ember, false);
+                    _relay_ctrl.WriteLine(powercal.Relay_Lines.Power, false);
+                    _relay_ctrl.Close();
+                }
+                relaysSet();
+
+                if (_meter != null)
+                {
+                    _meter.CloseSerialPort();
+                    wait_for_power_off();
                 }
             }
 

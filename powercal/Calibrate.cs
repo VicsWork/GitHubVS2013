@@ -335,6 +335,9 @@ namespace powercal
             if (_meter == null)
                 return;
 
+            if (_relay_ctrl != null && _relay_ctrl.Device_Type != RelayControler.Device_Types.Manual)
+                _relay_ctrl.WriteLine(Relay_Lines.Voltmeter, false);  // AC
+
             fire_run_status("Verify Voltage AC");
             _meter.OpenComPort();
             _meter.SetToRemote();

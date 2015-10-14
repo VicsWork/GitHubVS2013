@@ -78,7 +78,7 @@ namespace powercal
             IntPtr hwnd = activate_win(win_desc);
             AutoItX.MouseMove(_point_State_color.X, _point_State_color.Y, 0);
             AutoItX.Send("{SPACE}");
-            Thread.Sleep(500);
+            Thread.Sleep(2000);
             Stopwatch watch = new Stopwatch();
             watch.Start();
             int pixel_color = 0;
