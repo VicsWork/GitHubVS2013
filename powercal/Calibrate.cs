@@ -27,6 +27,7 @@ namespace powercal
         RelayControler _relay_ctrl;
         TelnetConnection _telnet_connection;
         MultiMeter _meter;
+        Ember _ember;
 
         /// <summary>
         /// Voltage and current limits
@@ -77,6 +78,7 @@ namespace powercal
         public RelayControler RelayController { get { return _relay_ctrl; } set { _relay_ctrl = value; } }
         public TelnetConnection TelnetConnection { get { return _telnet_connection; } set { _telnet_connection = value; } }
         public MultiMeter MultiMeter { get { return _meter; } set { _meter = value; } }
+        public Ember Ember { get { return _ember; } set { _ember = value; } }
 
         public Calibrate() { }
 
@@ -165,9 +167,9 @@ namespace powercal
             datain = _telnet_connection.Read();
             TraceLogger.Log(datain);
 
+            // Connect the load and verify ac
             _relay_ctrl.WriteLine(Relay_Lines.Load, true);
             Thread.Sleep(1000);
-            //_relay_ctrl.WriteLine(Relay_Lines.Voltmeter, false);
             verify_voltage_ac();
 
             string cmd_prefix = TCLI.Get_Custom_Command_Prefix(_telnet_connection);
@@ -175,17 +177,22 @@ namespace powercal
 
             // Get UUT currect/voltage values
             fire_run_status("Get UUT values");
-            TCLI.Current_Voltage cv = TCLI.Parse_Pload_Registers(_telnet_connection, cmd_prefix, _voltage_ac_reference, _current_ac_reference);
-            msg = string.Format("Cirrus I = {0:F8}, V = {1:F8}, P = {2:F8}", cv.Current, cv.Voltage, cv.Current * cv.Voltage);
+            TCLI.Current_Voltage cv = TCLI.Parse_Pload_Registers(
+                _telnet_connection, cmd_prefix, _voltage_ac_reference, _current_ac_reference);
+            msg = string.Format("Cirrus I = {0:F8}, V = {1:F8}, P = {2:F8}", 
+                cv.Current, cv.Voltage, cv.Current * cv.Voltage);
             TraceLogger.Log(msg);
-            cv = TCLI.Parse_Pload_Registers(_telnet_connection, cmd_prefix, _voltage_ac_reference, _current_ac_reference);
-
-            msg = string.Format("Cirrus I = {0:F8}, V = {1:F8}, P = {2:F8}", cv.Current, cv.Voltage, cv.Current * cv.Voltage);
+            cv = TCLI.Parse_Pload_Registers(
+                _telnet_connection, cmd_prefix, _voltage_ac_reference, _current_ac_reference);
+            msg = string.Format("Cirrus I = {0:F8}, V = {1:F8}, P = {2:F8}", 
+                cv.Current, cv.Voltage, cv.Current * cv.Voltage);
             fire_status(msg);
 
             if (cv.Voltage < _voltage_ac_low_limit || cv.Voltage > _voltage_ac_high_limit)
             {
-                msg = string.Format("Cirrus voltage before calibration not within limit values: {0:F8} < {1:F8} < {2:F8}", _voltage_ac_low_limit, cv.Voltage, _voltage_ac_high_limit);
+                msg = string.Format(
+                    "Cirrus voltage before calibration not within limit values: {0:F8} < {1:F8} < {2:F8}", 
+                    _voltage_ac_low_limit, cv.Voltage, _voltage_ac_high_limit);
                 throw new Exception(msg);
             }
             //if (cv.Current < _current_low_limit || cv.Current > _current_high_limit)
@@ -232,19 +239,23 @@ namespace powercal
             msg = string.Format("Meter V = {0:F8}", voltage_meter);
             TraceLogger.Log(msg);
 
-            msg = string.Format("Meter I = {0:F8}, V = {1:F8}, P = {2:F8}", current_meter, voltage_meter, current_meter * voltage_meter);
+            msg = string.Format("Meter I = {0:F8}, V = {1:F8}, P = {2:F8}", 
+                current_meter, voltage_meter, current_meter * voltage_meter);
             fire_status(msg);
 
             if (voltage_meter < _voltage_ac_low_limit || voltage_meter > _voltage_ac_high_limit)
             {
-                msg = string.Format("Meter voltage before calibration not within limit values: {0:F8} < {1:F8} < {2:F8}", _voltage_ac_low_limit, voltage_meter, _voltage_ac_high_limit);
+                msg = string.Format(
+                    "Meter voltage before calibration not within limit values: {0:F8} < {1:F8} < {2:F8}",
+                    _voltage_ac_low_limit, voltage_meter, _voltage_ac_high_limit);
                 throw new Exception(msg);
             }
             //if (current_meter < _current_low_limit || current_meter > _current_high_limit)
             if (current_meter < 0.01 || current_meter > 1)
             {
                 //msg = string.Format("Meter current before calibration not within limit values: {0:F8} < {1:F8} < {2:F8}", _current_low_limit, current_meter, _current_high_limit);
-                msg = string.Format("Meter current before calibration not within limit values: {0:F8} < {1:F8} < {2:F8}", 0.01, current_meter, 1);
+                msg = string.Format("Meter current before calibration not within limit values: {0:F8} < {1:F8} < {2:F8}", 
+                    0.01, current_meter, 1);
                 throw new Exception(msg);
             }
 
@@ -277,11 +288,15 @@ namespace powercal
 
             // Get UUT currect/voltage values
             fire_run_status("Get UUT calibrated values");
-            cv = TCLI.Parse_Pload_Registers(_telnet_connection, cmd_prefix, _voltage_ac_reference, _current_ac_reference);
-            msg = string.Format("Cirrus I = {0:F8}, V = {1:F8}, P = {2:F8}", cv.Current, cv.Voltage, cv.Current * cv.Voltage);
+            cv = TCLI.Parse_Pload_Registers(
+                _telnet_connection, cmd_prefix, _voltage_ac_reference, _current_ac_reference);
+            msg = string.Format("Cirrus I = {0:F8}, V = {1:F8}, P = {2:F8}", 
+                cv.Current, cv.Voltage, cv.Current * cv.Voltage);
             TraceLogger.Log(msg);
-            cv = TCLI.Parse_Pload_Registers(_telnet_connection, cmd_prefix, _voltage_ac_reference, _current_ac_reference);
-            msg = string.Format("Cirrus I = {0:F8}, V = {1:F8}, P = {2:F8}", cv.Current, cv.Voltage, cv.Current * cv.Voltage);
+            cv = TCLI.Parse_Pload_Registers(
+                _telnet_connection, cmd_prefix, _voltage_ac_reference, _current_ac_reference);
+            msg = string.Format("Cirrus I = {0:F8}, V = {1:F8}, P = {2:F8}", 
+                cv.Current, cv.Voltage, cv.Current * cv.Voltage);
             fire_status(msg);
 
             // Disconnect Power
@@ -296,7 +311,9 @@ namespace powercal
             double low_limit = voltage_meter - delta;
             if (cv.Voltage < low_limit || cv.Voltage > high_limit)
             {
-                msg = string.Format("Voltage after calibration not within limit values: {0:F8} < {1:F8} < {2:F8}", low_limit, cv.Voltage, high_limit);
+                msg = string.Format(
+                    "Voltage after calibration not within limit values: {0:F8} < {1:F8} < {2:F8}", 
+                    low_limit, cv.Voltage, high_limit);
                 TraceLogger.Log(msg);
                 throw new Exception(msg);
             }
@@ -305,7 +322,9 @@ namespace powercal
             low_limit = current_meter - delta;
             if (cv.Current < low_limit || cv.Current > high_limit)
             {
-                msg = string.Format("Current after calibration not within limit values: {0:F8} < {1:F8} < {2:F8}", low_limit, cv.Current, high_limit);
+                msg = string.Format(
+                    "Current after calibration not within limit values: {0:F8} < {1:F8} < {2:F8}", 
+                    low_limit, cv.Current, high_limit);
                 TraceLogger.Log(msg);
                 throw new Exception(msg);
             }
@@ -348,16 +367,15 @@ namespace powercal
         /// <returns></returns>
         string patch(int voltage_gain, int current_gain)
         {
-            Ember ember = new Ember();
-            ember.EmberBinPath = Properties.Settings.Default.Ember_BinPath;
-            ember.BatchFilePath = _ember_batchfile_path;
-            ember.VoltageRefereceValue = _voltage_ac_reference;
-            ember.CurrentRefereceValue = _current_ac_reference;
-            ember.VoltageAdress = _voltage_gain_adress;
-            ember.CurrentAdress = _current_gain_adress;
-            ember.RefereceAdress = _referece_adress;
-            ember.ACOffsetAdress = _ac_offset_adress;
-            ember.CreateCalibrationPatchBath(voltage_gain, current_gain);
+            _ember.EmberBinPath = Properties.Settings.Default.Ember_BinPath;
+            _ember.BatchFilePath = _ember_batchfile_path;
+            _ember.VoltageRefereceValue = _voltage_ac_reference;
+            _ember.CurrentRefereceValue = _current_ac_reference;
+            _ember.VoltageAdress = _voltage_gain_adress;
+            _ember.CurrentAdress = _current_gain_adress;
+            _ember.RefereceAdress = _referece_adress;
+            _ember.ACOffsetAdress = _ac_offset_adress;
+            _ember.CreateCalibrationPatchBath(voltage_gain, current_gain);
 
             bool patchit_fail = false;
             string exception_msg = "";
@@ -372,7 +390,7 @@ namespace powercal
                 coding_output = "";
                 try
                 {
-                    string output = ember.RunCalibrationPatchBatch();
+                    string output = _ember.RunCalibrationPatchBatch();
                     if (output.Contains("ERROR:"))
                     {
                         patchit_fail = true;

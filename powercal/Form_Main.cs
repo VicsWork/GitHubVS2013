@@ -66,7 +66,6 @@ namespace powercal
         /// <summary>
         /// Coding
         /// </summary>
-        Point _coding_state_color_point;
         string _coding_error_msg;
         CancellationTokenSource _coding_token_src_cancel = new CancellationTokenSource();
 
@@ -178,14 +177,7 @@ namespace powercal
             _calibrate.Run_Status_Event += calibrate_Run_Status_Event;
             _calibrate.Relay_Event += calibrate_Relay_Event;
 
-            if (Properties.Settings.Default.Coding_StatusX == 0 && Properties.Settings.Default.Coding_StatusY == 0)
-            {
-                buttonCode.Enabled = false;
-            }
-            else
-            {
-                buttonCode.Enabled = true;
-            }
+            setEnablement(true, false);
 
         }
 
@@ -286,16 +278,7 @@ namespace powercal
                 comboBoxBoardTypes.Enabled = enable;
                 menuStripMain.Enabled = enable;
 
-                if (!enable && isCoding)
-                {
-                    buttonCode.Text = "&Cancel";
-                    buttonCode.Enabled = true;
-                }
-                else
-                {
-                    buttonCode.Text = "&Code";
-                    buttonCode.Enabled = enable;
-                }
+                setCodeEnablement(enable, isCoding);
 
                 //if (buttonCalibrate.Enabled)
                 //{
@@ -307,6 +290,29 @@ namespace powercal
                 //    this.UseWaitCursor = true;
                 //}
 
+            }
+        }
+
+        void setCodeEnablement(bool enable, bool isCoding)
+        {
+            if (!enable && isCoding)
+            {
+                buttonCode.Text = "&Cancel";
+                buttonCode.Enabled = true;
+            }
+            else
+            {
+                buttonCode.Text = "&Code";
+                if (Properties.Settings.Default.Coding_StatusX == 0 && Properties.Settings.Default.Coding_StatusY == 0)
+                {
+                    buttonCode.Enabled = false;
+                    buttonAll.Enabled = false;
+                }
+                else
+                {
+                    buttonCode.Enabled = enable;
+                    buttonAll.Enabled = enable;
+                }
             }
         }
 
@@ -436,6 +442,8 @@ namespace powercal
         /// <param name="relay_ctrl"></param>
         void relaysSet()
         {
+            if (_relay_ctrl == null)
+                return;
 
             if (_relay_ctrl.Device_Type == RelayControler.Device_Types.Manual)
             {
@@ -555,15 +563,7 @@ namespace powercal
 
                 Properties.Settings.Default.Save();
 
-                if (Properties.Settings.Default.Coding_StatusX == 0 && Properties.Settings.Default.Coding_StatusY == 0)
-                {
-                    buttonCode.Enabled = false;
-                }
-                else
-                {
-                    buttonCode.Enabled = true;
-                }
-
+                setEnablement(true, false);
             }
             else
             {
@@ -745,10 +745,11 @@ namespace powercal
             if (_meter == null)
                 return -1;
 
-            _relay_ctrl.WriteLine(Relay_Lines.Voltmeter, false);
+            if(_relay_ctrl != null && _relay_ctrl.Device_Type != RelayControler.Device_Types.Manual)
+                _relay_ctrl.WriteLine(Relay_Lines.Voltmeter, false);  // AC measure
+
             // Measure Voltage after power off
             _meter.OpenComPort();
-
             _meter.SetupForVAC();
             double vac = -1.0;
             int n = 0;
@@ -767,7 +768,8 @@ namespace powercal
                 }
             }
 
-            _relay_ctrl.WriteLine(Relay_Lines.Voltmeter, true);
+            if (_relay_ctrl != null && _relay_ctrl.Device_Type != RelayControler.Device_Types.Manual)
+                _relay_ctrl.WriteLine(Relay_Lines.Voltmeter, true);  // DC Measure
             _meter.SetupForVDC();
 
             double vdc = -1.0;
@@ -803,6 +805,9 @@ namespace powercal
         {
             if (_meter == null)
                 return;
+
+            if (_relay_ctrl != null && _relay_ctrl.Device_Type != RelayControler.Device_Types.Manual)
+                _relay_ctrl.WriteLine(Relay_Lines.Voltmeter, true);  // DC
 
             updateOutputStatus("Verify Voltage DC");
             _meter.OpenComPort();
@@ -855,10 +860,10 @@ namespace powercal
             // Clear the error
             _calibration_error_msg = null;
 
+            // If we are not coding after check enablement
             if (!_calibrate_after_code)
             {
-                if (!this.buttonCalibrate.Enabled)
-                    return;
+                if (!this.buttonCalibrate.Enabled) return;
 
                 // Just in case we look for an invalid calibrate re-run too fast
                 if (_stopwatch_stopped.Elapsed.TotalMilliseconds < 500)
@@ -871,32 +876,39 @@ namespace powercal
             // Disable the app
             setEnablement(false, false);
 
+            // Start the running stopwatch
+            _stopwatch_stopped.Reset();
             _stopwatch_running.Restart();
 
+            // Init the status text box
             runStatus_Init();
             setRunStatusText("Start Calibration");
 
+            // If we are not coding after
+            // Clear output status
             if (!_calibrate_after_code)
                 textBoxOutputStatus.Clear();
 
+            // Clear toolstrip
             toolStripStatusLabel.Text = "";
             statusStrip1.Update();
 
-            updateOutputStatus("===============================Start Calibration==============================");
+            updateOutputStatus(
+                "=============================Start Calibration============================");
 
+            // Start coding
             try
             {
-                bool manual_measure = Properties.Settings.Default.Meter_Manual_Measurement;
-                if (manual_measure)
-                {
+                // Init the meter object
+                if (Properties.Settings.Default.Meter_Manual_Measurement)
                     _meter = null;
-                }
                 else
-                {
                     _meter = new MultiMeter(Properties.Settings.Default.Meter_COM_Port_Name);
-                }
 
-                Ember.Interfaces ember_interface = (Ember.Interfaces)Enum.Parse(typeof(Ember.Interfaces), Properties.Settings.Default.Ember_Interface);
+                // Check to see if Ember is to be used as USB and open ISA channel if so
+                // Also set the box address
+                Ember.Interfaces ember_interface = (Ember.Interfaces)Enum.Parse(
+                    typeof(Ember.Interfaces), Properties.Settings.Default.Ember_Interface);
                 _ember.Interface = ember_interface;
                 if (_ember.Interface == Ember.Interfaces.USB)
                 {
@@ -912,37 +924,36 @@ namespace powercal
 
                 // Create a new telnet connection
                 TraceLogger.Log("Start telnet");
-
+                // If interface is USB we use localhost
                 string telnet_address = "localhost";
                 if (_ember.Interface == Ember.Interfaces.IP)
                     telnet_address = _ember.Interface_Address;
                 _telnet_connection = new TelnetConnection(telnet_address, 4900);
 
+                // Init the calibration object board type
                 _calibrate.BoardType = getSelectedBoardType();
 
+                // Open the relay controller and set the for coding
+                // Note, relay controller stays opened until task is done
                 _relay_ctrl.Open();
                 if (_relay_ctrl.Device_Type == RelayControler.Device_Types.Manual)
                 {
-                    // Trun AC ON
+                    // We don't check dc in manual mode, so just connect the ember and power
                     _relay_ctrl.WriteLine(Relay_Lines.Ember, true);
-                    _relay_ctrl.WriteLine(Relay_Lines.Load, false);
                     _relay_ctrl.WriteLine(Relay_Lines.Power, true);
                     _relay_ctrl.WriteLine(Relay_Lines.Load, true);
-                    Thread.Sleep(2000);
+                    Thread.Sleep(1000);
                 }
                 else
                 {
-                    _relay_ctrl.WriteLine(Relay_Lines.Voltmeter, false);
+                    // Check dc before connecting ember
                     _relay_ctrl.WriteLine(Relay_Lines.Ember, false);
                     _relay_ctrl.WriteLine(Relay_Lines.Load, false);
                     _relay_ctrl.WriteLine(Relay_Lines.Power, true);
-                    _relay_ctrl.WriteLine(Relay_Lines.Voltmeter, true);
-
                     Thread.Sleep(1000);
 
-                    verify_voltage_dc(_calibrate.Voltage_DC_Low_Limit, _calibrate.Voltage_DC_High_Limit);
-
-                    _relay_ctrl.WriteLine(Relay_Lines.Voltmeter, false);
+                    verify_voltage_dc(
+                        _calibrate.Voltage_DC_Low_Limit, _calibrate.Voltage_DC_High_Limit);
 
                     // Should be safe to connect Ember
                     _relay_ctrl.WriteLine(Relay_Lines.Ember, true);
@@ -950,13 +961,18 @@ namespace powercal
                 }
                 relaysSet();
 
+                // Finish setting up the calibrate object
+                _calibrate.Ember = _ember;
                 _calibrate.RelayController = _relay_ctrl;
                 _calibrate.TelnetConnection = _telnet_connection;
                 _calibrate.MultiMeter = _meter;
 
+                // Run the calibration
                 Task task_calibrate = new Task(_calibrate.Run);
-                task_calibrate.ContinueWith(calibrate_exception_handler, TaskContinuationOptions.OnlyOnFaulted);
-                task_calibrate.ContinueWith(calibration_done_handler, TaskContinuationOptions.OnlyOnRanToCompletion);
+                task_calibrate.ContinueWith(
+                    calibrate_exception_handler, TaskContinuationOptions.OnlyOnFaulted);
+                task_calibrate.ContinueWith(
+                    calibration_done_handler, TaskContinuationOptions.OnlyOnRanToCompletion);
                 task_calibrate.Start();
 
             }
@@ -967,8 +983,12 @@ namespace powercal
             }
         }
 
+        /// <summary>
+        /// Calibration done handler
+        /// </summary>
         void calibration_done()
         {
+            // Trun power off
             if (_relay_ctrl != null)
             {
                 _relay_ctrl.WriteLine(powercal.Relay_Lines.Ember, false);
@@ -977,12 +997,14 @@ namespace powercal
                 _relay_ctrl.Close();
             }
 
+            // Wait for power off
             if (_meter != null)
             {
                 _meter.CloseSerialPort();
                 wait_for_power_off();
             }
 
+            // Check PASS or FAIL
             if (_calibration_error_msg == null)
             {
                 updateRunStatus("PASS", Color.White, Color.Green);
@@ -1004,6 +1026,7 @@ namespace powercal
                 _telnet_connection.Close();
             }
 
+            // Stop runing watch and report time lapse
             _stopwatch_running.Stop();
             TimeSpan ts = _stopwatch_running.Elapsed;
             string elapsedTime = String.Format("Elaspsed time {0:00} seconds", ts.TotalSeconds);
@@ -1012,12 +1035,13 @@ namespace powercal
             _stopwatch_running.Reset();
             _stopwatch_stopped.Restart();
 
+            // Reset the calibrate after coding
             _calibrate_after_code = false;
 
             setEnablement(true, false);
 
             updateOutputStatus(
-                "================================End Calibration===============================");
+                "==============================End Calibration=============================");
 
         }
 
@@ -1074,6 +1098,21 @@ namespace powercal
 
         void buttonClick_Code(object sender, EventArgs e)
         {
+            // Clear the error
+            _coding_error_msg = null;
+
+            // Just in case
+            if (!this.buttonCode.Enabled)
+                return;
+
+            // Just in case we look for an invalid calibrate re-run too fast
+            if (_stopwatch_stopped.Elapsed.TotalMilliseconds < 500)
+            {
+                _stopwatch_stopped.Restart();
+                return;
+            }
+
+            // If the button is labeled "Cancel" then just cancel the task
             if (buttonCode.Text == "&Cancel")
             {
                 _coding_token_src_cancel.Cancel();
@@ -1083,67 +1122,69 @@ namespace powercal
             // Disable the app
             setEnablement(false, true);
 
+            // Start the running stopwatch
+            _stopwatch_stopped.Reset();
             _stopwatch_running.Restart();
 
+            // Init the status text box
             runStatus_Init();
             setRunStatusText("Start Coding");
 
+            // Clear output status
             this.textBoxOutputStatus.Clear();
 
+            // Clear toolstrip
             toolStripStatusLabel.Text = "";
             statusStrip1.Update();
 
-
-            updateOutputStatus("===============================Start Coding==============================");
-
-            _coding_error_msg = null;
-
+            // Start coding
+            updateOutputStatus(
+                "===============================Start Coding==============================");
             try
             {
-                bool manual_measure = Properties.Settings.Default.Meter_Manual_Measurement;
-                if (manual_measure)
-                {
+                // Init the meter object
+                if (Properties.Settings.Default.Meter_Manual_Measurement)
                     _meter = null;
-                }
                 else
-                {
                     _meter = new MultiMeter(Properties.Settings.Default.Meter_COM_Port_Name);
-                }
 
+                // Set the XY poit where to check coding status color
+                Point point = new Point(
+                    Properties.Settings.Default.Coding_StatusX,
+                    Properties.Settings.Default.Coding_StatusY);
+                Coder coder = new Coder(point, new TimeSpan(0, 2, 0));
 
-                _coding_state_color_point.X = Properties.Settings.Default.Coding_StatusX;
-                _coding_state_color_point.Y = Properties.Settings.Default.Coding_StatusY;
-
-                Coder coder = new Coder(_coding_state_color_point, new TimeSpan(0, 2, 0));
-
+                // Init the calibrate object so we can get dv voltage limits
                 _calibrate.BoardType = getSelectedBoardType();
+
+                // Open the relay controller and set the for coding
+                // Note, relay controller stays opened until task is done
                 _relay_ctrl.Open();
                 if (_relay_ctrl.Device_Type == RelayControler.Device_Types.Manual)
                 {
-                    // Trun AC ON
+                    // We don't check dc in manual mode, so just connect the ember and power
                     _relay_ctrl.WriteLine(Relay_Lines.Ember, true);
                     _relay_ctrl.WriteLine(Relay_Lines.Power, true);
                     Thread.Sleep(1000);
                 }
                 else
                 {
+                    // Check dc before connecting ember
                     _relay_ctrl.WriteLine(Relay_Lines.Ember, false);
                     _relay_ctrl.WriteLine(Relay_Lines.Power, true);
-                    _relay_ctrl.WriteLine(Relay_Lines.Voltmeter, true);
-
                     Thread.Sleep(1000);
 
-                    verify_voltage_dc(_calibrate.Voltage_DC_Low_Limit, _calibrate.Voltage_DC_High_Limit);
-
+                    verify_voltage_dc(
+                        _calibrate.Voltage_DC_Low_Limit, _calibrate.Voltage_DC_High_Limit);
 
                     // Should be safe to connect Ember
                     _relay_ctrl.WriteLine(Relay_Lines.Ember, true);
                     Thread.Sleep(1000);
                 }
-                _relay_ctrl.Close();
                 relaysSet();
 
-
+                // Run coding
+                _coding_token_src_cancel = new CancellationTokenSource();
                 CancellationToken token = _coding_token_src_cancel.Token;
                 Task task = new Task(() => coder.Code(token), token);
                 task.ContinueWith(coding_exception_handler, TaskContinuationOptions.OnlyOnFaulted);
@@ -1157,25 +1198,36 @@ namespace powercal
             }
         }
 
+        /// <summary>
+        /// Coding done handler
+        /// </summary>
         void coding_done()
         {
-            if (_relay_ctrl != null)
+            // reactivate the window
+            activate();
+
+            // Turn power off if we are not calibrating after this
+            if (!_calibrate_after_code)
             {
-                _relay_ctrl.WriteLine(powercal.Relay_Lines.Ember, false);
-                _relay_ctrl.WriteLine(powercal.Relay_Lines.Power, false);
-                _relay_ctrl.Close();
+                if (_relay_ctrl != null)
+                {
+                    _relay_ctrl.WriteLine(powercal.Relay_Lines.Ember, false);
+                    _relay_ctrl.WriteLine(powercal.Relay_Lines.Power, false);
+                    _relay_ctrl.Close();
+                }
+                relaysSet();
+
+                if (_meter != null)
+                {
+                    _meter.CloseSerialPort();
+                    wait_for_power_off();
+                }
             }
-            relaysSet();
 
-            if (_meter != null)
-            {
-                _meter.CloseSerialPort();
-                wait_for_power_off();
-            }
-
-
+            // Check whether PASS, Cancelled or FAIL
             if (_coding_token_src_cancel.IsCancellationRequested)
             {
+                _coding_token_src_cancel = new CancellationTokenSource();
                 _calibrate_after_code = false;
                 updateRunStatus("Cancelled", Color.Black, Color.Yellow);
             }
@@ -1194,6 +1246,7 @@ namespace powercal
                 }
             }
 
+            // Stop runing watch and report time lapse
             _stopwatch_running.Stop();
             TimeSpan ts = _stopwatch_running.Elapsed;
             string elapsedTime = String.Format("Elaspsed time {0:00} seconds", ts.TotalSeconds);
@@ -1207,14 +1260,12 @@ namespace powercal
             updateOutputStatus(
                 "===============================End Coding==============================");
 
+            // Run calibration if eberything is OK
             if (_calibrate_after_code && _coding_error_msg == null &&
                 !_coding_token_src_cancel.IsCancellationRequested)
             {
                 clickCalibrate();
             }
-
-            _coding_token_src_cancel = new CancellationTokenSource();
-            activate();
         }
 
         void activate()

@@ -191,13 +191,20 @@ namespace powercal
         {
             using (StreamWriter writer = File.CreateText(_batch_file))
             {
-                string txt = string.Format("pushd \"{0}\"", _ember_bin_path);
-                writer.WriteLine(txt);
+                string txt;
+                //txt = string.Format("pushd \"{0}\"", _ember_bin_path);
+                //writer.WriteLine(txt);
 
                 //txt = string.Format("{0} --usb {1}", _ember_exe, _usb_port);
                 //writer.WriteLine(txt);
 
-                txt = string.Format("{0} --patch ", _ember_exe);
+                txt = string.Format("{0}", _ember_exe);
+                if(_interface == Interfaces.USB)
+                    txt += string.Format(" --usb {0}", _interface_address);
+                else if(_interface == Interfaces.IP)
+                    txt += string.Format(" --ip {0}", _interface_address);
+                txt += " --patch ";
+
 
                 // vrms
                 int start_addr = _voltageAddress;
@@ -254,8 +261,8 @@ namespace powercal
 
                 writer.WriteLine(txt);
 
-                txt = string.Format("popd");
-                writer.WriteLine(txt);
+                //txt = string.Format("popd");
+                //writer.WriteLine(txt);
 
                 writer.Close();
             }
