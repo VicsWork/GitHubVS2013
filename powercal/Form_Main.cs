@@ -1068,6 +1068,9 @@ namespace powercal
             string errmsg = exception.InnerException.Message;
 
             _calibration_error_msg = errmsg;
+
+
+
             calibration_done();
         }
 
