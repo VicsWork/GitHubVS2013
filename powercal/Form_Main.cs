@@ -305,8 +305,8 @@ namespace powercal
                 buttonCode.Text = "&Code";
                 if (Properties.Settings.Default.Coding_StatusX == 0 && Properties.Settings.Default.Coding_StatusY == 0)
                 {
-                    buttonCode.Enabled = false;
-                    buttonAll.Enabled = false;
+                    //buttonCode.Enabled = false;
+                    //buttonAll.Enabled = false;
                 }
                 else
                 {
