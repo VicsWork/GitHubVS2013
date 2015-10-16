@@ -8,7 +8,7 @@ using System.Threading;
 using System.Diagnostics;
 using System.Drawing;
 
-namespace powercal
+namespace PowerCalibration
 {
     public static class MouseHook
     {

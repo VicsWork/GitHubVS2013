@@ -1,4 +1,4 @@
-﻿namespace powercal
+﻿namespace PowerCalibration
 {
     partial class AboutBox1
     {

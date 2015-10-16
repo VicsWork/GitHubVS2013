@@ -8,7 +8,7 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms;
 
-namespace powercal
+namespace PowerCalibration
 {
     /// <summary>
     /// Simple form to enter a single value
@@ -21,6 +21,7 @@ namespace powercal
         public Form_EnterMeasurement()
         {
             InitializeComponent();
+            this.Icon = Properties.Resources.IconPowerCalibration;
         }
 
         /// <summary>
@@ -43,6 +44,11 @@ namespace powercal
         private void buttonOK_Click(object sender, EventArgs e)
         {
             this.Close();
+        }
+
+        private void Form_EnterMeasurement_Load(object sender, EventArgs e)
+        {
+
         }
 
     }

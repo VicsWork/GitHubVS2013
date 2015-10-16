@@ -1,4 +1,4 @@
-﻿namespace powercal
+﻿namespace PowerCalibration
 {
     partial class Form_NIDigitalPortTest
     {
@@ -234,7 +234,7 @@
             this.label1.TabIndex = 11;
             this.label1.Text = "0x";
             // 
-            // FormNIDigitalPortTest
+            // Form_NIDigitalPortTest
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(96F, 96F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Dpi;
@@ -248,7 +248,7 @@
             this.FormBorderStyle = System.Windows.Forms.FormBorderStyle.FixedDialog;
             this.MaximizeBox = false;
             this.MinimumSize = new System.Drawing.Size(200, 200);
-            this.Name = "FormNIDigitalPortTest";
+            this.Name = "Form_NIDigitalPortTest";
             this.Text = "Write to NI Digital Port";
             this.channelParametersGroupBox.ResumeLayout(false);
             ((System.ComponentModel.ISupportInitialize)(this.NumericUpDowndataToWrite)).EndInit();

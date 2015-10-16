@@ -1,4 +1,4 @@
-﻿namespace powercal
+﻿namespace PowerCalibration
 {
     partial class Form_EnterMeasurement
     {
@@ -28,7 +28,6 @@
         /// </summary>
         private void InitializeComponent()
         {
-            System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(Form_EnterMeasurement));
             this.label = new System.Windows.Forms.Label();
             this.textBox1 = new System.Windows.Forms.TextBox();
             this.buttonOK = new System.Windows.Forms.Button();
@@ -69,9 +68,9 @@
             this.Controls.Add(this.buttonOK);
             this.Controls.Add(this.textBox1);
             this.Controls.Add(this.label);
-            this.Icon = ((System.Drawing.Icon)(resources.GetObject("$this.Icon")));
             this.Name = "Form_EnterMeasurement";
             this.Text = "Enter Measurement";
+            this.Load += new System.EventHandler(this.Form_EnterMeasurement_Load);
             this.ResumeLayout(false);
             this.PerformLayout();
 

@@ -1,4 +1,4 @@
-﻿namespace powercal
+﻿namespace PowerCalibration
 {
     partial class Form_PowerMeter
     {
@@ -29,7 +29,6 @@
         private void InitializeComponent()
         {
             this.components = new System.ComponentModel.Container();
-            System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(Form_PowerMeter));
             this.labelPowerUUT = new System.Windows.Forms.Label();
             this.timerISAChan = new System.Windows.Forms.Timer(this.components);
             this.groupBox1 = new System.Windows.Forms.GroupBox();
@@ -117,7 +116,6 @@
             this.ClientSize = new System.Drawing.Size(228, 228);
             this.Controls.Add(this.groupBox1);
             this.FormBorderStyle = System.Windows.Forms.FormBorderStyle.FixedToolWindow;
-            this.Icon = ((System.Drawing.Icon)(resources.GetObject("$this.Icon")));
             this.Name = "Form_PowerMeter";
             this.Text = "Power Meter";
             this.FormClosing += new System.Windows.Forms.FormClosingEventHandler(this.Form_PowerMeter_FormClosing);

@@ -1,4 +1,4 @@
-﻿namespace powercal
+﻿namespace PowerCalibration
 {
     partial class Form_Calculator
     {
@@ -124,7 +124,7 @@
             this.textBoxGainHex.Size = new System.Drawing.Size(179, 20);
             this.textBoxGainHex.TabIndex = 5;
             // 
-            // FormCalculator
+            // Form_Calculator
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
@@ -140,7 +140,7 @@
             this.Controls.Add(this.textBox2);
             this.Controls.Add(this.textBoxHex24);
             this.FormBorderStyle = System.Windows.Forms.FormBorderStyle.FixedToolWindow;
-            this.Name = "FormCalculator";
+            this.Name = "Form_Calculator";
             this.Text = "Calculator";
             this.ResumeLayout(false);
             this.PerformLayout();

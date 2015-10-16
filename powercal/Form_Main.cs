@@ -22,7 +22,7 @@ using System.ServiceModel.Description;
 
 using MinimalisticTelnet;
 
-namespace powercal
+namespace PowerCalibration
 {
     enum BoardTypes { Hornshark, Mudshark, Humpback, Hooktooth, Milkshark, Zebrashark };
 
@@ -82,6 +82,7 @@ namespace powercal
             Trace.Listeners.Add(textListener);
 
             InitializeComponent();
+            this.Icon = Properties.Resources.IconPowerCalibration;
 
             _stopwatch_running.Reset();
             _stopwatch_stopped.Start();
@@ -103,7 +104,7 @@ namespace powercal
             runStatus_Init();
 
             // Make sure we have a selection for board types
-            this.comboBoxBoardTypes.Items.AddRange(Enum.GetNames(typeof(powercal.BoardTypes)));
+            this.comboBoxBoardTypes.Items.AddRange(Enum.GetNames(typeof(PowerCalibration.BoardTypes)));
             int index = comboBoxBoardTypes.Items.IndexOf(Properties.Settings.Default.Last_Used_Board);
             if (index < 0)
                 index = 0;
@@ -527,10 +528,10 @@ namespace powercal
 
             // DIO line assigment
             Dictionary<string, uint> relay_lines = _relay_ctrl.DicLines_ReadSettings();
-            dlg.NumericUpDown_ACPower.Value = relay_lines[powercal.Relay_Lines.Power];
-            dlg.NumericUpDown_Load.Value = relay_lines[powercal.Relay_Lines.Load];
-            dlg.NumericUpDown_Ember.Value = relay_lines[powercal.Relay_Lines.Ember];
-            dlg.numericUpDown_Voltmeter.Value = relay_lines[powercal.Relay_Lines.Voltmeter];
+            dlg.NumericUpDown_ACPower.Value = relay_lines[PowerCalibration.Relay_Lines.Power];
+            dlg.NumericUpDown_Load.Value = relay_lines[PowerCalibration.Relay_Lines.Load];
+            dlg.NumericUpDown_Ember.Value = relay_lines[PowerCalibration.Relay_Lines.Ember];
+            dlg.numericUpDown_Voltmeter.Value = relay_lines[PowerCalibration.Relay_Lines.Voltmeter];
 
             DialogResult rc = dlg.ShowDialog();
             if (rc == DialogResult.OK)
@@ -547,10 +548,10 @@ namespace powercal
 
                 // DIO line assigment
                 relay_lines = _relay_ctrl.DicLines_ReadSettings();
-                relay_lines[powercal.Relay_Lines.Power] = (uint)dlg.NumericUpDown_ACPower.Value;
-                relay_lines[powercal.Relay_Lines.Load] = (uint)dlg.NumericUpDown_Load.Value;
-                relay_lines[powercal.Relay_Lines.Ember] = (uint)dlg.NumericUpDown_Ember.Value;
-                relay_lines[powercal.Relay_Lines.Voltmeter] = (uint)dlg.numericUpDown_Voltmeter.Value;
+                relay_lines[PowerCalibration.Relay_Lines.Power] = (uint)dlg.NumericUpDown_ACPower.Value;
+                relay_lines[PowerCalibration.Relay_Lines.Load] = (uint)dlg.NumericUpDown_Load.Value;
+                relay_lines[PowerCalibration.Relay_Lines.Ember] = (uint)dlg.NumericUpDown_Ember.Value;
+                relay_lines[PowerCalibration.Relay_Lines.Voltmeter] = (uint)dlg.numericUpDown_Voltmeter.Value;
                 _relay_ctrl.DicLines_SaveSettings();
 
                 // Ember
@@ -1003,9 +1004,9 @@ namespace powercal
             // Trun power off
             if (_relay_ctrl != null)
             {
-                _relay_ctrl.WriteLine(powercal.Relay_Lines.Ember, false);
-                _relay_ctrl.WriteLine(powercal.Relay_Lines.Power, false);
-                _relay_ctrl.WriteLine(powercal.Relay_Lines.Load, false);
+                _relay_ctrl.WriteLine(PowerCalibration.Relay_Lines.Ember, false);
+                _relay_ctrl.WriteLine(PowerCalibration.Relay_Lines.Power, false);
+                _relay_ctrl.WriteLine(PowerCalibration.Relay_Lines.Load, false);
                 _relay_ctrl.Close();
             }
 
@@ -1249,8 +1250,8 @@ namespace powercal
             {
                 if (_relay_ctrl != null)
                 {
-                    _relay_ctrl.WriteLine(powercal.Relay_Lines.Ember, false);
-                    _relay_ctrl.WriteLine(powercal.Relay_Lines.Power, false);
+                    _relay_ctrl.WriteLine(PowerCalibration.Relay_Lines.Ember, false);
+                    _relay_ctrl.WriteLine(PowerCalibration.Relay_Lines.Power, false);
                     _relay_ctrl.Close();
                 }
                 relaysSet();

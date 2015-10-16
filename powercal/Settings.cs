@@ -1,4 +1,4 @@
-﻿namespace powercal.Properties {
+﻿namespace PowerCalibration.Properties {
     
     
     // This class allows you to handle specific events on the settings class:

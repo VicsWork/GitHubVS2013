@@ -8,7 +8,7 @@ using System.Text;
 using System.Windows.Forms;
 using NationalInstruments.DAQmx;
 
-namespace powercal
+namespace PowerCalibration
 {
     public partial class Form_NIDigitalPortTest : Form
     {
@@ -20,25 +20,26 @@ namespace powercal
         public Form_NIDigitalPortTest()
         {
             InitializeComponent();
+            this.Icon = Properties.Resources.IconPowerCalibration;
 
             initPhysicalChannelComboBox();
 
             // Add line numbers to labels and tag the control with the line number
             Dictionary<string, uint> lines = _relayCtrl.DicLines_ReadSettings();
 
-            uint linenum = lines[powercal.Relay_Lines.Power];
+            uint linenum = lines[PowerCalibration.Relay_Lines.Power];
             labelACPower.Text += string.Format("({0})", linenum);
             NumericUpDown_ACPower.Tag = linenum;
 
-            linenum = lines[powercal.Relay_Lines.Load];
+            linenum = lines[PowerCalibration.Relay_Lines.Load];
             labelLoad.Text += string.Format("({0})", linenum);
             NumericUpDown_Load.Tag = linenum;
 
-            linenum = lines[powercal.Relay_Lines.Ember];
+            linenum = lines[PowerCalibration.Relay_Lines.Ember];
             labelEmber.Text += string.Format("({0})", linenum);
             NumericUpDown_Ember.Tag = linenum;
 
-            linenum = lines[powercal.Relay_Lines.Voltmeter];
+            linenum = lines[PowerCalibration.Relay_Lines.Voltmeter];
             labelVoltmeter.Text += string.Format("({0})", linenum);
             numericUpDown_Voltmeter.Tag = linenum;
 
@@ -78,10 +79,10 @@ namespace powercal
             try
             {
                 // Reads all values from DIO and updates the numeric up and down control
-                NumericUpDown_ACPower.Value = Convert.ToDecimal( _relayCtrl.ReadLine(powercal.Relay_Lines.Power) );
-                NumericUpDown_Load.Value = Convert.ToDecimal(_relayCtrl.ReadLine(powercal.Relay_Lines.Load) );
-                NumericUpDown_Ember.Value = Convert.ToDecimal(_relayCtrl.ReadLine(powercal.Relay_Lines.Ember));
-                numericUpDown_Voltmeter.Value = Convert.ToDecimal(_relayCtrl.ReadLine(powercal.Relay_Lines.Voltmeter));
+                NumericUpDown_ACPower.Value = Convert.ToDecimal( _relayCtrl.ReadLine(PowerCalibration.Relay_Lines.Power) );
+                NumericUpDown_Load.Value = Convert.ToDecimal(_relayCtrl.ReadLine(PowerCalibration.Relay_Lines.Load) );
+                NumericUpDown_Ember.Value = Convert.ToDecimal(_relayCtrl.ReadLine(PowerCalibration.Relay_Lines.Ember));
+                numericUpDown_Voltmeter.Value = Convert.ToDecimal(_relayCtrl.ReadLine(PowerCalibration.Relay_Lines.Voltmeter));
             }
             catch (Exception ex)
             {

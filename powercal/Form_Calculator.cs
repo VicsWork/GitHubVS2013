@@ -8,13 +8,14 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms;
 
-namespace powercal
+namespace PowerCalibration
 {
     public partial class Form_Calculator : Form
     {
         public Form_Calculator()
         {
             InitializeComponent();
+            this.Icon = Properties.Resources.IconPowerCalibration;
         }
 
         private void buttonCalculate_Click(object sender, EventArgs e)

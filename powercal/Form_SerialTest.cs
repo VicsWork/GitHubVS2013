@@ -11,7 +11,7 @@ using System.Threading;
 
 using System.IO.Ports;
 
-namespace powercal
+namespace PowerCalibration
 {
     public partial class Form_SerialTest : Form
     {
@@ -21,6 +21,7 @@ namespace powercal
         public Form_SerialTest()
         {
             InitializeComponent();
+            this.Icon = Properties.Resources.IconPowerCalibration;
 
             string[] ports = SerialPort.GetPortNames();
             foreach (string port in ports)

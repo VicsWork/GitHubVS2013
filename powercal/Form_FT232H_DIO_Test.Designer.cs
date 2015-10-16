@@ -1,4 +1,4 @@
-﻿namespace powercal
+﻿namespace PowerCalibration
 {
     partial class Form_FT232H_DIO_Test
     {
@@ -31,6 +31,7 @@
             this.channelParametersGroupBox = new System.Windows.Forms.GroupBox();
             this.physicalChannelLabel = new System.Windows.Forms.Label();
             this.groupBoxDIOLines = new System.Windows.Forms.GroupBox();
+            this.NumericUpDown_ACPower = new System.Windows.Forms.NumericUpDown();
             this.numericUpDown_Voltmeter = new System.Windows.Forms.NumericUpDown();
             this.labelVoltmeter = new System.Windows.Forms.Label();
             this.labelEmber = new System.Windows.Forms.Label();
@@ -38,14 +39,13 @@
             this.labelLoad = new System.Windows.Forms.Label();
             this.NumericUpDown_Load = new System.Windows.Forms.NumericUpDown();
             this.labelACPower = new System.Windows.Forms.Label();
-            this.NumericUpDown_ACPower = new System.Windows.Forms.NumericUpDown();
             this.button1 = new System.Windows.Forms.Button();
             this.channelParametersGroupBox.SuspendLayout();
             this.groupBoxDIOLines.SuspendLayout();
+            ((System.ComponentModel.ISupportInitialize)(this.NumericUpDown_ACPower)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.numericUpDown_Voltmeter)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.NumericUpDown_Ember)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.NumericUpDown_Load)).BeginInit();
-            ((System.ComponentModel.ISupportInitialize)(this.NumericUpDown_ACPower)).BeginInit();
             this.SuspendLayout();
             // 
             // channelParametersGroupBox
@@ -84,6 +84,19 @@
             this.groupBoxDIOLines.TabIndex = 0;
             this.groupBoxDIOLines.TabStop = false;
             this.groupBoxDIOLines.Text = "DIO Line Values";
+            // 
+            // NumericUpDown_ACPower
+            // 
+            this.NumericUpDown_ACPower.Location = new System.Drawing.Point(80, 35);
+            this.NumericUpDown_ACPower.Maximum = new decimal(new int[] {
+            1,
+            0,
+            0,
+            0});
+            this.NumericUpDown_ACPower.Name = "NumericUpDown_ACPower";
+            this.NumericUpDown_ACPower.Size = new System.Drawing.Size(31, 20);
+            this.NumericUpDown_ACPower.TabIndex = 0;
+            this.NumericUpDown_ACPower.ValueChanged += new System.EventHandler(this.numericUpDown_ValueChanged);
             // 
             // numericUpDown_Voltmeter
             // 
@@ -160,19 +173,6 @@
             this.labelACPower.TabIndex = 1;
             this.labelACPower.Text = "AC Power";
             // 
-            // NumericUpDown_ACPower
-            // 
-            this.NumericUpDown_ACPower.Location = new System.Drawing.Point(80, 35);
-            this.NumericUpDown_ACPower.Maximum = new decimal(new int[] {
-            1,
-            0,
-            0,
-            0});
-            this.NumericUpDown_ACPower.Name = "NumericUpDown_ACPower";
-            this.NumericUpDown_ACPower.Size = new System.Drawing.Size(31, 20);
-            this.NumericUpDown_ACPower.TabIndex = 0;
-            this.NumericUpDown_ACPower.ValueChanged += new System.EventHandler(this.numericUpDown_ValueChanged);
-            // 
             // button1
             // 
             this.button1.Location = new System.Drawing.Point(211, 41);
@@ -194,13 +194,14 @@
             this.Name = "Form_FT232H_DIO_Test";
             this.Text = "FormFT232H_DIO_Test";
             this.FormClosed += new System.Windows.Forms.FormClosedEventHandler(this.FormFT232H_DIO_Test_FormClosed);
+            this.Load += new System.EventHandler(this.Form_FT232H_DIO_Test_Load);
             this.channelParametersGroupBox.ResumeLayout(false);
             this.groupBoxDIOLines.ResumeLayout(false);
             this.groupBoxDIOLines.PerformLayout();
+            ((System.ComponentModel.ISupportInitialize)(this.NumericUpDown_ACPower)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this.numericUpDown_Voltmeter)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this.NumericUpDown_Ember)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this.NumericUpDown_Load)).EndInit();
-            ((System.ComponentModel.ISupportInitialize)(this.NumericUpDown_ACPower)).EndInit();
             this.ResumeLayout(false);
 
         }

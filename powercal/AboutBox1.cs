@@ -7,7 +7,7 @@ using System.Reflection;
 using System.Threading.Tasks;
 using System.Windows.Forms;
 
-namespace powercal
+namespace PowerCalibration
 {
     partial class AboutBox1 : Form
     {

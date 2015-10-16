@@ -7,7 +7,7 @@ using System.IO;
 using System.Diagnostics;
 using System.Threading;
 
-namespace powercal
+namespace PowerCalibration
 {
     /// <summary>
     /// Creates and runs batch file to patch calibration tokens at specified addresses

@@ -1,4 +1,4 @@
-﻿namespace powercal
+﻿namespace PowerCalibration
 {
     partial class Form_Main
     {
@@ -29,7 +29,6 @@
         private void InitializeComponent()
         {
             this.components = new System.ComponentModel.Container();
-            System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(Form_Main));
             this.textBoxOutputStatus = new System.Windows.Forms.TextBox();
             this.contextMenuStatusTextBox = new System.Windows.Forms.ContextMenuStrip(this.components);
             this.clearToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
@@ -271,7 +270,6 @@
             this.Controls.Add(this.comboBoxBoardTypes);
             this.Controls.Add(this.buttonCalibrate);
             this.Controls.Add(this.textBoxOutputStatus);
-            this.Icon = ((System.Drawing.Icon)(resources.GetObject("$this.Icon")));
             this.MainMenuStrip = this.menuStripMain;
             this.MinimumSize = new System.Drawing.Size(400, 400);
             this.Name = "Form_Main";

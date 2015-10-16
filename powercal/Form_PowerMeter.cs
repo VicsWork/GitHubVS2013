@@ -12,7 +12,7 @@ using System.Threading;
 
 using MinimalisticTelnet;
 
-namespace powercal
+namespace PowerCalibration
 {
     public partial class Form_PowerMeter : Form
     {
@@ -34,6 +34,7 @@ namespace powercal
         public Form_PowerMeter(string interface_type, string interface_address, double uut_voltage_reference, double uut_current_reference)
         {
             InitializeComponent();
+            this.Icon = Properties.Resources.IconPowerCalibration;
 
             _ember = new Ember();
             _ember.Process_ISAChan_Error_Event += ember_Process_ISAChan_Error_Event;

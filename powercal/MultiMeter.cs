@@ -7,7 +7,7 @@ using System.IO.Ports;
 using System.Diagnostics;
 using System.Threading;
 
-namespace powercal
+namespace PowerCalibration
 {
     class MultiMeter
     {

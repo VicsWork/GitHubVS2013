@@ -9,7 +9,7 @@ using System.Threading.Tasks;
 using System.Windows.Forms;
 using System.Threading;
 
-namespace powercal
+namespace PowerCalibration
 {
     public partial class Form_FT232H_DIO_Test : Form
     {
@@ -18,6 +18,7 @@ namespace powercal
         public Form_FT232H_DIO_Test(RelayControler relayCtrl)
         {
             InitializeComponent();
+            this.Icon = Properties.Resources.IconPowerCalibration;
 
             if (relayCtrl.Device_Type != RelayControler.Device_Types.FT232H)
                 throw new Exception("Incorrect relay controller");
@@ -30,19 +31,19 @@ namespace powercal
             // Add line numbers to labels and tag the control with the line number
             Dictionary<string, uint> lines = _relayCtrl.DicLines_ReadSettings();
 
-            uint linenum = lines[powercal.Relay_Lines.Power];
+            uint linenum = lines[PowerCalibration.Relay_Lines.Power];
             labelACPower.Text += string.Format("({0})", linenum);
             NumericUpDown_ACPower.Tag = linenum;
 
-            linenum = lines[powercal.Relay_Lines.Load];
+            linenum = lines[PowerCalibration.Relay_Lines.Load];
             labelLoad.Text += string.Format("({0})", linenum);
             NumericUpDown_Load.Tag = linenum;
 
-            linenum = lines[powercal.Relay_Lines.Ember];
+            linenum = lines[PowerCalibration.Relay_Lines.Ember];
             labelEmber.Text += string.Format("({0})", linenum);
             NumericUpDown_Ember.Tag = linenum;
 
-            linenum = lines[powercal.Relay_Lines.Voltmeter];
+            linenum = lines[PowerCalibration.Relay_Lines.Voltmeter];
             labelVoltmeter.Text += string.Format("({0})", linenum);
             numericUpDown_Voltmeter.Tag = linenum;
 
@@ -68,6 +69,11 @@ namespace powercal
             _relayCtrl.WriteAll(false);
             Thread.Sleep(500);
             _relayCtrl.WriteAll(true);
+        }
+
+        private void Form_FT232H_DIO_Test_Load(object sender, EventArgs e)
+        {
+
         }
 
     }

@@ -8,13 +8,14 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms;
 
-namespace powercal
+namespace PowerCalibration
 {
     public partial class Form_Settings : Form
     {
         public Form_Settings()
         {
             InitializeComponent();
+            this.Icon = Properties.Resources.IconPowerCalibration;
 
             CheckBoxManualMultiMeter.Checked = Properties.Settings.Default.Meter_Manual_Measurement;
             TextBoxMeterCOM.Text = Properties.Settings.Default.Meter_COM_Port_Name;
@@ -33,9 +34,6 @@ namespace powercal
             else
                 textBoxEmberInterfaceAddress.Text = Properties.Settings.Default.Ember_Interface_USB_Address;
             TextBoxEmberBinPath.Text = Properties.Settings.Default.Ember_BinPath;
-
-            TextBoxCodingX.Text = string.Format("{0}", Properties.Settings.Default.Coding_StatusX);
-            TextBoxCodingY.Text = string.Format("{0}", Properties.Settings.Default.Coding_StatusY);
 
             comboBoxShortcutActions.Text = Properties.Settings.Default.Shortcut_Spacebar_Action;
         }
@@ -110,8 +108,6 @@ namespace powercal
         {
             MouseHook.Start();
             MouseHook.MouseAction += MouseHook_MouseAction;
-
-            buttonCodingSetXY.Enabled = false;
         }
 
         void MouseHook_MouseAction(object sender, EventArgs e)
@@ -121,23 +117,9 @@ namespace powercal
             MouseHook.POINT p = new MouseHook.POINT();
             MouseHook.GetCursorPos(out p);
 
-            TextBoxCodingX.Text = string.Format("{0}", p.x);
-            TextBoxCodingY.Text = string.Format("{0}", p.y);
-
             Properties.Settings.Default.Coding_StatusX = p.x;
             Properties.Settings.Default.Coding_StatusY = p.y;
 
-            buttonCodingSetXY.Enabled = true;
-        }
-
-        private void TextBoxCodingX_TextChanged(object sender, EventArgs e)
-        {
-            Properties.Settings.Default.Coding_StatusX = Convert.ToInt32(TextBoxCodingX.Text);
-        }
-
-        private void TextBoxCodingY_TextChanged(object sender, EventArgs e)
-        {
-            Properties.Settings.Default.Coding_StatusY = Convert.ToInt32(TextBoxCodingY.Text);
         }
 
         private void comboBoxShortcutActions_SelectedIndexChanged(object sender, EventArgs e)

@@ -9,7 +9,7 @@ using System.Windows.Forms;
 
 using MinimalisticTelnet;
 
-namespace powercal
+namespace PowerCalibration
 {
 
     class Calibrate

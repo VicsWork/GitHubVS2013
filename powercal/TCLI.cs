@@ -9,7 +9,7 @@ using System.Text.RegularExpressions;
 
 using MinimalisticTelnet;
 
-namespace powercal
+namespace PowerCalibration
 {
     /// <summary>
     /// Class to handle telnet command line interfacing

@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 using System.ServiceModel;
 using System.ServiceModel.Description;
 
-namespace powercal
+namespace PowerCalibration
 {
     [ServiceContract]
     public interface ICalibrationService

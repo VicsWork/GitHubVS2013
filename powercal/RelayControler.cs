@@ -10,7 +10,7 @@ using System.Threading;
 using NationalInstruments.DAQmx;
 using DIO;
 
-namespace powercal
+namespace PowerCalibration
 {
 
     /// <summary>

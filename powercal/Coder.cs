@@ -9,7 +9,7 @@ using System.Diagnostics;
 
 using AutoIt;
 
-namespace powercal
+namespace PowerCalibration
 {
     class Coder
     {
