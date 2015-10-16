@@ -116,10 +116,6 @@ namespace PowerCalibration
 
             MouseHook.POINT p = new MouseHook.POINT();
             MouseHook.GetCursorPos(out p);
-
-            Properties.Settings.Default.Coding_StatusX = p.x;
-            Properties.Settings.Default.Coding_StatusY = p.y;
-
         }
 
         private void comboBoxShortcutActions_SelectedIndexChanged(object sender, EventArgs e)

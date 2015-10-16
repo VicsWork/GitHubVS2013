@@ -15,20 +15,12 @@ namespace PowerCalibration
     {
         int _cred = 0xFF0000;
         int _cgreen = 0x008000;
-        Point _point_State_color;
         TimeSpan _timeout;
 
         string _win_desc = "[REGEXPTITLE:Ember Bootloader and Range Test .*]";
 
-        public Coder(Point point_State_color, TimeSpan timeout)
+        public Coder(TimeSpan timeout)
         {
-            _point_State_color = point_State_color;
-            if(_point_State_color.X == 0 && _point_State_color.Y == 0)
-            {
-                _point_State_color = guessStatusPos();
-                //string msg = string.Format("Point to check State color not set");
-                //throw new Exception(msg);
-            }
             _timeout = timeout;
         }
 
@@ -65,11 +57,11 @@ namespace PowerCalibration
                     if (fail_count > 3)
                     {
                         click_Start();
-                        moveToStatus();
+                        Point p = moveToStatus();
                         Thread.Sleep(2000);
 
                         msg = string.Format("Red pixel at location X={0}, Y={1} after {2:F2} s",
-                            _point_State_color.X, _point_State_color.Y, watch.Elapsed.TotalSeconds);
+                            p.X, p.Y, watch.Elapsed.TotalSeconds);
                         throw new Exception(msg);
                     }
                     else
@@ -89,17 +81,17 @@ namespace PowerCalibration
                 if (watch.Elapsed > _timeout)
                 {
                     click_Start(); ;
-                    moveToStatus();
+                    Point p = moveToStatus();
 
                     msg = string.Format("Timeout after {0:hh\\:mm\\:ss}. Unable to detect green or read pixel at location X={1}, Y={2}",
-                        watch.Elapsed, _point_State_color.X, _point_State_color.Y);
+                        watch.Elapsed, p.X, p.Y);
                     throw new Exception(msg);
                 }
 
                 if (AutoItX.WinActive(hwnd) == 0)
                 {
                     hwnd = activateMainWnd();
-                    moveToStatus();
+                    Point p = moveToStatus();
                 }
             }
         }
@@ -157,14 +149,17 @@ namespace PowerCalibration
         }
 
 
-        void moveToStatus()
+        Point moveToStatus()
         {
-            AutoItX.MouseMove(_point_State_color.X, _point_State_color.Y, 20);
+            Point point = guessStatusPos();
+            AutoItX.MouseMove(point.X, point.Y, 20);
+            return point;
         }
 
         int getStatusColor()
         {
-            return AutoItX.PixelGetColor(_point_State_color.X, _point_State_color.Y);
+            Point p = guessStatusPos();
+            return AutoItX.PixelGetColor(p.X, p.Y);
         }
 
         private void click_Start()

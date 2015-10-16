@@ -121,30 +121,6 @@ namespace PowerCalibration.Properties {
         
         [global::System.Configuration.UserScopedSettingAttribute()]
         [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
-        [global::System.Configuration.DefaultSettingValueAttribute("0")]
-        public int Coding_StatusX {
-            get {
-                return ((int)(this["Coding_StatusX"]));
-            }
-            set {
-                this["Coding_StatusX"] = value;
-            }
-        }
-        
-        [global::System.Configuration.UserScopedSettingAttribute()]
-        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
-        [global::System.Configuration.DefaultSettingValueAttribute("0")]
-        public int Coding_StatusY {
-            get {
-                return ((int)(this["Coding_StatusY"]));
-            }
-            set {
-                this["Coding_StatusY"] = value;
-            }
-        }
-        
-        [global::System.Configuration.UserScopedSettingAttribute()]
-        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
         [global::System.Configuration.DefaultSettingValueAttribute("All")]
         public string Shortcut_Spacebar_Action {
             get {

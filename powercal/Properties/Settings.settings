@@ -1,5 +1,5 @@
 ﻿<?xml version='1.0' encoding='utf-8'?>
-<SettingsFile xmlns="http://schemas.microsoft.com/VisualStudio/2004/01/settings" CurrentProfile="(Default)" GeneratedClassNamespace="powercal.Properties" GeneratedClassName="Settings">
+<SettingsFile xmlns="http://schemas.microsoft.com/VisualStudio/2004/01/settings" CurrentProfile="(Default)" GeneratedClassNamespace="PowerCalibration.Properties" GeneratedClassName="Settings">
   <Profiles />
   <Settings>
     <Setting Name="Meter_COM_Port_Name" Type="System.String" Scope="User">
@@ -24,12 +24,6 @@
       <Value Profile="(Default)">172.19.14.121</Value>
     </Setting>
     <Setting Name="Ember_Interface_USB_Address" Type="System.String" Scope="User">
-      <Value Profile="(Default)">0</Value>
-    </Setting>
-    <Setting Name="Coding_StatusX" Type="System.Int32" Scope="User">
-      <Value Profile="(Default)">0</Value>
-    </Setting>
-    <Setting Name="Coding_StatusY" Type="System.Int32" Scope="User">
       <Value Profile="(Default)">0</Value>
     </Setting>
     <Setting Name="Shortcut_Spacebar_Action" Type="System.String" Scope="User">

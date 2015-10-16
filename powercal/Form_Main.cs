@@ -304,16 +304,8 @@ namespace PowerCalibration
             else
             {
                 buttonCode.Text = "&Code";
-                if (Properties.Settings.Default.Coding_StatusX == 0 && Properties.Settings.Default.Coding_StatusY == 0)
-                {
-                    //buttonCode.Enabled = false;
-                    //buttonAll.Enabled = false;
-                }
-                else
-                {
-                    buttonCode.Enabled = enable;
-                    buttonAll.Enabled = enable;
-                }
+                buttonCode.Enabled = enable;
+                buttonAll.Enabled = enable;
             }
         }
 
@@ -746,7 +738,7 @@ namespace PowerCalibration
             if (_meter == null)
                 return -1;
 
-            if(_relay_ctrl != null && _relay_ctrl.Device_Type != RelayControler.Device_Types.Manual)
+            if (_relay_ctrl != null && _relay_ctrl.Device_Type != RelayControler.Device_Types.Manual)
                 _relay_ctrl.WriteLine(Relay_Lines.Voltmeter, false);  // AC measure
 
             // Measure Voltage after power off
@@ -1165,10 +1157,7 @@ namespace PowerCalibration
                     _meter = new MultiMeter(Properties.Settings.Default.Meter_COM_Port_Name);
 
                 // Set the XY poit where to check coding status color
-                Point point = new Point(
-                    Properties.Settings.Default.Coding_StatusX,
-                    Properties.Settings.Default.Coding_StatusY);
-                Coder coder = new Coder(point, new TimeSpan(0, 2, 0));
+                Coder coder = new Coder(new TimeSpan(0, 2, 0));
 
                 // Init the calibrate object so we can get dv voltage limits
                 _calibrate.BoardType = getSelectedBoardType();
