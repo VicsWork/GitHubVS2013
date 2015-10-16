@@ -27,10 +27,12 @@ namespace PowerCalibration
         public int CurrentRefereceValue { get { return _currentRefValue; } set { _currentRefValue = value; } }
 
         string _batch_file = "C:\\patchit.bat";
-        private string _ember_exe = "em3xx_load";
-        private string _ember_bin_path = "C:\\Program Files (x86)\\Ember\\ISA3 Utilities\\bin";
+        string _ember_exe = "em3xx_load";
+        string _ember_bin_path = "C:\\Program Files (x86)\\Ember\\ISA3 Utilities\\bin";
+        static string _ember_work_path;
+        public string Work_Path { get { return _ember_work_path; } set { _ember_work_path = value; } }
 
-        public enum Interfaces  { USB, IP };
+        public enum Interfaces { USB, IP };
         Interfaces _interface = Interfaces.USB;
         public Interfaces Interface { get { return _interface; } set { _interface = value; } }
         string _interface_address = "localhost";
@@ -80,7 +82,7 @@ namespace PowerCalibration
 
             if (_interface == Interfaces.IP)
                 _process_ember_isachan.StartInfo.Arguments += string.Format(" --ip={0}", _interface_address);
-            else if(_interface == Interfaces.USB)
+            else if (_interface == Interfaces.USB)
                 _process_ember_isachan.StartInfo.Arguments += string.Format(" --usb={0}", _interface_address);
 
             _process_ember_isachan.EnableRaisingEvents = true;
@@ -192,8 +194,10 @@ namespace PowerCalibration
             using (StreamWriter writer = File.CreateText(_batch_file))
             {
                 string txt;
-
-                txt = string.Format("pushd \"{0}\"", AppDomain.CurrentDomain.BaseDirectory);
+                if (Directory.Exists(_ember_work_path))
+                    txt = string.Format("pushd \"{0}\"", _ember_work_path);
+                else
+                    txt = string.Format("pushd \"{0}\"", AppDomain.CurrentDomain.BaseDirectory);
                 //txt = string.Format("pushd \"{0}\"", _ember_bin_path);
                 writer.WriteLine(txt);
 
@@ -204,9 +208,9 @@ namespace PowerCalibration
                 //txt = string.Format("{0}", _ember_exe);
 
 
-                if(_interface == Interfaces.USB)
+                if (_interface == Interfaces.USB)
                     txt += string.Format(" --usb {0}", _interface_address);
-                else if(_interface == Interfaces.IP)
+                else if (_interface == Interfaces.IP)
                     txt += string.Format(" --ip {0}", _interface_address);
                 txt += " --patch ";
 
@@ -282,24 +286,33 @@ namespace PowerCalibration
         public static string[] CleanupTempPatchFile()
         {
             List<string> removed_list = new List<string>();
+            string file_find_name = "em3xx_load_temp_patch_file_*.s37";
 
-            string path = Environment.GetEnvironmentVariable("LOCALAPPDATA");
-            path = Path.Combine(path, @"VirtualStore\Program Files (x86)\Ember\ISA3 Utilities\bin");
+            string path = _ember_work_path;
+            removed_list.AddRange(removeFilesFromFolder(path, file_find_name).ToArray());
 
-            if (Directory.Exists(path))
-            {
-                string[] files = Directory.GetFiles(path, "em3xx_load_temp_patch_file_*.s37");
-                foreach (string file in files)
-                {
-                    File.Delete(file);
-                    removed_list.Add(file);
-                }
-            }
+            path = AppDomain.CurrentDomain.BaseDirectory;
+            removed_list.AddRange(removeFilesFromFolder(path, file_find_name).ToArray());
+
+            path = Path.GetTempPath();
+            removed_list.AddRange(removeFilesFromFolder(path, file_find_name).ToArray());
+
+            path = Environment.GetEnvironmentVariable("LOCALAPPDATA");
+            path = Path.Combine(path, @"VirtualStore\Program Files (x86)\Ember\ISA3 Utilities\bin"); 
+            removed_list.AddRange(removeFilesFromFolder(path, file_find_name).ToArray());
 
             path = Environment.GetEnvironmentVariable("USERPROFILE");
-            if (Directory.Exists(path))
+            removed_list.AddRange(removeFilesFromFolder(path, file_find_name).ToArray());
+
+            return removed_list.ToArray();
+        }
+
+        static List<string> removeFilesFromFolder(string folder, string file_find_name)
+        {
+            List<string> removed_list = new List<string>();
+            if (Directory.Exists(folder))
             {
-                string[] files = Directory.GetFiles(path, "em3xx_load_temp_patch_file_*.s37");
+                string[] files = Directory.GetFiles(folder, file_find_name);
                 foreach (string file in files)
                 {
                     File.Delete(file);
@@ -307,7 +320,7 @@ namespace PowerCalibration
                 }
             }
 
-            return removed_list.ToArray();
+            return removed_list;
         }
 
         /// <summary>

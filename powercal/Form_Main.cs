@@ -171,6 +171,7 @@ namespace PowerCalibration
             updateOutputStatus(msg);
 
             _ember = new Ember();
+            _ember.Work_Path = _app_data_dir;
             _ember.Process_ISAChan_Error_Event += p_ember_isachan_ErrorDataReceived;
             _ember.Process_ISAChan_Output_Event += p_ember_isachan_OutputDataReceived;
 
