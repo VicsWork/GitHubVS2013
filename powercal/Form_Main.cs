@@ -28,48 +28,28 @@ namespace PowerCalibration
 
     public partial class Form_Main : Form, ICalibrationService
     {
-        MultiMeter _meter = null;
-        RelayControler _relay_ctrl;
-        TelnetConnection _telnet_connection;
-        Ember _ember;
-        Calibrate _calibrate = new Calibrate();
+        MultiMeter _meter = null; // The multimeter controler
+        RelayControler _relay_ctrl; // The relay controller
+        TelnetConnection _telnet_connection; // Telnet connection to ISA3 Adapter
+        Ember _ember; // The Ember box
+        Calibrate _calibrate = new Calibrate(); // Calibration object
+        Stopwatch _stopwatch_running = new Stopwatch();  // Used to measure running tasks
+        Stopwatch _stopwatch_idel = new Stopwatch();  // Used to measure idel
+        string _calibration_error_msg = null;  //  If set this will indicate the calibration error
+        string _coding_error_msg;  //  If set this will indicate the coding error
+        CancellationTokenSource _coding_token_src_cancel = new CancellationTokenSource();  // Used to cancel coding
+        bool _calibrate_after_code = false;  // Indicates whether to calibrate after cooding completes
 
-        Stopwatch _stopwatch_running = new Stopwatch();
-        Stopwatch _stopwatch_stopped = new Stopwatch();
-
-        string _calibration_error_msg = null;
-
-        /// <summary>
-        /// The app folder where we save most logs, etc
-        /// </summary>
         static string _app_data_dir = Path.Combine(
-            Environment.GetFolderPath(Environment.SpecialFolder.UserProfile), ".calibration");
-        /// <summary>
-        /// Path to the app log file
-        /// </summary>
-        string _log_file = Path.Combine(_app_data_dir, "runlog.txt");
+            Environment.GetFolderPath(Environment.SpecialFolder.UserProfile), ".calibration"); //The app folder where we save most logs, etc
+        string _log_file = Path.Combine(_app_data_dir, "runlog.txt"); // Path to the app log file
+        string _ember_batchfile_path = Path.Combine(_app_data_dir, "patchit.bat"); // Path to where the Ember programing batch file is created
 
-        /// <summary>
-        /// Path to where the Ember programing batch file is created
-        /// </summary>
-        string _ember_batchfile_path = Path.Combine(_app_data_dir, "patchit.bat");
-
-        delegate void clickCalibrateCallback();
-        delegate void activateCallback();
-        delegate void setTextCallback(string txt);
-        delegate void setTextColorCallback(string txt, Color forecolor, Color backcolor);
-        delegate void setEnablementCallback(bool enable, bool isCoding);
-        delegate void updateCallback();
-
-        Form_PowerMeter _power_meter_dlg = null;
-
-        /// <summary>
-        /// Coding
-        /// </summary>
-        string _coding_error_msg;
-        CancellationTokenSource _coding_token_src_cancel = new CancellationTokenSource();
-
-        bool _calibrate_after_code = false;
+        delegate void clickCalibrateCallback();  // Clicks Calibrate
+        delegate void activateCallback();  // Activates the form
+        delegate void setTextCallback(string txt);  // Set object text
+        delegate void setTextColorCallback(string txt, Color forecolor, Color backcolor); // Set objects color
+        delegate void setEnablementCallback(bool enable, bool isCoding);  // Set enablement
 
 
         /// <summary>
@@ -85,7 +65,7 @@ namespace PowerCalibration
             this.Icon = Properties.Resources.IconPowerCalibration;
 
             _stopwatch_running.Reset();
-            _stopwatch_stopped.Start();
+            _stopwatch_idel.Start();
 
             // Create the app data folder
             if (!Directory.Exists(_app_data_dir))
@@ -130,6 +110,36 @@ namespace PowerCalibration
             bool detected_meter = autoDetectMeterCOMPort();
 
             // Init relay controller
+            initRelayController();
+
+            // Ember path
+            if (!Directory.Exists(Properties.Settings.Default.Ember_BinPath))
+                msg = string.Format("Unable to find Ember bin path \"{0}\"", Properties.Settings.Default.Ember_BinPath);
+            else
+                msg = string.Format("Ember bin path set at\"{0}\"", Properties.Settings.Default.Ember_BinPath);
+            updateOutputStatus(msg);
+
+            // Init the Ember object
+            _ember = new Ember();
+            _ember.Work_Path = _app_data_dir;
+            _ember.Process_ISAChan_Error_Event += p_ember_isachan_ErrorDataReceived;
+            _ember.Process_ISAChan_Output_Event += p_ember_isachan_OutputDataReceived;
+
+            // Init the calibration object
+            _calibrate.Status_Event += calibrate_Status_event;
+            _calibrate.Run_Status_Event += calibrate_Run_Status_Event;
+            _calibrate.Relay_Event += calibrate_Relay_Event;
+
+            // Enable the app
+            setEnablement(true, false);
+        }
+
+        /// <summary>
+        /// Initializes the relay controller
+        /// </summary>
+        void initRelayController()
+        {
+            string msg;
             RelayControler.Device_Types rdevtype = (RelayControler.Device_Types)Enum.Parse(
                 typeof(RelayControler.Device_Types), Properties.Settings.Default.Relay_Controller_Type);
             try
@@ -140,6 +150,7 @@ namespace PowerCalibration
             {
                 msg = string.Format("Unable to init relay controler \"{0}\".  Switching to Manual relay mode", rdevtype);
                 updateOutputStatus(msg);
+                //MessageBox.Show(msg);
 
                 _relay_ctrl = new RelayControler(RelayControler.Device_Types.Manual);
                 Properties.Settings.Default.Relay_Controller_Type = _relay_ctrl.Device_Type.ToString();
@@ -154,32 +165,9 @@ namespace PowerCalibration
                 _relay_ctrl.DicLines_AddLine(Relay_Lines.Voltmeter, 3);
                 _relay_ctrl.DicLines_SaveSettings();
             }
-
             _relay_ctrl.Open();
             _relay_ctrl.WriteAll(false);
             _relay_ctrl.Close();
-
-            // Ember path
-            if (!Directory.Exists(Properties.Settings.Default.Ember_BinPath))
-            {
-                msg = string.Format("Unable to find Ember bin path \"{0}\"", Properties.Settings.Default.Ember_BinPath);
-            }
-            else
-            {
-                msg = string.Format("Ember bin path set at\"{0}\"", Properties.Settings.Default.Ember_BinPath);
-            }
-            updateOutputStatus(msg);
-
-            _ember = new Ember();
-            _ember.Work_Path = _app_data_dir;
-            _ember.Process_ISAChan_Error_Event += p_ember_isachan_ErrorDataReceived;
-            _ember.Process_ISAChan_Output_Event += p_ember_isachan_OutputDataReceived;
-
-            _calibrate.Status_Event += calibrate_Status_event;
-            _calibrate.Run_Status_Event += calibrate_Run_Status_Event;
-            _calibrate.Relay_Event += calibrate_Relay_Event;
-
-            setEnablement(true, false);
 
         }
 
@@ -266,6 +254,11 @@ namespace PowerCalibration
             this.textBoxRunStatus.Update();
         }
 
+        /// <summary>
+        /// Set enablement of controls
+        /// </summary>
+        /// <param name="enable"></param>
+        /// <param name="isCoding"></param>
         void setEnablement(bool enable, bool isCoding)
         {
             if (this.InvokeRequired)
@@ -281,20 +274,15 @@ namespace PowerCalibration
                 menuStripMain.Enabled = enable;
 
                 setCodeEnablement(enable, isCoding);
-
-                //if (buttonCalibrate.Enabled)
-                //{
-                //    UseWaitCursor = false;
-                //    this.Cursor = this.DefaultCursor;
-                //}
-                //else
-                //{
-                //    this.UseWaitCursor = true;
-                //}
-
             }
         }
 
+        /// <summary>
+        /// Sets the Code button control enablement and label
+        /// This buton is also to cancel the operation
+        /// </summary>
+        /// <param name="enable"></param>
+        /// <param name="isCoding"></param>
         void setCodeEnablement(bool enable, bool isCoding)
         {
             if (!enable && isCoding)
@@ -331,6 +319,10 @@ namespace PowerCalibration
             }
         }
 
+        /// <summary>
+        /// Sets the output status text
+        /// </summary>
+        /// <param name="text"></param>
         void setOutputStatusText(string text)
         {
             if (this.textBoxOutputStatus.InvokeRequired)
@@ -348,10 +340,10 @@ namespace PowerCalibration
         /// <summary>
         /// Updates the output status text box and log file
         /// </summary>
-        /// <param name="txt"></param>
-        void updateOutputStatus(string txt)
+        /// <param name="text"></param>
+        void updateOutputStatus(string text)
         {
-            string line = TraceLogger.Log(txt);
+            string line = TraceLogger.Log(text);
             using (StreamWriter sw = File.AppendText(_log_file))
             {
                 sw.WriteLine(line);
@@ -361,6 +353,10 @@ namespace PowerCalibration
             setOutputStatusText(line);
         }
 
+        /// <summary>
+        /// Sets the run status text
+        /// </summary>
+        /// <param name="text"></param>
         void setRunStatusText(string text)
         {
             if (this.textBoxRunStatus.InvokeRequired)
@@ -375,6 +371,12 @@ namespace PowerCalibration
             }
         }
 
+        /// <summary>
+        /// Sets the Run status text and backgorind color
+        /// </summary>
+        /// <param name="text"></param>
+        /// <param name="forecolor"></param>
+        /// <param name="backcolor"></param>
         void setRunStatusTextColor(string text, Color forecolor, Color backcolor)
         {
             if (this.textBoxRunStatus.InvokeRequired)
@@ -401,6 +403,12 @@ namespace PowerCalibration
             setOutputStatus(txt);
         }
 
+        /// <summary>
+        /// Updates the Run status text and color settings
+        /// </summary>
+        /// <param name="txt"></param>
+        /// <param name="forecolor"></param>
+        /// <param name="backcolor"></param>
         void updateRunStatus(string txt, Color forecolor, Color backcolor)
         {
             setRunStatusTextColor(txt, forecolor, backcolor);
@@ -478,36 +486,28 @@ namespace PowerCalibration
             updateOutputStatus(status);
         }
 
-        void toolStripMenuItem_Click_Clear(object sender, EventArgs e)
+        /// <summary>
+        /// Clears the Outout status text
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        void toolStripMenuItem_StatusClear(object sender, EventArgs e)
         {
             this.textBoxOutputStatus.Clear();
         }
 
         /// <summary>
-        /// Handels error data from the em3xx_load process
+        /// Copys the status selected text or all when nothing selected to
+        /// the clipboard
         /// </summary>
         /// <param name="sender"></param>
         /// <param name="e"></param>
-        void p_ember_isachan_ErrorDataReceived(object sender, DataReceivedEventArgs e)
+        void toolStripMenuItem_StatusCopy(object sender, EventArgs e)
         {
-            if (e.Data != null)
-            {
-                string str = "Error: " + e.Data;
-                TraceLogger.Log(str);
-                setOutputStatus(str);
-            }
-        }
-
-        /// <summary>
-        /// Handels output data from the em3xx_load process
-        /// </summary>
-        /// <param name="sender"></param>
-        /// <param name="e"></param>
-        void p_ember_isachan_OutputDataReceived(object sender, DataReceivedEventArgs e)
-        {
-            string str = e.Data;
-            //setOutputStatus(str);
-            TraceLogger.Log(str);
+            string text = textBoxOutputStatus.SelectedText;
+            if (text.Length == 0)
+                text = textBoxOutputStatus.Text;
+            System.Windows.Forms.Clipboard.SetText(text);
         }
 
         /// <summary>
@@ -515,7 +515,7 @@ namespace PowerCalibration
         /// </summary>
         /// <param name="sender"></param>
         /// <param name="e"></param>
-        void toolStripMenuItem_Click_Settings(object sender, EventArgs e)
+        void toolStripMenuItem_Settings(object sender, EventArgs e)
         {
             Form_Settings dlg = new Form_Settings();
 
@@ -565,49 +565,45 @@ namespace PowerCalibration
             }
         }
 
-        void toolStripMenuItem_Click_Calculator(object sender, EventArgs e)
+        /// <summary>
+        /// Opens up a basic calculator for 24bit register values convertions
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        void toolStripMenuItem_Calculator(object sender, EventArgs e)
         {
             Form_Calculator dlg = new Form_Calculator();
             dlg.ShowDialog();
         }
 
-        void toolStripMenuItem_Click_PowerMeter(object sender, EventArgs e)
+        /// <summary>
+        /// Starts the UUT power meter dialog
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        void toolStripMenuItem_PowerMeter(object sender, EventArgs e)
         {
-            if (_power_meter_dlg == null)
-            {
-                _relay_ctrl.Open();
-                _relay_ctrl.WriteLine(Relay_Lines.Power, true);
-                _relay_ctrl.WriteLine(Relay_Lines.Ember, true);
-                _relay_ctrl.WriteLine(Relay_Lines.Load, true);
-                _relay_ctrl.Close();
-                Thread.Sleep(1000);
+            _relay_ctrl.Open();
+            _relay_ctrl.WriteLine(Relay_Lines.Power, true);
+            _relay_ctrl.WriteLine(Relay_Lines.Ember, true);
+            _relay_ctrl.WriteLine(Relay_Lines.Load, true);
+            _relay_ctrl.Close();
+            Thread.Sleep(1000);
 
-                Calibrate calibrate = new Calibrate();
-                calibrate.BoardType = (BoardTypes)Enum.Parse(typeof(BoardTypes), comboBoxBoardTypes.Text);
+            Calibrate calibrate = new Calibrate();
+            calibrate.BoardType = (BoardTypes)Enum.Parse(typeof(BoardTypes), comboBoxBoardTypes.Text);
 
-                string ember_interface = Properties.Settings.Default.Ember_Interface;
-                string ember_address = Properties.Settings.Default.Ember_Interface_IP_Address;
-                if (Properties.Settings.Default.Ember_Interface == "USB")
-                    ember_address = Properties.Settings.Default.Ember_Interface_USB_Address;
+            string ember_interface = Properties.Settings.Default.Ember_Interface;
+            string ember_address = Properties.Settings.Default.Ember_Interface_IP_Address;
+            if (Properties.Settings.Default.Ember_Interface == "USB")
+                ember_address = Properties.Settings.Default.Ember_Interface_USB_Address;
 
-                _power_meter_dlg = new Form_PowerMeter(
-                    ember_interface, ember_address,
-                    calibrate.Voltage_Referencer, calibrate.Current_Referencer);
+            Form_PowerMeter power_meter_dlg = new Form_PowerMeter(
+                ember_interface, ember_address,
+                calibrate.Voltage_Referencer, calibrate.Current_Referencer);
 
-                _power_meter_dlg.FormClosed += power_meter_dlg_FormClosed;
 
-                //_power_meter_dlg.Show();
-                _power_meter_dlg.ShowDialog();
-            }
-            else
-            {
-                _power_meter_dlg.BringToFront();
-            }
-        }
-
-        void power_meter_dlg_FormClosed(object sender, FormClosedEventArgs e)
-        {
-            _power_meter_dlg = null;
+            power_meter_dlg.ShowDialog();
 
             _relay_ctrl.Open();
             _relay_ctrl.WriteLine(Relay_Lines.Power, false);
@@ -615,6 +611,59 @@ namespace PowerCalibration
             _relay_ctrl.WriteLine(Relay_Lines.Load, false);
             _relay_ctrl.Close();
 
+        }
+
+        /// <summary>
+        /// Invokes the NI DIO test dialog
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        void toolStripMenuItem_NI(object sender, EventArgs e)
+        {
+            Form_NIDigitalPortTest dlg = new Form_NIDigitalPortTest();
+            dlg.Show();
+        }
+
+        /// <summary>
+        /// Invokes the FTDI test dialog
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        void toolStripMenuItem_FT232H(object sender, EventArgs e)
+        {
+            _relay_ctrl.Close();
+            RelayControler.Device_Types rdevtype = (RelayControler.Device_Types)Enum.Parse(typeof(RelayControler.Device_Types), Properties.Settings.Default.Relay_Controller_Type);
+            _relay_ctrl = new RelayControler(rdevtype);
+            _relay_ctrl.Open();
+            Form_FT232H_DIO_Test dlg = new Form_FT232H_DIO_Test(_relay_ctrl);
+            dlg.Show();
+        }
+
+        /// <summary>
+        /// Handels error data from the em3xx_load process
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        void p_ember_isachan_ErrorDataReceived(object sender, DataReceivedEventArgs e)
+        {
+            if (e.Data != null)
+            {
+                string str = "Error: " + e.Data;
+                TraceLogger.Log(str);
+                setOutputStatus(str);
+            }
+        }
+
+        /// <summary>
+        /// Handels output data from the em3xx_load process
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        void p_ember_isachan_OutputDataReceived(object sender, DataReceivedEventArgs e)
+        {
+            string str = e.Data;
+            //setOutputStatus(str);
+            TraceLogger.Log(str);
         }
 
         /// <summary>
@@ -642,32 +691,6 @@ namespace PowerCalibration
         }
 
         /// <summary>
-        /// Invokes the NI DIO test dialog
-        /// </summary>
-        /// <param name="sender"></param>
-        /// <param name="e"></param>
-        void toolStripMenuItem_Click_NI(object sender, EventArgs e)
-        {
-            Form_NIDigitalPortTest dlg = new Form_NIDigitalPortTest();
-            dlg.Show();
-        }
-
-        /// <summary>
-        /// Invokes the FTDI test dialog
-        /// </summary>
-        /// <param name="sender"></param>
-        /// <param name="e"></param>
-        void toolStripMenuItem_Click_FT232H(object sender, EventArgs e)
-        {
-            _relay_ctrl.Close();
-            RelayControler.Device_Types rdevtype = (RelayControler.Device_Types)Enum.Parse(typeof(RelayControler.Device_Types), Properties.Settings.Default.Relay_Controller_Type);
-            _relay_ctrl = new RelayControler(rdevtype);
-            _relay_ctrl.Open();
-            Form_FT232H_DIO_Test dlg = new Form_FT232H_DIO_Test(_relay_ctrl);
-            dlg.Show();
-        }
-
-        /// <summary>
         /// Remember the last board we used
         /// 
 
@@ -682,6 +705,12 @@ namespace PowerCalibration
             updateRunStatus("Ready for " + comboBoxBoardTypes.Text);
         }
 
+        /// <summary>
+        /// Handles the app shortcut keys
+        /// </summary>
+        /// <param name="msg"></param>
+        /// <param name="keyData"></param>
+        /// <returns></returns>
         protected override bool ProcessCmdKey(ref Message msg, Keys keyData)
         {
 
@@ -722,6 +751,11 @@ namespace PowerCalibration
             return base.ProcessCmdKey(ref msg, keyData);
         }
 
+        /// <summary>
+        /// Handle form closing clean up stuff
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
         private void FormMain_FormClosing(object sender, FormClosingEventArgs e)
         {
             _relay_ctrl.Close();
@@ -860,9 +894,9 @@ namespace PowerCalibration
                 if (!this.buttonCalibrate.Enabled) return;
 
                 // Just in case we look for an invalid calibrate re-run too fast
-                if (_stopwatch_stopped.Elapsed.TotalMilliseconds < 500)
+                if (_stopwatch_idel.Elapsed.TotalMilliseconds < 500)
                 {
-                    _stopwatch_stopped.Restart();
+                    _stopwatch_idel.Restart();
                     return;
                 }
             }
@@ -871,7 +905,7 @@ namespace PowerCalibration
             setEnablement(false, false);
 
             // Start the running stopwatch
-            _stopwatch_stopped.Reset();
+            _stopwatch_idel.Reset();
             _stopwatch_running.Restart();
 
             // Init the status text box
@@ -1039,7 +1073,7 @@ namespace PowerCalibration
             updateOutputStatus(elapsedTime);
 
             _stopwatch_running.Reset();
-            _stopwatch_stopped.Restart();
+            _stopwatch_idel.Restart();
 
             // Reset the calibrate after coding
             _calibrate_after_code = false;
@@ -1051,11 +1085,19 @@ namespace PowerCalibration
 
         }
 
+        /// <summary>
+        /// Handels when calibration is done
+        /// </summary>
+        /// <param name="task"></param>
         void calibration_done_handler(Task task)
         {
             calibration_done();
         }
 
+        /// <summary>
+        /// Handlels when calibration throws an error
+        /// </summary>
+        /// <param name="task"></param>
         void calibrate_exception_handler(Task task)
         {
             var exception = task.Exception;
@@ -1068,43 +1110,78 @@ namespace PowerCalibration
             calibration_done();
         }
 
+        /// <summary>
+        /// Handels relay controller event
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="relay_controller"></param>
         void calibrate_Relay_Event(object sender, RelayControler relay_controller)
         {
             relaysSet();
         }
 
+        /// <summary>
+        /// Handel calibration status events
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="status_txt"></param>
         void calibrate_Status_event(object sender, string status_txt)
         {
             updateOutputStatus(status_txt);
         }
 
+        /// <summary>
+        /// Handels calibration run status events
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="status_txt"></param>
         void calibrate_Run_Status_Event(object sender, string status_txt)
         {
             updateRunStatus(status_txt);
         }
 
+        /// <summary>
+        /// Updates GUI with info
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
         void timer_Update_Idle_Tick(object sender, EventArgs e)
         {
             if (_stopwatch_running.Elapsed.Ticks > 0)
             {
-                this.toolStripStatusLabel.Text = string.Format("Running {0:dd\\.hh\\:mm\\:ss}", _stopwatch_running.Elapsed);
+                toolStripStatusLabel.Text = string.Format("Running {0:dd\\.hh\\:mm\\:ss}", _stopwatch_running.Elapsed);
             }
-            else if (_stopwatch_stopped.Elapsed.Ticks > 0)
+            else if (_stopwatch_idel.Elapsed.Ticks > 0)
             {
-                this.toolStripStatusLabel.Text = string.Format("Idel {0:dd\\.hh\\:mm\\:ss}", _stopwatch_stopped.Elapsed);
+                toolStripStatusLabel.Text = string.Format("Idel {0:dd\\.hh\\:mm\\:ss}", _stopwatch_idel.Elapsed);
             }
         }
 
+        /// <summary>
+        /// Handels when the form is shown
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
         void Form_Main_Shown(object sender, EventArgs e)
         {
-            buttonCalibrate.Focus();
+            ///buttonCalibrate.Focus();
+            buttonAll.Focus();
         }
 
+        /// <summary>
+        /// Experiment to control app from external app
+        /// </summary>
+        /// <param name="boardtype"></param>
         public void Calibrate(string boardtype)
         {
             MessageBox.Show(boardtype);
         }
 
+        /// <summary>
+        /// Starts the Coding task
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
         void buttonClick_Code(object sender, EventArgs e)
         {
             // Clear the error
@@ -1115,9 +1192,9 @@ namespace PowerCalibration
                 return;
 
             // Just in case we look for an invalid calibrate re-run too fast
-            if (_stopwatch_stopped.Elapsed.TotalMilliseconds < 500)
+            if (_stopwatch_idel.Elapsed.TotalMilliseconds < 500)
             {
-                _stopwatch_stopped.Restart();
+                _stopwatch_idel.Restart();
                 return;
             }
 
@@ -1132,7 +1209,7 @@ namespace PowerCalibration
             setEnablement(false, true);
 
             // Start the running stopwatch
-            _stopwatch_stopped.Reset();
+            _stopwatch_idel.Reset();
             _stopwatch_running.Restart();
 
             // Init the status text box
@@ -1260,7 +1337,7 @@ namespace PowerCalibration
             updateOutputStatus(elapsedTime);
 
             _stopwatch_running.Reset();
-            _stopwatch_stopped.Restart();
+            _stopwatch_idel.Restart();
 
             setEnablement(true, true);
 
@@ -1275,11 +1352,11 @@ namespace PowerCalibration
             }
         }
 
+        /// <summary>
+        /// Activates the form
+        /// </summary>
         void activate()
         {
-            // InvokeRequired required compares the thread ID of the
-            // calling thread to the thread ID of the creating thread.
-            // If these threads are different, it returns true.
             if (InvokeRequired)
             {
                 activateCallback d = new activateCallback(activate);
@@ -1291,11 +1368,11 @@ namespace PowerCalibration
             }
         }
 
+        /// <summary>
+        /// Clickes the calibrate button
+        /// </summary>
         void clickCalibrate()
         {
-            // InvokeRequired required compares the thread ID of the
-            // calling thread to the thread ID of the creating thread.
-            // If these threads are different, it returns true.
             if (buttonCalibrate.InvokeRequired)
             {
                 clickCalibrateCallback d = new clickCalibrateCallback(clickCalibrate);
@@ -1307,6 +1384,10 @@ namespace PowerCalibration
             }
         }
 
+        /// <summary>
+        /// Coding done handler
+        /// </summary>
+        /// <param name="task"></param>
         void coding_done_handler(Task task)
         {
             bool canceled = task.IsCanceled;
@@ -1315,6 +1396,10 @@ namespace PowerCalibration
             coding_done();
         }
 
+        /// <summary>
+        /// Coding error handler
+        /// </summary>
+        /// <param name="task"></param>
         void coding_exception_handler(Task task)
         {
             var exception = task.Exception;
@@ -1324,18 +1409,26 @@ namespace PowerCalibration
             coding_done();
         }
 
+        /// <summary>
+        /// Runs Code + calibration
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
         void buttonClick_All(object sender, EventArgs e)
         {
             _calibrate_after_code = true;
             buttonClick_Code(sender, e);
         }
 
+
     }
 
 
+    /// <summary>
+    /// Defines the relay lines
+    /// </summary>
     public class Relay_Lines
     {
-
         static string _key_acPower = "AC Power";
         static string _key_load = "Load";
         static string _key_ember = "Ember";

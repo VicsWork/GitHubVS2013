@@ -81,9 +81,26 @@ namespace PowerCalibration
         private void comboBoxDIOCtrollerTypes_SelectedIndexChanged(object sender, EventArgs e)
         {
             if (comboBoxDIOCtrollerTypes.Text == "Manual")
+            {
                 setLineEnablement(false);
+            }
             else
-                setLineEnablement(true);
+            {
+                try
+                {
+                    RelayControler.Device_Types device = (RelayControler.Device_Types)Enum.Parse(
+                        typeof(RelayControler.Device_Types), comboBoxDIOCtrollerTypes.Text);
+                    RelayControler rc = new RelayControler(device);
+                    setLineEnablement(true);
+                }
+                catch (Exception ex)
+                {
+                    string msg = string.Format("{0}\r\nTry unpluging and re-plug-in the USB device ", ex.Message);
+                    MessageBox.Show(msg);
+                    comboBoxDIOCtrollerTypes.Text = "Manual";
+                    setLineEnablement(false);
+                }
+            }
         }
 
         private void comboBoxEmberInterface_SelectedIndexChanged(object sender, EventArgs e)

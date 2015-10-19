@@ -161,7 +161,7 @@ namespace PowerCalibration
             _ftdi_dev_index = _ft232hdio.GetFirstDevIndex();
             if (_ftdi_dev_index < 0)
             {
-                throw new Exception("Uanble to find an F232H device");
+                throw new Exception("Unable to find an F232H device");
             }
 
         }

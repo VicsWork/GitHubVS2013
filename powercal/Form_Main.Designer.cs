@@ -51,6 +51,7 @@
             this.timer_Update_Idle = new System.Windows.Forms.Timer(this.components);
             this.buttonCode = new System.Windows.Forms.Button();
             this.buttonAll = new System.Windows.Forms.Button();
+            this.copyToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.contextMenuStatusTextBox.SuspendLayout();
             this.menuStripMain.SuspendLayout();
             this.statusStrip1.SuspendLayout();
@@ -76,16 +77,17 @@
             // contextMenuStatusTextBox
             // 
             this.contextMenuStatusTextBox.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
+            this.copyToolStripMenuItem,
             this.clearToolStripMenuItem});
             this.contextMenuStatusTextBox.Name = "contextMenuReceivedTextBox";
-            this.contextMenuStatusTextBox.Size = new System.Drawing.Size(102, 26);
+            this.contextMenuStatusTextBox.Size = new System.Drawing.Size(153, 70);
             // 
             // clearToolStripMenuItem
             // 
             this.clearToolStripMenuItem.Name = "clearToolStripMenuItem";
-            this.clearToolStripMenuItem.Size = new System.Drawing.Size(101, 22);
-            this.clearToolStripMenuItem.Text = "&Clear";
-            this.clearToolStripMenuItem.Click += new System.EventHandler(this.toolStripMenuItem_Click_Clear);
+            this.clearToolStripMenuItem.Size = new System.Drawing.Size(152, 22);
+            this.clearToolStripMenuItem.Text = "C&lear";
+            this.clearToolStripMenuItem.Click += new System.EventHandler(this.toolStripMenuItem_StatusClear);
             // 
             // buttonCalibrate
             // 
@@ -135,7 +137,7 @@
             this.settingsToolStripMenuItem.Name = "settingsToolStripMenuItem";
             this.settingsToolStripMenuItem.Size = new System.Drawing.Size(61, 20);
             this.settingsToolStripMenuItem.Text = "&Settings";
-            this.settingsToolStripMenuItem.Click += new System.EventHandler(this.toolStripMenuItem_Click_Settings);
+            this.settingsToolStripMenuItem.Click += new System.EventHandler(this.toolStripMenuItem_Settings);
             // 
             // testToolStripMenuItem
             // 
@@ -169,28 +171,28 @@
             this.nIToolStripMenuItem.Name = "nIToolStripMenuItem";
             this.nIToolStripMenuItem.Size = new System.Drawing.Size(114, 22);
             this.nIToolStripMenuItem.Text = "NI";
-            this.nIToolStripMenuItem.Click += new System.EventHandler(this.toolStripMenuItem_Click_NI);
+            this.nIToolStripMenuItem.Click += new System.EventHandler(this.toolStripMenuItem_NI);
             // 
             // fT232HToolStripMenuItem
             // 
             this.fT232HToolStripMenuItem.Name = "fT232HToolStripMenuItem";
             this.fT232HToolStripMenuItem.Size = new System.Drawing.Size(114, 22);
             this.fT232HToolStripMenuItem.Text = "FT232H";
-            this.fT232HToolStripMenuItem.Click += new System.EventHandler(this.toolStripMenuItem_Click_FT232H);
+            this.fT232HToolStripMenuItem.Click += new System.EventHandler(this.toolStripMenuItem_FT232H);
             // 
             // calculatorToolStripMenuItem
             // 
             this.calculatorToolStripMenuItem.Name = "calculatorToolStripMenuItem";
             this.calculatorToolStripMenuItem.Size = new System.Drawing.Size(149, 22);
             this.calculatorToolStripMenuItem.Text = "&Calculator";
-            this.calculatorToolStripMenuItem.Click += new System.EventHandler(this.toolStripMenuItem_Click_Calculator);
+            this.calculatorToolStripMenuItem.Click += new System.EventHandler(this.toolStripMenuItem_Calculator);
             // 
             // toolStripMenuItemPowerMeter
             // 
             this.toolStripMenuItemPowerMeter.Name = "toolStripMenuItemPowerMeter";
             this.toolStripMenuItemPowerMeter.Size = new System.Drawing.Size(149, 22);
             this.toolStripMenuItemPowerMeter.Text = "Power Meter";
-            this.toolStripMenuItemPowerMeter.Click += new System.EventHandler(this.toolStripMenuItem_Click_PowerMeter);
+            this.toolStripMenuItemPowerMeter.Click += new System.EventHandler(this.toolStripMenuItem_PowerMeter);
             // 
             // aboutToolStripMenuItem
             // 
@@ -256,6 +258,13 @@
             this.buttonAll.UseVisualStyleBackColor = true;
             this.buttonAll.Click += new System.EventHandler(this.buttonClick_All);
             // 
+            // copyToolStripMenuItem
+            // 
+            this.copyToolStripMenuItem.Name = "copyToolStripMenuItem";
+            this.copyToolStripMenuItem.Size = new System.Drawing.Size(152, 22);
+            this.copyToolStripMenuItem.Text = "&Copy";
+            this.copyToolStripMenuItem.Click += new System.EventHandler(this.toolStripMenuItem_StatusCopy);
+            // 
             // Form_Main
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(96F, 96F);
@@ -310,6 +319,7 @@
         private System.Windows.Forms.Timer timer_Update_Idle;
         private System.Windows.Forms.Button buttonCode;
         private System.Windows.Forms.Button buttonAll;
+        private System.Windows.Forms.ToolStripMenuItem copyToolStripMenuItem;
     }
 }
 
