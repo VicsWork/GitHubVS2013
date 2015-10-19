@@ -39,7 +39,6 @@
             this.labelLoad = new System.Windows.Forms.Label();
             this.NumericUpDown_Load = new System.Windows.Forms.NumericUpDown();
             this.labelACPower = new System.Windows.Forms.Label();
-            this.button1 = new System.Windows.Forms.Button();
             this.channelParametersGroupBox.SuspendLayout();
             this.groupBoxDIOLines.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.NumericUpDown_ACPower)).BeginInit();
@@ -173,22 +172,11 @@
             this.labelACPower.TabIndex = 1;
             this.labelACPower.Text = "AC Power";
             // 
-            // button1
-            // 
-            this.button1.Location = new System.Drawing.Point(211, 41);
-            this.button1.Name = "button1";
-            this.button1.Size = new System.Drawing.Size(75, 23);
-            this.button1.TabIndex = 1;
-            this.button1.Text = "&Stress";
-            this.button1.UseVisualStyleBackColor = true;
-            this.button1.Click += new System.EventHandler(this.button1_Click);
-            // 
             // Form_FT232H_DIO_Test
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(310, 244);
-            this.Controls.Add(this.button1);
             this.Controls.Add(this.groupBoxDIOLines);
             this.Controls.Add(this.channelParametersGroupBox);
             this.Name = "Form_FT232H_DIO_Test";
@@ -219,6 +207,5 @@
         public System.Windows.Forms.Label physicalChannelLabel;
         public System.Windows.Forms.NumericUpDown numericUpDown_Voltmeter;
         private System.Windows.Forms.Label labelVoltmeter;
-        private System.Windows.Forms.Button button1;
     }
 }
