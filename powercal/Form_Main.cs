@@ -1052,6 +1052,7 @@ namespace PowerCalibration
             }
             else
             {
+                relaysSet();
                 updateRunStatus("FAIL", Color.White, Color.Red);
                 updateOutputStatus(_calibration_error_msg);
             }
@@ -1104,9 +1105,6 @@ namespace PowerCalibration
             string errmsg = exception.InnerException.Message;
 
             _calibration_error_msg = errmsg;
-
-
-
             calibration_done();
         }
 
