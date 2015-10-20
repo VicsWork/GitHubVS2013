@@ -9,7 +9,7 @@ using System.Threading;
 
 namespace PowerCalibration
 {
-    class MultiMeter
+    class MultiMeter: IDisposable
     {
         public bool WaitForDsrHolding
         {
@@ -29,6 +29,18 @@ namespace PowerCalibration
         public MultiMeter(string portName)
         {
             this._portName = portName;
+        }
+
+        /// <summary>
+        /// Dispose
+        /// </summary>
+        public void Dispose()
+        {
+            if (_serialPort != null)
+            {
+                _serialPort.Close();
+                _serialPort.Dispose();
+            }
         }
 
         /// <summary>
@@ -63,10 +75,8 @@ namespace PowerCalibration
         /// <param name="e"></param>
         void _serialPort_DataReceived(object sender, SerialDataReceivedEventArgs e)
         {
-            lock (_value_txt)
-            {
+            //lock (_value_txt)
                 _value_txt += _serialPort.ReadExisting();
-            }
         }
 
         /// <summary>
@@ -104,7 +114,7 @@ namespace PowerCalibration
         /// </summary>
         void clearData()
         {
-            lock (_value_txt)
+            //lock (_value_txt)
                 _value_txt = "";
         }
 

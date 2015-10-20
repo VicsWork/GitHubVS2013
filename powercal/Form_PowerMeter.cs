@@ -21,9 +21,20 @@ namespace PowerCalibration
         string _cmd_prefix;
         Ember _ember;
 
-        public delegate void CLIValueHandler(object sender, double voltage, double current);
+        public class CLIPowerARgsEventArgrs : EventArgs
+        {
+            public double Voltage = 0.0, Current = 0.0;
+
+            public CLIPowerARgsEventArgrs(double voltage, double current)
+            {
+                Voltage = voltage;
+                Current = current;
+            }
+        }
+
+        public delegate void CLIValueHandler(object sender, CLIPowerARgsEventArgrs e);
         public event CLIValueHandler CLIValue_Event;
-        delegate void SetTextCallback(double voltage, double current);
+        delegate void SetTextCallback(CLIPowerARgsEventArgrs args);
 
         CancellationTokenSource _tokenSrc = new CancellationTokenSource();
         Task _task;
@@ -62,12 +73,12 @@ namespace PowerCalibration
             this.CLIValue_Event += Form_PowerMeter_CLIValue_Event;
         }
 
-        void Form_PowerMeter_CLIValue_Event(object sender, double voltage, double current)
+        void Form_PowerMeter_CLIValue_Event(object sender, CLIPowerARgsEventArgrs args)
         {
-            setCLIText(voltage, current);
+            setCLIText(args);
         }
 
-        void setCLIText(double voltage, double current)
+        void setCLIText(CLIPowerARgsEventArgrs args)
         {
             if (_tokenSrc.IsCancellationRequested)
                 return;
@@ -75,13 +86,13 @@ namespace PowerCalibration
             if (this.InvokeRequired)
             {
                 SetTextCallback d = new SetTextCallback(setCLIText);
-                this.Invoke(d, new object[] { voltage, current });
+                this.Invoke(d, new object[] { args });
             }
             else
             {
-                labelPowerUUT.Text = string.Format("{0:F2}", voltage * current);
-                labelVoltageUUT.Text = string.Format("{0:F4}", voltage);
-                labelCurrentUUT.Text = string.Format("{0:F6}", current);
+                labelPowerUUT.Text = string.Format("{0:F2}", args.Voltage * args.Current);
+                labelVoltageUUT.Text = string.Format("{0:F4}", args.Voltage);
+                labelCurrentUUT.Text = string.Format("{0:F6}", args.Current);
             }
         }
 
@@ -101,13 +112,15 @@ namespace PowerCalibration
                     TCLI.Current_Voltage cv = get_uut_data(_uut_voltage_reference, _uut_current_reference);
                     if (CLIValue_Event != null)
                     {
-                        CLIValue_Event(this, cv.Voltage, cv.Current);
+
+                        CLIValue_Event(this, 
+                            new CLIPowerARgsEventArgrs(cv.Voltage, cv.Current));
                     }
                 }
-                catch (Exception e)
+                catch (Exception)
                 {
                     if (!ct.IsCancellationRequested)
-                        throw e;
+                        throw;
                 }
             }
         }

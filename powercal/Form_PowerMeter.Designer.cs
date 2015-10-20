@@ -17,6 +17,17 @@
             {
                 components.Dispose();
             }
+
+            if (disposing)
+            {
+                if(_tokenSrc != null)
+                    _tokenSrc.Dispose();
+                if (_task != null)
+                    _task.Dispose();
+                if (_telnet_connection != null)
+                    _telnet_connection.Dispose();
+            }
+
             base.Dispose(disposing);
         }
 

@@ -143,6 +143,8 @@ namespace PowerCalibration
             {
                 _relay_ctrl = new RelayControler(rdevtype);
                 initRelayController_Lines();
+                msg = string.Format("Relay controler \"{0}\" ready.", rdevtype);
+                updateOutputStatus(msg);
             }
             catch (Exception ex)
             {
@@ -247,7 +249,7 @@ namespace PowerCalibration
                 using (StreamWriter sw = File.CreateText(_log_file))
                 {
                     sw.WriteLine("{0:G}: Log created", DateTime.Now);
-                    sw.Close();
+                    //sw.Close();
                 }
             }
         }
@@ -835,7 +837,7 @@ namespace PowerCalibration
 
             _meter.CloseSerialPort();
 
-            msg = string.Format("Meter VAC = {0:F8}.  VDC  = {0:F8}.", vac, vdc);
+            msg = string.Format("Meter VAC = {0:F8}.  VDC  = {1:F8}.", vac, vdc);
             updateOutputStatus(msg);
 
             return vac;

@@ -274,7 +274,7 @@ namespace PowerCalibration
                 txt = string.Format("popd");
                 writer.WriteLine(txt);
 
-                writer.Close();
+                //writer.Close();
             }
         }
 
