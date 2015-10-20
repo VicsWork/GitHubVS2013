@@ -26,14 +26,19 @@ namespace PowerCalibration
 
         static void CurrentDomain_UnhandledException(object sender, UnhandledExceptionEventArgs e)
         {
-            MessageBox.Show((e.ExceptionObject as Exception).Message + 
-                "\r\n\r\n" + e.ToString(), "Unhadled UI Exception");
+
+            Form_Exception dlg = new Form_Exception(title:"Unhadled UI Exception",
+                message: (e.ExceptionObject as Exception).Message, detail: e.ExceptionObject.ToString());
+            dlg.ShowDialog();
+
         }
 
         static void Application_ThreadException(object sender, System.Threading.ThreadExceptionEventArgs e)
         {
-            MessageBox.Show(e.Exception.Message + 
-                "\r\n\r\n" + e.Exception.StackTrace.ToString(), "Unhadled Thread Exception");
+            Form_Exception dlg = new Form_Exception(title:"Unhadled Thread Exception",
+                message: e.Exception.Message, detail: e.Exception.StackTrace.ToString());
+            dlg.ShowDialog();
+
         }
     }
 }

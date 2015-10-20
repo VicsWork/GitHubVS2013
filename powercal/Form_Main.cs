@@ -109,9 +109,6 @@ namespace PowerCalibration
             // Detect whether meter is connected to one of the ports
             bool detected_meter = autoDetectMeterCOMPort();
 
-            // Init relay controller
-            initRelayController();
-
             // Ember path
             if (!Directory.Exists(Properties.Settings.Default.Ember_BinPath))
                 msg = string.Format("Unable to find Ember bin path \"{0}\"", Properties.Settings.Default.Ember_BinPath);
@@ -145,17 +142,33 @@ namespace PowerCalibration
             try
             {
                 _relay_ctrl = new RelayControler(rdevtype);
+                initRelayController_Lines();
             }
-            catch (Exception)
+            catch (Exception ex)
             {
+                msg = string.Format("{0}\r\nTry unplugging and replugging the USB device.\r\nThen try to change relay controller in settings dialog", ex.Message);
+                MessageBox.Show(msg);
+
                 msg = string.Format("Unable to init relay controler \"{0}\".  Switching to Manual relay mode", rdevtype);
                 updateOutputStatus(msg);
-                //MessageBox.Show(msg);
 
                 _relay_ctrl = new RelayControler(RelayControler.Device_Types.Manual);
+                initRelayController_Lines();
                 Properties.Settings.Default.Relay_Controller_Type = _relay_ctrl.Device_Type.ToString();
                 Properties.Settings.Default.Save();
+
+                Form_Settings dlg = new Form_Settings();
+                dlg.ShowDialog();
+
             }
+            _relay_ctrl.Open();
+            _relay_ctrl.WriteAll(false);
+            _relay_ctrl.Close();
+
+        }
+
+        void initRelayController_Lines()
+        {
             Dictionary<string, uint> dic = _relay_ctrl.DicLines_ReadSettings();
             if (dic.Count == 0)
             {
@@ -165,10 +178,6 @@ namespace PowerCalibration
                 _relay_ctrl.DicLines_AddLine(Relay_Lines.Voltmeter, 3);
                 _relay_ctrl.DicLines_SaveSettings();
             }
-            _relay_ctrl.Open();
-            _relay_ctrl.WriteAll(false);
-            _relay_ctrl.Close();
-
         }
 
         /// <summary>
@@ -583,34 +592,42 @@ namespace PowerCalibration
         /// <param name="e"></param>
         void toolStripMenuItem_PowerMeter(object sender, EventArgs e)
         {
-            _relay_ctrl.Open();
-            _relay_ctrl.WriteLine(Relay_Lines.Power, true);
-            _relay_ctrl.WriteLine(Relay_Lines.Ember, true);
-            _relay_ctrl.WriteLine(Relay_Lines.Load, true);
-            _relay_ctrl.Close();
-            Thread.Sleep(1000);
+            try
+            {
+                _relay_ctrl.Open();
+                _relay_ctrl.WriteLine(Relay_Lines.Power, true);
+                _relay_ctrl.WriteLine(Relay_Lines.Ember, true);
+                _relay_ctrl.WriteLine(Relay_Lines.Load, true);
+                _relay_ctrl.Close();
+                Thread.Sleep(1000);
 
-            Calibrate calibrate = new Calibrate();
-            calibrate.BoardType = (BoardTypes)Enum.Parse(typeof(BoardTypes), comboBoxBoardTypes.Text);
+                Calibrate calibrate = new Calibrate();
+                calibrate.BoardType = (BoardTypes)Enum.Parse(typeof(BoardTypes), comboBoxBoardTypes.Text);
 
-            string ember_interface = Properties.Settings.Default.Ember_Interface;
-            string ember_address = Properties.Settings.Default.Ember_Interface_IP_Address;
-            if (Properties.Settings.Default.Ember_Interface == "USB")
-                ember_address = Properties.Settings.Default.Ember_Interface_USB_Address;
+                string ember_interface = Properties.Settings.Default.Ember_Interface;
+                string ember_address = Properties.Settings.Default.Ember_Interface_IP_Address;
+                if (Properties.Settings.Default.Ember_Interface == "USB")
+                    ember_address = Properties.Settings.Default.Ember_Interface_USB_Address;
 
-            Form_PowerMeter power_meter_dlg = new Form_PowerMeter(
-                ember_interface, ember_address,
-                calibrate.Voltage_Referencer, calibrate.Current_Referencer);
+                Form_PowerMeter power_meter_dlg = new Form_PowerMeter(
+                    ember_interface, ember_address,
+                    calibrate.Voltage_Referencer, calibrate.Current_Referencer);
 
 
-            power_meter_dlg.ShowDialog();
-
-            _relay_ctrl.Open();
-            _relay_ctrl.WriteLine(Relay_Lines.Power, false);
-            _relay_ctrl.WriteLine(Relay_Lines.Ember, false);
-            _relay_ctrl.WriteLine(Relay_Lines.Load, false);
-            _relay_ctrl.Close();
-
+                power_meter_dlg.ShowDialog();
+            }
+            catch (Exception)
+            {
+                throw;
+            }
+            finally
+            {
+                _relay_ctrl.Open();
+                _relay_ctrl.WriteLine(Relay_Lines.Power, false);
+                _relay_ctrl.WriteLine(Relay_Lines.Ember, false);
+                _relay_ctrl.WriteLine(Relay_Lines.Load, false);
+                _relay_ctrl.Close();
+            }
         }
 
         /// <summary>
@@ -1162,6 +1179,9 @@ namespace PowerCalibration
         /// <param name="e"></param>
         void Form_Main_Shown(object sender, EventArgs e)
         {
+            // Init relay controller
+            initRelayController();
+
             ///buttonCalibrate.Focus();
             buttonAll.Focus();
         }

@@ -25,7 +25,7 @@
     <MapFileExtensions>true</MapFileExtensions>
     <CreateWebPageOnPublish>true</CreateWebPageOnPublish>
     <WebPage>publish.htm</WebPage>
-    <ApplicationRevision>31</ApplicationRevision>
+    <ApplicationRevision>32</ApplicationRevision>
     <ApplicationVersion>1.0.0.%2a</ApplicationVersion>
     <UseApplicationTrust>false</UseApplicationTrust>
     <PublishWizardCompleted>true</PublishWizardCompleted>
@@ -138,6 +138,12 @@
     <Compile Include="Form_EnterMeasurement.Designer.cs">
       <DependentUpon>Form_EnterMeasurement.cs</DependentUpon>
     </Compile>
+    <Compile Include="Form_Exception.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="Form_Exception.Designer.cs">
+      <DependentUpon>Form_Exception.cs</DependentUpon>
+    </Compile>
     <Compile Include="Form_FT232H_DIO_Test.cs">
       <SubType>Form</SubType>
     </Compile>
@@ -192,6 +198,9 @@
     </EmbeddedResource>
     <EmbeddedResource Include="Form_EnterMeasurement.resx">
       <DependentUpon>Form_EnterMeasurement.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Form_Exception.resx">
+      <DependentUpon>Form_Exception.cs</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="Form_FT232H_DIO_Test.resx">
       <DependentUpon>Form_FT232H_DIO_Test.cs</DependentUpon>

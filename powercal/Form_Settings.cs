@@ -90,12 +90,20 @@ namespace PowerCalibration
                 {
                     RelayControler.Device_Types device = (RelayControler.Device_Types)Enum.Parse(
                         typeof(RelayControler.Device_Types), comboBoxDIOCtrollerTypes.Text);
-                    RelayControler rc = new RelayControler(device);
+                    
+                    RelayControler relay_ctrl = new RelayControler(device);
+                    
+                    Dictionary<string, uint> relay_lines = relay_ctrl.DicLines_ReadSettings();
+                    NumericUpDown_ACPower.Value = relay_lines[PowerCalibration.Relay_Lines.Power];
+                    NumericUpDown_Load.Value = relay_lines[PowerCalibration.Relay_Lines.Load];
+                    NumericUpDown_Ember.Value = relay_lines[PowerCalibration.Relay_Lines.Ember];
+                    numericUpDown_Voltmeter.Value = relay_lines[PowerCalibration.Relay_Lines.Voltmeter];
+                    
                     setLineEnablement(true);
                 }
                 catch (Exception ex)
                 {
-                    string msg = string.Format("{0}\r\nTry unpluging and re-plug-in the USB device ", ex.Message);
+                    string msg = string.Format("{0}\r\nTry unplugging and replugging the USB device ", ex.Message);
                     MessageBox.Show(msg);
                     comboBoxDIOCtrollerTypes.Text = "Manual";
                     setLineEnablement(false);
