@@ -179,7 +179,6 @@ namespace PowerCalibration
             if (_dev_type == Device_Types.FT232H)
             {
                 _ft232hdio.Open((uint)_ftdi_dev_index);
-                _ft232hdio.SetModeMPSSE();
             }
         }
 
@@ -341,6 +340,18 @@ namespace PowerCalibration
 
             Trace.TraceWarning("Unkown device");
             return false;
+
+        }
+
+        public byte ReadBus()
+        {
+            if (_dev_type == Device_Types.FT232H)
+            {
+                return _ft232hdio.GetBusData(_ftdi_bus);
+            }
+
+            Trace.TraceWarning("Unkown device");
+            return 0;
 
         }
 

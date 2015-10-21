@@ -18,15 +18,15 @@ namespace PowerCalibration
         public Form_FT232H_DIO_Test(RelayControler relayCtrl)
         {
             InitializeComponent();
-            this.Icon = Properties.Resources.IconPowerCalibration;
+            Icon = Properties.Resources.IconPowerCalibration;
 
             if (relayCtrl.Device_Type != RelayControler.Device_Types.FT232H)
                 throw new Exception("Incorrect relay controller");
             else
-                this._relayCtrl = relayCtrl;
+                _relayCtrl = relayCtrl;
 
             int dev_id = _relayCtrl.FTDI_DEVICE_ID;
-            this.physicalChannelLabel.Text = string.Format("{0} {1} {2}", _relayCtrl.FTDI_DEVICE_YPE, _relayCtrl.FTDI_DEVICE_ID, _relayCtrl.FTDI_BUS); 
+            Label_physicalChannel.Text = string.Format("{0} {1} {2}", _relayCtrl.FTDI_DEVICE_YPE, _relayCtrl.FTDI_DEVICE_ID, _relayCtrl.FTDI_BUS); 
 
             // Add line numbers to labels and tag the control with the line number
             Dictionary<string, uint> lines = _relayCtrl.DicLines_ReadSettings();
@@ -64,17 +64,6 @@ namespace PowerCalibration
             _relayCtrl.Close();
         }
 
-        private void button1_Click(object sender, EventArgs e)
-        {
-            _relayCtrl.WriteAll(false);
-            Thread.Sleep(500);
-            _relayCtrl.WriteAll(true);
-        }
-
-        private void Form_FT232H_DIO_Test_Load(object sender, EventArgs e)
-        {
-
-        }
 
     }
 }

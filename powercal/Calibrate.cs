@@ -300,10 +300,10 @@ namespace PowerCalibration
             fire_status(msg);
 
             // Disconnect Power
-            _relay_ctrl.Open();
-            _relay_ctrl.WriteLine(Relay_Lines.Power, false);
-            _relay_ctrl.WriteLine(Relay_Lines.Ember, false);
-            fire_relay_status();
+            //_relay_ctrl.Open();
+            //_relay_ctrl.WriteLine(Relay_Lines.Power, false);
+            //_relay_ctrl.WriteLine(Relay_Lines.Ember, false);
+            //fire_relay_status();
 
             // Check calibration
             double delta = voltage_meter * 0.3;

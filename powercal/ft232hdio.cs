@@ -50,29 +50,20 @@ namespace DIO
         /// <param name="index"></param>
         public void Open(uint index)
         {
-            if(_ftdi.IsOpen)
-                _ftdi.Close();
+            if (_ftdi.IsOpen)
+            {
+                //_ftdi.Close();
+                throw new Exception(string.Format("Device at index {0} already opened", index));
+            }
+
             FTDI.FT_STATUS status = _ftdi.OpenByIndex(index);
             if (status != FTDI.FT_STATUS.FT_OK)
             {
                 throw new Exception( string.Format("Problem opening FTDI device at index {0}", index) );
             }
 
-            _ftdi.SetBitMode(0, 0);
-            _ftdi.SetBitMode(0, 2);
-
-        }
-
-        public FTDI.FT_STATUS SetModeMPSSE()
-        {
-            // Enable MPSSE
-            FTDI.FT_STATUS status = _ftdi.SetBitMode(0xFF, FTDI.FT_BIT_MODES.FT_BIT_MODE_MPSSE);
-            if (status != FTDI.FT_STATUS.FT_OK)
-            {
-                throw new Exception(string.Format("Problem setting FTDI bitmode"));
-            }
-
-            return status;
+            _ftdi.SetBitMode(0x00, FTDI.FT_BIT_MODES.FT_BIT_MODE_RESET);
+            _ftdi.SetBitMode(0x00, FTDI.FT_BIT_MODES.FT_BIT_MODE_MPSSE);
         }
 
         /// <summary>
@@ -115,7 +106,7 @@ namespace DIO
             //(0x80, level_low, dir_low, 0x82, level_high, dir_high)
             //byte[] data = new byte[] { 0x80, _cha_state, 0xFF, 0x82, _chb_state, 0xFF };
 
-            byte addr = get_bus_address(bus);
+            byte addr = get_bus_write_address(bus);
             byte state = get_bus_state(bus);
 
             byte[] data = new byte[] { addr, state, direction };
@@ -127,7 +118,6 @@ namespace DIO
             }
 
             set_bus_state(bus, state);
-
         }
 
         /// <summary>
@@ -135,11 +125,19 @@ namespace DIO
         /// </summary>
         /// <param name="bus"></param>
         /// <returns></returns>
-        byte get_bus_address(DIO_BUS bus)
+        byte get_bus_write_address(DIO_BUS bus)
         {
             byte addr = 0x80;
             if (bus == DIO_BUS.AC_BUS)
                 addr = 0x82;
+            return addr;
+        }
+
+        byte get_bus_read_address(DIO_BUS bus)
+        {
+            byte addr = 0x81;
+            if (bus == DIO_BUS.AC_BUS)
+                addr = 0x83;
             return addr;
         }
 
@@ -169,7 +167,7 @@ namespace DIO
             else if (bus == DIO_BUS.AC_BUS)
                 _chb_state = state;
 
-            byte addr = get_bus_address(bus);
+            byte addr = get_bus_write_address(bus);
             byte[] buffer = new byte[] { addr, state, 0xFF };
             uint n = 0;
             FTDI.FT_STATUS status = _ftdi.Write(buffer, buffer.Length, ref n);
@@ -190,7 +188,16 @@ namespace DIO
             Debug.Assert(pin < 8 && pin >= 0, "Pin number must be between 0 and 7");
 
             byte pin_num = Convert.ToByte(pin);
-            byte state_current = get_bus_state(bus);
+
+            byte state_current = GetBusData(bus);
+            byte state_current2 = get_bus_state(bus);
+            if ((state_current & 0x0F) != (state_current2 & 0x0F))
+            {
+                // If we never see this it means we can get rid of get_bus_state and
+                // keeping track of the state
+                throw new Exception("Unexpected FT232DIO bus state.  Was it close and re-opened?");
+            }
+
             byte state_new = state_current;
             if (value)
             {
@@ -202,7 +209,29 @@ namespace DIO
             }
 
             FTDI.FT_STATUS status = set_bus_state(bus, state_new);
+
             return status;
+        }
+
+        /// <summary>
+        /// Reads one byte from the specified bus
+        /// </summary>
+        /// <param name="bus"></param>
+        /// <returns></returns>
+        public byte GetBusData(DIO_BUS bus)
+        {
+            byte addr = get_bus_read_address(bus);
+            byte[] data = new byte[] { addr };
+            uint n = 0;
+            FTDI.FT_STATUS status = _ftdi.Write(data, data.Length, ref n);
+            if(status != FTDI.FT_STATUS.FT_OK)
+                throw new Exception(string.Format("Problem writing read command to bus {0}", bus.ToString()));
+
+            status = _ftdi.Read(data, (uint)data.Length, ref n);
+            if (status != FTDI.FT_STATUS.FT_OK)
+                throw new Exception(string.Format("Problem writing read command to bus {0}", bus.ToString()));
+
+            return data[0];
         }
 
         /// <summary>

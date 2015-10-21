@@ -29,7 +29,7 @@
         private void InitializeComponent()
         {
             this.channelParametersGroupBox = new System.Windows.Forms.GroupBox();
-            this.physicalChannelLabel = new System.Windows.Forms.Label();
+            this.Label_physicalChannel = new System.Windows.Forms.Label();
             this.groupBoxDIOLines = new System.Windows.Forms.GroupBox();
             this.NumericUpDown_ACPower = new System.Windows.Forms.NumericUpDown();
             this.numericUpDown_Voltmeter = new System.Windows.Forms.NumericUpDown();
@@ -49,7 +49,7 @@
             // 
             // channelParametersGroupBox
             // 
-            this.channelParametersGroupBox.Controls.Add(this.physicalChannelLabel);
+            this.channelParametersGroupBox.Controls.Add(this.Label_physicalChannel);
             this.channelParametersGroupBox.FlatStyle = System.Windows.Forms.FlatStyle.System;
             this.channelParametersGroupBox.Location = new System.Drawing.Point(12, 12);
             this.channelParametersGroupBox.Name = "channelParametersGroupBox";
@@ -60,12 +60,12 @@
             // 
             // physicalChannelLabel
             // 
-            this.physicalChannelLabel.FlatStyle = System.Windows.Forms.FlatStyle.System;
-            this.physicalChannelLabel.Location = new System.Drawing.Point(16, 20);
-            this.physicalChannelLabel.Name = "physicalChannelLabel";
-            this.physicalChannelLabel.Size = new System.Drawing.Size(246, 49);
-            this.physicalChannelLabel.TabIndex = 0;
-            this.physicalChannelLabel.Text = "Port";
+            this.Label_physicalChannel.FlatStyle = System.Windows.Forms.FlatStyle.System;
+            this.Label_physicalChannel.Location = new System.Drawing.Point(16, 20);
+            this.Label_physicalChannel.Name = "physicalChannelLabel";
+            this.Label_physicalChannel.Size = new System.Drawing.Size(246, 49);
+            this.Label_physicalChannel.TabIndex = 0;
+            this.Label_physicalChannel.Text = "Port";
             // 
             // groupBoxDIOLines
             // 
@@ -182,7 +182,6 @@
             this.Name = "Form_FT232H_DIO_Test";
             this.Text = "FormFT232H_DIO_Test";
             this.FormClosed += new System.Windows.Forms.FormClosedEventHandler(this.FormFT232H_DIO_Test_FormClosed);
-            this.Load += new System.EventHandler(this.Form_FT232H_DIO_Test_Load);
             this.channelParametersGroupBox.ResumeLayout(false);
             this.groupBoxDIOLines.ResumeLayout(false);
             this.groupBoxDIOLines.PerformLayout();
@@ -204,7 +203,7 @@
         public System.Windows.Forms.NumericUpDown NumericUpDown_Load;
         private System.Windows.Forms.Label labelACPower;
         public System.Windows.Forms.NumericUpDown NumericUpDown_ACPower;
-        public System.Windows.Forms.Label physicalChannelLabel;
+        public System.Windows.Forms.Label Label_physicalChannel;
         public System.Windows.Forms.NumericUpDown numericUpDown_Voltmeter;
         private System.Windows.Forms.Label labelVoltmeter;
     }

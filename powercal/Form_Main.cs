@@ -897,6 +897,27 @@ namespace PowerCalibration
             }
         }
 
+        void power_off()
+        {
+            // Trun power off
+            if (_relay_ctrl != null)
+            {
+                _relay_ctrl.WriteLine(PowerCalibration.Relay_Lines.Ember, false);
+                _relay_ctrl.WriteLine(PowerCalibration.Relay_Lines.Power, false);
+                _relay_ctrl.WriteLine(PowerCalibration.Relay_Lines.Load, false);
+                _relay_ctrl.Close();
+                relaysSet();
+            }
+
+            // Wait for power off
+            if (_meter != null)
+            {
+                _meter.CloseSerialPort();
+                wait_for_power_off();
+            }
+
+        }
+
         /// <summary>
         /// Gets the selected board type
         /// </summary>
@@ -928,38 +949,34 @@ namespace PowerCalibration
             // Reset idel watch
             _stopwatch_idel.Reset();
 
-            if (_next_task == TaskTypes.Code ||
-                (_next_task == TaskTypes.Calibrate && !_calibrate_after_code))
-            {
-                // Init the status text box
-                runStatus_Init();
+            // Init the status text box
+            runStatus_Init();
 
-                // Clear output status
-                textBoxOutputStatus.Clear();
+            // Clear output status
+            textBoxOutputStatus.Clear();
 
-                // Clear toolstrip
-                toolStripStatusLabel.Text = "";
-                statusStrip1.Update();
+            // Clear toolstrip
+            toolStripStatusLabel.Text = "";
+            statusStrip1.Update();
 
-                setRunStatusText("Start Pre-test");
-                updateOutputStatus(
-                    "=============================Start Pre-test============================");
+            setRunStatusText("Start Pre-test");
+            updateOutputStatus("Start Pre-test".PadBoth(80, '-'));
 
-                // Clear the error
-                _pretest_error_msg = null;
-                _coding_error_msg = null;
-                _calibration_error_msg = null;
+            // Clear the error
+            _pretest_error_msg = null;
+            _coding_error_msg = null;
+            _calibration_error_msg = null;
 
-                _relay_ctrl.WriteLine(Relay_Lines.Ember, false);
-                _relay_ctrl.WriteLine(Relay_Lines.Load, false);
-                _relay_ctrl.WriteLine(Relay_Lines.Power, true);
-                Thread.Sleep(1000);
+            _relay_ctrl.Open();
+            _relay_ctrl.WriteLine(Relay_Lines.Ember, false);
+            _relay_ctrl.WriteLine(Relay_Lines.Load, false);
+            _relay_ctrl.WriteLine(Relay_Lines.Power, true);
+            Thread.Sleep(1000);
 
-                Task task_pretest = new Task(_pretest.Verify_Voltage);
-                task_pretest.ContinueWith(pretest_done_handler, TaskContinuationOptions.OnlyOnRanToCompletion);
-                task_pretest.ContinueWith(pretest_exception_handler, TaskContinuationOptions.OnlyOnFaulted);
-                task_pretest.Start();
-            }
+            Task task_pretest = new Task(_pretest.Verify_Voltage);
+            task_pretest.ContinueWith(pretest_done_handler, TaskContinuationOptions.OnlyOnRanToCompletion);
+            task_pretest.ContinueWith(pretest_exception_handler, TaskContinuationOptions.OnlyOnFaulted);
+            task_pretest.Start();
 
         }
 
@@ -979,14 +996,7 @@ namespace PowerCalibration
             }
             else
             {
-                // Wait for power off
-                if (_meter != null)
-                {
-                    _relay_ctrl.WriteLine(Relay_Lines.Power, false);
-                    Thread.Sleep(1000);
-                    _meter.CloseSerialPort();
-                    wait_for_power_off();
-                }
+                power_off();
 
                 updateRunStatus("FAIL", Color.White, Color.Red);
                 updateOutputStatus(_calibration_error_msg);
@@ -996,8 +1006,7 @@ namespace PowerCalibration
             _stopwatch_running.Stop();
             string elapsedTime = String.Format("Elaspsed time {0:00} seconds", _stopwatch_running.Elapsed.TotalSeconds);
             updateOutputStatus(elapsedTime);
-            updateOutputStatus(
-                "==============================End Pre-test=============================");
+            updateOutputStatus("End Pre-test".PadBoth(80, '-'));
 
             if (_pretest_error_msg != null)
                 return;
@@ -1016,17 +1025,13 @@ namespace PowerCalibration
                 else
                     _meter = new MultiMeter(Properties.Settings.Default.Meter_COM_Port_Name);
 
-                // Open the relay controller
-                // Note, relay controller stays opened until task is done
-                _relay_ctrl.Open();
                 if (_next_task == TaskTypes.Code)
                 {
                     // Init coder
                     Coder coder = new Coder(new TimeSpan(0, 2, 0));
 
                     setRunStatusText("Start Coding");
-                    updateOutputStatus(
-                        "===============================Start Coding==============================");
+                    updateOutputStatus("Start Coding".PadBoth(80, '-'));
                     // Run coding
                     _coding_token_src_cancel = new CancellationTokenSource();
                     CancellationToken token = _coding_token_src_cancel.Token;
@@ -1151,10 +1156,10 @@ namespace PowerCalibration
             // Connect the load
             _relay_ctrl.WriteLine(Relay_Lines.Load, true);
 
-
             setRunStatusText("Start Calibration");
-            updateOutputStatus(
-                "=============================Start Calibration============================");
+            updateOutputStatus("Start Calibration".PadBoth(80, '-'));
+            relaysSet();
+
             //clear calibrate after code
             _calibrate_after_code = false;
 
@@ -1178,21 +1183,7 @@ namespace PowerCalibration
         /// </summary>
         void calibration_done()
         {
-            // Trun power off
-            if (_relay_ctrl != null)
-            {
-                _relay_ctrl.WriteLine(PowerCalibration.Relay_Lines.Ember, false);
-                _relay_ctrl.WriteLine(PowerCalibration.Relay_Lines.Power, false);
-                _relay_ctrl.WriteLine(PowerCalibration.Relay_Lines.Load, false);
-                _relay_ctrl.Close();
-            }
-
-            // Wait for power off
-            if (_meter != null)
-            {
-                _meter.CloseSerialPort();
-                wait_for_power_off();
-            }
+            power_off();
 
             // Check PASS or FAIL
             if (_calibration_error_msg == null)
@@ -1202,7 +1193,6 @@ namespace PowerCalibration
             }
             else
             {
-                relaysSet();
                 updateRunStatus("FAIL", Color.White, Color.Red);
                 updateOutputStatus(_calibration_error_msg);
             }
@@ -1230,15 +1220,7 @@ namespace PowerCalibration
 
             setEnablement(true, false);
 
-            if (_pretest_error_msg != null)
-            {
-                updateOutputStatus(
-                    "==============================End Pre-test=============================");
-                return;
-            }
-
-            updateOutputStatus(
-                "==============================End Calibration=============================");
+            updateOutputStatus("End Calibration".PadBoth(80, '-'));
         }
 
         /// <summary>
@@ -1426,15 +1408,7 @@ namespace PowerCalibration
 
             setEnablement(true, true);
 
-            if (_pretest_error_msg != null)
-            {
-                updateOutputStatus(
-                    "==============================End Pre-test=============================");
-                return;
-            }
-
-            updateOutputStatus(
-                "===============================End Coding==============================");
+            updateOutputStatus("End Coding".PadBoth(80, '-'));
 
             // Run calibration if eberything is OK
             if (_calibrate_after_code && _coding_error_msg == null &&
@@ -1532,4 +1506,17 @@ namespace PowerCalibration
         public static string Voltmeter { get { return _key_volts; } }
     }
 
+}
+
+namespace System
+{
+    public static class StringExtensions
+    {
+        public static string PadBoth(this string str, int length, char paddingChar)
+        {
+            int spaces = length - str.Length;
+            int padLeft = spaces / 2 + str.Length;
+            return str.PadLeft(padLeft, paddingChar).PadRight(length, paddingChar);
+        }
+    }
 }
