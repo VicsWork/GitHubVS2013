@@ -28,17 +28,22 @@ namespace PowerCalibration
 
     public partial class Form_Main : Form, ICalibrationService
     {
+        enum TaskTypes { Code, Calibrate };
+        TaskTypes _next_task;
+
         MultiMeter _meter = null; // The multimeter controler
         RelayControler _relay_ctrl; // The relay controller
         TelnetConnection _telnet_connection; // Telnet connection to ISA3 Adapter
         Ember _ember; // The Ember box
         Calibrate _calibrate = new Calibrate(); // Calibration object
+        PreTest _pretest = new PreTest();
         Stopwatch _stopwatch_running = new Stopwatch();  // Used to measure running tasks
         Stopwatch _stopwatch_idel = new Stopwatch();  // Used to measure idel
         string _calibration_error_msg = null;  //  If set this will indicate the calibration error
         string _coding_error_msg;  //  If set this will indicate the coding error
         string _pretest_error_msg;  //  If set this will indicate the pretest error
         CancellationTokenSource _coding_token_src_cancel = new CancellationTokenSource();  // Used to cancel coding
+
         bool _calibrate_after_code = false;  // Indicates whether to calibrate after cooding completes
 
         static string _app_data_dir = Path.Combine(
@@ -51,6 +56,7 @@ namespace PowerCalibration
         delegate void setTextCallback(string txt);  // Set object text
         delegate void setTextColorCallback(string txt, Color forecolor, Color backcolor); // Set objects color
         delegate void setEnablementCallback(bool enable, bool isCoding);  // Set enablement
+        delegate BoardTypes getSelectedBoardTypeCallback();
 
 
         /// <summary>
@@ -63,7 +69,7 @@ namespace PowerCalibration
             Trace.Listeners.Add(textListener);
 
             InitializeComponent();
-            this.Icon = Properties.Resources.IconPowerCalibration;
+            Icon = Properties.Resources.IconPowerCalibration;
 
             _stopwatch_running.Reset();
             _stopwatch_idel.Start();
@@ -123,10 +129,12 @@ namespace PowerCalibration
             _ember.Process_ISAChan_Error_Event += p_ember_isachan_ErrorDataReceived;
             _ember.Process_ISAChan_Output_Event += p_ember_isachan_OutputDataReceived;
 
-            // Init the calibration object
+            // set the calibrate events
             _calibrate.Status_Event += calibrate_Status_event;
             _calibrate.Run_Status_Event += calibrate_Run_Status_Event;
             _calibrate.Relay_Event += calibrate_Relay_Event;
+
+            _pretest.Status_Event += _pretest_Status_Event;
 
             // Enable the app
             setEnablement(true, false);
@@ -895,7 +903,184 @@ namespace PowerCalibration
         /// <returns></returns>
         BoardTypes getSelectedBoardType()
         {
-            return (BoardTypes)Enum.Parse(typeof(BoardTypes), comboBoxBoardTypes.Text);
+            if (comboBoxBoardTypes.InvokeRequired)
+            {
+                getSelectedBoardTypeCallback d = new getSelectedBoardTypeCallback(getSelectedBoardType);
+                return (BoardTypes)comboBoxBoardTypes.Invoke(d, new object[] { });
+
+            }
+            else
+            {
+                return (BoardTypes)Enum.Parse(typeof(BoardTypes), comboBoxBoardTypes.Text);
+            }
+        }
+
+        /// <summary>
+        /// Verifies DC Voltage
+        /// </summary>
+        void preTest()
+        {
+            _stopwatch_running.Restart();
+
+            // Disable the app
+            setEnablement(false, false);
+
+            // Reset idel watch
+            _stopwatch_idel.Reset();
+
+            if (_next_task == TaskTypes.Code ||
+                (_next_task == TaskTypes.Calibrate && !_calibrate_after_code))
+            {
+                // Init the status text box
+                runStatus_Init();
+
+                // Clear output status
+                textBoxOutputStatus.Clear();
+
+                // Clear toolstrip
+                toolStripStatusLabel.Text = "";
+                statusStrip1.Update();
+
+                setRunStatusText("Start Pre-test");
+                updateOutputStatus(
+                    "=============================Start Pre-test============================");
+
+                // Clear the error
+                _pretest_error_msg = null;
+                _coding_error_msg = null;
+                _calibration_error_msg = null;
+
+                _relay_ctrl.WriteLine(Relay_Lines.Ember, false);
+                _relay_ctrl.WriteLine(Relay_Lines.Load, false);
+                _relay_ctrl.WriteLine(Relay_Lines.Power, true);
+                Thread.Sleep(1000);
+
+                Task task_pretest = new Task(_pretest.Verify_Voltage);
+                task_pretest.ContinueWith(pretest_done_handler, TaskContinuationOptions.OnlyOnRanToCompletion);
+                task_pretest.ContinueWith(pretest_exception_handler, TaskContinuationOptions.OnlyOnFaulted);
+                task_pretest.Start();
+            }
+
+        }
+
+        /// <summary>
+        /// Pretest done handler
+        /// </summary>
+        void pretest_done()
+        {
+            // Check PASS or FAIL
+            if (_pretest_error_msg == null)
+            {
+                updateRunStatus("PASS", Color.White, Color.Green);
+
+                // Should be safe to connect Ember
+                _relay_ctrl.WriteLine(Relay_Lines.Ember, true);
+                Thread.Sleep(1000);
+            }
+            else
+            {
+                // Wait for power off
+                if (_meter != null)
+                {
+                    _relay_ctrl.WriteLine(Relay_Lines.Power, false);
+                    Thread.Sleep(1000);
+                    _meter.CloseSerialPort();
+                    wait_for_power_off();
+                }
+
+                updateRunStatus("FAIL", Color.White, Color.Red);
+                updateOutputStatus(_calibration_error_msg);
+            }
+            relaysSet();
+
+            _stopwatch_running.Stop();
+            string elapsedTime = String.Format("Elaspsed time {0:00} seconds", _stopwatch_running.Elapsed.TotalSeconds);
+            updateOutputStatus(elapsedTime);
+            updateOutputStatus(
+                "==============================End Pre-test=============================");
+
+            if (_pretest_error_msg != null)
+                return;
+
+
+            try
+            {
+                _stopwatch_running.Restart();
+
+                // Init the calibrate object so we can get dv voltage limits
+                _calibrate.BoardType = getSelectedBoardType();
+
+                // Init the meter object
+                if (Properties.Settings.Default.Meter_Manual_Measurement)
+                    _meter = null;
+                else
+                    _meter = new MultiMeter(Properties.Settings.Default.Meter_COM_Port_Name);
+
+                // Open the relay controller
+                // Note, relay controller stays opened until task is done
+                _relay_ctrl.Open();
+                if (_next_task == TaskTypes.Code)
+                {
+                    // Init coder
+                    Coder coder = new Coder(new TimeSpan(0, 2, 0));
+
+                    setRunStatusText("Start Coding");
+                    updateOutputStatus(
+                        "===============================Start Coding==============================");
+                    // Run coding
+                    _coding_token_src_cancel = new CancellationTokenSource();
+                    CancellationToken token = _coding_token_src_cancel.Token;
+                    Task task = new Task(() => coder.Code(token), token);
+                    task.ContinueWith(coding_exception_handler, TaskContinuationOptions.OnlyOnFaulted);
+                    task.ContinueWith(coding_done_handler, TaskContinuationOptions.OnlyOnRanToCompletion);
+                    task.Start();
+
+                }
+                else if (_next_task == TaskTypes.Calibrate)
+                {
+                    calibrate();
+                }
+
+            }
+            catch (Exception ex)
+            {
+                if (_next_task == TaskTypes.Code)
+                {
+                    _coding_error_msg = ex.Message;
+                    coding_done();
+                }
+                else if (_next_task == TaskTypes.Calibrate)
+                {
+                    _calibration_error_msg = ex.Message;
+                    calibration_done();
+                }
+            }
+        }
+
+        /// <summary>
+        /// Handels when pretest is done
+        /// </summary>
+        /// <param name="task"></param>
+        void pretest_done_handler(Task task)
+        {
+            pretest_done();
+        }
+
+        /// <summary>
+        /// Handlels when pretest throws an error
+        /// </summary>
+        /// <param name="task"></param>
+        void pretest_exception_handler(Task task)
+        {
+            var exception = task.Exception;
+            string errmsg = exception.InnerException.Message;
+            _pretest_error_msg = errmsg;
+            pretest_done();
+        }
+
+        void _pretest_Status_Event(object sender, string status_txt)
+        {
+            updateOutputStatus(status_txt);
         }
 
         /// <summary>
@@ -905,10 +1090,7 @@ namespace PowerCalibration
         /// <param name="e"></param>
         void buttonClick_Calibrate(object sender, EventArgs e)
         {
-            // Clear the error
-            _calibration_error_msg = null;
-
-            // If we are not coding after check enablement
+            //  Check enablement If we did not code before this
             if (!_calibrate_after_code)
             {
                 if (!this.buttonCalibrate.Enabled) return;
@@ -919,124 +1101,76 @@ namespace PowerCalibration
                     _stopwatch_idel.Restart();
                     return;
                 }
+
+                _next_task = TaskTypes.Calibrate;
+                preTest();
             }
-
-            // Disable the app
-            setEnablement(false, false);
-
-            // Start the running stopwatch
-            _stopwatch_idel.Reset();
-
-            // Init the status text box
-            runStatus_Init();
-
-            // If we are not coding after
-            // Clear output status
-            if (!_calibrate_after_code)
-                textBoxOutputStatus.Clear();
-
-            // Clear toolstrip
-            toolStripStatusLabel.Text = "";
-            statusStrip1.Update();
-
-            try
+            else
             {
-                // Init the meter object
-                if (Properties.Settings.Default.Meter_Manual_Measurement)
-                    _meter = null;
-                else
-                    _meter = new MultiMeter(Properties.Settings.Default.Meter_COM_Port_Name);
-
-                // Check to see if Ember is to be used as USB and open ISA channel if so
-                // Also set the box address
-                Ember.Interfaces ember_interface = (Ember.Interfaces)Enum.Parse(
-                    typeof(Ember.Interfaces), Properties.Settings.Default.Ember_Interface);
-                _ember.Interface = ember_interface;
-                if (_ember.Interface == Ember.Interfaces.USB)
-                {
-                    _ember.Interface_Address = Properties.Settings.Default.Ember_Interface_USB_Address;
-                    TraceLogger.Log("Start Ember isachan");
-                    _ember.OpenISAChannels();
-                }
-                else
-                {
-                    _ember.Interface_Address = Properties.Settings.Default.Ember_Interface_IP_Address;
-                }
-
-
-                // Create a new telnet connection
-                TraceLogger.Log("Start telnet");
-                // If interface is USB we use localhost
-                string telnet_address = "localhost";
-                if (_ember.Interface == Ember.Interfaces.IP)
-                    telnet_address = _ember.Interface_Address;
-                _telnet_connection = new TelnetConnection(telnet_address, 4900);
-
-                // Init the calibration object board type
-                _calibrate.BoardType = getSelectedBoardType();
-
-                // Open the relay controller and set the for coding
-                // Note, relay controller stays opened until task is done
-                _relay_ctrl.Open();
-                if (!_calibrate_after_code)
-                {
-                    // We are not in code+calibrate so power up
-                    if (_relay_ctrl.Device_Type == RelayControler.Device_Types.Manual)
-                    {
-                        // We don't check dc in manual mode, so just connect the ember and power
-                        _relay_ctrl.WriteLine(Relay_Lines.Ember, true);
-                        _relay_ctrl.WriteLine(Relay_Lines.Power, true);
-                        _relay_ctrl.WriteLine(Relay_Lines.Load, true);
-                        Thread.Sleep(1000);
-                    }
-                    else
-                    {
-                        // Check dc before connecting ember
-                        _relay_ctrl.WriteLine(Relay_Lines.Ember, false);
-                        _relay_ctrl.WriteLine(Relay_Lines.Load, false);
-                        _relay_ctrl.WriteLine(Relay_Lines.Power, true);
-                        Thread.Sleep(1000);
-                        preTest();
-                    }
-                }
-                else
-                {
-                    // We are in code+calibrate mode
-                    // Reset device 
-                    setRunStatusText("Reset UUT");
-                    _relay_ctrl.WriteLine(Relay_Lines.Power, false);
-                    Thread.Sleep(250);
-                    _relay_ctrl.WriteLine(Relay_Lines.Power, true);
-                    Thread.Sleep(1000);
-                }
-
-                _stopwatch_running.Restart();
-                setRunStatusText("Start Calibration");
-                updateOutputStatus(
-                    "=============================Start Calibration============================");
-                //clear calibrate after code
-                _calibrate_after_code = false;
-
-                // Finish setting up the calibrate object
-                _calibrate.Ember = _ember;
-                _calibrate.RelayController = _relay_ctrl;
-                _calibrate.TelnetConnection = _telnet_connection;
-                _calibrate.MultiMeter = _meter;
-
-                // Run the calibration
-                Task task_calibrate = new Task(_calibrate.Run);
-                task_calibrate.ContinueWith(
-                    calibrate_exception_handler, TaskContinuationOptions.OnlyOnFaulted);
-                task_calibrate.ContinueWith(
-                    calibration_done_handler, TaskContinuationOptions.OnlyOnRanToCompletion);
-                task_calibrate.Start();
-
+                calibrate();
             }
-            catch (Exception ex)
+
+        }
+
+        void calibrate()
+        {
+            // Check to see if Ember is to be used as USB and open ISA channel if so
+            // Also set the box address
+            Ember.Interfaces ember_interface = (Ember.Interfaces)Enum.Parse(
+                typeof(Ember.Interfaces), Properties.Settings.Default.Ember_Interface);
+            _ember.Interface = ember_interface;
+            if (_ember.Interface == Ember.Interfaces.USB)
             {
-                _calibration_error_msg = ex.Message;
-                calibration_done();
+                _ember.Interface_Address = Properties.Settings.Default.Ember_Interface_USB_Address;
+                TraceLogger.Log("Start Ember isachan");
+                _ember.OpenISAChannels();
             }
+            else
+            {
+                _ember.Interface_Address = Properties.Settings.Default.Ember_Interface_IP_Address;
+            }
+
+            // Create a new telnet connection
+            TraceLogger.Log("Start telnet");
+            // If interface is USB we use localhost
+            string telnet_address = "localhost";
+            if (_ember.Interface == Ember.Interfaces.IP)
+                telnet_address = _ember.Interface_Address;
+            _telnet_connection = new TelnetConnection(telnet_address, 4900);
+
+            if (_calibrate_after_code)
+            {
+                // We are in code+calibrate mode
+                // Reset device 
+                setRunStatusText("Reset UUT");
+                _relay_ctrl.WriteLine(Relay_Lines.Power, false);
+                Thread.Sleep(250);
+                _relay_ctrl.WriteLine(Relay_Lines.Power, true);
+                Thread.Sleep(1000);
+            }
+            // Connect the load
+            _relay_ctrl.WriteLine(Relay_Lines.Load, true);
+
+
+            setRunStatusText("Start Calibration");
+            updateOutputStatus(
+                "=============================Start Calibration============================");
+            //clear calibrate after code
+            _calibrate_after_code = false;
+
+            // Run the calibration
+            _calibrate.Ember = _ember;
+            _calibrate.MultiMeter = _meter;
+            _calibrate.RelayController = _relay_ctrl;
+            _calibrate.TelnetConnection = _telnet_connection;
+
+            Task task_calibrate = new Task(_calibrate.Run);
+            task_calibrate.ContinueWith(
+                calibrate_exception_handler, TaskContinuationOptions.OnlyOnFaulted);
+            task_calibrate.ContinueWith(
+                calibration_done_handler, TaskContinuationOptions.OnlyOnRanToCompletion);
+            task_calibrate.Start();
+
         }
 
         /// <summary>
@@ -1191,41 +1325,6 @@ namespace PowerCalibration
         }
 
         /// <summary>
-        /// Verifies DC Voltage
-        /// </summary>
-        void preTest()
-        {
-            _pretest_error_msg = null;
-            _stopwatch_running.Restart();
-            setRunStatusText("Start Pre-test");
-            updateOutputStatus(
-                "=============================Start Pre-test============================");
-            try
-            {
-                verify_voltage_dc(
-                    _calibrate.Voltage_DC_Low_Limit, _calibrate.Voltage_DC_High_Limit);
-            }
-            catch (Exception ex)
-            {
-                _pretest_error_msg = ex.Message;
-                throw;
-            }
-
-            // Should be safe to connect Ember
-            _relay_ctrl.WriteLine(Relay_Lines.Ember, true);
-            Thread.Sleep(1000);
-
-            relaysSet();
-
-            _stopwatch_running.Stop();
-            string elapsedTime = String.Format("Elaspsed time {0:00} seconds", _stopwatch_running.Elapsed.TotalSeconds);
-            updateOutputStatus(elapsedTime);
-            updateOutputStatus(
-                "==============================End Pre-test=============================");
-
-        }
-
-        /// <summary>
         /// Experiment to control app from external app
         /// </summary>
         /// <param name="boardtype"></param>
@@ -1241,9 +1340,6 @@ namespace PowerCalibration
         /// <param name="e"></param>
         void buttonClick_Code(object sender, EventArgs e)
         {
-            // Clear the error
-            _coding_error_msg = null;
-
             // Just in case
             if (!this.buttonCode.Enabled)
                 return;
@@ -1266,70 +1362,8 @@ namespace PowerCalibration
             buttonCode.Text = "&Cancel";
             setEnablement(false, true);
 
-            // Start the running stopwatch
-            _stopwatch_idel.Reset();
-            _stopwatch_running.Restart();
-
-            // Init the status text box
-            runStatus_Init();
-
-            // Clear output status
-            this.textBoxOutputStatus.Clear();
-
-            // Clear toolstrip
-            toolStripStatusLabel.Text = "";
-            statusStrip1.Update();
-
-            try
-            {
-                // Init the meter object
-                if (Properties.Settings.Default.Meter_Manual_Measurement)
-                    _meter = null;
-                else
-                    _meter = new MultiMeter(Properties.Settings.Default.Meter_COM_Port_Name);
-
-                // Set the XY poit where to check coding status color
-                Coder coder = new Coder(new TimeSpan(0, 2, 0));
-
-                // Init the calibrate object so we can get dv voltage limits
-                _calibrate.BoardType = getSelectedBoardType();
-
-                // Open the relay controller and set the for coding
-                // Note, relay controller stays opened until task is done
-                _relay_ctrl.Open();
-                if (_relay_ctrl.Device_Type == RelayControler.Device_Types.Manual)
-                {
-                    // We don't check dc in manual mode, so just connect the ember and power
-                    _relay_ctrl.WriteLine(Relay_Lines.Ember, true);
-                    _relay_ctrl.WriteLine(Relay_Lines.Power, true);
-                    Thread.Sleep(1000);
-                }
-                else
-                {
-                    // Check dc before connecting ember
-                    _relay_ctrl.WriteLine(Relay_Lines.Ember, false);
-                    _relay_ctrl.WriteLine(Relay_Lines.Power, true);
-                    Thread.Sleep(1000);
-
-                    preTest();
-                }
-
-                setRunStatusText("Start Coding");
-                updateOutputStatus(
-                    "===============================Start Coding==============================");
-                // Run coding
-                _coding_token_src_cancel = new CancellationTokenSource();
-                CancellationToken token = _coding_token_src_cancel.Token;
-                Task task = new Task(() => coder.Code(token), token);
-                task.ContinueWith(coding_exception_handler, TaskContinuationOptions.OnlyOnFaulted);
-                task.ContinueWith(coding_done_handler, TaskContinuationOptions.OnlyOnRanToCompletion);
-                task.Start();
-            }
-            catch (Exception ex)
-            {
-                _coding_error_msg = ex.Message;
-                coding_done();
-            }
+            _next_task = TaskTypes.Code;
+            preTest();
         }
 
         /// <summary>
