@@ -21,20 +21,20 @@ namespace PowerCalibration
         string _cmd_prefix;
         Ember _ember;
 
-        public class CLIPowerARgsEventArgrs : EventArgs
+        public class CLIPowerArgsEventArgrs : EventArgs
         {
             public double Voltage = 0.0, Current = 0.0;
 
-            public CLIPowerARgsEventArgrs(double voltage, double current)
+            public CLIPowerArgsEventArgrs(double voltage, double current)
             {
                 Voltage = voltage;
                 Current = current;
             }
         }
 
-        public delegate void CLIValueHandler(object sender, CLIPowerARgsEventArgrs e);
+        public delegate void CLIValueHandler(object sender, CLIPowerArgsEventArgrs e);
         public event CLIValueHandler CLIValue_Event;
-        delegate void SetTextCallback(CLIPowerARgsEventArgrs args);
+        delegate void SetTextCallback(CLIPowerArgsEventArgrs args);
 
         CancellationTokenSource _tokenSrc = new CancellationTokenSource();
         Task _task;
@@ -73,12 +73,12 @@ namespace PowerCalibration
             this.CLIValue_Event += Form_PowerMeter_CLIValue_Event;
         }
 
-        void Form_PowerMeter_CLIValue_Event(object sender, CLIPowerARgsEventArgrs args)
+        void Form_PowerMeter_CLIValue_Event(object sender, CLIPowerArgsEventArgrs args)
         {
             setCLIText(args);
         }
 
-        void setCLIText(CLIPowerARgsEventArgrs args)
+        void setCLIText(CLIPowerArgsEventArgrs args)
         {
             if (_tokenSrc.IsCancellationRequested)
                 return;
@@ -114,7 +114,7 @@ namespace PowerCalibration
                     {
 
                         CLIValue_Event(this, 
-                            new CLIPowerARgsEventArgrs(cv.Voltage, cv.Current));
+                            new CLIPowerArgsEventArgrs(cv.Voltage, cv.Current));
                     }
                 }
                 catch (Exception)

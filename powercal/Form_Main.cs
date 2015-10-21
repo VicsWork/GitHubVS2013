@@ -37,6 +37,7 @@ namespace PowerCalibration
         Stopwatch _stopwatch_idel = new Stopwatch();  // Used to measure idel
         string _calibration_error_msg = null;  //  If set this will indicate the calibration error
         string _coding_error_msg;  //  If set this will indicate the coding error
+        string _pretest_error_msg;  //  If set this will indicate the pretest error
         CancellationTokenSource _coding_token_src_cancel = new CancellationTokenSource();  // Used to cancel coding
         bool _calibrate_after_code = false;  // Indicates whether to calibrate after cooding completes
 
@@ -76,7 +77,7 @@ namespace PowerCalibration
             initLogFile();
 
             // Set the title to match assembly info from About dlg
-            AboutBox1 aboutdlg = new AboutBox1();
+            AboutBox aboutdlg = new AboutBox();
             this.Text = aboutdlg.AssemblyTitle;
             aboutdlg.Dispose();
 
@@ -445,7 +446,7 @@ namespace PowerCalibration
         /// <param name="e"></param>
         void toolStripMenuItem_Click_About(object sender, EventArgs e)
         {
-            AboutBox1 dlg = new AboutBox1();
+            AboutBox dlg = new AboutBox();
             DialogResult result = dlg.ShowDialog();
         }
 
@@ -925,11 +926,9 @@ namespace PowerCalibration
 
             // Start the running stopwatch
             _stopwatch_idel.Reset();
-            _stopwatch_running.Restart();
 
             // Init the status text box
             runStatus_Init();
-            setRunStatusText("Start Calibration");
 
             // If we are not coding after
             // Clear output status
@@ -940,10 +939,6 @@ namespace PowerCalibration
             toolStripStatusLabel.Text = "";
             statusStrip1.Update();
 
-            updateOutputStatus(
-                "=============================Start Calibration============================");
-
-            // Start Calibration
             try
             {
                 // Init the meter object
@@ -985,6 +980,7 @@ namespace PowerCalibration
                 _relay_ctrl.Open();
                 if (!_calibrate_after_code)
                 {
+                    // We are not in code+calibrate so power up
                     if (_relay_ctrl.Device_Type == RelayControler.Device_Types.Manual)
                     {
                         // We don't check dc in manual mode, so just connect the ember and power
@@ -1000,23 +996,24 @@ namespace PowerCalibration
                         _relay_ctrl.WriteLine(Relay_Lines.Load, false);
                         _relay_ctrl.WriteLine(Relay_Lines.Power, true);
                         Thread.Sleep(1000);
-
-                        verify_voltage_dc(
-                            _calibrate.Voltage_DC_Low_Limit, _calibrate.Voltage_DC_High_Limit);
-
-                        // Should be safe to connect Ember
-                        _relay_ctrl.WriteLine(Relay_Lines.Ember, true);
-                        Thread.Sleep(1000);
+                        preTest();
                     }
-                    relaysSet();
                 }
                 else
                 {
+                    // We are in code+calibrate mode
+                    // Reset device 
+                    setRunStatusText("Reset UUT");
                     _relay_ctrl.WriteLine(Relay_Lines.Power, false);
+                    Thread.Sleep(250);
                     _relay_ctrl.WriteLine(Relay_Lines.Power, true);
                     Thread.Sleep(1000);
                 }
 
+                _stopwatch_running.Restart();
+                setRunStatusText("Start Calibration");
+                updateOutputStatus(
+                    "=============================Start Calibration============================");
                 //clear calibrate after code
                 _calibrate_after_code = false;
 
@@ -1088,8 +1085,7 @@ namespace PowerCalibration
 
             // Stop runing watch and report time lapse
             _stopwatch_running.Stop();
-            TimeSpan ts = _stopwatch_running.Elapsed;
-            string elapsedTime = String.Format("Elaspsed time {0:00} seconds", ts.TotalSeconds);
+            string elapsedTime = String.Format("Elaspsed time {0:00} seconds", _stopwatch_running.Elapsed.TotalSeconds);
             updateOutputStatus(elapsedTime);
 
             _stopwatch_running.Reset();
@@ -1100,9 +1096,15 @@ namespace PowerCalibration
 
             setEnablement(true, false);
 
+            if (_pretest_error_msg != null)
+            {
+                updateOutputStatus(
+                    "==============================End Pre-test=============================");
+                return;
+            }
+
             updateOutputStatus(
                 "==============================End Calibration=============================");
-
         }
 
         /// <summary>
@@ -1189,6 +1191,41 @@ namespace PowerCalibration
         }
 
         /// <summary>
+        /// Verifies DC Voltage
+        /// </summary>
+        void preTest()
+        {
+            _pretest_error_msg = null;
+            _stopwatch_running.Restart();
+            setRunStatusText("Start Pre-test");
+            updateOutputStatus(
+                "=============================Start Pre-test============================");
+            try
+            {
+                verify_voltage_dc(
+                    _calibrate.Voltage_DC_Low_Limit, _calibrate.Voltage_DC_High_Limit);
+            }
+            catch (Exception ex)
+            {
+                _pretest_error_msg = ex.Message;
+                throw;
+            }
+
+            // Should be safe to connect Ember
+            _relay_ctrl.WriteLine(Relay_Lines.Ember, true);
+            Thread.Sleep(1000);
+
+            relaysSet();
+
+            _stopwatch_running.Stop();
+            string elapsedTime = String.Format("Elaspsed time {0:00} seconds", _stopwatch_running.Elapsed.TotalSeconds);
+            updateOutputStatus(elapsedTime);
+            updateOutputStatus(
+                "==============================End Pre-test=============================");
+
+        }
+
+        /// <summary>
         /// Experiment to control app from external app
         /// </summary>
         /// <param name="boardtype"></param>
@@ -1226,6 +1263,7 @@ namespace PowerCalibration
             }
 
             // Disable the app
+            buttonCode.Text = "&Cancel";
             setEnablement(false, true);
 
             // Start the running stopwatch
@@ -1234,7 +1272,6 @@ namespace PowerCalibration
 
             // Init the status text box
             runStatus_Init();
-            setRunStatusText("Start Coding");
 
             // Clear output status
             this.textBoxOutputStatus.Clear();
@@ -1243,9 +1280,6 @@ namespace PowerCalibration
             toolStripStatusLabel.Text = "";
             statusStrip1.Update();
 
-            // Start coding
-            updateOutputStatus(
-                "===============================Start Coding==============================");
             try
             {
                 // Init the meter object
@@ -1277,15 +1311,12 @@ namespace PowerCalibration
                     _relay_ctrl.WriteLine(Relay_Lines.Power, true);
                     Thread.Sleep(1000);
 
-                    verify_voltage_dc(
-                        _calibrate.Voltage_DC_Low_Limit, _calibrate.Voltage_DC_High_Limit);
-
-                    // Should be safe to connect Ember
-                    _relay_ctrl.WriteLine(Relay_Lines.Ember, true);
-                    Thread.Sleep(1000);
+                    preTest();
                 }
-                relaysSet();
 
+                setRunStatusText("Start Coding");
+                updateOutputStatus(
+                    "===============================Start Coding==============================");
                 // Run coding
                 _coding_token_src_cancel = new CancellationTokenSource();
                 CancellationToken token = _coding_token_src_cancel.Token;
@@ -1360,6 +1391,13 @@ namespace PowerCalibration
             _stopwatch_idel.Restart();
 
             setEnablement(true, true);
+
+            if (_pretest_error_msg != null)
+            {
+                updateOutputStatus(
+                    "==============================End Pre-test=============================");
+                return;
+            }
 
             updateOutputStatus(
                 "===============================End Coding==============================");
