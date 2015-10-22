@@ -151,6 +151,7 @@ namespace PowerCalibration
             try
             {
                 _relay_ctrl = new RelayControler(rdevtype);
+                _relay_ctrl.Open();
                 initRelayController_Lines();
                 msg = string.Format("Relay controler \"{0}\" ready.", rdevtype);
                 updateOutputStatus(msg);
@@ -172,10 +173,7 @@ namespace PowerCalibration
                 dlg.ShowDialog();
 
             }
-            _relay_ctrl.Open();
             _relay_ctrl.WriteAll(false);
-            _relay_ctrl.Close();
-
         }
 
         void initRelayController_Lines()
@@ -605,11 +603,10 @@ namespace PowerCalibration
         {
             try
             {
-                _relay_ctrl.Open();
+                _relay_ctrl.OpenIfClosed();
                 _relay_ctrl.WriteLine(Relay_Lines.Power, true);
                 _relay_ctrl.WriteLine(Relay_Lines.Ember, true);
                 _relay_ctrl.WriteLine(Relay_Lines.Load, true);
-                _relay_ctrl.Close();
                 Thread.Sleep(1000);
 
                 Calibrate calibrate = new Calibrate();
@@ -633,11 +630,9 @@ namespace PowerCalibration
             }
             finally
             {
-                _relay_ctrl.Open();
                 _relay_ctrl.WriteLine(Relay_Lines.Power, false);
                 _relay_ctrl.WriteLine(Relay_Lines.Ember, false);
                 _relay_ctrl.WriteLine(Relay_Lines.Load, false);
-                _relay_ctrl.Close();
             }
         }
 
@@ -659,10 +654,13 @@ namespace PowerCalibration
         /// <param name="e"></param>
         void toolStripMenuItem_FT232H(object sender, EventArgs e)
         {
-            _relay_ctrl.Close();
-            RelayControler.Device_Types rdevtype = (RelayControler.Device_Types)Enum.Parse(typeof(RelayControler.Device_Types), Properties.Settings.Default.Relay_Controller_Type);
-            _relay_ctrl = new RelayControler(rdevtype);
-            _relay_ctrl.Open();
+            if (_relay_ctrl == null || _relay_ctrl.Device_Type != RelayControler.Device_Types.FT232H)
+            {
+                RelayControler.Device_Types rdevtype = (RelayControler.Device_Types)Enum.Parse(
+                    typeof(RelayControler.Device_Types), Properties.Settings.Default.Relay_Controller_Type);
+                _relay_ctrl = new RelayControler(rdevtype);
+                _relay_ctrl.Open();
+            }
             Form_FT232H_DIO_Test dlg = new Form_FT232H_DIO_Test(_relay_ctrl);
             dlg.Show();
         }
@@ -786,7 +784,11 @@ namespace PowerCalibration
         /// <param name="e"></param>
         private void FormMain_FormClosing(object sender, FormClosingEventArgs e)
         {
-            _relay_ctrl.Close();
+            if (_relay_ctrl != null && _relay_ctrl.IsOpened)
+            {
+                _relay_ctrl.WriteAll(false);
+                _relay_ctrl.Close();
+            }
 
             Trace.Flush();
             Trace.Close();
@@ -905,7 +907,6 @@ namespace PowerCalibration
                 _relay_ctrl.WriteLine(PowerCalibration.Relay_Lines.Ember, false);
                 _relay_ctrl.WriteLine(PowerCalibration.Relay_Lines.Power, false);
                 _relay_ctrl.WriteLine(PowerCalibration.Relay_Lines.Load, false);
-                _relay_ctrl.Close();
                 relaysSet();
             }
 
@@ -967,10 +968,10 @@ namespace PowerCalibration
             _coding_error_msg = null;
             _calibration_error_msg = null;
 
-            _relay_ctrl.Open();
             _relay_ctrl.WriteLine(Relay_Lines.Ember, false);
             _relay_ctrl.WriteLine(Relay_Lines.Load, false);
             _relay_ctrl.WriteLine(Relay_Lines.Power, true);
+
             Thread.Sleep(1000);
 
             Task task_pretest = new Task(_pretest.Verify_Voltage);
@@ -1386,9 +1387,8 @@ namespace PowerCalibration
                 {
                     _relay_ctrl.WriteLine(PowerCalibration.Relay_Lines.Ember, false);
                     _relay_ctrl.WriteLine(PowerCalibration.Relay_Lines.Power, false);
-                    _relay_ctrl.Close();
+                    relaysSet();
                 }
-                relaysSet();
 
                 if (_meter != null)
                 {

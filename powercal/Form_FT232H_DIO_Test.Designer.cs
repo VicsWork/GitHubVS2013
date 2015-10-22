@@ -39,6 +39,7 @@
             this.labelLoad = new System.Windows.Forms.Label();
             this.NumericUpDown_Load = new System.Windows.Forms.NumericUpDown();
             this.labelACPower = new System.Windows.Forms.Label();
+            this.buttonAllOff = new System.Windows.Forms.Button();
             this.channelParametersGroupBox.SuspendLayout();
             this.groupBoxDIOLines.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.NumericUpDown_ACPower)).BeginInit();
@@ -58,11 +59,11 @@
             this.channelParametersGroupBox.TabStop = false;
             this.channelParametersGroupBox.Text = "Channel Parameters";
             // 
-            // physicalChannelLabel
+            // Label_physicalChannel
             // 
             this.Label_physicalChannel.FlatStyle = System.Windows.Forms.FlatStyle.System;
             this.Label_physicalChannel.Location = new System.Drawing.Point(16, 20);
-            this.Label_physicalChannel.Name = "physicalChannelLabel";
+            this.Label_physicalChannel.Name = "Label_physicalChannel";
             this.Label_physicalChannel.Size = new System.Drawing.Size(246, 49);
             this.Label_physicalChannel.TabIndex = 0;
             this.Label_physicalChannel.Text = "Port";
@@ -172,16 +173,26 @@
             this.labelACPower.TabIndex = 1;
             this.labelACPower.Text = "AC Power";
             // 
+            // buttonAllOff
+            // 
+            this.buttonAllOff.Location = new System.Drawing.Point(211, 32);
+            this.buttonAllOff.Name = "buttonAllOff";
+            this.buttonAllOff.Size = new System.Drawing.Size(75, 23);
+            this.buttonAllOff.TabIndex = 7;
+            this.buttonAllOff.Text = "All O&ff";
+            this.buttonAllOff.UseVisualStyleBackColor = true;
+            this.buttonAllOff.Click += new System.EventHandler(this.buttonAllOff_Click);
+            // 
             // Form_FT232H_DIO_Test
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(310, 244);
+            this.Controls.Add(this.buttonAllOff);
             this.Controls.Add(this.groupBoxDIOLines);
             this.Controls.Add(this.channelParametersGroupBox);
             this.Name = "Form_FT232H_DIO_Test";
             this.Text = "FormFT232H_DIO_Test";
-            this.FormClosed += new System.Windows.Forms.FormClosedEventHandler(this.FormFT232H_DIO_Test_FormClosed);
             this.channelParametersGroupBox.ResumeLayout(false);
             this.groupBoxDIOLines.ResumeLayout(false);
             this.groupBoxDIOLines.PerformLayout();
@@ -206,5 +217,6 @@
         public System.Windows.Forms.Label Label_physicalChannel;
         public System.Windows.Forms.NumericUpDown numericUpDown_Voltmeter;
         private System.Windows.Forms.Label labelVoltmeter;
+        private System.Windows.Forms.Button buttonAllOff;
     }
 }

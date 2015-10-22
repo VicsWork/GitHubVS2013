@@ -34,19 +34,23 @@ namespace PowerCalibration
             uint linenum = lines[PowerCalibration.Relay_Lines.Power];
             labelACPower.Text += string.Format("({0})", linenum);
             NumericUpDown_ACPower.Tag = linenum;
+            NumericUpDown_ACPower.Value = Convert.ToDecimal(_relayCtrl.ReadLine(linenum));
 
             linenum = lines[PowerCalibration.Relay_Lines.Load];
             labelLoad.Text += string.Format("({0})", linenum);
             NumericUpDown_Load.Tag = linenum;
+            NumericUpDown_Load.Value = Convert.ToDecimal(_relayCtrl.ReadLine(linenum));
 
             linenum = lines[PowerCalibration.Relay_Lines.Ember];
             labelEmber.Text += string.Format("({0})", linenum);
             NumericUpDown_Ember.Tag = linenum;
+            NumericUpDown_Ember.Value = Convert.ToDecimal(_relayCtrl.ReadLine(linenum));
 
             linenum = lines[PowerCalibration.Relay_Lines.Voltmeter];
             labelVoltmeter.Text += string.Format("({0})", linenum);
             numericUpDown_Voltmeter.Tag = linenum;
 
+            updateLineValues();
         }
 
         private void numericUpDown_ValueChanged(object sender, EventArgs e)
@@ -59,11 +63,17 @@ namespace PowerCalibration
             _relayCtrl.WriteLine(line_num, value);
         }
 
-        private void FormFT232H_DIO_Test_FormClosed(object sender, FormClosedEventArgs e)
+        private void buttonAllOff_Click(object sender, EventArgs e)
         {
-            _relayCtrl.Close();
+            _relayCtrl.WriteAll(false);
+            updateLineValues();
         }
 
-
+        void updateLineValues()
+        {
+            var ctrls = groupBoxDIOLines.Controls.OfType<NumericUpDown>();
+            foreach (NumericUpDown ctrl in ctrls)
+                ctrl.Value = Convert.ToDecimal(_relayCtrl.ReadLine((uint)ctrl.Tag));
+        }
     }
 }

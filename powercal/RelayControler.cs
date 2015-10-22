@@ -18,9 +18,10 @@ namespace PowerCalibration
     /// </summary>
     public class RelayControler
     {
+        /// <summary>
+        /// Suported device types
+        /// </summary>
         public enum Device_Types { Manual, NI_USB6008, FT232H };
-
-        //int _delay_after_set_pin = 200;
 
         /// <summary>
         /// Dic to store line numbers
@@ -34,6 +35,8 @@ namespace PowerCalibration
         Device_Types _dev_type;
         public Device_Types Device_Type { get { return _dev_type; } }
 
+        bool _isOpened = false;
+        public bool IsOpened { get { return _isOpened; } }
 
         /// <summary>
         /// Inits internal dictionary that holds line number and state info
@@ -166,6 +169,9 @@ namespace PowerCalibration
 
         }
 
+        /// <summary>
+        /// Resets the device
+        /// </summary>
         public void ResetDevice()
         {
             if (_dev_type == Device_Types.FT232H)
@@ -174,22 +180,38 @@ namespace PowerCalibration
             }
         }
 
+        /// <summary>
+        /// Opens the device
+        /// </summary>
         public void Open()
         {
             if (_dev_type == Device_Types.FT232H)
             {
                 _ft232hdio.Open((uint)_ftdi_dev_index);
             }
+            _isOpened = true;
         }
 
+        /// <summary>
+        /// Closes the device
+        /// </summary>
         public void Close()
         {
             if (_dev_type == Device_Types.FT232H)
             {
                 _ft232hdio.Close();
             }
+            _isOpened = false;
         }
 
+        /// <summary>
+        /// Only opens the device if it is closed
+        /// </summary>
+        public void OpenIfClosed()
+        {
+            if (!_isOpened)
+                Open();
+        }
         /// <summary>
         /// Inits the DIO to be the first port found
         /// </summary>
@@ -256,11 +278,9 @@ namespace PowerCalibration
                 }
                 return;
             }
-
-            if (_dev_type == Device_Types.FT232H)
+            else if (_dev_type == Device_Types.FT232H)
             {
                 _ft232hdio.SetPin(_ftdi_bus, linenum, value);
-                //Thread.Sleep(_delay_after_set_pin);
                 return;
             }
         }
@@ -272,7 +292,7 @@ namespace PowerCalibration
         /// <returns></returns>
         public bool ReadLine(string linename)
         {
-            if (_dev_type == Device_Types.Manual || _dev_type == Device_Types.FT232H)
+            if (_dev_type == Device_Types.Manual)
             {
                 return _dic_values[linename];
             }
@@ -282,6 +302,7 @@ namespace PowerCalibration
                 return ReadLine(linenum);
             }
         }
+
 
         /// <summary>
         /// Gets the specified line number's name
@@ -334,8 +355,7 @@ namespace PowerCalibration
             }
             else if (_dev_type == Device_Types.FT232H)
             {
-                Trace.TraceWarning("Trying to read from FT232 unsupported");
-                return false;
+                return _ft232hdio.ReadPin(_ftdi_bus, linenum);
             }
 
             Trace.TraceWarning("Unkown device");
@@ -347,7 +367,7 @@ namespace PowerCalibration
         {
             if (_dev_type == Device_Types.FT232H)
             {
-                return _ft232hdio.GetBusData(_ftdi_bus);
+                return _ft232hdio.ReadBus(_ftdi_bus);
             }
 
             Trace.TraceWarning("Unkown device");
@@ -366,7 +386,8 @@ namespace PowerCalibration
             int i = 0;
             foreach (string key in _dic_lines.Keys)
             {
-                bool value = ReadLine(key);
+                //bool value = ReadLine(key);
+                bool value = _dic_values[key];
                 string on_off_str = "OFF";
                 if (value)
                     on_off_str = "ON";
