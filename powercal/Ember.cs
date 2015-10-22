@@ -135,7 +135,7 @@ namespace PowerCalibration
         }
 
         /// <summary>
-        /// Runs a calibartion batch file
+        /// Runs a calibration batch file
         /// </summary>
         /// <returns></returns>
         public string RunCalibrationPatchBatch()
@@ -240,7 +240,7 @@ namespace PowerCalibration
                 txt += string.Format("@{0:X8}=", start_addr);
                 txt += string.Format("{0:X2} ", 0); // null
 
-                // referece
+                // reference
                 if (_voltageRefValue != 0x0)
                 {
                     start_addr = _refAddress;
@@ -353,7 +353,7 @@ namespace PowerCalibration
         static byte[] bit24IntToByteArray(int value)
         {
             // Converts a 24bit value to a 3 byte array
-            // Oreder by LSB to MSB
+            // Ordered by LSB to MSB
             byte[] vBytes = new byte[3] { 
                 (byte)(value & 0xFF), 
                 (byte)( (value >> 8) & 0xFF), 

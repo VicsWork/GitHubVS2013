@@ -48,7 +48,7 @@ namespace PowerCalibration
 
             if (meter_voltage_ac >= 1.0)
             {
-                msg = string.Format("AC volatge detected at {0:F8}, DC Voltage {1:F8}", 
+                msg = string.Format("AC voltage detected at {0:F8}, DC Voltage {1:F8}", 
                     meter_voltage_ac, meter_voltage_dc);
                 TraceLogger.Log(msg);
                 throw new Exception(msg);
@@ -56,7 +56,7 @@ namespace PowerCalibration
 
             if (meter_voltage_dc < _voltage_dc_low_limit || meter_voltage_dc > _voltage_dc_high_limit)
             {
-                msg = string.Format("Volatge DC is not within limits values: {0:F8} < {1:F8} < {2:F8}", 
+                msg = string.Format("Voltage DC is not within limits values: {0:F8} < {1:F8} < {2:F8}", 
                     _voltage_dc_low_limit, meter_voltage_dc, _voltage_dc_high_limit);
                 TraceLogger.Log(msg);
                 throw new Exception(msg);

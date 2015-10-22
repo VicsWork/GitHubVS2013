@@ -31,25 +31,25 @@ namespace PowerCalibration
         enum TaskTypes { Code, Calibrate };
         TaskTypes _next_task;
 
-        MultiMeter _meter = null; // The multimeter controler
+        MultiMeter _meter = null; // The multimeter controller
         RelayControler _relay_ctrl; // The relay controller
         TelnetConnection _telnet_connection; // Telnet connection to ISA3 Adapter
         Ember _ember; // The Ember box
         Calibrate _calibrate = new Calibrate(); // Calibration object
         PreTest _pretest = new PreTest();
         Stopwatch _stopwatch_running = new Stopwatch();  // Used to measure running tasks
-        Stopwatch _stopwatch_idel = new Stopwatch();  // Used to measure idel
+        Stopwatch _stopwatch_idel = new Stopwatch();  // Used to measure idle
         string _calibration_error_msg = null;  //  If set this will indicate the calibration error
         string _coding_error_msg;  //  If set this will indicate the coding error
         string _pretest_error_msg;  //  If set this will indicate the pretest error
         CancellationTokenSource _coding_token_src_cancel = new CancellationTokenSource();  // Used to cancel coding
 
-        bool _calibrate_after_code = false;  // Indicates whether to calibrate after cooding completes
+        bool _calibrate_after_code = false;  // Indicates whether to calibrate after coding completes
 
         static string _app_data_dir = Path.Combine(
             Environment.GetFolderPath(Environment.SpecialFolder.UserProfile), ".calibration"); //The app folder where we save most logs, etc
         string _log_file = Path.Combine(_app_data_dir, "runlog.txt"); // Path to the app log file
-        string _ember_batchfile_path = Path.Combine(_app_data_dir, "patchit.bat"); // Path to where the Ember programing batch file is created
+        string _ember_batchfile_path = Path.Combine(_app_data_dir, "patchit.bat"); // Path to where the Ember programming batch file is created
 
         delegate void clickCalibrateCallback();  // Clicks Calibrate
         delegate void activateCallback();  // Activates the form
@@ -153,15 +153,15 @@ namespace PowerCalibration
                 _relay_ctrl = new RelayControler(rdevtype);
                 _relay_ctrl.Open();
                 initRelayController_Lines();
-                msg = string.Format("Relay controler \"{0}\" ready.", rdevtype);
+                msg = string.Format("Relay controller \"{0}\" ready.", rdevtype);
                 updateOutputStatus(msg);
             }
             catch (Exception ex)
             {
-                msg = string.Format("{0}\r\nTry unplugging and replugging the USB device.\r\nThen try to change relay controller in settings dialog", ex.Message);
+                msg = string.Format("{0}\r\nTry unplugging and re-plugging the USB device.\r\nThen try to change relay controller in settings dialog", ex.Message);
                 MessageBox.Show(msg);
 
-                msg = string.Format("Unable to init relay controler \"{0}\".  Switching to Manual relay mode", rdevtype);
+                msg = string.Format("Unable to init relay controller \"{0}\".  Switching to Manual relay mode", rdevtype);
                 updateOutputStatus(msg);
 
                 _relay_ctrl = new RelayControler(RelayControler.Device_Types.Manual);
@@ -190,7 +190,7 @@ namespace PowerCalibration
         }
 
         /// <summary>
-        /// Detects whether the metter is ON and connected to one of the COM ports
+        /// Detects whether the meter is ON and connected to one of the COM ports
         /// If one is found, the serial port setting is changed automatically
         /// </summary>
         /// <returns>Whether a meter was detected connected to the system</returns>
@@ -213,7 +213,7 @@ namespace PowerCalibration
                         detected = true;
                         Properties.Settings.Default.Meter_COM_Port_Name = portname;
                         Properties.Settings.Default.Save();
-                        string msg = string.Format("Multimetter '{0}' comunications port autodetected at {1}", idn.TrimEnd('\n'),
+                        string msg = string.Format("Multimeter '{0}' communications port auto detected at {1}", idn.TrimEnd('\n'),
                             Properties.Settings.Default.Meter_COM_Port_Name);
                         updateOutputStatus(msg);
                         break;
@@ -228,7 +228,7 @@ namespace PowerCalibration
             }
             if (!detected)
             {
-                string msg = string.Format("Unable to detect Multimetter comunications port. Using {0}.  Measurements set to manual mode",
+                string msg = string.Format("Unable to detect Multimeter communications port. Using {0}.  Measurements set to manual mode",
                     Properties.Settings.Default.Meter_COM_Port_Name);
 
                 Properties.Settings.Default.Meter_Manual_Measurement = true;
@@ -297,7 +297,7 @@ namespace PowerCalibration
 
         /// <summary>
         /// Sets the Code button control enablement and label
-        /// This buton is also to cancel the operation
+        /// This button is also to cancel the operation
         /// </summary>
         /// <param name="enable"></param>
         /// <param name="isCoding"></param>
@@ -390,7 +390,7 @@ namespace PowerCalibration
         }
 
         /// <summary>
-        /// Sets the Run status text and backgorind color
+        /// Sets the Run status text and background color
         /// </summary>
         /// <param name="text"></param>
         /// <param name="forecolor"></param>
@@ -434,7 +434,7 @@ namespace PowerCalibration
         }
 
         /// <summary>
-        /// Invokes Serial test gld
+        /// Invokes Serial test dld
         /// </summary>
         /// <param name="sender"></param>
         /// <param name="e"></param>
@@ -496,7 +496,7 @@ namespace PowerCalibration
         }
 
         /// <summary>
-        /// Loags the status of the relays
+        /// Logs the status of the relays
         /// </summary>
         void relay_log_status()
         {
@@ -505,7 +505,7 @@ namespace PowerCalibration
         }
 
         /// <summary>
-        /// Clears the Outout status text
+        /// Clears the Output status text
         /// </summary>
         /// <param name="sender"></param>
         /// <param name="e"></param>
@@ -529,7 +529,7 @@ namespace PowerCalibration
         }
 
         /// <summary>
-        /// Invikes the settings dialog
+        /// Invokes the settings dialog
         /// </summary>
         /// <param name="sender"></param>
         /// <param name="e"></param>
@@ -537,7 +537,7 @@ namespace PowerCalibration
         {
             Form_Settings dlg = new Form_Settings();
 
-            // DIO line assigment
+            // DIO line assignment
             Dictionary<string, uint> relay_lines = _relay_ctrl.DicLines_ReadSettings();
             dlg.NumericUpDown_ACPower.Value = relay_lines[PowerCalibration.Relay_Lines.Power];
             dlg.NumericUpDown_Load.Value = relay_lines[PowerCalibration.Relay_Lines.Load];
@@ -557,7 +557,7 @@ namespace PowerCalibration
                     Properties.Settings.Default.Relay_Controller_Type);
                 _relay_ctrl = new RelayControler(rdevtype);
 
-                // DIO line assigment
+                // DIO line assignment
                 relay_lines = _relay_ctrl.DicLines_ReadSettings();
                 relay_lines[PowerCalibration.Relay_Lines.Power] = (uint)dlg.NumericUpDown_ACPower.Value;
                 relay_lines[PowerCalibration.Relay_Lines.Load] = (uint)dlg.NumericUpDown_Load.Value;
@@ -584,7 +584,7 @@ namespace PowerCalibration
         }
 
         /// <summary>
-        /// Opens up a basic calculator for 24bit register values convertions
+        /// Opens up a basic calculator for 24bit register values conversions
         /// </summary>
         /// <param name="sender"></param>
         /// <param name="e"></param>
@@ -648,7 +648,7 @@ namespace PowerCalibration
         }
 
         /// <summary>
-        /// Invokes the FTDI test dialog
+        /// Invokes the FTDI test dialog.
         /// </summary>
         /// <param name="sender"></param>
         /// <param name="e"></param>
@@ -666,7 +666,7 @@ namespace PowerCalibration
         }
 
         /// <summary>
-        /// Handels error data from the em3xx_load process
+        /// Handles error data from the em3xx_load process
         /// </summary>
         /// <param name="sender"></param>
         /// <param name="e"></param>
@@ -681,7 +681,7 @@ namespace PowerCalibration
         }
 
         /// <summary>
-        /// Handels output data from the em3xx_load process
+        /// Handles output data from the em3xx_load process
         /// </summary>
         /// <param name="sender"></param>
         /// <param name="e"></param>
@@ -693,7 +693,7 @@ namespace PowerCalibration
         }
 
         /// <summary>
-        /// Closes the board releay using custom command
+        /// Closes the board relay using custom command
         /// </summary>
         /// <param name="board_type"></param>
         /// <param name="telnet_connection"></param>
@@ -1491,7 +1491,7 @@ namespace PowerCalibration
 
 
     /// <summary>
-    /// Defines the relay lines
+    /// Defines the relay lines. 
     /// </summary>
     public class Relay_Lines
     {

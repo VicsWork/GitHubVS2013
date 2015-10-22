@@ -70,7 +70,6 @@
             this.Controls.Add(this.label);
             this.Name = "Form_EnterMeasurement";
             this.Text = "Enter Measurement";
-            this.Load += new System.EventHandler(this.Form_EnterMeasurement_Load);
             this.ResumeLayout(false);
             this.PerformLayout();
 

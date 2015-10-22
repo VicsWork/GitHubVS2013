@@ -45,11 +45,5 @@ namespace PowerCalibration
         {
             this.Close();
         }
-
-        private void Form_EnterMeasurement_Load(object sender, EventArgs e)
-        {
-
-        }
-
     }
 }

@@ -20,7 +20,7 @@ namespace PowerCalibration
             CheckBoxManualMultiMeter.Checked = Properties.Settings.Default.Meter_Manual_Measurement;
             TextBoxMeterCOM.Text = Properties.Settings.Default.Meter_COM_Port_Name;
 
-            // Pupulate DIO controller types
+            // Populate DIO controller types
             comboBoxDIOCtrollerTypes.Items.Clear();
             Array relay_types = Enum.GetValues(typeof(RelayControler.Device_Types));
             foreach (RelayControler.Device_Types relay_type in relay_types)
@@ -103,7 +103,7 @@ namespace PowerCalibration
                 }
                 catch (Exception ex)
                 {
-                    string msg = string.Format("{0}\r\nTry unplugging and replugging the USB device ", ex.Message);
+                    string msg = string.Format("{0}\r\nTry unplugging and re-plugging the USB device ", ex.Message);
                     MessageBox.Show(msg);
                     comboBoxDIOCtrollerTypes.Text = "Manual";
                     setLineEnablement(false);
@@ -140,7 +140,7 @@ namespace PowerCalibration
             MouseHook.Stop();
 
             MouseHook.POINT p = new MouseHook.POINT();
-            MouseHook.GetCursorPos(out p);
+            MouseHook.SafeNativeMethods.GetCursorPos(out p);
         }
 
         private void comboBoxShortcutActions_SelectedIndexChanged(object sender, EventArgs e)

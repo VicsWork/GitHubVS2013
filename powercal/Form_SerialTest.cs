@@ -207,7 +207,7 @@ namespace PowerCalibration
             _serialPort.Parity = (Parity)Enum.Parse(typeof(Parity), this.comboBoxParity.Text);
             _serialPort.DataBits = Convert.ToInt32(this.textBoxdataBits.Text);
             _serialPort.StopBits = (StopBits)Enum.Parse(typeof(StopBits), this.comboBoxStopBits.Text);
-            _serialPort.DtrEnable = true;  // This needs to be set for the 34401A metter to get data from it.  We may be able to use it for doing sycronous comunications.
+            _serialPort.DtrEnable = true;  // This needs to be set for the 34401A meter to get data from it.  We may be able to use it for doing synchronous communications.
             _serialPort.DataReceived += _serialPort_DataReceived;
 
         }

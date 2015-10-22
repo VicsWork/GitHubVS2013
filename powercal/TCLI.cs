@@ -150,7 +150,7 @@ namespace PowerCalibration
             string msg = "";
             if (!data.Contains("pload"))
             {
-                msg = string.Format("Unable to get custum command output list from Ember.  Output was: {0}", data);
+                msg = string.Format("Unable to get custom command output list from Ember.  Output was: {0}", data);
                 throw new Exception(msg);
             }
 

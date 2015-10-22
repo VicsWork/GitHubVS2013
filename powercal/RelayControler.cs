@@ -14,12 +14,12 @@ namespace PowerCalibration
 {
 
     /// <summary>
-    /// Class to control the DIO lines connecte dto the different relays
+    /// Class to control the DIO lines connected to the different relays
     /// </summary>
     public class RelayControler
     {
         /// <summary>
-        /// Suported device types
+        /// Supported device types
         /// </summary>
         public enum Device_Types { Manual, NI_USB6008, FT232H };
 
@@ -59,7 +59,7 @@ namespace PowerCalibration
         private string _diclines_settings_file = "powercal.relaycontroller.diclines.xml";
 
         /// <summary>
-        /// Save the dictionaty lines settings
+        /// Save the dictionary lines settings
         /// </summary>
         public void DicLines_SaveSettings()
         {
@@ -101,7 +101,7 @@ namespace PowerCalibration
         }
 
         /// <summary>
-        /// Gets the lines dictinary
+        /// Gets the lines dictionary
         /// </summary>
         /// <returns></returns>
         public Dictionary<string, uint> DicLines_Get()
@@ -109,6 +109,12 @@ namespace PowerCalibration
             return _dic_lines;
         }
 
+        /// <summary>
+        /// Adds a line and its initial value to the dictionary
+        /// </summary>
+        /// <param name="key"></param>
+        /// <param name="line_num"></param>
+        /// <param name="init_value"></param>
         public void DicLines_AddLine(string key, uint line_num, bool init_value = false)
         {
             if (_dic_lines.ContainsKey(key))
@@ -157,16 +163,17 @@ namespace PowerCalibration
             _initDicLines();
         }
 
+        /// <summary>
+        /// Initializes the FT232H controller
+        /// </summary>
         private void initFT232H()
         {
             _ft232hdio = new FT232HDIO();
-            //_ft232hdio.ResetPort();
             _ftdi_dev_index = _ft232hdio.GetFirstDevIndex();
             if (_ftdi_dev_index < 0)
             {
                 throw new Exception("Unable to find an F232H device");
             }
-
         }
 
         /// <summary>
@@ -212,6 +219,7 @@ namespace PowerCalibration
             if (!_isOpened)
                 Open();
         }
+
         /// <summary>
         /// Inits the DIO to be the first port found
         /// </summary>
@@ -227,6 +235,10 @@ namespace PowerCalibration
             }
         }
 
+        /// <summary>
+        /// Writes to all lines the specified value
+        /// </summary>
+        /// <param name="value"></param>
         public void WriteAll(bool value)
         {
             foreach (string key in _dic_lines.Keys)
@@ -234,6 +246,7 @@ namespace PowerCalibration
                 WriteLine(key, value);
             }
         }
+
         /// <summary>
         /// Writes to the specified line name
         /// </summary>
@@ -360,18 +373,6 @@ namespace PowerCalibration
 
             Trace.TraceWarning("Unkown device");
             return false;
-
-        }
-
-        public byte ReadBus()
-        {
-            if (_dev_type == Device_Types.FT232H)
-            {
-                return _ft232hdio.ReadBus(_ftdi_bus);
-            }
-
-            Trace.TraceWarning("Unkown device");
-            return 0;
 
         }
 

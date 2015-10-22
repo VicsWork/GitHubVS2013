@@ -59,7 +59,7 @@ namespace PowerCalibration
         static string _app_data_dir = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.UserProfile), ".calibration");
 
         /// <summary>
-        /// Path to where the Ember programing batch file is created
+        /// Path to where the Ember programming batch file is created
         /// </summary>
         string _ember_batchfile_path = Path.Combine(_app_data_dir, "patchit.bat");
 
@@ -85,8 +85,6 @@ namespace PowerCalibration
         public Calibrate(BoardTypes boardtype, RelayControler relay_controller, TelnetConnection telnet_connection, MultiMeter meter)
         {
             BoardType = boardtype;
-            //_board_type = boardtype;
-            //set_board_calibration_values();
 
             _relay_ctrl = relay_controller;
             _telnet_connection = telnet_connection;
@@ -175,7 +173,7 @@ namespace PowerCalibration
             string cmd_prefix = TCLI.Get_Custom_Command_Prefix(_telnet_connection);
             TraceLogger.Log("cmd_prefix = " + cmd_prefix);
 
-            // Get UUT currect/voltage values
+            // Get UUT current/voltage values
             fire_run_status("Get UUT values");
             TCLI.Current_Voltage cv = TCLI.Parse_Pload_Registers(
                 _telnet_connection, cmd_prefix, _voltage_ac_reference, _current_ac_reference);
@@ -286,7 +284,7 @@ namespace PowerCalibration
             datain = _telnet_connection.Read();
             TraceLogger.Log(datain);
 
-            // Get UUT currect/voltage values
+            // Get UUT current/voltage values
             fire_run_status("Get UUT calibrated values");
             cv = TCLI.Parse_Pload_Registers(
                 _telnet_connection, cmd_prefix, _voltage_ac_reference, _current_ac_reference);
@@ -298,12 +296,6 @@ namespace PowerCalibration
             msg = string.Format("Cirrus I = {0:F8}, V = {1:F8}, P = {2:F8}", 
                 cv.Current, cv.Voltage, cv.Current * cv.Voltage);
             fire_status(msg);
-
-            // Disconnect Power
-            //_relay_ctrl.Open();
-            //_relay_ctrl.WriteLine(Relay_Lines.Power, false);
-            //_relay_ctrl.WriteLine(Relay_Lines.Ember, false);
-            //fire_relay_status();
 
             // Check calibration
             double delta = voltage_meter * 0.3;
@@ -354,7 +346,7 @@ namespace PowerCalibration
 
             if (meter_voltage < _voltage_ac_low_limit || meter_voltage > _voltage_ac_high_limit)
             {
-                msg = string.Format("Volatge AC is not within limits values: {0:F8} < {1:F8} < {2:F8}", _voltage_ac_low_limit, meter_voltage, _voltage_ac_high_limit);
+                msg = string.Format("Voltage AC is not within limits values: {0:F8} < {1:F8} < {2:F8}", _voltage_ac_low_limit, meter_voltage, _voltage_ac_high_limit);
                 TraceLogger.Log(msg);
                 throw new Exception(msg);
             }

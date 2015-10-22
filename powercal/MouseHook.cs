@@ -22,7 +22,7 @@ namespace PowerCalibration
         }
         public static void Stop()
         {
-            UnhookWindowsHookEx(_hookID);
+            SafeNativeMethods.UnhookWindowsHookEx(_hookID);
         }
 
         private static LowLevelMouseProc _proc = HookCallback;
@@ -34,7 +34,7 @@ namespace PowerCalibration
             using (ProcessModule curModule = curProcess.MainModule)
             {
                 return SetWindowsHookEx(WH_MOUSE_LL, proc,
-                  GetModuleHandle(curModule.ModuleName), 0);
+                  SafeNativeMethods.GetModuleHandle(curModule.ModuleName), 0);
             }
         }
 
@@ -48,15 +48,15 @@ namespace PowerCalibration
                 MSLLHOOKSTRUCT hookStruct = (MSLLHOOKSTRUCT)Marshal.PtrToStructure(lParam, typeof(MSLLHOOKSTRUCT));
                 MouseAction(null, new EventArgs());
             }
-            return CallNextHookEx(_hookID, nCode, wParam, lParam);
+            return SafeNativeMethods.CallNextHookEx(_hookID, nCode, wParam, lParam);
         }
 
 
         public static POINT GetCursorPosition()
         {
             POINT lpPoint;
-            GetCursorPos(out lpPoint);
-            //bool success = User32.GetCursorPos(out lpPoint);
+            SafeNativeMethods.GetCursorPos(out lpPoint);
+            // bool success = User32.GetCursorPos(out lpPoint);
             // if (!success)
 
             return lpPoint;
@@ -92,22 +92,25 @@ namespace PowerCalibration
         }
 
         [DllImport("user32.dll", CharSet = CharSet.Auto, SetLastError = true)]
-        private static extern IntPtr SetWindowsHookEx(int idHook,
+        static extern IntPtr SetWindowsHookEx(int idHook,
           LowLevelMouseProc lpfn, IntPtr hMod, uint dwThreadId);
 
-        [DllImport("user32.dll", CharSet = CharSet.Auto, SetLastError = true)]
-        [return: MarshalAs(UnmanagedType.Bool)]
-        private static extern bool UnhookWindowsHookEx(IntPtr hhk);
+        internal class SafeNativeMethods
+        {
+            [DllImport("user32.dll", CharSet = CharSet.Auto, SetLastError = true)]
+            [return: MarshalAs(UnmanagedType.Bool)]
+            internal static extern bool UnhookWindowsHookEx(IntPtr hhk);
 
-        [DllImport("user32.dll", CharSet = CharSet.Auto, SetLastError = true)]
-        private static extern IntPtr CallNextHookEx(IntPtr hhk, int nCode,
-          IntPtr wParam, IntPtr lParam);
+            [DllImport("user32.dll", CharSet = CharSet.Auto, SetLastError = true)]
+            internal static extern IntPtr CallNextHookEx(IntPtr hhk, int nCode,
+              IntPtr wParam, IntPtr lParam);
 
-        [DllImport("kernel32.dll", CharSet = CharSet.Auto, SetLastError = true)]
-        private static extern IntPtr GetModuleHandle(string lpModuleName);
+            [DllImport("kernel32.dll", CharSet = CharSet.Unicode, SetLastError = true)]
+            internal static extern IntPtr GetModuleHandle(string lpModuleName);
 
-        [DllImport("user32.dll")]
-        public static extern bool GetCursorPos(out POINT lpPoint);
+            [DllImport("user32.dll")]
+            internal static extern bool GetCursorPos(out POINT lpPoint);
+        }
 
     }
 }

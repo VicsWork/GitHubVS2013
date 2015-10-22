@@ -27,7 +27,7 @@ namespace PowerCalibration
         static void CurrentDomain_UnhandledException(object sender, UnhandledExceptionEventArgs e)
         {
 
-            Form_Exception dlg = new Form_Exception(title:"Unhadled UI Exception",
+            Form_Exception dlg = new Form_Exception(title:"Unhandled UI Exception",
                 message: (e.ExceptionObject as Exception).Message, detail: e.ExceptionObject.ToString());
             dlg.ShowDialog();
 
@@ -35,7 +35,7 @@ namespace PowerCalibration
 
         static void Application_ThreadException(object sender, System.Threading.ThreadExceptionEventArgs e)
         {
-            Form_Exception dlg = new Form_Exception(title:"Unhadled Thread Exception",
+            Form_Exception dlg = new Form_Exception(title:"Unhandled Thread Exception",
                 message: e.Exception.Message, detail: e.Exception.StackTrace.ToString());
             dlg.ShowDialog();
 

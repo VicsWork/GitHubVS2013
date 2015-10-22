@@ -15,7 +15,7 @@ namespace PowerCalibration
         RelayControler _relayCtrl = new RelayControler(RelayControler.Device_Types.NI_USB6008);
 
         /// <summary>
-        /// Class use to performe tests on DIO board
+        /// Class use to perform tests on DIO board
         /// </summary>
         public Form_NIDigitalPortTest()
         {
@@ -52,7 +52,7 @@ namespace PowerCalibration
         }
 
         /// <summary>
-        /// Gets the dev and ports avilable and updates combobox
+        /// Gets the dev and ports available and updates combo box
         /// </summary>
         void initPhysicalChannelComboBox()
         {
@@ -72,7 +72,7 @@ namespace PowerCalibration
         }
 
         /// <summary>
-        /// Reads the DIO lines and updates the corresponding numeric updown controls
+        /// Reads the DIO lines and updates the corresponding numeric up-down controls
         /// </summary>
         private void refreshNumericUpDownValue()
         {

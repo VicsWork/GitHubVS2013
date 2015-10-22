@@ -69,7 +69,7 @@ namespace PowerCalibration
         }
 
         /// <summary>
-        /// Handle data recieved
+        /// Handle data received
         /// </summary>
         /// <param name="sender"></param>
         /// <param name="e"></param>
@@ -207,7 +207,7 @@ namespace PowerCalibration
         }
 
         /// <summary>
-        /// Trigers meter and returns measurement
+        /// Triggers meter and returns measurement
         /// </summary>
         /// <returns>measurement</returns>
         public string Measure()
