@@ -371,13 +371,13 @@ namespace PowerCalibration
                 return _ft232hdio.ReadPin(_ftdi_bus, linenum);
             }
 
-            Trace.TraceWarning("Unkown device");
+            Trace.TraceWarning("Unknown device");
             return false;
 
         }
 
         /// <summary>
-        /// Returs the status of all lines
+        /// Returns the status of all lines
         /// </summary>
         /// <returns></returns>
         public string[] ToStrArray()
@@ -400,7 +400,7 @@ namespace PowerCalibration
         }
 
         /// <summary>
-        /// Retuns the status of all lines formated to display
+        /// Returns the status of all lines formatted to display
         /// </summary>
         /// <returns></returns>
         public string ToDlgText()
@@ -416,7 +416,7 @@ namespace PowerCalibration
         }
 
         /// <summary>
-        /// Returs the status of all lines as text
+        /// Returns the status of all lines as text
         /// </summary>
         /// <returns></returns>
         public string ToStatusText()

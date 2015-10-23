@@ -22,6 +22,9 @@ using System.ServiceModel.Description;
 
 using MinimalisticTelnet;
 
+using System.Data.SqlClient;
+using System.Data.SqlTypes;
+
 namespace PowerCalibration
 {
     enum BoardTypes { Hornshark, Mudshark, Humpback, Hooktooth, Milkshark, Zebrashark };
@@ -57,6 +60,11 @@ namespace PowerCalibration
         delegate void setTextColorCallback(string txt, Color forecolor, Color backcolor); // Set objects color
         delegate void setEnablementCallback(bool enable, bool isCoding);  // Set enablement
         delegate BoardTypes getSelectedBoardTypeCallback();
+
+        SqlConnectionStringBuilder _db_connect_str = new SqlConnectionStringBuilder(
+            "Data Source=A1040.centralite.com;Initial Catalog=PowerCalibration;Integrated Security=True");
+        Task _task_updatedb;
+        DataTable _datatable_calibrate;
 
 
         /// <summary>
@@ -133,11 +141,59 @@ namespace PowerCalibration
             _calibrate.Status_Event += calibrate_Status_event;
             _calibrate.Run_Status_Event += calibrate_Run_Status_Event;
             _calibrate.Relay_Event += calibrate_Relay_Event;
+            _calibrate.CalibrationResults_Event += _calibrate_CalibrationResults_Event;
 
             _pretest.Status_Event += _pretest_Status_Event;
 
             // Enable the app
             setEnablement(true, false);
+
+            createResulttable();
+
+            //CalibrationResultsEventArgs e = new CalibrationResultsEventArgs();
+            //e.Voltage_gain = 1111;
+            //e.Current_gain = 222;
+            //_calibrate_CalibrationResults_Event(this, e);
+
+        }
+
+        void createResulttable()
+        {
+            _datatable_calibrate = new DataTable("results");
+            _datatable_calibrate.Columns.Add("voltage_gain", typeof(SqlInt32));
+            _datatable_calibrate.Columns.Add("current_gain", typeof(SqlInt32));
+            //_datatable_calibrate.Columns.Add("mac", typeof(char[]));
+            //_datatable_calibrate.Columns.Add("timestamp", typeof(string));
+
+        }
+
+        void _calibrate_CalibrationResults_Event(object sender, CalibrationResultsEventArgs e)
+        {
+            DataRow r = _datatable_calibrate.NewRow();
+            r["voltage_gain"] = e.Voltage_gain;
+            r["current_gain"] = e.Current_gain;
+            //r["timestamp"] = e.timestamp;
+
+            lock (_datatable_calibrate)
+            {
+                _datatable_calibrate.Rows.Add(r);
+            }
+
+            if (_task_updatedb == null || _task_updatedb.Status != TaskStatus.Created)
+            {
+                _task_updatedb = new Task(updateDB);
+            }
+
+            if (_task_updatedb.Status != TaskStatus.Running)
+            {
+                _task_updatedb.Start();
+            }
+
+            if (_datatable_calibrate.Rows.Count > 10000)
+            {
+                _datatable_calibrate.Rows.Clear();
+            }
+
         }
 
         /// <summary>
@@ -886,14 +942,14 @@ namespace PowerCalibration
 
             if (meter_voltage_ac >= 1.0)
             {
-                msg = string.Format("AC volatge detected at {0:F8}, DC Voltage {1:F8}", meter_voltage_ac, meter_voltage_dc);
+                msg = string.Format("AC voltage detected at {0:F8}, DC Voltage {1:F8}", meter_voltage_ac, meter_voltage_dc);
                 TraceLogger.Log(msg);
                 throw new Exception(msg);
             }
 
             if (meter_voltage_dc < voltage_dc_low_limit || meter_voltage_dc > voltage_dc_high_limit)
             {
-                msg = string.Format("Volatge DC is not within limits values: {0:F8} < {1:F8} < {2:F8}", voltage_dc_low_limit, meter_voltage_dc, voltage_dc_high_limit);
+                msg = string.Format("Voltage DC is not within limits values: {0:F8} < {1:F8} < {2:F8}", voltage_dc_low_limit, meter_voltage_dc, voltage_dc_high_limit);
                 TraceLogger.Log(msg);
                 throw new Exception(msg);
             }
@@ -901,7 +957,7 @@ namespace PowerCalibration
 
         void power_off()
         {
-            // Trun power off
+            // Turn power off
             if (_relay_ctrl != null)
             {
                 _relay_ctrl.WriteLine(PowerCalibration.Relay_Lines.Ember, false);
@@ -957,8 +1013,8 @@ namespace PowerCalibration
             textBoxOutputStatus.Clear();
 
             // Clear toolstrip
-            toolStripStatusLabel.Text = "";
-            statusStrip1.Update();
+            toolStripTimingStatusLabel.Text = "";
+            statusStrip.Update();
 
             setRunStatusText("Start Pre-test");
             updateOutputStatus("Start Pre-test".PadBoth(80, '-'));
@@ -1064,7 +1120,7 @@ namespace PowerCalibration
         }
 
         /// <summary>
-        /// Handels when pretest is done
+        /// Handles when pretest is done
         /// </summary>
         /// <param name="task"></param>
         void pretest_done_handler(Task task)
@@ -1073,7 +1129,7 @@ namespace PowerCalibration
         }
 
         /// <summary>
-        /// Handlels when pretest throws an error
+        /// Handles when pretest throws an error
         /// </summary>
         /// <param name="task"></param>
         void pretest_exception_handler(Task task)
@@ -1208,9 +1264,9 @@ namespace PowerCalibration
                 _telnet_connection.Close();
             }
 
-            // Stop runing watch and report time lapse
+            // Stop running watch and report time lapse
             _stopwatch_running.Stop();
-            string elapsedTime = String.Format("Elaspsed time {0:00} seconds", _stopwatch_running.Elapsed.TotalSeconds);
+            string elapsedTime = String.Format("Elapsed time {0:00} seconds", _stopwatch_running.Elapsed.TotalSeconds);
             updateOutputStatus(elapsedTime);
 
             _stopwatch_running.Reset();
@@ -1225,7 +1281,7 @@ namespace PowerCalibration
         }
 
         /// <summary>
-        /// Handels when calibration is done
+        /// Handles when calibration is done
         /// </summary>
         /// <param name="task"></param>
         void calibration_done_handler(Task task)
@@ -1234,7 +1290,7 @@ namespace PowerCalibration
         }
 
         /// <summary>
-        /// Handlels when calibration throws an error
+        /// Handles when calibration throws an error
         /// </summary>
         /// <param name="task"></param>
         void calibrate_exception_handler(Task task)
@@ -1247,7 +1303,7 @@ namespace PowerCalibration
         }
 
         /// <summary>
-        /// Handels relay controller event
+        /// Handles relay controller event
         /// </summary>
         /// <param name="sender"></param>
         /// <param name="relay_controller"></param>
@@ -1267,7 +1323,7 @@ namespace PowerCalibration
         }
 
         /// <summary>
-        /// Handels calibration run status events
+        /// Handles calibration run status events
         /// </summary>
         /// <param name="sender"></param>
         /// <param name="status_txt"></param>
@@ -1285,16 +1341,44 @@ namespace PowerCalibration
         {
             if (_stopwatch_running.Elapsed.Ticks > 0)
             {
-                toolStripStatusLabel.Text = string.Format("Running {0:dd\\.hh\\:mm\\:ss}", _stopwatch_running.Elapsed);
+                toolStripTimingStatusLabel.Text = string.Format("Running {0:dd\\.hh\\:mm\\:ss}", _stopwatch_running.Elapsed);
             }
             else if (_stopwatch_idel.Elapsed.Ticks > 0)
             {
-                toolStripStatusLabel.Text = string.Format("Idel {0:dd\\.hh\\:mm\\:ss}", _stopwatch_idel.Elapsed);
+                toolStripTimingStatusLabel.Text = string.Format("Idel {0:dd\\.hh\\:mm\\:ss}", _stopwatch_idel.Elapsed);
             }
         }
 
+        void updateDB()
+        {
+            try
+            {
+                using (SqlBulkCopy bulkCopy = new SqlBulkCopy(_db_connect_str.ConnectionString, SqlBulkCopyOptions.KeepIdentity))
+                {
+                    bulkCopy.DestinationTableName = "Results";
+                    bulkCopy.ColumnMappings.Add("voltage_gain", "voltage_gain");
+                    bulkCopy.ColumnMappings.Add("current_gain", "current_gain");
+
+                    lock (_datatable_calibrate)
+                    {
+                        bulkCopy.WriteToServer(_datatable_calibrate);
+                        _datatable_calibrate.Rows.Clear();
+                    }
+
+                }
+
+            }
+            catch (Exception ex)
+            {
+                string t = "";
+            }
+
+
+        }
+
+
         /// <summary>
-        /// Handels when the form is shown
+        /// Handles when the form is shown
         /// </summary>
         /// <param name="sender"></param>
         /// <param name="e"></param>
@@ -1397,10 +1481,10 @@ namespace PowerCalibration
                 }
             }
 
-            // Stop runing watch and report time lapse
+            // Stop running watch and report time lapse
             _stopwatch_running.Stop();
             TimeSpan ts = _stopwatch_running.Elapsed;
-            string elapsedTime = String.Format("Elaspsed time {0:00} seconds", ts.TotalSeconds);
+            string elapsedTime = String.Format("Elapsed time {0:00} seconds", ts.TotalSeconds);
             updateOutputStatus(elapsedTime);
 
             _stopwatch_running.Reset();
@@ -1410,7 +1494,7 @@ namespace PowerCalibration
 
             updateOutputStatus("End Coding".PadBoth(80, '-'));
 
-            // Run calibration if eberything is OK
+            // Run calibration if everything is OK
             if (_calibrate_after_code && _coding_error_msg == null &&
                 !_coding_token_src_cancel.IsCancellationRequested)
             {

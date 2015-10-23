@@ -11,6 +11,12 @@ using MinimalisticTelnet;
 
 namespace PowerCalibration
 {
+    class CalibrationResultsEventArgs : EventArgs
+    {
+        public int Voltage_gain;
+        public int Current_gain;
+        public DateTime timestamp;
+    }
 
     class Calibrate
     {
@@ -22,6 +28,9 @@ namespace PowerCalibration
 
         public delegate void RunStatusHandler(object sender, string status_txt);
         public event RunStatusHandler Run_Status_Event;
+
+        public delegate void CalibrationResultsHandler(object sender, CalibrationResultsEventArgs e);
+        public event CalibrationResultsHandler CalibrationResults_Event;
 
         BoardTypes _board_type;
         RelayControler _relay_ctrl;
@@ -270,6 +279,13 @@ namespace PowerCalibration
             msg = string.Format("Voltage Gain = {0:F8} (0x{1:X})", voltage_gain, voltage_gain_int);
             fire_status(msg);
 
+            CalibrationResultsEventArgs args_results = new CalibrationResultsEventArgs();
+            args_results.timestamp = DateTime.Now;
+            args_results.Voltage_gain = voltage_gain_int;
+            args_results.Current_gain = current_gain_int;
+            fire_results_status(args_results);
+
+
             // Patch new gain
             fire_run_status("Patch Gain");
             msg = patch(voltage_gain_int, current_gain_int);
@@ -467,6 +483,14 @@ namespace PowerCalibration
             if (Relay_Event != null)
             {
                 Relay_Event(this, _relay_ctrl);
+            }
+        }
+
+        void fire_results_status(CalibrationResultsEventArgs e)
+        {
+            if (CalibrationResults_Event != null)
+            {
+                CalibrationResults_Event(this, e);
             }
         }
 
