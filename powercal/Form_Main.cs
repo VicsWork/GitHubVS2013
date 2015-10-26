@@ -163,7 +163,7 @@ namespace PowerCalibration
             _datatable_calibrate.Columns.Add("voltage_gain", typeof(SqlInt32));
             _datatable_calibrate.Columns.Add("current_gain", typeof(SqlInt32));
             //_datatable_calibrate.Columns.Add("mac", typeof(char[]));
-            //_datatable_calibrate.Columns.Add("timestamp", typeof(string));
+            _datatable_calibrate.Columns.Add("timestamp", typeof(SqlDateTime));
 
         }
 
@@ -172,7 +172,7 @@ namespace PowerCalibration
             DataRow r = _datatable_calibrate.NewRow();
             r["voltage_gain"] = e.Voltage_gain;
             r["current_gain"] = e.Current_gain;
-            //r["timestamp"] = e.timestamp;
+            r["timestamp"] = e.timestamp;
 
             lock (_datatable_calibrate)
             {
@@ -1356,8 +1356,10 @@ namespace PowerCalibration
                 using (SqlBulkCopy bulkCopy = new SqlBulkCopy(_db_connect_str.ConnectionString, SqlBulkCopyOptions.KeepIdentity))
                 {
                     bulkCopy.DestinationTableName = "Results";
+
                     bulkCopy.ColumnMappings.Add("voltage_gain", "voltage_gain");
                     bulkCopy.ColumnMappings.Add("current_gain", "current_gain");
+                    bulkCopy.ColumnMappings.Add("timestamp", "timestamp");
 
                     lock (_datatable_calibrate)
                     {
@@ -1368,9 +1370,9 @@ namespace PowerCalibration
                 }
 
             }
-            catch (Exception ex)
+            catch (Exception)
             {
-                string t = "";
+                toolStripGeneralStatusLabel.Text = string.Format("Unable to write to DB. {0:H:mm:ss}", DateTime.Now);
             }
 
 

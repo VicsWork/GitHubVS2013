@@ -246,13 +246,12 @@
             // toolStripGeneralStatusLabel
             // 
             this.toolStripGeneralStatusLabel.Name = "toolStripGeneralStatusLabel";
-            this.toolStripGeneralStatusLabel.Size = new System.Drawing.Size(95, 17);
-            this.toolStripGeneralStatusLabel.Text = "toolStripDBLabel";
+            this.toolStripGeneralStatusLabel.Size = new System.Drawing.Size(0, 17);
             // 
             // toolStripTimingStatusLabel
             // 
             this.toolStripTimingStatusLabel.Name = "toolStripTimingStatusLabel";
-            this.toolStripTimingStatusLabel.Size = new System.Drawing.Size(722, 17);
+            this.toolStripTimingStatusLabel.Size = new System.Drawing.Size(786, 17);
             this.toolStripTimingStatusLabel.Spring = true;
             this.toolStripTimingStatusLabel.TextAlign = System.Drawing.ContentAlignment.MiddleRight;
             // 
