@@ -141,14 +141,14 @@ namespace PowerCalibration
             _calibrate.Status_Event += calibrate_Status_event;
             _calibrate.Run_Status_Event += calibrate_Run_Status_Event;
             _calibrate.Relay_Event += calibrate_Relay_Event;
-            _calibrate.CalibrationResults_Event += _calibrate_CalibrationResults_Event;
+            _calibrate.CalibrationResults_Event += calibrationResults_Event;
 
             _pretest.Status_Event += _pretest_Status_Event;
 
             // Enable the app
             setEnablement(true, false);
 
-            createResulttable();
+            createResultTable();
 
             //CalibrationResultsEventArgs e = new CalibrationResultsEventArgs();
             //e.Voltage_gain = 1111;
@@ -157,7 +157,7 @@ namespace PowerCalibration
 
         }
 
-        void createResulttable()
+        void createResultTable()
         {
             _datatable_calibrate = new DataTable("results");
             _datatable_calibrate.Columns.Add("voltage_gain", typeof(SqlInt32));
@@ -167,7 +167,7 @@ namespace PowerCalibration
 
         }
 
-        void _calibrate_CalibrationResults_Event(object sender, CalibrationResultsEventArgs e)
+        void calibrationResults_Event(object sender, CalibrationResultsEventArgs e)
         {
             DataRow r = _datatable_calibrate.NewRow();
             r["voltage_gain"] = e.Voltage_gain;
@@ -194,6 +194,35 @@ namespace PowerCalibration
                 _datatable_calibrate.Rows.Clear();
             }
 
+        }
+
+        void updateDB()
+        {
+            try
+            {
+                using (SqlBulkCopy bulkCopy = new SqlBulkCopy(_db_connect_str.ConnectionString, SqlBulkCopyOptions.KeepIdentity))
+                {
+                    bulkCopy.DestinationTableName = "Results";
+
+                    bulkCopy.ColumnMappings.Add("voltage_gain", "voltage_gain");
+                    bulkCopy.ColumnMappings.Add("current_gain", "current_gain");
+                    bulkCopy.ColumnMappings.Add("timestamp", "timestamp");
+
+                    int n = 0;
+                    lock (_datatable_calibrate)
+                    {
+                        n = _datatable_calibrate.Rows.Count;
+                        bulkCopy.WriteToServer(_datatable_calibrate);
+                        _datatable_calibrate.Rows.Clear();
+                    }
+                    toolStripGeneralStatusLabel.Text = string.Format("DB {0}", n);
+                }
+
+            }
+            catch (Exception)
+            {
+                toolStripGeneralStatusLabel.Text = string.Format("Unable to write to DB. {0:H:mm:ss}", DateTime.Now);
+            }
         }
 
         /// <summary>
@@ -1348,36 +1377,6 @@ namespace PowerCalibration
                 toolStripTimingStatusLabel.Text = string.Format("Idel {0:dd\\.hh\\:mm\\:ss}", _stopwatch_idel.Elapsed);
             }
         }
-
-        void updateDB()
-        {
-            try
-            {
-                using (SqlBulkCopy bulkCopy = new SqlBulkCopy(_db_connect_str.ConnectionString, SqlBulkCopyOptions.KeepIdentity))
-                {
-                    bulkCopy.DestinationTableName = "Results";
-
-                    bulkCopy.ColumnMappings.Add("voltage_gain", "voltage_gain");
-                    bulkCopy.ColumnMappings.Add("current_gain", "current_gain");
-                    bulkCopy.ColumnMappings.Add("timestamp", "timestamp");
-
-                    lock (_datatable_calibrate)
-                    {
-                        bulkCopy.WriteToServer(_datatable_calibrate);
-                        _datatable_calibrate.Rows.Clear();
-                    }
-
-                }
-
-            }
-            catch (Exception)
-            {
-                toolStripGeneralStatusLabel.Text = string.Format("Unable to write to DB. {0:H:mm:ss}", DateTime.Now);
-            }
-
-
-        }
-
 
         /// <summary>
         /// Handles when the form is shown

@@ -26,6 +26,8 @@
                     _telnet_connection.Dispose();
                 if (_meter != null)
                     _meter.Dispose();
+                if (_task_updatedb != null)
+                    _task_updatedb.Dispose();
             }
 
             base.Dispose(disposing);

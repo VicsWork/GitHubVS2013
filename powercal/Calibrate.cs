@@ -72,13 +72,14 @@ namespace PowerCalibration
         /// </summary>
         string _ember_batchfile_path = Path.Combine(_app_data_dir, "patchit.bat");
 
-        public BoardTypes BoardType { 
-            get { return _board_type; } 
-            set 
-            { 
+        public BoardTypes BoardType
+        {
+            get { return _board_type; }
+            set
+            {
                 _board_type = value;
                 set_board_calibration_values();
-            } 
+            }
         }
 
         public double Voltage_Referencer { get { return _voltage_ac_reference; } }
@@ -184,21 +185,34 @@ namespace PowerCalibration
 
             // Get UUT current/voltage values
             fire_run_status("Get UUT values");
-            TCLI.Current_Voltage cv = TCLI.Parse_Pload_Registers(
-                _telnet_connection, cmd_prefix, _voltage_ac_reference, _current_ac_reference);
-            msg = string.Format("Cirrus I = {0:F8}, V = {1:F8}, P = {2:F8}", 
-                cv.Current, cv.Voltage, cv.Current * cv.Voltage);
-            TraceLogger.Log(msg);
-            cv = TCLI.Parse_Pload_Registers(
-                _telnet_connection, cmd_prefix, _voltage_ac_reference, _current_ac_reference);
-            msg = string.Format("Cirrus I = {0:F8}, V = {1:F8}, P = {2:F8}", 
-                cv.Current, cv.Voltage, cv.Current * cv.Voltage);
-            fire_status(msg);
 
-            if (cv.Voltage < _voltage_ac_low_limit || cv.Voltage > _voltage_ac_high_limit)
+            TCLI.Current_Voltage cv = new TCLI.Current_Voltage();
+            double power1 = 0.0, power2 = 0.0;
+            for (int i = 0; i < 10; i++)
+            {
+                cv = TCLI.Parse_Pload_Registers(
+                    _telnet_connection, cmd_prefix, _voltage_ac_reference, _current_ac_reference);
+
+                power1 = cv.Voltage * cv.Current;
+                double delta1 = Math.Abs((power2 - power1)*100 / power1);
+
+                msg = string.Format("Cirrus I = {0:F8}, V = {1:F8}, P = {2:F8}, D = {3:F8}",
+                    cv.Current, cv.Voltage, cv.Current * cv.Voltage, delta1);
+                fire_status(msg);
+                //TraceLogger.Log(msg);
+
+                if (delta1 != 100.0 && delta1 != 0.0 && delta1 < 1.0)
+                    break;
+
+                power2 = power1;
+                Thread.Sleep(250);
+            }
+
+            if (cv.Voltage < 100 || cv.Voltage > 260)
+            //if (cv.Voltage < _voltage_ac_low_limit || cv.Voltage > _voltage_ac_high_limit)
             {
                 msg = string.Format(
-                    "Cirrus voltage before calibration not within limit values: {0:F8} < {1:F8} < {2:F8}", 
+                    "Cirrus voltage before calibration not within limit values: {0:F8} < {1:F8} < {2:F8}",
                     _voltage_ac_low_limit, cv.Voltage, _voltage_ac_high_limit);
                 throw new Exception(msg);
             }
@@ -243,14 +257,12 @@ namespace PowerCalibration
                 _meter.CloseSerialPort();
                 voltage_meter = Double.Parse(voltage_meter_str);
             }
-            msg = string.Format("Meter V = {0:F8}", voltage_meter);
-            TraceLogger.Log(msg);
-
-            msg = string.Format("Meter I = {0:F8}, V = {1:F8}, P = {2:F8}", 
+            msg = string.Format("Meter I = {0:F8}, V = {1:F8}, P = {2:F8}",
                 current_meter, voltage_meter, current_meter * voltage_meter);
             fire_status(msg);
 
-            if (voltage_meter < _voltage_ac_low_limit || voltage_meter > _voltage_ac_high_limit)
+            if (voltage_meter < 100 || voltage_meter > 260)
+            //if (voltage_meter < _voltage_ac_low_limit || voltage_meter > _voltage_ac_high_limit)
             {
                 msg = string.Format(
                     "Meter voltage before calibration not within limit values: {0:F8} < {1:F8} < {2:F8}",
@@ -261,7 +273,7 @@ namespace PowerCalibration
             if (current_meter < 0.01 || current_meter > 1)
             {
                 //msg = string.Format("Meter current before calibration not within limit values: {0:F8} < {1:F8} < {2:F8}", _current_low_limit, current_meter, _current_high_limit);
-                msg = string.Format("Meter current before calibration not within limit values: {0:F8} < {1:F8} < {2:F8}", 
+                msg = string.Format("Meter current before calibration not within limit values: {0:F8} < {1:F8} < {2:F8}",
                     0.01, current_meter, 1);
                 throw new Exception(msg);
             }
@@ -304,12 +316,12 @@ namespace PowerCalibration
             fire_run_status("Get UUT calibrated values");
             cv = TCLI.Parse_Pload_Registers(
                 _telnet_connection, cmd_prefix, _voltage_ac_reference, _current_ac_reference);
-            msg = string.Format("Cirrus I = {0:F8}, V = {1:F8}, P = {2:F8}", 
+            msg = string.Format("Cirrus I = {0:F8}, V = {1:F8}, P = {2:F8}",
                 cv.Current, cv.Voltage, cv.Current * cv.Voltage);
             TraceLogger.Log(msg);
             cv = TCLI.Parse_Pload_Registers(
                 _telnet_connection, cmd_prefix, _voltage_ac_reference, _current_ac_reference);
-            msg = string.Format("Cirrus I = {0:F8}, V = {1:F8}, P = {2:F8}", 
+            msg = string.Format("Cirrus I = {0:F8}, V = {1:F8}, P = {2:F8}",
                 cv.Current, cv.Voltage, cv.Current * cv.Voltage);
             fire_status(msg);
 
@@ -320,7 +332,7 @@ namespace PowerCalibration
             if (cv.Voltage < low_limit || cv.Voltage > high_limit)
             {
                 msg = string.Format(
-                    "Voltage after calibration not within limit values: {0:F8} < {1:F8} < {2:F8}", 
+                    "Voltage after calibration not within limit values: {0:F8} < {1:F8} < {2:F8}",
                     low_limit, cv.Voltage, high_limit);
                 TraceLogger.Log(msg);
                 throw new Exception(msg);
@@ -331,7 +343,7 @@ namespace PowerCalibration
             if (cv.Current < low_limit || cv.Current > high_limit)
             {
                 msg = string.Format(
-                    "Current after calibration not within limit values: {0:F8} < {1:F8} < {2:F8}", 
+                    "Current after calibration not within limit values: {0:F8} < {1:F8} < {2:F8}",
                     low_limit, cv.Current, high_limit);
                 TraceLogger.Log(msg);
                 throw new Exception(msg);

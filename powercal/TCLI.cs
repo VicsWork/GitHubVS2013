@@ -37,7 +37,8 @@ namespace PowerCalibration
         /// <param name="telnet_connection">Already opened Telnet connection to the Ember</param>
         /// <param name="board_type">What board are we using</param>
         /// <returns>Current/Voltage structure values</returns>
-        public static Current_Voltage Parse_Pload_Registers(TelnetConnection telnet_connection, string cmd_prefix, double voltage_ac_reference, double current_ac_reference)
+        public static Current_Voltage Parse_Pload_Registers(
+            TelnetConnection telnet_connection, string cmd_prefix, double voltage_ac_reference, double current_ac_reference)
         {
             string rawCurrentPattern = "Raw IRMS: ([0-9,A-F]{8})";
             string rawVoltagePattern = "Raw VRMS: ([0-9,A-F]{8})";
