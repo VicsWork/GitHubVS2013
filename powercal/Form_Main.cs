@@ -61,8 +61,7 @@ namespace PowerCalibration
         delegate void setEnablementCallback(bool enable, bool isCoding);  // Set enablement
         delegate BoardTypes getSelectedBoardTypeCallback();
 
-        SqlConnectionStringBuilder _db_connect_str = new SqlConnectionStringBuilder(
-            "Data Source=A1040.centralite.com;Initial Catalog=PowerCalibration;Integrated Security=True");
+        SqlConnectionStringBuilder _db_connect_str;
         Task _task_updatedb;
         DataTable _datatable_calibrate;
 
@@ -148,12 +147,14 @@ namespace PowerCalibration
             // Enable the app
             setEnablement(true, false);
 
+            // Create the internal result data table
             createResultTable();
-
-            //CalibrationResultsEventArgs e = new CalibrationResultsEventArgs();
-            //e.Voltage_gain = 1111;
-            //e.Current_gain = 222;
-            //_calibrate_CalibrationResults_Event(this, e);
+            // Init the db connection string
+            _db_connect_str = new SqlConnectionStringBuilder();
+            _db_connect_str.DataSource = "A1040.centralite.com";
+            _db_connect_str.InitialCatalog = "PowerCalibration";
+            _db_connect_str.IntegratedSecurity = true;
+            //_db_connect_str.UserID = "tester";
 
         }
 
@@ -198,6 +199,7 @@ namespace PowerCalibration
 
         void updateDB()
         {
+            string msg = "";
             try
             {
                 using (SqlBulkCopy bulkCopy = new SqlBulkCopy(_db_connect_str.ConnectionString, SqlBulkCopyOptions.KeepIdentity))
@@ -208,21 +210,28 @@ namespace PowerCalibration
                     bulkCopy.ColumnMappings.Add("current_gain", "current_gain");
                     bulkCopy.ColumnMappings.Add("timestamp", "timestamp");
 
-                    int n = 0;
                     lock (_datatable_calibrate)
                     {
-                        n = _datatable_calibrate.Rows.Count;
                         bulkCopy.WriteToServer(_datatable_calibrate);
+                        msg = string.Format("Wrote {0} rows ({1:H:mm:ss})", _datatable_calibrate.Rows.Count, DateTime.Now);
                         _datatable_calibrate.Rows.Clear();
                     }
-                    toolStripGeneralStatusLabel.Text = string.Format("DB {0}", n);
                 }
 
             }
-            catch (Exception)
+            catch (Exception ex)
             {
-                toolStripGeneralStatusLabel.Text = string.Format("Unable to write to DB. {0:H:mm:ss}", DateTime.Now);
+                TraceLogger.Log("Database write error");
+                TraceLogger.Log(ex.Message);
+                msg = string.Format("Rows at {0} ({1:H:mm:ss})", _datatable_calibrate.Rows.Count, DateTime.Now);
+                TraceLogger.Log(msg);
             }
+
+            try
+            {
+                toolStripGeneralStatusLabel.Text = msg;
+            }
+            catch { };
         }
 
         /// <summary>
@@ -460,11 +469,11 @@ namespace PowerCalibration
         /// Sets the run status text
         /// </summary>
         /// <param name="text"></param>
-        void setRunStatusText(string text)
+        void setRunStatus(string text)
         {
             if (this.textBoxRunStatus.InvokeRequired)
             {
-                setTextCallback d = new setTextCallback(setRunStatusText);
+                setTextCallback d = new setTextCallback(setRunStatus);
                 this.Invoke(d, new object[] { text });
             }
             else
@@ -480,11 +489,11 @@ namespace PowerCalibration
         /// <param name="text"></param>
         /// <param name="forecolor"></param>
         /// <param name="backcolor"></param>
-        void setRunStatusTextColor(string text, Color forecolor, Color backcolor)
+        void setRunStatus(string text, Color forecolor, Color backcolor)
         {
             if (this.textBoxRunStatus.InvokeRequired)
             {
-                setTextColorCallback d = new setTextColorCallback(setRunStatusTextColor);
+                setTextColorCallback d = new setTextColorCallback(setRunStatus);
                 this.Invoke(d, new object[] { text, forecolor, backcolor });
             }
             else
@@ -502,7 +511,7 @@ namespace PowerCalibration
         /// <param name="txt"></param>
         void updateRunStatus(string txt)
         {
-            setRunStatusText(txt);
+            setRunStatus(txt);
             setOutputStatus(txt);
         }
 
@@ -514,7 +523,7 @@ namespace PowerCalibration
         /// <param name="backcolor"></param>
         void updateRunStatus(string txt, Color forecolor, Color backcolor)
         {
-            setRunStatusTextColor(txt, forecolor, backcolor);
+            setRunStatus(txt, forecolor, backcolor);
             setOutputStatus(txt);
         }
 
@@ -923,7 +932,7 @@ namespace PowerCalibration
                 vdc = Double.Parse(voltage_meter_str);
                 if (vdc < 1.0)
                     break;
-                if (n > 10)
+                if (n++ > 10)
                 {
                     _meter.CloseSerialPort();
                     msg = string.Format("Warning DC voltage detected after power off. VDC = {0:F8}", vdc);
@@ -1045,7 +1054,7 @@ namespace PowerCalibration
             toolStripTimingStatusLabel.Text = "";
             statusStrip.Update();
 
-            setRunStatusText("Start Pre-test");
+            setRunStatus("Start Pre-test", Color.Black, Color.White);
             updateOutputStatus("Start Pre-test".PadBoth(80, '-'));
 
             // Clear the error
@@ -1053,11 +1062,23 @@ namespace PowerCalibration
             _coding_error_msg = null;
             _calibration_error_msg = null;
 
+            // Init the meter object
+            if (Properties.Settings.Default.Meter_Manual_Measurement)
+                _meter = null;
+            else
+                _meter = new MultiMeter(Properties.Settings.Default.Meter_COM_Port_Name);
+
             _relay_ctrl.WriteLine(Relay_Lines.Ember, false);
             _relay_ctrl.WriteLine(Relay_Lines.Load, false);
             _relay_ctrl.WriteLine(Relay_Lines.Power, true);
 
             Thread.Sleep(1000);
+
+
+            _pretest.MultiMeter = _meter;
+            _pretest.RelayController = _relay_ctrl;
+            _pretest.Voltage_DC_High_Limit = 3.3 + 0.33;
+            _pretest.Voltage_DC_Low_Limit = 3.3 - 0.33;
 
             Task task_pretest = new Task(_pretest.Verify_Voltage);
             task_pretest.ContinueWith(pretest_done_handler, TaskContinuationOptions.OnlyOnRanToCompletion);
@@ -1085,9 +1106,8 @@ namespace PowerCalibration
                 power_off();
 
                 updateRunStatus("FAIL", Color.White, Color.Red);
-                updateOutputStatus(_calibration_error_msg);
+                updateOutputStatus(_pretest_error_msg);
             }
-            relaysSet();
 
             _stopwatch_running.Stop();
             string elapsedTime = String.Format("Elaspsed time {0:00} seconds", _stopwatch_running.Elapsed.TotalSeconds);
@@ -1095,8 +1115,11 @@ namespace PowerCalibration
             updateOutputStatus("End Pre-test".PadBoth(80, '-'));
 
             if (_pretest_error_msg != null)
+            {
+                _stopwatch_idel.Restart();
+                setEnablement(true, false);
                 return;
-
+            }
 
             try
             {
@@ -1105,18 +1128,12 @@ namespace PowerCalibration
                 // Init the calibrate object so we can get dv voltage limits
                 _calibrate.BoardType = getSelectedBoardType();
 
-                // Init the meter object
-                if (Properties.Settings.Default.Meter_Manual_Measurement)
-                    _meter = null;
-                else
-                    _meter = new MultiMeter(Properties.Settings.Default.Meter_COM_Port_Name);
-
                 if (_next_task == TaskTypes.Code)
                 {
                     // Init coder
                     Coder coder = new Coder(new TimeSpan(0, 2, 0));
 
-                    setRunStatusText("Start Coding");
+                    setRunStatus("Start Coding", Color.Black, Color.White);
                     updateOutputStatus("Start Coding".PadBoth(80, '-'));
                     // Run coding
                     _coding_token_src_cancel = new CancellationTokenSource();
@@ -1233,7 +1250,7 @@ namespace PowerCalibration
             {
                 // We are in code+calibrate mode
                 // Reset device 
-                setRunStatusText("Reset UUT");
+                setRunStatus("Reset UUT");
                 _relay_ctrl.WriteLine(Relay_Lines.Power, false);
                 Thread.Sleep(250);
                 _relay_ctrl.WriteLine(Relay_Lines.Power, true);
@@ -1242,7 +1259,7 @@ namespace PowerCalibration
             // Connect the load
             _relay_ctrl.WriteLine(Relay_Lines.Load, true);
 
-            setRunStatusText("Start Calibration");
+            setRunStatus("Start Calibration", Color.Black, Color.White);
             updateOutputStatus("Start Calibration".PadBoth(80, '-'));
             relaysSet();
 

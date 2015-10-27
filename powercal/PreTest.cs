@@ -23,7 +23,10 @@ namespace PowerCalibration
         public void Verify_Voltage()
         {
             if (_meter == null)
+            {
+                fire_status("Unable to verify voltage.  Meter not specified");
                 return;
+            }
 
             if (_relay_ctrl != null && _relay_ctrl.Device_Type != RelayControler.Device_Types.Manual)
                 _relay_ctrl.WriteLine(Relay_Lines.Voltmeter, true);  // DC
