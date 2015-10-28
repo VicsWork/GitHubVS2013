@@ -64,6 +64,7 @@ namespace PowerCalibration
         SqlConnectionStringBuilder _db_connect_str;
         Task _task_updatedb;
         DataTable _datatable_calibrate;
+        uint _db_total_written = 0;
 
 
         /// <summary>
@@ -213,7 +214,12 @@ namespace PowerCalibration
                     lock (_datatable_calibrate)
                     {
                         bulkCopy.WriteToServer(_datatable_calibrate);
-                        msg = string.Format("Wrote {0} rows ({1:H:mm:ss})", _datatable_calibrate.Rows.Count, DateTime.Now);
+
+                        _db_total_written += (uint)_datatable_calibrate.Rows.Count;
+
+                        msg = string.Format("{0}W/{1}T {2:H:mm:ss}",
+                            _datatable_calibrate.Rows.Count, _db_total_written, DateTime.Now);
+
                         _datatable_calibrate.Rows.Clear();
                     }
                 }
@@ -223,7 +229,8 @@ namespace PowerCalibration
             {
                 TraceLogger.Log("Database write error");
                 TraceLogger.Log(ex.Message);
-                msg = string.Format("Rows at {0} ({1:H:mm:ss})", _datatable_calibrate.Rows.Count, DateTime.Now);
+                msg = string.Format("{0}F/{1}T {2:H:mm:ss}",
+                    _datatable_calibrate.Rows.Count, _db_total_written, DateTime.Now);
                 TraceLogger.Log(msg);
             }
 
@@ -267,7 +274,8 @@ namespace PowerCalibration
                 dlg.ShowDialog();
 
             }
-            _relay_ctrl.WriteAll(false);
+            //_relay_ctrl.WriteAll(false);
+            _relay_ctrl.Close();
         }
 
         void initRelayController_Lines()
@@ -717,6 +725,7 @@ namespace PowerCalibration
 
 
                 power_meter_dlg.ShowDialog();
+                _relay_ctrl.Close();
             }
             catch (Exception)
             {
@@ -724,9 +733,11 @@ namespace PowerCalibration
             }
             finally
             {
+                _relay_ctrl.Open();
                 _relay_ctrl.WriteLine(Relay_Lines.Power, false);
                 _relay_ctrl.WriteLine(Relay_Lines.Ember, false);
                 _relay_ctrl.WriteLine(Relay_Lines.Load, false);
+                _relay_ctrl.Close();
             }
         }
 
@@ -753,10 +764,22 @@ namespace PowerCalibration
                 RelayControler.Device_Types rdevtype = (RelayControler.Device_Types)Enum.Parse(
                     typeof(RelayControler.Device_Types), Properties.Settings.Default.Relay_Controller_Type);
                 _relay_ctrl = new RelayControler(rdevtype);
-                _relay_ctrl.Open();
             }
-            Form_FT232H_DIO_Test dlg = new Form_FT232H_DIO_Test(_relay_ctrl);
-            dlg.Show();
+
+            try
+            {
+                _relay_ctrl.Open();
+                Form_FT232H_DIO_Test dlg = new Form_FT232H_DIO_Test(_relay_ctrl);
+                dlg.ShowDialog();
+            }
+            catch
+            {
+                throw;
+            }
+            finally
+            {
+                _relay_ctrl.Close();
+            }
         }
 
         /// <summary>
@@ -878,10 +901,18 @@ namespace PowerCalibration
         /// <param name="e"></param>
         private void FormMain_FormClosing(object sender, FormClosingEventArgs e)
         {
-            if (_relay_ctrl != null && _relay_ctrl.IsOpened)
+            if (_relay_ctrl != null)
             {
-                _relay_ctrl.WriteAll(false);
-                _relay_ctrl.Close();
+                try
+                {
+                    _relay_ctrl.Open();
+                }
+                catch { }
+                finally
+                {
+                    _relay_ctrl.WriteAll(false);
+                    _relay_ctrl.Close();
+                }
             }
 
             Trace.Flush();
@@ -1002,6 +1033,7 @@ namespace PowerCalibration
                 _relay_ctrl.WriteLine(PowerCalibration.Relay_Lines.Power, false);
                 _relay_ctrl.WriteLine(PowerCalibration.Relay_Lines.Load, false);
                 relaysSet();
+                _relay_ctrl.Close();
             }
 
             // Wait for power off
@@ -1068,6 +1100,7 @@ namespace PowerCalibration
             else
                 _meter = new MultiMeter(Properties.Settings.Default.Meter_COM_Port_Name);
 
+            _relay_ctrl.Open();
             _relay_ctrl.WriteLine(Relay_Lines.Ember, false);
             _relay_ctrl.WriteLine(Relay_Lines.Load, false);
             _relay_ctrl.WriteLine(Relay_Lines.Power, true);

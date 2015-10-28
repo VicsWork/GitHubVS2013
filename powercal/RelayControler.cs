@@ -195,6 +195,14 @@ namespace PowerCalibration
             if (_dev_type == Device_Types.FT232H)
             {
                 _ft232hdio.Open((uint)_ftdi_dev_index);
+                // Open functions resets device
+                // Re-set line state
+                foreach (string key in _dic_lines.Keys)
+                {
+                    uint pin = _dic_lines[key];
+                    bool value = _dic_values[key];
+                    _ft232hdio.SetPin(_ftdi_bus, pin, value);
+                }
             }
             _isOpened = true;
         }

@@ -66,6 +66,7 @@ namespace PowerCalibration
         private void buttonAllOff_Click(object sender, EventArgs e)
         {
             _relayCtrl.WriteAll(false);
+
             updateLineValues();
         }
 
