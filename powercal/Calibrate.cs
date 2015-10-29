@@ -194,7 +194,9 @@ namespace PowerCalibration
                     _telnet_connection, cmd_prefix, _voltage_ac_reference, _current_ac_reference);
 
                 power1 = cv.Voltage * cv.Current;
-                double delta1 = Math.Abs((power2 - power1)*100 / power1);
+                double delta1 = 100;
+                if(power1 != 0)
+                    delta1 = Math.Abs((power2 - power1) * 100 / power1);
 
                 msg = string.Format("Cirrus I = {0:F8}, V = {1:F8}, P = {2:F8}, D = {3:F8}",
                     cv.Current, cv.Voltage, cv.Current * cv.Voltage, delta1);

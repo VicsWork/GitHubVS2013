@@ -65,6 +65,7 @@ namespace PowerCalibration
         Task _task_updatedb;
         DataTable _datatable_calibrate;
         uint _db_total_written = 0;
+        int _machine_id = -1;
 
 
         /// <summary>
@@ -156,14 +157,25 @@ namespace PowerCalibration
             _db_connect_str.InitialCatalog = "PowerCalibration";
             _db_connect_str.IntegratedSecurity = true;
 
+            // get machine id
+            DB.ConnectionSB = _db_connect_str;
+            Task task_id = new Task(setMachineID);
+            task_id.Start();
 
-            CalibrationResultsEventArgs e = new CalibrationResultsEventArgs();
-            e.Current_gain = 1;
-            e.Voltage_gain = 2;
-            e.timestamp = DateTime.Now;
+            //CalibrationResultsEventArgs e = new CalibrationResultsEventArgs();
+            //e.Current_gain = 1;
+            //e.Voltage_gain = 2;
+            //e.timestamp = DateTime.Now;
             //calibrationResults_Event(this, e);
 
         }
+
+        void setMachineID()
+        {
+            DB.ConnectionSB = _db_connect_str;
+            _machine_id = DB.getMachineID();
+        }
+
 
         void createResultTable()
         {
@@ -207,20 +219,23 @@ namespace PowerCalibration
 
         void updateDB()
         {
-            try
-            {
-                SqlConnection con = new SqlConnection(_db_connect_str.ConnectionString);
-                con.Open();
-                SqlCommand cmd = new SqlCommand(string.Format("insert into machines (name) values ('{0}')", Environment.MachineName));
-                int n = cmd.ExecuteNonQuery();
-                //SqlDataReader reader = cmd.ExecuteReader();
-                //reader.GetFieldValue<int
-            }
-            catch { }
-
             string msg = "";
+
+
+            if (_machine_id < 0)
+                setMachineID();
+
             try
             {
+                // Update result table with 
+                if (_machine_id >= 0)
+                {
+                    foreach (DataRow r in _datatable_calibrate.Rows)
+                    {
+                        r["machine_id"] = _machine_id;
+                    }
+                }
+
                 using (SqlBulkCopy bulkCopy = new SqlBulkCopy(_db_connect_str.ConnectionString, SqlBulkCopyOptions.KeepIdentity))
                 {
                     bulkCopy.DestinationTableName = "Results";
@@ -228,6 +243,7 @@ namespace PowerCalibration
                     bulkCopy.ColumnMappings.Add("voltage_gain", "voltage_gain");
                     bulkCopy.ColumnMappings.Add("current_gain", "current_gain");
                     bulkCopy.ColumnMappings.Add("timestamp", "timestamp");
+                    bulkCopy.ColumnMappings.Add("machine_id", "machine_id");
 
                     lock (_datatable_calibrate)
                     {
@@ -1174,6 +1190,7 @@ namespace PowerCalibration
 
             try
             {
+                _stopwatch_idel.Reset();
                 _stopwatch_running.Restart();
 
                 // Init the calibrate object so we can get dv voltage limits
@@ -1273,6 +1290,10 @@ namespace PowerCalibration
 
         void calibrate()
         {
+            // Start the watches
+            _stopwatch_idel.Reset();
+            _stopwatch_running.Restart();
+
             // Check to see if Ember is to be used as USB and open ISA channel if so
             // Also set the box address
             Ember.Interfaces ember_interface = (Ember.Interfaces)Enum.Parse(
@@ -1541,6 +1562,7 @@ namespace PowerCalibration
                     _relay_ctrl.WriteLine(PowerCalibration.Relay_Lines.Ember, false);
                     _relay_ctrl.WriteLine(PowerCalibration.Relay_Lines.Power, false);
                     relaysSet();
+                    _relay_ctrl.Close();
                 }
 
                 if (_meter != null)
