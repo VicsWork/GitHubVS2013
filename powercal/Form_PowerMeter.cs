@@ -34,7 +34,14 @@ namespace PowerCalibration
 
         public delegate void CLIValueHandler(object sender, CLIPowerArgsEventArgrs e);
         public event CLIValueHandler CLIValue_Event;
-        delegate void SetTextCallback(CLIPowerArgsEventArgrs args);
+
+        public delegate void CLIErrorHandler(object sender, string text);
+        public event CLIErrorHandler CLIError_Event;
+
+        delegate void setCLIPowerTextCallback(CLIPowerArgsEventArgrs args);
+        delegate void setCLIErrorTextCallback(string text);
+
+        delegate void setErrorVisibilityCallback(bool visible);
 
         CancellationTokenSource _tokenSrc = new CancellationTokenSource();
         Task _task;
@@ -71,21 +78,48 @@ namespace PowerCalibration
             _uut_current_reference = uut_current_reference;
 
             this.CLIValue_Event += Form_PowerMeter_CLIValue_Event;
+            this.CLIError_Event += Form_PowerMeter_CLIError_Event;
+
+            setErrorVisibility(false);
         }
 
-        void Form_PowerMeter_CLIValue_Event(object sender, CLIPowerArgsEventArgrs args)
+        void Form_PowerMeter_CLIError_Event(object sender, string text)
         {
-            setCLIText(args);
+            setCLIErrorText(text);
         }
 
-        void setCLIText(CLIPowerArgsEventArgrs args)
+        void setCLIErrorText(string text)
         {
             if (_tokenSrc.IsCancellationRequested)
                 return;
 
             if (this.InvokeRequired)
             {
-                SetTextCallback d = new SetTextCallback(setCLIText);
+                setCLIErrorTextCallback d = new setCLIErrorTextCallback(setCLIErrorText);
+                this.Invoke(d, new object[] { text });
+            }
+            else
+            {
+                setErrorVisibility(true);
+                textBoxUUTError.Text = text;
+            }
+
+            setCLIPowerText( new CLIPowerArgsEventArgrs(0.0, 0.0));
+        }
+
+        void Form_PowerMeter_CLIValue_Event(object sender, CLIPowerArgsEventArgrs args)
+        {
+            setCLIPowerText(args);
+        }
+
+        void setCLIPowerText(CLIPowerArgsEventArgrs args)
+        {
+            if (_tokenSrc.IsCancellationRequested)
+                return;
+
+            if (this.InvokeRequired)
+            {
+                setCLIPowerTextCallback d = new setCLIPowerTextCallback(setCLIPowerText);
                 this.Invoke(d, new object[] { args });
             }
             else
@@ -96,8 +130,20 @@ namespace PowerCalibration
             }
         }
 
-        void buttonStartCS_Click(object sender, EventArgs e)
+        void setErrorVisibility(bool visible)
         {
+            if (_tokenSrc.IsCancellationRequested)
+                return;
+
+            if (this.InvokeRequired)
+            {
+                setErrorVisibilityCallback d = new setErrorVisibilityCallback(setErrorVisibility);
+                this.Invoke(d, new object[] { visible });
+            }
+            else
+            {
+                textBoxUUTError.Visible = visible;
+            }
         }
 
         void readCLIValues(CancellationToken ct)
@@ -112,15 +158,24 @@ namespace PowerCalibration
                     TCLI.Current_Voltage cv = get_uut_data(_uut_voltage_reference, _uut_current_reference);
                     if (CLIValue_Event != null)
                     {
-
+                        setErrorVisibility(false);
                         CLIValue_Event(this, 
                             new CLIPowerArgsEventArgrs(cv.Voltage, cv.Current));
                     }
                 }
-                catch (Exception)
+                catch (Exception ex)
                 {
                     if (!ct.IsCancellationRequested)
-                        throw;
+                    {
+                        if (CLIError_Event != null)
+                        {
+                            CLIError_Event(this, ex.Message);
+                        }
+                        else
+                        {
+                            throw;
+                        }
+                    }
                 }
             }
         }

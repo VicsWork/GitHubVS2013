@@ -155,7 +155,13 @@ namespace PowerCalibration
             _db_connect_str.DataSource = "A1040.centralite.com";
             _db_connect_str.InitialCatalog = "PowerCalibration";
             _db_connect_str.IntegratedSecurity = true;
-            //_db_connect_str.UserID = "tester";
+
+
+            CalibrationResultsEventArgs e = new CalibrationResultsEventArgs();
+            e.Current_gain = 1;
+            e.Voltage_gain = 2;
+            e.timestamp = DateTime.Now;
+            //calibrationResults_Event(this, e);
 
         }
 
@@ -166,6 +172,7 @@ namespace PowerCalibration
             _datatable_calibrate.Columns.Add("current_gain", typeof(SqlInt32));
             //_datatable_calibrate.Columns.Add("mac", typeof(char[]));
             _datatable_calibrate.Columns.Add("timestamp", typeof(SqlDateTime));
+            _datatable_calibrate.Columns.Add("machine_id", typeof(SqlInt32));
 
         }
 
@@ -200,6 +207,17 @@ namespace PowerCalibration
 
         void updateDB()
         {
+            try
+            {
+                SqlConnection con = new SqlConnection(_db_connect_str.ConnectionString);
+                con.Open();
+                SqlCommand cmd = new SqlCommand(string.Format("insert into machines (name) values ('{0}')", Environment.MachineName));
+                int n = cmd.ExecuteNonQuery();
+                //SqlDataReader reader = cmd.ExecuteReader();
+                //reader.GetFieldValue<int
+            }
+            catch { }
+
             string msg = "";
             try
             {

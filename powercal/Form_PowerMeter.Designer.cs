@@ -47,6 +47,7 @@
             this.label2 = new System.Windows.Forms.Label();
             this.labelVoltageUUT = new System.Windows.Forms.Label();
             this.label1 = new System.Windows.Forms.Label();
+            this.textBoxUUTError = new System.Windows.Forms.TextBox();
             this.groupBox1.SuspendLayout();
             this.SuspendLayout();
             // 
@@ -68,6 +69,7 @@
             // 
             // groupBox1
             // 
+            this.groupBox1.Controls.Add(this.textBoxUUTError);
             this.groupBox1.Controls.Add(this.labelCurrentUUT);
             this.groupBox1.Controls.Add(this.label2);
             this.groupBox1.Controls.Add(this.labelVoltageUUT);
@@ -75,10 +77,10 @@
             this.groupBox1.Controls.Add(this.labelPowerUUT);
             this.groupBox1.Location = new System.Drawing.Point(12, 12);
             this.groupBox1.Name = "groupBox1";
-            this.groupBox1.Size = new System.Drawing.Size(200, 174);
+            this.groupBox1.Size = new System.Drawing.Size(200, 179);
             this.groupBox1.TabIndex = 0;
             this.groupBox1.TabStop = false;
-            this.groupBox1.Text = "UUT";
+            this.groupBox1.Text = "UUT Power";
             // 
             // labelCurrentUUT
             // 
@@ -120,6 +122,18 @@
             this.label1.TabIndex = 1;
             this.label1.Text = "Voltage: ";
             // 
+            // textBoxUUTError
+            // 
+            this.textBoxUUTError.BorderStyle = System.Windows.Forms.BorderStyle.None;
+            this.textBoxUUTError.Enabled = false;
+            this.textBoxUUTError.ForeColor = System.Drawing.Color.Red;
+            this.textBoxUUTError.Location = new System.Drawing.Point(6, 136);
+            this.textBoxUUTError.Multiline = true;
+            this.textBoxUUTError.Name = "textBoxUUTError";
+            this.textBoxUUTError.ReadOnly = true;
+            this.textBoxUUTError.Size = new System.Drawing.Size(188, 32);
+            this.textBoxUUTError.TabIndex = 5;
+            // 
             // Form_PowerMeter
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
@@ -146,5 +160,6 @@
         private System.Windows.Forms.Label label2;
         private System.Windows.Forms.Label labelVoltageUUT;
         private System.Windows.Forms.Label label1;
+        private System.Windows.Forms.TextBox textBoxUUTError;
     }
 }

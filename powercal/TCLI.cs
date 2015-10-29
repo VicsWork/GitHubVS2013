@@ -45,7 +45,8 @@ namespace PowerCalibration
             double current_cs = 0.0;
             double voltage_cs = 0.0;
 
-            telnet_connection.WriteLine(string.Format("cu {0}_pload", cmd_prefix));
+            string cmd = string.Format("cu {0}_pload", cmd_prefix);
+            telnet_connection.WriteLine(cmd);
             Thread.Sleep(500);
             string datain = telnet_connection.Read();
             Trace.WriteLine(datain);
@@ -84,6 +85,11 @@ namespace PowerCalibration
                 voltage_cs = RegHex_ToDouble(volatge_int);
                 voltage_cs = voltage_cs * voltage_ac_reference / 0.6;
 
+            }
+            else
+            {
+                msg = string.Format("No data received after \"{0}\" command", cmd);
+                throw new Exception(msg);
             }
 
             Current_Voltage current_voltage = new Current_Voltage(i: current_cs, v: voltage_cs);
