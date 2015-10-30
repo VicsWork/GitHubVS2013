@@ -43,13 +43,13 @@
             this.textBoxMessage.Name = "textBoxMessage";
             this.textBoxMessage.ReadOnly = true;
             this.textBoxMessage.ScrollBars = System.Windows.Forms.ScrollBars.Vertical;
-            this.textBoxMessage.Size = new System.Drawing.Size(631, 48);
+            this.textBoxMessage.Size = new System.Drawing.Size(719, 48);
             this.textBoxMessage.TabIndex = 0;
             // 
             // buttonMore
             // 
             this.buttonMore.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
-            this.buttonMore.Location = new System.Drawing.Point(569, 67);
+            this.buttonMore.Location = new System.Drawing.Point(657, 67);
             this.buttonMore.Name = "buttonMore";
             this.buttonMore.Size = new System.Drawing.Size(75, 23);
             this.buttonMore.TabIndex = 1;
@@ -59,12 +59,15 @@
             // 
             // textBoxDetail
             // 
+            this.textBoxDetail.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
+            | System.Windows.Forms.AnchorStyles.Left) 
+            | System.Windows.Forms.AnchorStyles.Right)));
             this.textBoxDetail.Location = new System.Drawing.Point(13, 96);
             this.textBoxDetail.Multiline = true;
             this.textBoxDetail.Name = "textBoxDetail";
             this.textBoxDetail.ReadOnly = true;
             this.textBoxDetail.ScrollBars = System.Windows.Forms.ScrollBars.Both;
-            this.textBoxDetail.Size = new System.Drawing.Size(631, 321);
+            this.textBoxDetail.Size = new System.Drawing.Size(719, 354);
             this.textBoxDetail.TabIndex = 2;
             this.textBoxDetail.WordWrap = false;
             // 
@@ -82,10 +85,9 @@
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.AutoSize = true;
             this.AutoSizeMode = System.Windows.Forms.AutoSizeMode.GrowAndShrink;
             this.CancelButton = this.buttonOK;
-            this.ClientSize = new System.Drawing.Size(656, 420);
+            this.ClientSize = new System.Drawing.Size(744, 453);
             this.Controls.Add(this.buttonOK);
             this.Controls.Add(this.textBoxDetail);
             this.Controls.Add(this.buttonMore);

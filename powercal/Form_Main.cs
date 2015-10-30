@@ -767,7 +767,7 @@ namespace PowerCalibration
             }
             finally
             {
-                _relay_ctrl.Open();
+                _relay_ctrl.OpenIfClosed();
                 _relay_ctrl.WriteLine(Relay_Lines.Power, false);
                 _relay_ctrl.WriteLine(Relay_Lines.Ember, false);
                 _relay_ctrl.WriteLine(Relay_Lines.Load, false);
