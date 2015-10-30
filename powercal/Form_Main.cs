@@ -159,7 +159,7 @@ namespace PowerCalibration
 
             // get machine id
             DB.ConnectionSB = _db_connect_str;
-            Task task_id = new Task(setMachineID);
+            Task task_id = new Task<int>(getMachineID);
             task_id.Start();
 
             //CalibrationResultsEventArgs e = new CalibrationResultsEventArgs();
@@ -170,10 +170,15 @@ namespace PowerCalibration
 
         }
 
-        void setMachineID()
+        int getMachineID()
         {
+            if (_machine_id > 0)
+                return _machine_id;
+
             DB.ConnectionSB = _db_connect_str;
             _machine_id = DB.getMachineID();
+
+            return _machine_id;
         }
 
 
@@ -221,18 +226,15 @@ namespace PowerCalibration
         {
             string msg = "";
 
-
-            if (_machine_id < 0)
-                setMachineID();
-
+            int machine_id = getMachineID();
             try
             {
                 // Update result table with 
-                if (_machine_id >= 0)
+                if (machine_id >= 0)
                 {
                     foreach (DataRow r in _datatable_calibrate.Rows)
                     {
-                        r["machine_id"] = _machine_id;
+                        r["machine_id"] = machine_id;
                     }
                 }
 

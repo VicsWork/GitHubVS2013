@@ -34,10 +34,9 @@ namespace PowerCalibration
                         string machine_name = Environment.MachineName;
 
                         cmd.CommandText = string.Format("select id from machines where name='{0}'", machine_name);
-                        object o = cmd.ExecuteScalar();
-                        if (o == null)
+                        ret_obj = cmd.ExecuteScalar();
+                        if (ret_obj == null)
                         {
-
                             cmd.CommandText = string.Format("insert into machines (name) values ('{0}')", machine_name);
                             int n = cmd.ExecuteNonQuery();
 
