@@ -159,7 +159,7 @@ namespace PowerCalibration
         /// Calibrates using just the Ember
         /// Voltage and Current register values are gathered using custom commands
         /// </summary>
-        public void Run()
+        public void Run(CancellationToken cancel)
         {
             string datain, msg;
 

@@ -20,8 +20,8 @@
 
             if (disposing)
             {
-                if(_coding_token_src_cancel != null)
-                    _coding_token_src_cancel.Dispose();
+                if(_cancel_token_uut != null)
+                    _cancel_token_uut.Dispose();
                 if (_telnet_connection != null)
                     _telnet_connection.Dispose();
                 if (_meter != null)

@@ -45,7 +45,9 @@ namespace PowerCalibration
         string _calibration_error_msg = null;  //  If set this will indicate the calibration error
         string _coding_error_msg;  //  If set this will indicate the coding error
         string _pretest_error_msg;  //  If set this will indicate the pretest error
-        CancellationTokenSource _coding_token_src_cancel = new CancellationTokenSource();  // Used to cancel coding
+
+        Task _task_uut;
+        CancellationTokenSource _cancel_token_uut = new CancellationTokenSource();  // Used to cancel coding
 
         bool _calibrate_after_code = false;  // Indicates whether to calibrate after coding completes
 
@@ -80,6 +82,7 @@ namespace PowerCalibration
             InitializeComponent();
             Icon = Properties.Resources.IconPowerCalibration;
 
+            // Init the stop watches
             _stopwatch_running.Reset();
             _stopwatch_idel.Start();
 
@@ -1104,13 +1107,11 @@ namespace PowerCalibration
         /// </summary>
         void preTest()
         {
+            // Start the running watch
             _stopwatch_running.Restart();
 
             // Disable the app
             setEnablement(false, false);
-
-            // Reset idel watch
-            _stopwatch_idel.Reset();
 
             // Init the status text box
             runStatus_Init();
@@ -1149,10 +1150,12 @@ namespace PowerCalibration
             _pretest.Voltage_DC_High_Limit = 3.3 + 0.33;
             _pretest.Voltage_DC_Low_Limit = 3.3 - 0.33;
 
-            Task task_pretest = new Task(_pretest.Verify_Voltage);
-            task_pretest.ContinueWith(pretest_done_handler, TaskContinuationOptions.OnlyOnRanToCompletion);
-            task_pretest.ContinueWith(pretest_exception_handler, TaskContinuationOptions.OnlyOnFaulted);
-            task_pretest.Start();
+
+            _cancel_token_uut = new CancellationTokenSource();
+            _task_uut = new Task(() => _pretest.Verify_Voltage(_cancel_token_uut.Token), _cancel_token_uut.Token);
+            _task_uut.ContinueWith(pretest_done_handler, TaskContinuationOptions.OnlyOnRanToCompletion);
+            _task_uut.ContinueWith(pretest_exception_handler, TaskContinuationOptions.OnlyOnFaulted);
+            _task_uut.Start();
 
         }
 
@@ -1179,20 +1182,20 @@ namespace PowerCalibration
             }
 
             _stopwatch_running.Stop();
-            string elapsedTime = String.Format("Elaspsed time {0:00} seconds", _stopwatch_running.Elapsed.TotalSeconds);
+            string elapsedTime = string.Format("Elapsed time {0:00} seconds", _stopwatch_running.Elapsed.TotalSeconds);
             updateOutputStatus(elapsedTime);
             updateOutputStatus("End Pre-test".PadBoth(80, '-'));
+            _stopwatch_running.Reset();
 
             if (_pretest_error_msg != null)
             {
-                _stopwatch_idel.Restart();
                 setEnablement(true, false);
                 return;
             }
 
             try
             {
-                _stopwatch_idel.Reset();
+                // Start the running watch
                 _stopwatch_running.Restart();
 
                 // Init the calibrate object so we can get dv voltage limits
@@ -1206,12 +1209,11 @@ namespace PowerCalibration
                     setRunStatus("Start Coding", Color.Black, Color.White);
                     updateOutputStatus("Start Coding".PadBoth(80, '-'));
                     // Run coding
-                    _coding_token_src_cancel = new CancellationTokenSource();
-                    CancellationToken token = _coding_token_src_cancel.Token;
-                    Task task = new Task(() => coder.Code(token), token);
-                    task.ContinueWith(coding_exception_handler, TaskContinuationOptions.OnlyOnFaulted);
-                    task.ContinueWith(coding_done_handler, TaskContinuationOptions.OnlyOnRanToCompletion);
-                    task.Start();
+                    _cancel_token_uut = new CancellationTokenSource();
+                    _task_uut = new Task(() => coder.Code(_cancel_token_uut.Token), _cancel_token_uut.Token);
+                    _task_uut.ContinueWith(coding_exception_handler, TaskContinuationOptions.OnlyOnFaulted);
+                    _task_uut.ContinueWith(coding_done_handler, TaskContinuationOptions.OnlyOnRanToCompletion);
+                    _task_uut.Start();
 
                 }
                 else if (_next_task == TaskTypes.Calibrate)
@@ -1256,6 +1258,11 @@ namespace PowerCalibration
             pretest_done();
         }
 
+        /// <summary>
+        /// Pretest status event handler
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="status_txt"></param>
         void _pretest_Status_Event(object sender, string status_txt)
         {
             updateOutputStatus(status_txt);
@@ -1290,10 +1297,12 @@ namespace PowerCalibration
 
         }
 
+        /// <summary>
+        /// Main Calibration function
+        /// </summary>
         void calibrate()
         {
             // Start the watches
-            _stopwatch_idel.Reset();
             _stopwatch_running.Restart();
 
             // Check to see if Ember is to be used as USB and open ISA channel if so
@@ -1345,13 +1354,15 @@ namespace PowerCalibration
             _calibrate.MultiMeter = _meter;
             _calibrate.RelayController = _relay_ctrl;
             _calibrate.TelnetConnection = _telnet_connection;
-
-            Task task_calibrate = new Task(_calibrate.Run);
-            task_calibrate.ContinueWith(
+            
+            
+            _cancel_token_uut = new CancellationTokenSource();
+            _task_uut = new Task(() => _calibrate.Run(_cancel_token_uut.Token), _cancel_token_uut.Token);
+            _task_uut.ContinueWith(
                 calibrate_exception_handler, TaskContinuationOptions.OnlyOnFaulted);
-            task_calibrate.ContinueWith(
+            _task_uut.ContinueWith(
                 calibration_done_handler, TaskContinuationOptions.OnlyOnRanToCompletion);
-            task_calibrate.Start();
+            _task_uut.Start();
 
         }
 
@@ -1388,9 +1399,7 @@ namespace PowerCalibration
             _stopwatch_running.Stop();
             string elapsedTime = String.Format("Elapsed time {0:00} seconds", _stopwatch_running.Elapsed.TotalSeconds);
             updateOutputStatus(elapsedTime);
-
             _stopwatch_running.Reset();
-            _stopwatch_idel.Restart();
 
             // Reset the calibrate after coding
             _calibrate_after_code = false;
@@ -1459,14 +1468,30 @@ namespace PowerCalibration
         /// <param name="e"></param>
         void timer_Update_Idle_Tick(object sender, EventArgs e)
         {
-            if (_stopwatch_running.Elapsed.Ticks > 0)
+            string msg = "";
+
+            if (_task_uut != null && _task_uut.Status == TaskStatus.Running)
             {
-                toolStripTimingStatusLabel.Text = string.Format("Running {0:dd\\.hh\\:mm\\:ss}", _stopwatch_running.Elapsed);
+                if (!_stopwatch_running.IsRunning)
+                    _stopwatch_running.Start();
+
+                if (_stopwatch_idel.IsRunning)
+                    _stopwatch_idel.Reset();
+                
+                msg = string.Format("Running {0:dd\\.hh\\:mm\\:ss}", _stopwatch_running.Elapsed);
             }
-            else if (_stopwatch_idel.Elapsed.Ticks > 0)
+            else
             {
-                toolStripTimingStatusLabel.Text = string.Format("Idel {0:dd\\.hh\\:mm\\:ss}", _stopwatch_idel.Elapsed);
+                if (!_stopwatch_idel.IsRunning)
+                    _stopwatch_idel.Start();
+                
+                if (_stopwatch_running.IsRunning)
+                    _stopwatch_running.Stop();
+
+                msg = string.Format("Idel {0:dd\\.hh\\:mm\\:ss}", _stopwatch_idel.Elapsed);
+
             }
+            toolStripTimingStatusLabel.Text = msg;
         }
 
         /// <summary>
@@ -1513,7 +1538,7 @@ namespace PowerCalibration
             // If the button is labeled "Cancel" then just cancel the task
             if (buttonCode.Text == "&Cancel")
             {
-                _coding_token_src_cancel.Cancel();
+                _cancel_token_uut.Cancel();
                 return;
             }
 
@@ -1534,9 +1559,9 @@ namespace PowerCalibration
             activate();
 
             // Check whether PASS, Cancelled or FAIL
-            if (_coding_token_src_cancel.IsCancellationRequested)
+            if (_cancel_token_uut.IsCancellationRequested)
             {
-                _coding_token_src_cancel = new CancellationTokenSource();
+                _cancel_token_uut = new CancellationTokenSource();
                 _calibrate_after_code = false;
                 updateRunStatus("Cancelled", Color.Black, Color.Yellow);
             }
@@ -1576,12 +1601,9 @@ namespace PowerCalibration
 
             // Stop running watch and report time lapse
             _stopwatch_running.Stop();
-            TimeSpan ts = _stopwatch_running.Elapsed;
-            string elapsedTime = String.Format("Elapsed time {0:00} seconds", ts.TotalSeconds);
+            string elapsedTime = String.Format("Elapsed time {0:00} seconds", _stopwatch_running.Elapsed.TotalSeconds);
             updateOutputStatus(elapsedTime);
-
             _stopwatch_running.Reset();
-            _stopwatch_idel.Restart();
 
             setEnablement(true, true);
 
@@ -1589,7 +1611,7 @@ namespace PowerCalibration
 
             // Run calibration if everything is OK
             if (_calibrate_after_code && _coding_error_msg == null &&
-                !_coding_token_src_cancel.IsCancellationRequested)
+                !_cancel_token_uut.IsCancellationRequested)
             {
                 clickCalibrate();
             }
@@ -1662,7 +1684,6 @@ namespace PowerCalibration
             _calibrate_after_code = true;
             buttonClick_Code(sender, e);
         }
-
 
     }
 

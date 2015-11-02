@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using System.Threading;
 
 namespace PowerCalibration
 {
@@ -20,7 +21,7 @@ namespace PowerCalibration
         MultiMeter _meter;
         double _voltage_dc_low_limit = 0.0, _voltage_dc_high_limit = 0.0;
 
-        public void Verify_Voltage()
+        public void Verify_Voltage(CancellationToken cancel)
         {
             if (_meter == null)
             {
