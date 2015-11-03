@@ -155,14 +155,14 @@ namespace PowerCalibration
             // Create the internal result data table
             createResultTable();
             // Init the db connection string
-            _db_connect_str = new SqlConnectionStringBuilder();
-            _db_connect_str.DataSource = "A1040.centralite.com";
-            _db_connect_str.InitialCatalog = "PowerCalibration";
-            _db_connect_str.IntegratedSecurity = true;
+            _db_connect_str = new SqlConnectionStringBuilder(Properties.Settings.Default.PowerCalibrationConnectionString);
+            //_db_connect_str.DataSource = "A1040.centralite.com";
+            //_db_connect_str.InitialCatalog = "PowerCalibration";
+            //_db_connect_str.IntegratedSecurity = true;
 
             // get machine id
             DB.ConnectionSB = _db_connect_str;
-            Task task_id = new Task<int>(getMachineID);
+            Task task_id = new Task<int>(getDBMachineID);
             task_id.Start();
 
             //CalibrationResultsEventArgs e = new CalibrationResultsEventArgs();
@@ -173,7 +173,11 @@ namespace PowerCalibration
 
         }
 
-        int getMachineID()
+        /// <summary>
+        /// Helper to get db machine id
+        /// </summary>
+        /// <returns></returns>
+        int getDBMachineID()
         {
             if (_machine_id > 0)
                 return _machine_id;
@@ -184,7 +188,9 @@ namespace PowerCalibration
             return _machine_id;
         }
 
-
+        /// <summary>
+        /// Creates the internal data table to store results
+        /// </summary>
         void createResultTable()
         {
             _datatable_calibrate = new DataTable("results");
@@ -229,7 +235,7 @@ namespace PowerCalibration
         {
             string msg = "";
 
-            int machine_id = getMachineID();
+            int machine_id = getDBMachineID();
             try
             {
                 // Update result table with 

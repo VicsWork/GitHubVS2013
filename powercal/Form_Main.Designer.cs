@@ -253,7 +253,7 @@
             // toolStripTimingStatusLabel
             // 
             this.toolStripTimingStatusLabel.Name = "toolStripTimingStatusLabel";
-            this.toolStripTimingStatusLabel.Size = new System.Drawing.Size(786, 17);
+            this.toolStripTimingStatusLabel.Size = new System.Drawing.Size(817, 17);
             this.toolStripTimingStatusLabel.Spring = true;
             this.toolStripTimingStatusLabel.TextAlign = System.Drawing.ContentAlignment.MiddleRight;
             // 
