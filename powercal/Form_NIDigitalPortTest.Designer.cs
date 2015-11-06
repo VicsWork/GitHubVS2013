@@ -249,7 +249,7 @@
             this.MaximizeBox = false;
             this.MinimumSize = new System.Drawing.Size(200, 200);
             this.Name = "Form_NIDigitalPortTest";
-            this.Text = "Write to NI Digital Port";
+            this.Text = "NI Digital Port";
             this.channelParametersGroupBox.ResumeLayout(false);
             ((System.ComponentModel.ISupportInitialize)(this.NumericUpDowndataToWrite)).EndInit();
             this.groupBoxDIOLines.ResumeLayout(false);

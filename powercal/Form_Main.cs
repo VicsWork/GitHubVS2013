@@ -27,7 +27,7 @@ using System.Data.SqlTypes;
 
 namespace PowerCalibration
 {
-    enum BoardTypes { Hornshark, Mudshark, Humpback, Hooktooth, Milkshark, Zebrashark };
+    enum BoardTypes { Humpback, Hornshark, Mudshark, Hooktooth, Milkshark, Zebrashark };
 
     public partial class Form_Main : Form, ICalibrationService
     {
@@ -152,18 +152,14 @@ namespace PowerCalibration
             // Enable the app
             setEnablement(true, false);
 
-            // Create the internal result data table
-            createResultTable();
             // Init the db connection string
             _db_connect_str = new SqlConnectionStringBuilder(Properties.Settings.Default.PowerCalibrationConnectionString);
-            //_db_connect_str.DataSource = "A1040.centralite.com";
-            //_db_connect_str.InitialCatalog = "PowerCalibration";
-            //_db_connect_str.IntegratedSecurity = true;
-
             // get machine id
             DB.ConnectionSB = _db_connect_str;
             Task task_id = new Task<int>(getDBMachineID);
             task_id.Start();
+            // Create the internal result data table
+            createResultTable();
 
             //CalibrationResultsEventArgs e = new CalibrationResultsEventArgs();
             //e.Current_gain = 1;
@@ -755,6 +751,29 @@ namespace PowerCalibration
                 _relay_ctrl.WriteLine(Relay_Lines.Ember, true);
                 _relay_ctrl.WriteLine(Relay_Lines.Load, true);
                 Thread.Sleep(1000);
+
+
+                //TelnetConnection telnet_connection = new TelnetConnection(Properties.Settings.Default.Ember_Interface_IP_Address, 4900);
+                //int trycount = 0;
+                //string cmd_prefix = "";
+                //while (trycount < 10)
+                //{
+                //    try
+                //    {
+                //        trycount++;
+                //        cmd_prefix = TCLI.Get_Custom_Command_Prefix(telnet_connection);
+                //        if (cmd_prefix != null && cmd_prefix != "")
+                //            break;
+                //    }
+                //    catch
+                //    {
+                //        _relay_ctrl.WriteLine(Relay_Lines.Power, false);
+                //        Thread.Sleep(200);
+                //        _relay_ctrl.WriteLine(Relay_Lines.Power, true);
+                //    }
+                //}
+                //telnet_connection.Close();
+
 
                 Calibrate calibrate = new Calibrate();
                 calibrate.BoardType = (BoardTypes)Enum.Parse(typeof(BoardTypes), comboBoxBoardTypes.Text);

@@ -9,7 +9,7 @@ using System.Threading;
 
 namespace PowerCalibration
 {
-    class MultiMeter: IDisposable
+    class MultiMeter : IDisposable
     {
         public bool WaitForDsrHolding
         {
@@ -19,7 +19,7 @@ namespace PowerCalibration
 
         private bool _waitForDsrHolding = true;
         private string _portName;
-        private SerialPort _serialPort = new SerialPort();
+        private SerialPort _serialPort;
         private string _value_txt = "";
 
         /// <summary>
@@ -29,6 +29,9 @@ namespace PowerCalibration
         public MultiMeter(string portName)
         {
             this._portName = portName;
+
+            _serialPort = new SerialPort();
+            _serialPort.DataReceived += _serialPort_DataReceived;
         }
 
         /// <summary>
@@ -51,7 +54,7 @@ namespace PowerCalibration
         {
             //if (_serialPort != null && _serialPort.IsOpen)
             //{
-                _serialPort.Close();
+            _serialPort.Close();
             //}
             //_serialPort = new SerialPort(_portName, 600, Parity.None, 8, StopBits.One);
             _serialPort.PortName = _portName;
@@ -62,7 +65,6 @@ namespace PowerCalibration
             _serialPort.Handshake = Handshake.None;
             _serialPort.DtrEnable = true;
 
-            _serialPort.DataReceived += _serialPort_DataReceived;
             _serialPort.Open();
 
             return _serialPort;
@@ -76,7 +78,7 @@ namespace PowerCalibration
         void _serialPort_DataReceived(object sender, SerialDataReceivedEventArgs e)
         {
             //lock (_value_txt)
-                _value_txt += _serialPort.ReadExisting();
+            _value_txt += _serialPort.ReadExisting();
         }
 
         /// <summary>
@@ -115,7 +117,7 @@ namespace PowerCalibration
         void clearData()
         {
             //lock (_value_txt)
-                _value_txt = "";
+            _value_txt = "";
         }
 
         /// <summary>
@@ -124,15 +126,14 @@ namespace PowerCalibration
         /// <param name="cmd"></param>
         public void writeLine(string cmd)
         {
-            int n = 0;
-
+            int n;
             if (_waitForDsrHolding)
             {
+                n = 0;
                 while (!_serialPort.DsrHolding)
                 {
                     Thread.Sleep(250);
-                    n++;
-                    if (n > 20)
+                    if (n++ > 20)
                         throw new Exception("Multimeter not responding to serial commands.  Make sure multi-meter is on and serial cable connected");
                 }
             }
@@ -144,8 +145,7 @@ namespace PowerCalibration
             while (_serialPort.BytesToWrite > 0)
             {
                 Thread.Sleep(100);
-                n++;
-                if (n > 20)
+                if (n++ > 20)
                     throw new Exception("Multimeter write buffer not empty");
             }
         }
@@ -213,10 +213,13 @@ namespace PowerCalibration
         public string Measure()
         {
             clearData();
+            
             writeLine(":INIT");
             writeLine("*TRG");
             writeLine(":FETC?");
+            
             string data = waitForData();
+            
             return data;
         }
 
@@ -225,7 +228,7 @@ namespace PowerCalibration
         /// </summary>
         public void CloseSerialPort()
         {
-            this._serialPort.Close();
+            _serialPort.Close();
         }
     }
 }

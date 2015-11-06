@@ -191,6 +191,7 @@
             this.Controls.Add(this.buttonAllOff);
             this.Controls.Add(this.groupBoxDIOLines);
             this.Controls.Add(this.channelParametersGroupBox);
+            this.FormBorderStyle = System.Windows.Forms.FormBorderStyle.FixedDialog;
             this.Name = "Form_FT232H_DIO_Test";
             this.Text = "FormFT232H_DIO_Test";
             this.channelParametersGroupBox.ResumeLayout(false);
