@@ -195,7 +195,7 @@ namespace PowerCalibration
 
                 power1 = cv.Voltage * cv.Current;
                 double delta1 = 100;
-                if(power1 != 0)
+                if (power1 != 0)
                     delta1 = Math.Abs((power2 - power1) * 100 / power1);
 
                 msg = string.Format("Cirrus I = {0:F8}, V = {1:F8}, P = {2:F8}, D = {3:F8}",
@@ -374,7 +374,8 @@ namespace PowerCalibration
 
             _meter.CloseSerialPort();
 
-            if (meter_voltage < _voltage_ac_low_limit || meter_voltage > _voltage_ac_high_limit)
+            if (meter_voltage < 100 || meter_voltage > 260)
+            //if (meter_voltage < _voltage_ac_low_limit || meter_voltage > _voltage_ac_high_limit)
             {
                 msg = string.Format("Voltage AC is not within limits values: {0:F8} < {1:F8} < {2:F8}", _voltage_ac_low_limit, meter_voltage, _voltage_ac_high_limit);
                 TraceLogger.Log(msg);
