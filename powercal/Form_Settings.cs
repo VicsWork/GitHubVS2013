@@ -109,6 +109,9 @@ namespace PowerCalibration
                     setLineEnablement(false);
                 }
             }
+
+            Properties.Settings.Default.Relay_Controller_Type = comboBoxDIOCtrollerTypes.Text;
+
         }
 
         private void comboBoxEmberInterface_SelectedIndexChanged(object sender, EventArgs e)

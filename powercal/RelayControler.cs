@@ -26,7 +26,9 @@ namespace PowerCalibration
         /// <summary>
         /// Dic to store line numbers
         /// </summary>
-        private Dictionary<string, uint> _dic_lines = new Dictionary<string, uint>();
+        Dictionary<string, uint> _dic_lines = new Dictionary<string, uint>();
+        public Dictionary<string, uint> Dictionary_Lines { get { return _dic_lines; } set { _dic_lines = value; } }
+
         /// <summary>
         /// Dic to store line state (true = ON, false = OFF)
         /// </summary>
@@ -97,15 +99,6 @@ namespace PowerCalibration
             }
             reader.Close();
 
-            return _dic_lines;
-        }
-
-        /// <summary>
-        /// Gets the lines dictionary
-        /// </summary>
-        /// <returns></returns>
-        public Dictionary<string, uint> DicLines_Get()
-        {
             return _dic_lines;
         }
 

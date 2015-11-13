@@ -682,10 +682,10 @@ namespace PowerCalibration
 
             // DIO line assignment
             Dictionary<string, uint> relay_lines = _relay_ctrl.DicLines_ReadSettings();
-            dlg.NumericUpDown_ACPower.Value = relay_lines[PowerCalibration.Relay_Lines.Power];
-            dlg.NumericUpDown_Load.Value = relay_lines[PowerCalibration.Relay_Lines.Load];
-            dlg.NumericUpDown_Ember.Value = relay_lines[PowerCalibration.Relay_Lines.Ember];
-            dlg.numericUpDown_Voltmeter.Value = relay_lines[PowerCalibration.Relay_Lines.Voltmeter];
+            //dlg.NumericUpDown_ACPower.Value = relay_lines[PowerCalibration.Relay_Lines.Power];
+            //dlg.NumericUpDown_Load.Value = relay_lines[PowerCalibration.Relay_Lines.Load];
+            //dlg.NumericUpDown_Ember.Value = relay_lines[PowerCalibration.Relay_Lines.Ember];
+            //dlg.numericUpDown_Voltmeter.Value = relay_lines[PowerCalibration.Relay_Lines.Voltmeter];
 
             DialogResult rc = dlg.ShowDialog();
             if (rc == DialogResult.OK)
@@ -701,11 +701,12 @@ namespace PowerCalibration
                 _relay_ctrl = new RelayControler(rdevtype);
 
                 // DIO line assignment
-                relay_lines = _relay_ctrl.DicLines_ReadSettings();
+                //relay_lines = _relay_ctrl.DicLines_ReadSettings();
                 relay_lines[PowerCalibration.Relay_Lines.Power] = (uint)dlg.NumericUpDown_ACPower.Value;
                 relay_lines[PowerCalibration.Relay_Lines.Load] = (uint)dlg.NumericUpDown_Load.Value;
                 relay_lines[PowerCalibration.Relay_Lines.Ember] = (uint)dlg.NumericUpDown_Ember.Value;
                 relay_lines[PowerCalibration.Relay_Lines.Voltmeter] = (uint)dlg.numericUpDown_Voltmeter.Value;
+                _relay_ctrl.Dictionary_Lines = relay_lines;
                 _relay_ctrl.DicLines_SaveSettings();
 
                 // Ember
