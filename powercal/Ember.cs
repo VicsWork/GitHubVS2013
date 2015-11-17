@@ -150,7 +150,7 @@ namespace PowerCalibration
             p.Start();
 
             int n = 0;
-            string error, output;
+            string error = "", output = "";
             while (!p.HasExited)
             {
                 Thread.Sleep(1000);
@@ -158,13 +158,21 @@ namespace PowerCalibration
                 if (n > 10)
                 {
                     p.Kill();
-                    output = p.StandardOutput.ReadToEnd();
-                    error = p.StandardError.ReadToEnd();
+                    Thread.Sleep(500);
+
+                    p.StandardInput.Flush();
+                    p.StandardInput.Close();
+
+                    if(p.StandardOutput.Peek() > -1)
+                        output = p.StandardOutput.ReadToEnd();
+                    if(p.StandardError.Peek() > -1)
+                        error = p.StandardError.ReadToEnd();
                     string msg = string.Format("Timeout running {0}.\r\n", _batch_file);
                     if (output != null && output.Length > 0)
                         msg += string.Format("Output: {0}\r\n", output);
                     if (error != null && error.Length > 0)
                         msg += string.Format("Error: {0}\r\n", error);
+
 
                     throw new Exception(msg);
                 }
