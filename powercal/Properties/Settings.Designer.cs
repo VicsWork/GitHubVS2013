@@ -97,7 +97,7 @@ namespace PowerCalibration.Properties {
         
         [global::System.Configuration.UserScopedSettingAttribute()]
         [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
-        [global::System.Configuration.DefaultSettingValueAttribute("172.19.14.100")]
+        [global::System.Configuration.DefaultSettingValueAttribute("172.19.14.93")]
         public string Ember_Interface_IP_Address {
             get {
                 return ((string)(this["Ember_Interface_IP_Address"]));

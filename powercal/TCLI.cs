@@ -32,6 +32,88 @@ namespace PowerCalibration
         }
 
         /// <summary>
+        /// Structure use to return pinfo tokens values
+        /// </summary>
+        public struct Tokens
+        {
+            public int VoltageGainToken;
+            public int CurrentGainToken;
+
+            public int VoltageFactor;
+            public int CurrentFactor;
+
+            public Tokens(int vgain = 0x004000000, int igain = 0x00400000, int ifactor = 15, int vfactor = 240)
+            {
+                VoltageGainToken = vgain;
+                CurrentGainToken = igain;
+                VoltageFactor = vfactor;
+                CurrentFactor = ifactor;
+            }
+        }
+
+        public static Tokens Parse_Pinfo_Tokens(
+            TelnetConnection telnet_connection, string cmd_prefix)
+        {
+            string vfactorPattern = "Voltage Factor: ([\\d]+)";
+            string ifactorPattern = "Current Factor: ([\\d]+)";
+
+            string vgainTokenPattern = "VGain Token\\s0x([0-9,A-F]{8})";
+            string igainTokenPattern = "IGain Token\\s0x([0-9,A-F]{8})";
+
+            string cmd = string.Format("cu {0}_pinfo", cmd_prefix);
+            telnet_connection.WriteLine(cmd);
+            Thread.Sleep(500);
+            string datain = telnet_connection.Read();
+            Trace.WriteLine(datain);
+            string msg;
+
+            Tokens tokens = new Tokens();
+            if (datain != null && datain.Length > 0)
+            {
+                Match match = Regex.Match(datain, vfactorPattern);
+                if (match.Groups.Count != 2)
+                {
+                    msg = string.Format("Unable to parse pinfo for Voltage Factor.  Output was:{0}", datain);
+                    throw new Exception(msg);
+                }
+                tokens.VoltageFactor = Convert.ToInt32(match.Groups[1].Value, 10);
+
+                match = Regex.Match(datain, ifactorPattern);
+                if (match.Groups.Count != 2)
+                {
+                    msg = string.Format("Unable to parse pinfo for Current Factor.  Output was:{0}", datain);
+                    throw new Exception(msg);
+                }
+                tokens.CurrentFactor = Convert.ToInt32(match.Groups[1].Value, 10);
+
+                match = Regex.Match(datain, vgainTokenPattern);
+                if (match.Groups.Count != 2)
+                {
+                    msg = string.Format("Unable to parse pinfo for VGain Token.  Output was:{0}", datain);
+                    throw new Exception(msg);
+                }
+                tokens.VoltageGainToken = Convert.ToInt32(match.Groups[1].Value, 16);
+
+                match = Regex.Match(datain, igainTokenPattern);
+                if (match.Groups.Count != 2)
+                {
+                    msg = string.Format("Unable to parse pinfo for IGain Token.  Output was:{0}", datain);
+                    throw new Exception(msg);
+                }
+                tokens.CurrentGainToken = Convert.ToInt32(match.Groups[1].Value, 16);
+
+            }
+            else
+            {
+                msg = string.Format("No data received after \"{0}\" command", cmd);
+                throw new Exception(msg);
+            }
+
+            return tokens;
+        }
+
+
+        /// <summary>
         /// Sends a pload command and returns the current and voltage values
         /// </summary>
         /// <param name="telnet_connection">Already opened Telnet connection to the Ember</param>

@@ -155,6 +155,35 @@ namespace PowerCalibration
 
         }
 
+        void reset_workaround()
+        {
+            // Note there is a problem with Hornshark/Mudshark not resetting after a patch
+            string data = "";
+            int try_count = 0;
+            while (true)
+            {
+                _telnet_connection.WriteLine("cu");
+                Thread.Sleep(500);
+                data += _telnet_connection.Read();
+                if (data.Contains("pload"))
+                    break;
+                else
+                {
+                    TraceLogger.Log("Reset UUT");
+                    _relay_ctrl.WriteLine(Relay_Lines.Ember, true);
+                    _relay_ctrl.WriteLine(Relay_Lines.Power, false);
+                    Thread.Sleep(1000);
+                    _relay_ctrl.WriteLine(Relay_Lines.Power, true);
+                    Thread.Sleep(1000);
+                    _telnet_connection.Read();
+                }
+                try_count++;
+                if (try_count > 3)
+                    break;
+            }
+
+        }
+
         /// <summary>
         /// Calibrates using just the Ember
         /// Voltage and Current register values are gathered using custom commands
@@ -170,6 +199,9 @@ namespace PowerCalibration
             fire_run_status("Patch Gain to 1");
             msg = patch(0x400000, 0x400000);
             TraceLogger.Log(msg);
+
+            // Note there is a problem with Hornshark/Mudshark not resetting after a patch
+            reset_workaround();
 
             Thread.Sleep(1000);
             datain = _telnet_connection.Read();
@@ -304,6 +336,9 @@ namespace PowerCalibration
             fire_run_status("Patch Gain");
             msg = patch(voltage_gain_int, current_gain_int);
             TraceLogger.Log(msg);
+
+            // Note there is a problem with Hornshark/Mudshark not resetting after a patch
+            reset_workaround();
 
             Thread.Sleep(3000);
             datain = _telnet_connection.Read();

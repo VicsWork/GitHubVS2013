@@ -48,6 +48,10 @@
             this.label2 = new System.Windows.Forms.Label();
             this.labelVoltageUUT = new System.Windows.Forms.Label();
             this.label1 = new System.Windows.Forms.Label();
+            this.labelVFactor = new System.Windows.Forms.Label();
+            this.labelIFactor = new System.Windows.Forms.Label();
+            this.labelVGain = new System.Windows.Forms.Label();
+            this.labelIGain = new System.Windows.Forms.Label();
             this.groupBox1.SuspendLayout();
             this.SuspendLayout();
             // 
@@ -69,6 +73,10 @@
             // 
             // groupBox1
             // 
+            this.groupBox1.Controls.Add(this.labelIGain);
+            this.groupBox1.Controls.Add(this.labelVGain);
+            this.groupBox1.Controls.Add(this.labelIFactor);
+            this.groupBox1.Controls.Add(this.labelVFactor);
             this.groupBox1.Controls.Add(this.textBoxUUTError);
             this.groupBox1.Controls.Add(this.labelCurrentUUT);
             this.groupBox1.Controls.Add(this.label2);
@@ -77,7 +85,7 @@
             this.groupBox1.Controls.Add(this.labelPowerUUT);
             this.groupBox1.Location = new System.Drawing.Point(12, 12);
             this.groupBox1.Name = "groupBox1";
-            this.groupBox1.Size = new System.Drawing.Size(200, 179);
+            this.groupBox1.Size = new System.Drawing.Size(200, 291);
             this.groupBox1.TabIndex = 0;
             this.groupBox1.TabStop = false;
             this.groupBox1.Text = "UUT Power";
@@ -87,11 +95,11 @@
             this.textBoxUUTError.BorderStyle = System.Windows.Forms.BorderStyle.None;
             this.textBoxUUTError.Enabled = false;
             this.textBoxUUTError.ForeColor = System.Drawing.Color.Red;
-            this.textBoxUUTError.Location = new System.Drawing.Point(6, 136);
+            this.textBoxUUTError.Location = new System.Drawing.Point(6, 237);
             this.textBoxUUTError.Multiline = true;
             this.textBoxUUTError.Name = "textBoxUUTError";
             this.textBoxUUTError.ReadOnly = true;
-            this.textBoxUUTError.Size = new System.Drawing.Size(188, 32);
+            this.textBoxUUTError.Size = new System.Drawing.Size(188, 48);
             this.textBoxUUTError.TabIndex = 5;
             // 
             // labelCurrentUUT
@@ -134,11 +142,47 @@
             this.label1.TabIndex = 1;
             this.label1.Text = "Voltage: ";
             // 
+            // labelVFactor
+            // 
+            this.labelVFactor.AutoSize = true;
+            this.labelVFactor.Location = new System.Drawing.Point(13, 153);
+            this.labelVFactor.Name = "labelVFactor";
+            this.labelVFactor.Size = new System.Drawing.Size(79, 13);
+            this.labelVFactor.TabIndex = 6;
+            this.labelVFactor.Text = "Voltage Factor:";
+            // 
+            // labelIFactor
+            // 
+            this.labelIFactor.AutoSize = true;
+            this.labelIFactor.Location = new System.Drawing.Point(13, 175);
+            this.labelIFactor.Name = "labelIFactor";
+            this.labelIFactor.Size = new System.Drawing.Size(77, 13);
+            this.labelIFactor.TabIndex = 7;
+            this.labelIFactor.Text = "Current Factor:";
+            // 
+            // labelVGain
+            // 
+            this.labelVGain.AutoSize = true;
+            this.labelVGain.Location = new System.Drawing.Point(13, 198);
+            this.labelVGain.Name = "labelVGain";
+            this.labelVGain.Size = new System.Drawing.Size(73, 13);
+            this.labelVGain.TabIndex = 7;
+            this.labelVGain.Text = "VGain Token:";
+            // 
+            // labelIGain
+            // 
+            this.labelIGain.AutoSize = true;
+            this.labelIGain.Location = new System.Drawing.Point(13, 221);
+            this.labelIGain.Name = "labelIGain";
+            this.labelIGain.Size = new System.Drawing.Size(69, 13);
+            this.labelIGain.TabIndex = 8;
+            this.labelIGain.Text = "IGain Token:";
+            // 
             // Form_PowerMeter
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(228, 228);
+            this.ClientSize = new System.Drawing.Size(224, 315);
             this.Controls.Add(this.groupBox1);
             this.FormBorderStyle = System.Windows.Forms.FormBorderStyle.FixedDialog;
             this.Name = "Form_PowerMeter";
@@ -161,5 +205,9 @@
         private System.Windows.Forms.Label labelVoltageUUT;
         private System.Windows.Forms.Label label1;
         private System.Windows.Forms.TextBox textBoxUUTError;
+        private System.Windows.Forms.Label labelIGain;
+        private System.Windows.Forms.Label labelVGain;
+        private System.Windows.Forms.Label labelIFactor;
+        private System.Windows.Forms.Label labelVFactor;
     }
 }

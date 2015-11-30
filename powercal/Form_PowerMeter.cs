@@ -73,6 +73,11 @@ namespace PowerCalibration
 
             _cmd_prefix = TCLI.Get_Custom_Command_Prefix(_telnet_connection);
 
+            TCLI.Tokens calibration_tokens = TCLI.Parse_Pinfo_Tokens(_telnet_connection, _cmd_prefix);
+            this.labelVFactor.Text = string.Format("Voltage Factor: {0}", calibration_tokens.VoltageFactor);
+            this.labelIFactor.Text = string.Format("Current Factor: {0}", calibration_tokens.CurrentFactor);
+            this.labelVGain.Text = string.Format("VGain Token: 0x{0:X08}", calibration_tokens.VoltageGainToken);
+            this.labelIGain.Text = string.Format("VGain Token: 0x{0:X08}", calibration_tokens.CurrentGainToken);
 
             _uut_voltage_reference = uut_voltage_reference;
             _uut_current_reference = uut_current_reference;
