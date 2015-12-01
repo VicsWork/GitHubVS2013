@@ -66,6 +66,7 @@
             this.timer_Update_Idle = new System.Windows.Forms.Timer(this.components);
             this.buttonCode = new System.Windows.Forms.Button();
             this.buttonAll = new System.Windows.Forms.Button();
+            this.buttonRecode = new System.Windows.Forms.Button();
             this.contextMenuStatusTextBox.SuspendLayout();
             this.menuStripMain.SuspendLayout();
             this.statusStrip.SuspendLayout();
@@ -285,11 +286,22 @@
             this.buttonAll.UseVisualStyleBackColor = true;
             this.buttonAll.Click += new System.EventHandler(this.buttonClick_All);
             // 
+            // buttonRecode
+            // 
+            this.buttonRecode.Location = new System.Drawing.Point(415, 34);
+            this.buttonRecode.Name = "buttonRecode";
+            this.buttonRecode.Size = new System.Drawing.Size(75, 23);
+            this.buttonRecode.TabIndex = 14;
+            this.buttonRecode.Text = "&Recode";
+            this.buttonRecode.UseVisualStyleBackColor = true;
+            this.buttonRecode.Click += new System.EventHandler(this.buttonRecode_Click);
+            // 
             // Form_Main
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(96F, 96F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Dpi;
             this.ClientSize = new System.Drawing.Size(832, 557);
+            this.Controls.Add(this.buttonRecode);
             this.Controls.Add(this.buttonAll);
             this.Controls.Add(this.buttonCode);
             this.Controls.Add(this.statusStrip);
@@ -341,6 +353,7 @@
         private System.Windows.Forms.Button buttonAll;
         private System.Windows.Forms.ToolStripMenuItem copyToolStripMenuItem;
         private System.Windows.Forms.ToolStripStatusLabel toolStripGeneralStatusLabel;
+        private System.Windows.Forms.Button buttonRecode;
     }
 }
 

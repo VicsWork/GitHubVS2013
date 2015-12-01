@@ -137,7 +137,7 @@ namespace PowerCalibration
         /// <summary>
         /// Runs a calibration batch file
         /// </summary>
-        /// <returns></returns>
+        /// <returns>batch file run output</returns>
         public string RunCalibrationPatchBatch()
         {
             Process p = new Process();
@@ -196,9 +196,9 @@ namespace PowerCalibration
         /// <summary>
         /// Creates a calibration batch file
         /// </summary>
-        /// <param name="vrms">Vrms gain</param>
-        /// <param name="irms">Irms gain</param>
-        public void CreateCalibrationPatchBath(int vrms, int irms)
+        /// <param name="vgain">Vrms gain</param>
+        /// <param name="igain">Irms gain</param>
+        public void CreateCalibrationPatchBath(int vgain, int igain)
         {
             using (StreamWriter writer = File.CreateText(_batch_file))
             {
@@ -226,7 +226,7 @@ namespace PowerCalibration
 
                 // vrms
                 int start_addr = _voltageAddress;
-                byte[] data = bit24IntToByteArray(vrms);
+                byte[] data = bit24IntToByteArray(vgain);
                 foreach (byte b in data)
                 {
                     txt += string.Format("@{0:X8}=", start_addr);
@@ -238,7 +238,7 @@ namespace PowerCalibration
 
                 // irms
                 start_addr = _currentAddress;
-                data = bit24IntToByteArray(irms);
+                data = bit24IntToByteArray(igain);
                 foreach (byte b in data)
                 {
                     txt += string.Format("@{0:X8}=", start_addr);

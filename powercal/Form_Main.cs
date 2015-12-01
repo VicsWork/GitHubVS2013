@@ -138,6 +138,7 @@ namespace PowerCalibration
             // Init the Ember object
             _ember = new Ember();
             _ember.Work_Path = _app_data_dir;
+            _ember.BatchFilePath = Path.Combine(_app_data_dir, "patchit.bat");
             _ember.Process_ISAChan_Error_Event += p_ember_isachan_ErrorDataReceived;
             _ember.Process_ISAChan_Output_Event += p_ember_isachan_OutputDataReceived;
 
@@ -1380,8 +1381,8 @@ namespace PowerCalibration
             _calibrate.MultiMeter = _meter;
             _calibrate.RelayController = _relay_ctrl;
             _calibrate.TelnetConnection = _telnet_connection;
-            
-            
+
+
             _cancel_token_uut = new CancellationTokenSource();
             _task_uut = new Task(() => _calibrate.Run(_cancel_token_uut.Token), _cancel_token_uut.Token);
             _task_uut.ContinueWith(
@@ -1503,14 +1504,14 @@ namespace PowerCalibration
 
                 if (_stopwatch_idel.IsRunning)
                     _stopwatch_idel.Reset();
-                
+
                 msg = string.Format("Running {0:dd\\.hh\\:mm\\:ss}", _stopwatch_running.Elapsed);
             }
             else
             {
                 if (!_stopwatch_idel.IsRunning)
                     _stopwatch_idel.Start();
-                
+
                 if (_stopwatch_running.IsRunning)
                     _stopwatch_running.Stop();
 
@@ -1710,6 +1711,54 @@ namespace PowerCalibration
             _calibrate_after_code = true;
             buttonClick_Code(sender, e);
         }
+
+        private void buttonRecode_Click(object sender, EventArgs e)
+        {
+
+            this.textBoxOutputStatus.Clear(); 
+            runStatus_Init();
+
+            _cancel_token_uut = new CancellationTokenSource();
+
+            Recode recode = new Recode(_ember);
+
+            recode.Status_Event += recode_Status_Event;
+            recode.Run_Status_Event += recode_Run_Status_Event;
+
+            _task_uut = new Task(() => recode.Run(_cancel_token_uut.Token), _cancel_token_uut.Token);
+            _task_uut.ContinueWith(
+                recoder_exception_handler, TaskContinuationOptions.OnlyOnFaulted);
+            _task_uut.ContinueWith(
+                recoder_done_handler, TaskContinuationOptions.OnlyOnRanToCompletion);
+            _task_uut.Start();
+        }
+
+        void recode_Run_Status_Event(object sender, string status_txt)
+        {
+            updateRunStatus(status_txt);
+
+            if (status_txt == "Patch UUT Tokens")
+                activate();
+        }
+
+        void recode_Status_Event(object sender, string status_txt)
+        {
+            updateOutputStatus(status_txt);
+        }
+
+        void recoder_done_handler(Task task)
+        {
+            updateRunStatus("PASS", Color.White, Color.Green);
+        }
+        void recoder_exception_handler(Task task)
+        {
+            var exception = task.Exception;
+            string errmsg = exception.InnerException.Message;
+
+            updateRunStatus("FAIL", Color.White, Color.Red);
+            updateOutputStatus(errmsg);
+        }
+
 
     }
 

@@ -192,6 +192,7 @@
     <Compile Include="PreTest.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="Recode.cs" />
     <Compile Include="RelayControler.cs" />
     <Compile Include="Settings.cs" />
     <Compile Include="TCLI.cs" />

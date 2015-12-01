@@ -62,6 +62,7 @@ namespace PowerCalibration
 
             if (_ember.Interface == Ember.Interfaces.USB)
             {
+                TraceLogger.Log("Open ISA Channels");
                 _ember.CloseISAChannels();
                 _ember.OpenISAChannels();
             }
