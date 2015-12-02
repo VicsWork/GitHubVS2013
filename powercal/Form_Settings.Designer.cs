@@ -344,7 +344,8 @@
             this.comboBoxShortcutActions.Items.AddRange(new object[] {
             "All",
             "Calibrate",
-            "Code"});
+            "Code",
+            "ReCode"});
             this.comboBoxShortcutActions.Location = new System.Drawing.Point(57, 17);
             this.comboBoxShortcutActions.Name = "comboBoxShortcutActions";
             this.comboBoxShortcutActions.Size = new System.Drawing.Size(121, 21);

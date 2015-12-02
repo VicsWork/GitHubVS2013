@@ -288,7 +288,7 @@
             // 
             // buttonRecode
             // 
-            this.buttonRecode.Location = new System.Drawing.Point(415, 34);
+            this.buttonRecode.Location = new System.Drawing.Point(745, 35);
             this.buttonRecode.Name = "buttonRecode";
             this.buttonRecode.Size = new System.Drawing.Size(75, 23);
             this.buttonRecode.TabIndex = 14;
@@ -301,7 +301,6 @@
             this.AutoScaleDimensions = new System.Drawing.SizeF(96F, 96F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Dpi;
             this.ClientSize = new System.Drawing.Size(832, 557);
-            this.Controls.Add(this.buttonRecode);
             this.Controls.Add(this.buttonAll);
             this.Controls.Add(this.buttonCode);
             this.Controls.Add(this.statusStrip);
@@ -311,6 +310,7 @@
             this.Controls.Add(this.comboBoxBoardTypes);
             this.Controls.Add(this.buttonCalibrate);
             this.Controls.Add(this.textBoxOutputStatus);
+            this.Controls.Add(this.buttonRecode);
             this.MainMenuStrip = this.menuStripMain;
             this.MinimumSize = new System.Drawing.Size(400, 400);
             this.Name = "Form_Main";

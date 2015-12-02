@@ -171,6 +171,29 @@ namespace PowerCalibration
         }
 
         /// <summary>
+        /// Shows the buttons depending on the space bar shortcut setting
+        /// </summary>
+        void setButtonsVisible()
+        {
+            if (Properties.Settings.Default.Shortcut_Spacebar_Action == "ReCode")
+            {
+                this.buttonRecode.Visible = true;
+
+                this.buttonCode.Visible = false;
+                this.buttonCalibrate.Visible = false;
+                this.buttonAll.Visible = false;
+            }
+            else
+            {
+                this.buttonRecode.Visible = false;
+
+                this.buttonCode.Visible = true;
+                this.buttonCalibrate.Visible = true;
+                this.buttonAll.Visible = true;
+            }
+        }
+
+        /// <summary>
         /// Helper to get db machine id
         /// </summary>
         /// <returns></returns>
@@ -436,6 +459,8 @@ namespace PowerCalibration
                 menuStripMain.Enabled = enable;
 
                 setCodeEnablement(enable, isCoding);
+
+                setButtonsVisible();
             }
         }
 
