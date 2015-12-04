@@ -196,10 +196,12 @@ namespace PowerCalibration
         /// <summary>
         /// Creates a calibration batch file
         /// </summary>
-        /// <param name="vgain">Vrms gain</param>
-        /// <param name="igain">Irms gain</param>
-        public void CreateCalibrationPatchBath(int vgain, int igain)
+        /// <param name="vgain"></param>
+        /// <param name="igain"></param>
+        /// <returns>The command string</returns>
+        public string CreateCalibrationPatchBath(int vgain, int igain)
         {
+            string cmd_str = "";
             using (StreamWriter writer = File.CreateText(_batch_file))
             {
                 string txt;
@@ -207,22 +209,14 @@ namespace PowerCalibration
                     txt = string.Format("pushd \"{0}\"", _ember_work_path);
                 else
                     txt = string.Format("pushd \"{0}\"", AppDomain.CurrentDomain.BaseDirectory);
-                //txt = string.Format("pushd \"{0}\"", _ember_bin_path);
                 writer.WriteLine(txt);
 
-                //txt = string.Format("{0} --usb {1}", _ember_exe, _usb_port);
-                //writer.WriteLine(txt);
-
                 txt = string.Format("\"{0}\"", Path.Combine(_ember_bin_path, _ember_exe));
-                //txt = string.Format("{0}", _ember_exe);
-
-
                 if (_interface == Interfaces.USB)
                     txt += string.Format(" --usb {0}", _interface_address);
                 else if (_interface == Interfaces.IP)
                     txt += string.Format(" --ip {0}", _interface_address);
                 txt += " --patch ";
-
 
                 // vrms
                 int start_addr = _voltageAddress;
@@ -278,12 +272,13 @@ namespace PowerCalibration
                 txt += string.Format("{0:X2} ", 0); // null
 
                 writer.WriteLine(txt);
+                cmd_str = txt;
 
                 txt = string.Format("popd");
                 writer.WriteLine(txt);
-
-                //writer.Close();
             }
+
+            return cmd_str;
         }
 
         /// <summary>

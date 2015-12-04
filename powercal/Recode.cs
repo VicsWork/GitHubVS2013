@@ -34,7 +34,7 @@ namespace PowerCalibration
         public void Run(CancellationToken cancel)
         {
             string serial_number = "";
-            DialogResult rc = ShowInputDialog(ref serial_number, inputbox_label:"Serial");
+            DialogResult rc = ShowInputDialog(ref serial_number, inputbox_label: "Serial");
             if (rc == DialogResult.Cancel)
                 throw new Exception("Serial number not entered");
 
@@ -66,6 +66,7 @@ namespace PowerCalibration
             TCLI.Tokens caltokens = new TCLI.Tokens(0, 0, 0, 0);
             string msg = "";
             bool got_tokens = false;
+            string log_file = "";
             while (true)
             {
                 if (cancel.IsCancellationRequested)
@@ -79,11 +80,11 @@ namespace PowerCalibration
                     msg = string.Format("Voltage Factor: {0}, ", caltokens.VoltageFactor);
                     msg += string.Format("Current Factor: {0}, ", caltokens.CurrentFactor);
                     msg += string.Format("VGain Token: 0x{0:X08}, ", caltokens.VoltageGainToken);
-                    msg += string.Format("VGain Token: 0x{0:X08}", caltokens.CurrentGainToken);
+                    msg += string.Format("VGain Token: 0x{0:X08}\n", caltokens.CurrentGainToken);
                     fire_status(msg);
 
                     string filename = string.Format("tokens_{0}-{1:yyyy-MM-dd_hh-mm-ss-tt}.txt", serial_number, DateTime.Now);
-                    string log_file = Path.Combine(_app_data_dir, filename); // Path to the app log file
+                    log_file = Path.Combine(_app_data_dir, filename); // Path to the app log file
                     File.WriteAllText(log_file, msg);
 
                     got_tokens = true;
@@ -133,7 +134,10 @@ namespace PowerCalibration
 
                 _ember.VoltageRefereceValue = caltokens.VoltageFactor;
                 _ember.CurrentRefereceValue = caltokens.CurrentFactor;
-                _ember.CreateCalibrationPatchBath(vgain: caltokens.VoltageGainToken, igain: caltokens.CurrentGainToken);
+                string cmd_str = _ember.CreateCalibrationPatchBath(vgain: caltokens.VoltageGainToken, igain: caltokens.CurrentGainToken);
+                if (File.Exists(log_file))
+                    File.AppendAllText(log_file, cmd_str);
+
 
                 while (true)
                 {
