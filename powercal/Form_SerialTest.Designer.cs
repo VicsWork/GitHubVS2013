@@ -49,6 +49,7 @@
             this.label6 = new System.Windows.Forms.Label();
             this.comboBoxStopBits = new System.Windows.Forms.ComboBox();
             this.label7 = new System.Windows.Forms.Label();
+            this.checkBoxHardwareFlow = new System.Windows.Forms.CheckBox();
             this.contextMenuReceivedTextBox.SuspendLayout();
             this.SuspendLayout();
             // 
@@ -71,13 +72,13 @@
             this.textBoxSend.AutoCompleteSource = System.Windows.Forms.AutoCompleteSource.CustomSource;
             this.textBoxSend.Location = new System.Drawing.Point(14, 66);
             this.textBoxSend.Name = "textBoxSend";
-            this.textBoxSend.Size = new System.Drawing.Size(377, 20);
+            this.textBoxSend.Size = new System.Drawing.Size(430, 20);
             this.textBoxSend.TabIndex = 1;
             // 
             // buttonSend
             // 
             this.buttonSend.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
-            this.buttonSend.Location = new System.Drawing.Point(448, 66);
+            this.buttonSend.Location = new System.Drawing.Point(501, 66);
             this.buttonSend.Name = "buttonSend";
             this.buttonSend.Size = new System.Drawing.Size(74, 23);
             this.buttonSend.TabIndex = 2;
@@ -112,7 +113,7 @@
             this.textBoxReceive.Location = new System.Drawing.Point(12, 116);
             this.textBoxReceive.Multiline = true;
             this.textBoxReceive.Name = "textBoxReceive";
-            this.textBoxReceive.Size = new System.Drawing.Size(508, 367);
+            this.textBoxReceive.Size = new System.Drawing.Size(561, 367);
             this.textBoxReceive.TabIndex = 5;
             // 
             // contextMenuReceivedTextBox
@@ -132,7 +133,7 @@
             // buttonOK
             // 
             this.buttonOK.Anchor = System.Windows.Forms.AnchorStyles.Bottom;
-            this.buttonOK.Location = new System.Drawing.Point(227, 500);
+            this.buttonOK.Location = new System.Drawing.Point(253, 500);
             this.buttonOK.Name = "buttonOK";
             this.buttonOK.Size = new System.Drawing.Size(75, 23);
             this.buttonOK.TabIndex = 6;
@@ -144,7 +145,7 @@
             // 
             this.checkBoxHex.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
             this.checkBoxHex.AutoSize = true;
-            this.checkBoxHex.Location = new System.Drawing.Point(397, 70);
+            this.checkBoxHex.Location = new System.Drawing.Point(450, 70);
             this.checkBoxHex.Name = "checkBoxHex";
             this.checkBoxHex.Size = new System.Drawing.Size(45, 17);
             this.checkBoxHex.TabIndex = 7;
@@ -154,7 +155,7 @@
             // buttonRefreshPorts
             // 
             this.buttonRefreshPorts.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
-            this.buttonRefreshPorts.Location = new System.Drawing.Point(448, 22);
+            this.buttonRefreshPorts.Location = new System.Drawing.Point(501, 22);
             this.buttonRefreshPorts.Name = "buttonRefreshPorts";
             this.buttonRefreshPorts.Size = new System.Drawing.Size(72, 23);
             this.buttonRefreshPorts.TabIndex = 9;
@@ -242,12 +243,25 @@
             this.label7.TabIndex = 18;
             this.label7.Text = "SBits:";
             // 
+            // checkBoxHardwareFlow
+            // 
+            this.checkBoxHardwareFlow.AutoSize = true;
+            this.checkBoxHardwareFlow.Checked = true;
+            this.checkBoxHardwareFlow.CheckState = System.Windows.Forms.CheckState.Checked;
+            this.checkBoxHardwareFlow.Location = new System.Drawing.Point(398, 26);
+            this.checkBoxHardwareFlow.Name = "checkBoxHardwareFlow";
+            this.checkBoxHardwareFlow.Size = new System.Drawing.Size(97, 17);
+            this.checkBoxHardwareFlow.TabIndex = 19;
+            this.checkBoxHardwareFlow.Text = "Hardware Flow";
+            this.checkBoxHardwareFlow.UseVisualStyleBackColor = true;
+            // 
             // Form_SerialTest
             // 
             this.AcceptButton = this.buttonSend;
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(536, 535);
+            this.ClientSize = new System.Drawing.Size(589, 535);
+            this.Controls.Add(this.checkBoxHardwareFlow);
             this.Controls.Add(this.label7);
             this.Controls.Add(this.comboBoxStopBits);
             this.Controls.Add(this.label6);
@@ -266,7 +280,7 @@
             this.Controls.Add(this.buttonSend);
             this.Controls.Add(this.textBoxSend);
             this.Controls.Add(this.comboBoxPorts);
-            this.MinimumSize = new System.Drawing.Size(552, 300);
+            this.MinimumSize = new System.Drawing.Size(605, 300);
             this.Name = "Form_SerialTest";
             this.Text = "Serial Test";
             this.FormClosing += new System.Windows.Forms.FormClosingEventHandler(this.FormSerialTest_FormClosing);
@@ -298,5 +312,6 @@
         private System.Windows.Forms.Label label6;
         private System.Windows.Forms.ComboBox comboBoxStopBits;
         private System.Windows.Forms.Label label7;
+        private System.Windows.Forms.CheckBox checkBoxHardwareFlow;
     }
 }

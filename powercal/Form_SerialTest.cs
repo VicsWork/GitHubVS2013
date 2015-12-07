@@ -99,12 +99,15 @@ namespace PowerCalibration
                     else
                     {
                         int n = 0;
-                        while (!_serialPort.DsrHolding)
+                        if (this.checkBoxHardwareFlow.Checked)
                         {
-                            Thread.Sleep(250);
-                            n++;
-                            if (n > 100)
-                                break;
+                            while (!_serialPort.DsrHolding)
+                            {
+                                Thread.Sleep(250);
+                                n++;
+                                if (n > 100)
+                                    break;
+                            }
                         }
 
                         _serialPort.WriteLine(txt);
