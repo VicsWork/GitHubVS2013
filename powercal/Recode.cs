@@ -77,7 +77,7 @@ namespace PowerCalibration
                     string cmd_prefix = TCLI.Get_Custom_Command_Prefix(_telnet_connection);
                     caltokens = TCLI.Parse_Pinfo_Tokens(_telnet_connection, cmd_prefix);
 
-                    msg = string.Format("Voltage Factor: {0}, ", caltokens.VoltageFactor);
+                    msg = string.Format("::Voltage Factor: {0}, ", caltokens.VoltageFactor);
                     msg += string.Format("Current Factor: {0}, ", caltokens.CurrentFactor);
                     msg += string.Format("VGain Token: 0x{0:X08}, ", caltokens.VoltageGainToken);
                     msg += string.Format("VGain Token: 0x{0:X08}\n", caltokens.CurrentGainToken);
