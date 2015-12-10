@@ -158,6 +158,7 @@ namespace PowerCalibration
             // get machine id
             DB.ConnectionSB = _db_connect_str;
             Task task_id = new Task<int>(getDBMachineID);
+            task_id.ContinueWith(getDBMachineID_Error, TaskContinuationOptions.OnlyOnFaulted);
             task_id.Start();
             // Create the internal result data table
             createResultTable();
@@ -208,6 +209,10 @@ namespace PowerCalibration
             return _machine_id;
         }
 
+        void getDBMachineID_Error(Task task)
+        {
+            Exception e = task.Exception.InnerException;
+        }
         /// <summary>
         /// Creates the internal data table to store results
         /// </summary>
@@ -255,10 +260,10 @@ namespace PowerCalibration
         {
             string msg = "";
 
-            int machine_id = getDBMachineID();
             try
             {
                 // Update result table with 
+                int machine_id = getDBMachineID();
                 if (machine_id >= 0)
                 {
                     foreach (DataRow r in _datatable_calibrate.Rows)
