@@ -815,10 +815,8 @@ namespace PowerCalibration
                 if (Properties.Settings.Default.Ember_Interface == "USB")
                     ember_address = Properties.Settings.Default.Ember_Interface_USB_Address;
 
-                Form_PowerMeter power_meter_dlg = new Form_PowerMeter(
-                    ember_interface, ember_address,
-                    calibrate.Voltage_Referencer, calibrate.Current_Referencer);
-
+                Form_PowerMeter power_meter_dlg = new Form_PowerMeter(ember_interface, ember_address);
+                    //calibrate.Voltage_Referencer, calibrate.Current_Referencer);
 
                 power_meter_dlg.ShowDialog();
                 _relay_ctrl.Close();

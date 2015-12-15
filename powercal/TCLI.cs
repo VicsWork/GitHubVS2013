@@ -36,14 +36,16 @@ namespace PowerCalibration
         /// </summary>
         public struct Tokens
         {
+            public string EUI;
             public int VoltageGainToken;
             public int CurrentGainToken;
 
             public int VoltageFactor;
             public int CurrentFactor;
 
-            public Tokens(int vgain = 0x004000000, int igain = 0x00400000, int ifactor = 15, int vfactor = 240)
+            public Tokens(int vgain = 0x004000000, int igain = 0x00400000, int ifactor = 15, int vfactor = 240, string eui = "")
             {
+                EUI = eui;
                 VoltageGainToken = vgain;
                 CurrentGainToken = igain;
                 VoltageFactor = vfactor;
@@ -255,6 +257,33 @@ namespace PowerCalibration
             return cmd_pre;
         }
 
+
+        public static string Get_EUI(TelnetConnection telnet_connection)
+        {
+            string eui = null;
+            telnet_connection.WriteLine("info");
+            Thread.Sleep(500);
+            string datain = telnet_connection.Read();
+            Trace.WriteLine(datain);
+            if (datain != null && datain.Length > 0)
+            {
+                string pattern = Regex.Escape("node [(>)") + "([0-9,A-F]{16})" + Regex.Escape("]");
+                Match match = Regex.Match(datain, pattern);
+                if (match.Groups.Count != 2)
+                {
+                    string msg = string.Format("Unable to parse info EUI.  Output was:{0}", datain);
+                    throw new Exception(msg);
+                }
+                eui = match.Groups[1].Value;
+            }
+            else
+            {
+                string msg = string.Format("No data received after \"Info\" command");
+                throw new Exception(msg);
+            }
+
+            return eui;
+        }
 
     }
 }

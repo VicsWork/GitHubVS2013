@@ -49,7 +49,7 @@ namespace PowerCalibration
         double _uut_voltage_reference = 240;
         double _uut_current_reference = 15;
 
-        public Form_PowerMeter(string interface_type, string interface_address, double uut_voltage_reference, double uut_current_reference)
+        public Form_PowerMeter(string interface_type, string interface_address)
         {
             InitializeComponent();
             this.Icon = Properties.Resources.IconPowerCalibration;
@@ -80,8 +80,11 @@ namespace PowerCalibration
             this.labelVGain.Text = string.Format("VGain Token: 0x{0:X08}", calibration_tokens.VoltageGainToken);
             this.labelIGain.Text = string.Format("VGain Token: 0x{0:X08}", calibration_tokens.CurrentGainToken);
 
-            _uut_voltage_reference = uut_voltage_reference;
-            _uut_current_reference = uut_current_reference;
+            _uut_voltage_reference = Convert.ToDouble(calibration_tokens.VoltageFactor);
+            _uut_current_reference = Convert.ToDouble(calibration_tokens.CurrentFactor);
+
+            string eui = TCLI.Get_EUI(_telnet_connection);
+            this.labelEUI.Text = string.Format("EUI: {0}", eui);
 
             this.CLIValue_Event += Form_PowerMeter_CLIValue_Event;
             this.CLIError_Event += Form_PowerMeter_CLIError_Event;

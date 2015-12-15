@@ -33,10 +33,6 @@ namespace PowerCalibration
 
         public void Run(CancellationToken cancel)
         {
-            string serial_number = "";
-            DialogResult rc = ShowInputDialog(ref serial_number, inputbox_label: "Serial");
-            if (rc == DialogResult.Cancel)
-                throw new Exception("Serial number not entered");
 
             // Check to see if Ember is to be used as USB and open ISA channel if so
             // Also set the box address
@@ -61,9 +57,17 @@ namespace PowerCalibration
             if (_ember.Interface == Ember.Interfaces.IP)
                 telnet_address = _ember.Interface_Address;
             _telnet_connection = new TelnetConnection(telnet_address, 4900);
+            bool t = _telnet_connection.IsConnected;
+
+            fire_run_status("Get EUI");
+            string eui = TCLI.Get_EUI(_telnet_connection);
+            //DialogResult rc = ShowInputDialog(ref serial_number, inputbox_label: "Serial");
+            //if (rc == DialogResult.Cancel)
+            //    throw new Exception("Serial number not entered");
+            fire_status("EUI = " + eui);
 
             fire_run_status("Get UUT Tokens");
-            TCLI.Tokens caltokens = new TCLI.Tokens(0, 0, 0, 0);
+            TCLI.Tokens caltokens = new TCLI.Tokens(eui:eui, ifactor:0, vfactor:0, igain:0, vgain:0);
             string msg = "";
             bool got_tokens = false;
             string log_file = "";
@@ -76,14 +80,16 @@ namespace PowerCalibration
                 {
                     string cmd_prefix = TCLI.Get_Custom_Command_Prefix(_telnet_connection);
                     caltokens = TCLI.Parse_Pinfo_Tokens(_telnet_connection, cmd_prefix);
-
-                    msg = string.Format("::Voltage Factor: {0}, ", caltokens.VoltageFactor);
+                    caltokens.EUI = eui;
+                    msg = string.Format("::EUI: {0}, ", eui);
+                    msg += string.Format("Voltage Factor: {0}, ", caltokens.VoltageFactor);
                     msg += string.Format("Current Factor: {0}, ", caltokens.CurrentFactor);
                     msg += string.Format("VGain Token: 0x{0:X08}, ", caltokens.VoltageGainToken);
                     msg += string.Format("VGain Token: 0x{0:X08}\n", caltokens.CurrentGainToken);
                     fire_status(msg);
 
-                    string filename = string.Format("tokens_{0}-{1:yyyy-MM-dd_hh-mm-ss-tt}.txt", serial_number, DateTime.Now);
+                    string filename = string.Format("tokens_{0}.txt", eui);
+                    //string filename = string.Format("tokens_{0}-{1:yyyy-MM-dd_hh-mm-ss-tt}.txt", eui, DateTime.Now);
                     log_file = Path.Combine(_app_data_dir, filename); // Path to the app log file
                     File.WriteAllText(log_file, msg);
 
