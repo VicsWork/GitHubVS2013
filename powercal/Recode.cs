@@ -26,11 +26,19 @@ namespace PowerCalibration
         Ember _ember = null;
         TelnetConnection _telnet_connection; // Telnet connection to ISA3 Adapter
 
+        /// <summary>
+        /// Constructor
+        /// </summary>
+        /// <param name="ember"></param>
         public Recode(Ember ember)
         {
             _ember = ember;
         }
 
+        /// <summary>
+        /// The main re-coding function
+        /// </summary>
+        /// <param name="cancel"></param>
         public void Run(CancellationToken cancel)
         {
 
@@ -81,16 +89,15 @@ namespace PowerCalibration
                     string cmd_prefix = TCLI.Get_Custom_Command_Prefix(_telnet_connection);
                     caltokens = TCLI.Parse_Pinfo_Tokens(_telnet_connection, cmd_prefix);
                     caltokens.EUI = eui;
-                    msg = string.Format("::EUI: {0}, ", eui);
-                    msg += string.Format("Voltage Factor: {0}, ", caltokens.VoltageFactor);
+                    msg = string.Format("Voltage Factor: {0}, ", caltokens.VoltageFactor);
                     msg += string.Format("Current Factor: {0}, ", caltokens.CurrentFactor);
                     msg += string.Format("VGain Token: 0x{0:X08}, ", caltokens.VoltageGainToken);
-                    msg += string.Format("VGain Token: 0x{0:X08}\n", caltokens.CurrentGainToken);
+                    msg += string.Format("CGain Token: 0x{0:X08}", caltokens.CurrentGainToken);
                     fire_status(msg);
 
-                    string filename = string.Format("tokens_{0}.txt", eui);
-                    //string filename = string.Format("tokens_{0}-{1:yyyy-MM-dd_hh-mm-ss-tt}.txt", eui, DateTime.Now);
+                    string filename = string.Format("tokens_{0}-{1:yyyy-MM-dd_hh-mm-ss-tt}.txt", eui, DateTime.Now);
                     log_file = Path.Combine(_app_data_dir, filename); // Path to the app log file
+                    msg = string.Format("::EUI: {0}\n::{1}\n", eui, msg);
                     File.WriteAllText(log_file, msg);
 
                     got_tokens = true;
@@ -170,6 +177,10 @@ namespace PowerCalibration
             }
         }
 
+        /// <summary>
+        /// Calls status event delegate
+        /// </summary>
+        /// <param name="msg"></param>
         void fire_status(string msg)
         {
             if (Status_Event != null)
@@ -178,6 +189,10 @@ namespace PowerCalibration
             }
         }
 
+        /// <summary>
+        /// Calls run status event delegate
+        /// </summary>
+        /// <param name="msg"></param>
         void fire_run_status(string msg)
         {
             if (Run_Status_Event != null)
@@ -186,6 +201,12 @@ namespace PowerCalibration
             }
         }
 
+        /// <summary>
+        /// Used to get a serial number
+        /// </summary>
+        /// <param name="input"></param>
+        /// <param name="inputbox_label"></param>
+        /// <returns></returns>
         private static DialogResult ShowInputDialog(ref string input, string inputbox_label = "Name")
         {
             System.Drawing.Size size = new System.Drawing.Size(200, 70);
