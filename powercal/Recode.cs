@@ -58,27 +58,11 @@ namespace PowerCalibration
                 _ember.Interface_Address = Properties.Settings.Default.Ember_Interface_IP_Address;
             }
 
-            // Create a new telnet connection
-            fire_run_status("Start telnet");
-            // If interface is USB we use localhost
-            string telnet_address = "localhost";
-            if (_ember.Interface == Ember.Interfaces.IP)
-                telnet_address = _ember.Interface_Address;
-            _telnet_connection = new TelnetConnection(telnet_address, 4900);
-            bool t = _telnet_connection.IsConnected;
-
-            fire_run_status("Get EUI");
-            string eui = TCLI.Get_EUI(_telnet_connection);
-            //DialogResult rc = ShowInputDialog(ref serial_number, inputbox_label: "Serial");
-            //if (rc == DialogResult.Cancel)
-            //    throw new Exception("Serial number not entered");
-            fire_status("EUI = " + eui);
-
-            fire_run_status("Get UUT Tokens");
-            TCLI.Tokens caltokens = new TCLI.Tokens(eui:eui, ifactor:0, vfactor:0, igain:0, vgain:0);
+            TCLI.Tokens caltokens = new TCLI.Tokens(eui: "", ifactor: 0, vfactor: 0, igain: 0, vgain: 0);
             string msg = "";
             bool got_tokens = false;
             string log_file = "";
+            string eui = "";
             while (true)
             {
                 if (cancel.IsCancellationRequested)
@@ -86,6 +70,22 @@ namespace PowerCalibration
 
                 try
                 {
+                    // Create a new telnet connection
+                    fire_run_status("Start telnet");
+                    // If interface is USB we use localhost
+                    string telnet_address = "localhost";
+                    if (_ember.Interface == Ember.Interfaces.IP)
+                        telnet_address = _ember.Interface_Address;
+                    _telnet_connection = new TelnetConnection(telnet_address, 4900);
+
+                    fire_run_status("Get EUI");
+                    eui = TCLI.Get_EUI(_telnet_connection);
+                    //DialogResult rc = ShowInputDialog(ref serial_number, inputbox_label: "Serial");
+                    //if (rc == DialogResult.Cancel)
+                    //    throw new Exception("Serial number not entered");
+                    fire_status("EUI = " + eui);
+
+                    fire_run_status("Get UUT Tokens");
                     string cmd_prefix = TCLI.Get_Custom_Command_Prefix(_telnet_connection);
                     caltokens = TCLI.Parse_Pinfo_Tokens(_telnet_connection, cmd_prefix);
                     caltokens.EUI = eui;
