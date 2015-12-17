@@ -97,7 +97,7 @@ namespace PowerCalibration
 
                     string filename = string.Format("tokens_{0}-{1:yyyy-MM-dd_hh-mm-ss-tt}.txt", eui, DateTime.Now);
                     log_file = Path.Combine(_app_data_dir, filename); // Path to the app log file
-                    msg = string.Format("::EUI: {0}\n::{1}\n", eui, msg);
+                    msg = string.Format("::EUI: {0}\r\n::{1}\r\n", eui, msg);
                     File.WriteAllText(log_file, msg);
 
                     got_tokens = true;
