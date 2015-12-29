@@ -129,11 +129,17 @@ namespace PowerCalibration
             double current_cs = 0.0;
             double voltage_cs = 0.0;
 
+            TCLI.Wait_For_Prompt(telnet_connection);
+
             string cmd = string.Format("cu {0}_pload", cmd_prefix);
             telnet_connection.WriteLine(cmd);
             Thread.Sleep(500);
+
             string datain = telnet_connection.Read();
             Trace.WriteLine(datain);
+
+            TCLI.Wait_For_Prompt(telnet_connection);
+
             string msg;
 
             if (datain != null && datain.Length > 0)
@@ -227,6 +233,7 @@ namespace PowerCalibration
             int try_count = 0;
             string data = "";
 
+            TCLI.Wait_For_Prompt(telnet_connection);
             while (true)
             {
                 telnet_connection.WriteLine("cu");
@@ -257,9 +264,15 @@ namespace PowerCalibration
             return cmd_pre;
         }
 
-
+        /// <summary>
+        /// Gets the EUI
+        /// </summary>
+        /// <param name="telnet_connection"></param>
+        /// <returns></returns>
         public static string Get_EUI(TelnetConnection telnet_connection)
         {
+            TCLI.Wait_For_Prompt(telnet_connection);
+
             string eui = null;
             telnet_connection.WriteLine("info");
             Thread.Sleep(500);
@@ -283,6 +296,40 @@ namespace PowerCalibration
             }
 
             return eui;
+        }
+
+        /// <summary>
+        /// Sets the state of the relay
+        /// </summary>
+        /// <param name="telnet_connection"></param>
+        /// <param name="value"></param>
+        public static void Set_Relay_State(TelnetConnection telnet_connection, bool value)
+        {
+            if (value)
+            {
+                Wait_For_Prompt(telnet_connection);
+                telnet_connection.WriteLine("write 1 6 0 1 0x10 {01}");
+                Wait_For_Prompt(telnet_connection);
+
+            }
+            else
+            {
+                telnet_connection.WriteLine("write 1 6 0 1 0x10 {00}");
+            }
+        }
+
+        public static void Wait_For_Prompt(TelnetConnection telnet_connection)
+        {
+            telnet_connection.Read();
+            int n = 0;
+            while (n < 3)
+            {
+                telnet_connection.WriteLine("");
+                string data = telnet_connection.Read();
+                if (data.Contains('>'))
+                    break;
+                n++;
+            }
         }
 
     }

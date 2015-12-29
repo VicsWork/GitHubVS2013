@@ -209,6 +209,8 @@ namespace PowerCalibration
 
             // Connect the load and verify ac
             _relay_ctrl.WriteLine(Relay_Lines.Load, true);
+            // Close the UUT relay
+            //TCLI.Set_Relay_State(_telnet_connection, true);
             Thread.Sleep(1000);
             verify_voltage_ac();
 
@@ -526,7 +528,6 @@ namespace PowerCalibration
                 Run_Status_Event(this, msg);
             }
         }
-
 
         void fire_relay_status()
         {

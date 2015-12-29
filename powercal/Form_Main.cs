@@ -69,6 +69,8 @@ namespace PowerCalibration
         uint _db_total_written = 0;
         int _machine_id = -1;
 
+        // Added _pretest_enabled so I could code/calibrate Zebrasharks at my desk without relay controller
+        Boolean _pretest_enabled = true;
 
         /// <summary>
         /// The main form constructor
@@ -1019,6 +1021,9 @@ namespace PowerCalibration
         /// <returns></returns>
         double wait_for_power_off()
         {
+            if (!_pretest_enabled)
+                return 0;
+
             if (_meter == null)
                 return -1;
 
@@ -1191,6 +1196,13 @@ namespace PowerCalibration
                 _meter = null;
             else
                 _meter = new MultiMeter(Properties.Settings.Default.Meter_COM_Port_Name);
+
+            if (!_pretest_enabled)
+            {
+                pretest_done();
+                return;
+            }
+
 
             _relay_ctrl.Open();
             _relay_ctrl.WriteLine(Relay_Lines.Ember, false);
