@@ -58,6 +58,7 @@
             this.groupBox3 = new System.Windows.Forms.GroupBox();
             this.comboBoxShortcutActions = new System.Windows.Forms.ComboBox();
             this.label12 = new System.Windows.Forms.Label();
+            this.checkBoxPreProTest = new System.Windows.Forms.CheckBox();
             this.groupBox1.SuspendLayout();
             this.groupBoxDIO.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.numericUpDown_Voltmeter)).BeginInit();
@@ -87,12 +88,13 @@
             // 
             // groupBox1
             // 
+            this.groupBox1.Controls.Add(this.checkBoxPreProTest);
             this.groupBox1.Controls.Add(this.CheckBoxManualMultiMeter);
             this.groupBox1.Controls.Add(this.TextBoxMeterCOM);
             this.groupBox1.Controls.Add(this.label2);
-            this.groupBox1.Location = new System.Drawing.Point(250, 150);
+            this.groupBox1.Location = new System.Drawing.Point(199, 143);
             this.groupBox1.Name = "groupBox1";
-            this.groupBox1.Size = new System.Drawing.Size(230, 68);
+            this.groupBox1.Size = new System.Drawing.Size(230, 92);
             this.groupBox1.TabIndex = 6;
             this.groupBox1.TabStop = false;
             this.groupBox1.Text = "Measurement";
@@ -111,7 +113,7 @@
             // buttonOK
             // 
             this.buttonOK.DialogResult = System.Windows.Forms.DialogResult.OK;
-            this.buttonOK.Location = new System.Drawing.Point(170, 333);
+            this.buttonOK.Location = new System.Drawing.Point(142, 333);
             this.buttonOK.Name = "buttonOK";
             this.buttonOK.Size = new System.Drawing.Size(75, 23);
             this.buttonOK.TabIndex = 7;
@@ -121,7 +123,7 @@
             // buttonCancel
             // 
             this.buttonCancel.DialogResult = System.Windows.Forms.DialogResult.Cancel;
-            this.buttonCancel.Location = new System.Drawing.Point(251, 333);
+            this.buttonCancel.Location = new System.Drawing.Point(223, 333);
             this.buttonCancel.Name = "buttonCancel";
             this.buttonCancel.Size = new System.Drawing.Size(75, 23);
             this.buttonCancel.TabIndex = 8;
@@ -141,14 +143,14 @@
             this.groupBoxDIO.Controls.Add(this.NumericUpDown_ACPower);
             this.groupBoxDIO.Location = new System.Drawing.Point(12, 143);
             this.groupBoxDIO.Name = "groupBoxDIO";
-            this.groupBoxDIO.Size = new System.Drawing.Size(217, 150);
+            this.groupBoxDIO.Size = new System.Drawing.Size(178, 164);
             this.groupBoxDIO.TabIndex = 9;
             this.groupBoxDIO.TabStop = false;
             this.groupBoxDIO.Text = "DIO Line";
             // 
             // numericUpDown_Voltmeter
             // 
-            this.numericUpDown_Voltmeter.Location = new System.Drawing.Point(168, 96);
+            this.numericUpDown_Voltmeter.Location = new System.Drawing.Point(99, 130);
             this.numericUpDown_Voltmeter.Maximum = new decimal(new int[] {
             7,
             0,
@@ -161,7 +163,7 @@
             // label5
             // 
             this.label5.AutoSize = true;
-            this.label5.Location = new System.Drawing.Point(111, 98);
+            this.label5.Location = new System.Drawing.Point(39, 132);
             this.label5.Name = "label5";
             this.label5.Size = new System.Drawing.Size(51, 13);
             this.label5.TabIndex = 10;
@@ -188,7 +190,7 @@
             // label6
             // 
             this.label6.AutoSize = true;
-            this.label6.Location = new System.Drawing.Point(111, 70);
+            this.label6.Location = new System.Drawing.Point(39, 110);
             this.label6.Name = "label6";
             this.label6.Size = new System.Drawing.Size(37, 13);
             this.label6.TabIndex = 7;
@@ -196,7 +198,7 @@
             // 
             // NumericUpDown_Ember
             // 
-            this.NumericUpDown_Ember.Location = new System.Drawing.Point(167, 68);
+            this.NumericUpDown_Ember.Location = new System.Drawing.Point(99, 108);
             this.NumericUpDown_Ember.Maximum = new decimal(new int[] {
             7,
             0,
@@ -209,7 +211,7 @@
             // label4
             // 
             this.label4.AutoSize = true;
-            this.label4.Location = new System.Drawing.Point(7, 92);
+            this.label4.Location = new System.Drawing.Point(41, 86);
             this.label4.Name = "label4";
             this.label4.Size = new System.Drawing.Size(31, 13);
             this.label4.TabIndex = 3;
@@ -217,7 +219,7 @@
             // 
             // NumericUpDown_Load
             // 
-            this.NumericUpDown_Load.Location = new System.Drawing.Point(67, 91);
+            this.NumericUpDown_Load.Location = new System.Drawing.Point(99, 84);
             this.NumericUpDown_Load.Maximum = new decimal(new int[] {
             7,
             0,
@@ -230,7 +232,7 @@
             // label3
             // 
             this.label3.AutoSize = true;
-            this.label3.Location = new System.Drawing.Point(7, 69);
+            this.label3.Location = new System.Drawing.Point(39, 62);
             this.label3.Name = "label3";
             this.label3.Size = new System.Drawing.Size(54, 13);
             this.label3.TabIndex = 1;
@@ -238,7 +240,7 @@
             // 
             // NumericUpDown_ACPower
             // 
-            this.NumericUpDown_ACPower.Location = new System.Drawing.Point(67, 68);
+            this.NumericUpDown_ACPower.Location = new System.Drawing.Point(99, 61);
             this.NumericUpDown_ACPower.Maximum = new decimal(new int[] {
             7,
             0,
@@ -259,7 +261,7 @@
             this.groupBox2.Controls.Add(this.TextBoxEmberBinPath);
             this.groupBox2.Location = new System.Drawing.Point(12, 12);
             this.groupBox2.Name = "groupBox2";
-            this.groupBox2.Size = new System.Drawing.Size(468, 125);
+            this.groupBox2.Size = new System.Drawing.Size(416, 125);
             this.groupBox2.TabIndex = 13;
             this.groupBox2.TabStop = false;
             this.groupBox2.Text = "Ember";
@@ -304,7 +306,7 @@
             // 
             // buttonEmberBinPathBrowse
             // 
-            this.buttonEmberBinPathBrowse.Location = new System.Drawing.Point(387, 75);
+            this.buttonEmberBinPathBrowse.Location = new System.Drawing.Point(335, 76);
             this.buttonEmberBinPathBrowse.Name = "buttonEmberBinPathBrowse";
             this.buttonEmberBinPathBrowse.Size = new System.Drawing.Size(75, 23);
             this.buttonEmberBinPathBrowse.TabIndex = 15;
@@ -324,16 +326,16 @@
             // 
             this.TextBoxEmberBinPath.Location = new System.Drawing.Point(44, 78);
             this.TextBoxEmberBinPath.Name = "TextBoxEmberBinPath";
-            this.TextBoxEmberBinPath.Size = new System.Drawing.Size(337, 20);
+            this.TextBoxEmberBinPath.Size = new System.Drawing.Size(290, 20);
             this.TextBoxEmberBinPath.TabIndex = 13;
             // 
             // groupBox3
             // 
             this.groupBox3.Controls.Add(this.comboBoxShortcutActions);
             this.groupBox3.Controls.Add(this.label12);
-            this.groupBox3.Location = new System.Drawing.Point(250, 234);
+            this.groupBox3.Location = new System.Drawing.Point(198, 248);
             this.groupBox3.Name = "groupBox3";
-            this.groupBox3.Size = new System.Drawing.Size(217, 59);
+            this.groupBox3.Size = new System.Drawing.Size(230, 59);
             this.groupBox3.TabIndex = 15;
             this.groupBox3.TabStop = false;
             this.groupBox3.Text = "Shortcuts";
@@ -361,13 +363,26 @@
             this.label12.TabIndex = 0;
             this.label12.Text = "SPACE";
             // 
+            // checkBoxPreProTest
+            // 
+            this.checkBoxPreProTest.AutoSize = true;
+            this.checkBoxPreProTest.Checked = true;
+            this.checkBoxPreProTest.CheckState = System.Windows.Forms.CheckState.Checked;
+            this.checkBoxPreProTest.Location = new System.Drawing.Point(7, 57);
+            this.checkBoxPreProTest.Name = "checkBoxPreProTest";
+            this.checkBoxPreProTest.Size = new System.Drawing.Size(92, 17);
+            this.checkBoxPreProTest.TabIndex = 7;
+            this.checkBoxPreProTest.Text = "Pre/Post Test";
+            this.checkBoxPreProTest.UseVisualStyleBackColor = true;
+            this.checkBoxPreProTest.CheckedChanged += new System.EventHandler(this.checkBoxPreProTest_CheckedChanged);
+            // 
             // Form_Settings
             // 
             this.AcceptButton = this.buttonOK;
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.CancelButton = this.buttonCancel;
-            this.ClientSize = new System.Drawing.Size(492, 368);
+            this.ClientSize = new System.Drawing.Size(441, 368);
             this.Controls.Add(this.groupBox3);
             this.Controls.Add(this.groupBox2);
             this.Controls.Add(this.groupBoxDIO);
@@ -425,5 +440,6 @@
         private System.Windows.Forms.GroupBox groupBox3;
         private System.Windows.Forms.ComboBox comboBoxShortcutActions;
         private System.Windows.Forms.Label label12;
+        private System.Windows.Forms.CheckBox checkBoxPreProTest;
     }
 }

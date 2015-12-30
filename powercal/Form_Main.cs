@@ -69,9 +69,6 @@ namespace PowerCalibration
         uint _db_total_written = 0;
         int _machine_id = -1;
 
-        // Added _pretest_enabled so I could code/calibrate Zebrasharks at my desk without relay controller
-        Boolean _pretest_enabled = true;
-
         /// <summary>
         /// The main form constructor
         /// </summary>
@@ -1021,7 +1018,7 @@ namespace PowerCalibration
         /// <returns></returns>
         double wait_for_power_off()
         {
-            if (!_pretest_enabled)
+            if (!Properties.Settings.Default.PrePost_Test_Enabled)
                 return 0;
 
             if (_meter == null)
@@ -1031,7 +1028,8 @@ namespace PowerCalibration
                 _relay_ctrl.WriteLine(Relay_Lines.Voltmeter, false);  // AC measure
 
             // Measure Voltage after power off
-            _meter.OpenComPort();
+            if(!_meter.IsSerialPortOpen)
+                _meter.OpenComPort();
             _meter.SetupForVAC();
             double vac = -1.0;
             int n = 0;
@@ -1042,7 +1040,7 @@ namespace PowerCalibration
                 vac = Double.Parse(voltage_meter_str);
                 if (vac < 1.0)
                     break;
-                if (n > 10)
+                if (n++ > 10)
                 {
                     _meter.CloseSerialPort();
                     msg = string.Format("Warning.  Failed to power off. VAC = {0:F8}", vac);
@@ -1138,7 +1136,6 @@ namespace PowerCalibration
             // Wait for power off
             if (_meter != null)
             {
-                _meter.CloseSerialPort();
                 wait_for_power_off();
             }
 
@@ -1197,7 +1194,7 @@ namespace PowerCalibration
             else
                 _meter = new MultiMeter(Properties.Settings.Default.Meter_COM_Port_Name);
 
-            if (!_pretest_enabled)
+            if (!Properties.Settings.Default.PrePost_Test_Enabled)
             {
                 pretest_done();
                 return;
@@ -1242,7 +1239,14 @@ namespace PowerCalibration
             }
             else
             {
-                power_off();
+                try
+                {
+                    power_off();
+                }
+                catch (Exception ex)
+                {
+                    updateOutputStatus("Power off exception:" + ex.Message);
+                }
 
                 updateRunStatus("FAIL", Color.White, Color.Red);
                 updateOutputStatus(_pretest_error_msg);
@@ -1438,7 +1442,14 @@ namespace PowerCalibration
         /// </summary>
         void calibration_done()
         {
-            power_off();
+            try
+            {
+                power_off();
+            }
+            catch (Exception ex)
+            {
+                updateOutputStatus("Power off exception:" + ex.Message);
+            }
 
             // Check PASS or FAIL
             if (_calibration_error_msg == null)
@@ -1661,8 +1672,14 @@ namespace PowerCalibration
 
                 if (_meter != null)
                 {
-                    _meter.CloseSerialPort();
-                    wait_for_power_off();
+                    try
+                    {
+                        wait_for_power_off();
+                    }
+                    catch (Exception ex)
+                    {
+                        updateOutputStatus("Wait for Power exception: " + ex.Message);
+                    }
                 }
             }
 

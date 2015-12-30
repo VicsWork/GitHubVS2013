@@ -36,6 +36,8 @@ namespace PowerCalibration
             TextBoxEmberBinPath.Text = Properties.Settings.Default.Ember_BinPath;
 
             comboBoxShortcutActions.Text = Properties.Settings.Default.Shortcut_Spacebar_Action;
+
+            checkBoxPreProTest.Checked = Properties.Settings.Default.PrePost_Test_Enabled;
         }
 
         private void buttonOK_Click(object sender, EventArgs e)
@@ -60,12 +62,15 @@ namespace PowerCalibration
             if (CheckBoxManualMultiMeter.Checked)
             {
                 TextBoxMeterCOM.Enabled = false;
+                this.checkBoxPreProTest.Checked = false;
+                this.checkBoxPreProTest.Enabled = false;
             }
             else
             {
                 TextBoxMeterCOM.Enabled = true;
+                this.checkBoxPreProTest.Enabled = true;
+                this.checkBoxPreProTest.Checked = Properties.Settings.Default.PrePost_Test_Enabled;
             }
-
         }
 
         private void buttonEmberBinPathBrowse_Click(object sender, EventArgs e)
@@ -90,15 +95,15 @@ namespace PowerCalibration
                 {
                     RelayControler.Device_Types device = (RelayControler.Device_Types)Enum.Parse(
                         typeof(RelayControler.Device_Types), comboBoxDIOCtrollerTypes.Text);
-                    
+
                     RelayControler relay_ctrl = new RelayControler(device);
-                    
+
                     Dictionary<string, uint> relay_lines = relay_ctrl.DicLines_ReadSettings();
                     NumericUpDown_ACPower.Value = relay_lines[PowerCalibration.Relay_Lines.Power];
                     NumericUpDown_Load.Value = relay_lines[PowerCalibration.Relay_Lines.Load];
                     NumericUpDown_Ember.Value = relay_lines[PowerCalibration.Relay_Lines.Ember];
                     numericUpDown_Voltmeter.Value = relay_lines[PowerCalibration.Relay_Lines.Voltmeter];
-                    
+
                     setLineEnablement(true);
                 }
                 catch (Exception ex)
@@ -149,6 +154,11 @@ namespace PowerCalibration
         private void comboBoxShortcutActions_SelectedIndexChanged(object sender, EventArgs e)
         {
             Properties.Settings.Default.Shortcut_Spacebar_Action = comboBoxShortcutActions.Text;
+        }
+
+        private void checkBoxPreProTest_CheckedChanged(object sender, EventArgs e)
+        {
+            Properties.Settings.Default.PrePost_Test_Enabled = this.checkBoxPreProTest.Checked;
         }
 
     }

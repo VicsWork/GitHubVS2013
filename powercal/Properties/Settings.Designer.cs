@@ -153,5 +153,17 @@ namespace PowerCalibration.Properties {
                 return ((string)(this["PowerCalibrationConnectionString"]));
             }
         }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("True")]
+        public bool PrePost_Test_Enabled {
+            get {
+                return ((bool)(this["PrePost_Test_Enabled"]));
+            }
+            set {
+                this["PrePost_Test_Enabled"] = value;
+            }
+        }
     }
 }

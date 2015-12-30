@@ -40,5 +40,8 @@
 &lt;/SerializableConnectionString&gt;</DesignTimeValue>
       <Value Profile="(Default)">Data Source=a1040.centralite.com;Initial Catalog=PowerCalibration;Integrated Security=True</Value>
     </Setting>
+    <Setting Name="PrePost_Test_Enabled" Type="System.Boolean" Scope="User">
+      <Value Profile="(Default)">True</Value>
+    </Setting>
   </Settings>
 </SettingsFile>

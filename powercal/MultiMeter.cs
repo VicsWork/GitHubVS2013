@@ -17,6 +17,11 @@ namespace PowerCalibration
             set { _waitForDsrHolding = value; }
         }
 
+        public bool IsSerialPortOpen
+        {
+            get {return this._serialPort.IsOpen;}
+        }
+
         private bool _waitForDsrHolding = true;
         private string _portName;
         private SerialPort _serialPort;
