@@ -7,7 +7,7 @@ using System.Threading;
 
 namespace PowerCalibration
 {
-    class PreTest
+    class Tests
     {
         public delegate void StatusHandler(object sender, string status_txt);
         public event StatusHandler Status_Event;

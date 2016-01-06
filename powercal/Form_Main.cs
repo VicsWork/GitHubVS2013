@@ -38,8 +38,6 @@ namespace PowerCalibration
         RelayControler _relay_ctrl; // The relay controller
         TelnetConnection _telnet_connection; // Telnet connection to ISA3 Adapter
         Ember _ember; // The Ember box
-        Calibrate _calibrate = new Calibrate(); // Calibration object
-        PreTest _pretest = new PreTest();
         Stopwatch _stopwatch_running = new Stopwatch();  // Used to measure running tasks
         Stopwatch _stopwatch_idel = new Stopwatch();  // Used to measure idle
         string _calibration_error_msg = null;  //  If set this will indicate the calibration error
@@ -64,6 +62,7 @@ namespace PowerCalibration
         delegate BoardTypes getSelectedBoardTypeCallback();
 
         SqlConnectionStringBuilder _db_connect_str;
+        bool _db_Loging = true; // use to enable/disable db logging
         Task _task_updatedb;
         DataTable _datatable_calibrate;
         uint _db_total_written = 0;
@@ -141,26 +140,29 @@ namespace PowerCalibration
             _ember.Process_ISAChan_Error_Event += p_ember_isachan_ErrorDataReceived;
             _ember.Process_ISAChan_Output_Event += p_ember_isachan_OutputDataReceived;
 
-            // set the calibrate events
-            _calibrate.Status_Event += calibrate_Status_event;
-            _calibrate.Run_Status_Event += calibrate_Run_Status_Event;
-            _calibrate.Relay_Event += calibrate_Relay_Event;
-            _calibrate.CalibrationResults_Event += calibrationResults_Event;
-
-            _pretest.Status_Event += _pretest_Status_Event;
 
             // Enable the app
             setEnablement(true, false);
 
             // Init the db connection string
+            _db_Loging = Properties.Settings.Default.DB_Loging_Enabled;
             _db_connect_str = new SqlConnectionStringBuilder(Properties.Settings.Default.PowerCalibrationConnectionString);
-            // get machine id
-            DB.ConnectionSB = _db_connect_str;
-            Task task_id = new Task<int>(getDBMachineID);
-            task_id.ContinueWith(getDBMachineID_Error, TaskContinuationOptions.OnlyOnFaulted);
-            task_id.Start();
-            // Create the internal result data table
-            createResultTable();
+            if (isDBLogingEnabled())
+            {
+                // get machine id
+                DB.ConnectionSB = _db_connect_str;
+                Task task_id = new Task<int>(getDBMachineID);
+                task_id.ContinueWith(getDBMachineID_Error, TaskContinuationOptions.OnlyOnFaulted);
+                task_id.Start();
+                // Create the internal result data table
+                createResultTable();
+                updateOutputStatus("DB logging enabled");
+            }
+            else
+            {
+                updateOutputStatus("DB logging disabled");
+            }
+
 
             //CalibrationResultsEventArgs e = new CalibrationResultsEventArgs();
             //e.Current_gain = 1;
@@ -220,14 +222,28 @@ namespace PowerCalibration
             _datatable_calibrate = new DataTable("results");
             _datatable_calibrate.Columns.Add("voltage_gain", typeof(SqlInt32));
             _datatable_calibrate.Columns.Add("current_gain", typeof(SqlInt32));
-            //_datatable_calibrate.Columns.Add("mac", typeof(char[]));
+            //_datatable_calibrate.Columns.Add("eui", typeof(char[]));
             _datatable_calibrate.Columns.Add("timestamp", typeof(SqlDateTime));
             _datatable_calibrate.Columns.Add("machine_id", typeof(SqlInt32));
 
         }
 
+        /// <summary>
+        /// Returns whether DB logging is disabled
+        /// </summary>
+        /// <returns></returns>
+        bool isDBLogingEnabled()
+        {
+            return _db_Loging;
+        }
+
+
         void calibrationResults_Event(object sender, CalibrationResultsEventArgs e)
         {
+            // Check whether db loging is disabled
+            if (!isDBLogingEnabled())
+                return;
+
             DataRow r = _datatable_calibrate.NewRow();
             r["voltage_gain"] = e.Voltage_gain;
             r["current_gain"] = e.Current_gain;
@@ -815,7 +831,7 @@ namespace PowerCalibration
                     ember_address = Properties.Settings.Default.Ember_Interface_USB_Address;
 
                 Form_PowerMeter power_meter_dlg = new Form_PowerMeter(ember_interface, ember_address);
-                    //calibrate.Voltage_Referencer, calibrate.Current_Referencer);
+                //calibrate.Voltage_Referencer, calibrate.Current_Referencer);
 
                 power_meter_dlg.ShowDialog();
                 _relay_ctrl.Close();
@@ -1028,7 +1044,7 @@ namespace PowerCalibration
                 _relay_ctrl.WriteLine(Relay_Lines.Voltmeter, false);  // AC measure
 
             // Measure Voltage after power off
-            if(!_meter.IsSerialPortOpen)
+            if (!_meter.IsSerialPortOpen)
                 _meter.OpenComPort();
             _meter.SetupForVAC();
             double vac = -1.0;
@@ -1194,29 +1210,31 @@ namespace PowerCalibration
             else
                 _meter = new MultiMeter(Properties.Settings.Default.Meter_COM_Port_Name);
 
-            if (!Properties.Settings.Default.PrePost_Test_Enabled)
-            {
-                pretest_done();
-                return;
-            }
-
 
             _relay_ctrl.Open();
             _relay_ctrl.WriteLine(Relay_Lines.Ember, false);
             _relay_ctrl.WriteLine(Relay_Lines.Load, false);
             _relay_ctrl.WriteLine(Relay_Lines.Power, true);
 
+            if (!Properties.Settings.Default.PrePost_Test_Enabled)
+            {
+                pretest_done();
+                return;
+            }
+
             Thread.Sleep(1000);
 
 
-            _pretest.MultiMeter = _meter;
-            _pretest.RelayController = _relay_ctrl;
-            _pretest.Voltage_DC_High_Limit = 3.3 + 0.33;
-            _pretest.Voltage_DC_Low_Limit = 3.3 - 0.33;
+            Tests pretest = new Tests();
+            pretest.Status_Event += _pretest_Status_Event;
+            pretest.MultiMeter = _meter;
+            pretest.RelayController = _relay_ctrl;
+            pretest.Voltage_DC_High_Limit = 3.3 + 0.33;
+            pretest.Voltage_DC_Low_Limit = 3.3 - 0.33;
 
 
             _cancel_token_uut = new CancellationTokenSource();
-            _task_uut = new Task(() => _pretest.Verify_Voltage(_cancel_token_uut.Token), _cancel_token_uut.Token);
+            _task_uut = new Task(() => pretest.Verify_Voltage(_cancel_token_uut.Token), _cancel_token_uut.Token);
             _task_uut.ContinueWith(pretest_done_handler, TaskContinuationOptions.OnlyOnRanToCompletion);
             _task_uut.ContinueWith(pretest_exception_handler, TaskContinuationOptions.OnlyOnFaulted);
             _task_uut.Start();
@@ -1268,9 +1286,6 @@ namespace PowerCalibration
             {
                 // Start the running watch
                 _stopwatch_running.Restart();
-
-                // Init the calibrate object so we can get dv voltage limits
-                _calibrate.BoardType = getSelectedBoardType();
 
                 if (_next_task == TaskTypes.Code)
                 {
@@ -1421,14 +1436,20 @@ namespace PowerCalibration
             _calibrate_after_code = false;
 
             // Run the calibration
-            _calibrate.Ember = _ember;
-            _calibrate.MultiMeter = _meter;
-            _calibrate.RelayController = _relay_ctrl;
-            _calibrate.TelnetConnection = _telnet_connection;
+            Calibrate calibrate = new Calibrate(); // Calibration object
+            calibrate.Status_Event += calibrate_Status_event;
+            calibrate.Run_Status_Event += calibrate_Run_Status_Event;
+            calibrate.Relay_Event += calibrate_Relay_Event;
+            calibrate.CalibrationResults_Event += calibrationResults_Event;
+            calibrate.BoardType = getSelectedBoardType();
+            calibrate.Ember = _ember;
+            calibrate.MultiMeter = _meter;
+            calibrate.RelayController = _relay_ctrl;
+            calibrate.TelnetConnection = _telnet_connection;
 
 
             _cancel_token_uut = new CancellationTokenSource();
-            _task_uut = new Task(() => _calibrate.Run(_cancel_token_uut.Token), _cancel_token_uut.Token);
+            _task_uut = new Task(() => calibrate.Run(_cancel_token_uut.Token), _cancel_token_uut.Token);
             _task_uut.ContinueWith(
                 calibrate_exception_handler, TaskContinuationOptions.OnlyOnFaulted);
             _task_uut.ContinueWith(
@@ -1772,7 +1793,7 @@ namespace PowerCalibration
         private void buttonRecode_Click(object sender, EventArgs e)
         {
 
-            this.textBoxOutputStatus.Clear(); 
+            this.textBoxOutputStatus.Clear();
             runStatus_Init();
 
             _cancel_token_uut = new CancellationTokenSource();

@@ -131,18 +131,6 @@ namespace PowerCalibration.Properties {
             }
         }
         
-        [global::System.Configuration.UserScopedSettingAttribute()]
-        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
-        [global::System.Configuration.DefaultSettingValueAttribute("")]
-        public string Setting {
-            get {
-                return ((string)(this["Setting"]));
-            }
-            set {
-                this["Setting"] = value;
-            }
-        }
-        
         [global::System.Configuration.ApplicationScopedSettingAttribute()]
         [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
         [global::System.Configuration.SpecialSettingAttribute(global::System.Configuration.SpecialSetting.ConnectionString)]
@@ -163,6 +151,18 @@ namespace PowerCalibration.Properties {
             }
             set {
                 this["PrePost_Test_Enabled"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("True")]
+        public bool DB_Loging_Enabled {
+            get {
+                return ((bool)(this["DB_Loging_Enabled"]));
+            }
+            set {
+                this["DB_Loging_Enabled"] = value;
             }
         }
     }
