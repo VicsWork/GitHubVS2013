@@ -189,7 +189,7 @@
     <Compile Include="ft232hdio.cs" />
     <Compile Include="MouseHook.cs" />
     <Compile Include="MultiMeter.cs" />
-    <Compile Include="PreTest.cs" />
+    <Compile Include="Tests.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Recode.cs" />
