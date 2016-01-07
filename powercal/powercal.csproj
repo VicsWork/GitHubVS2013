@@ -186,6 +186,12 @@
     <Compile Include="Form_SerialTest.Designer.cs">
       <DependentUpon>Form_SerialTest.cs</DependentUpon>
     </Compile>
+    <Compile Include="Form_Settings2.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="Form_Settings2.Designer.cs">
+      <DependentUpon>Form_Settings2.cs</DependentUpon>
+    </Compile>
     <Compile Include="ft232hdio.cs" />
     <Compile Include="MouseHook.cs" />
     <Compile Include="MultiMeter.cs" />
@@ -227,6 +233,9 @@
     </EmbeddedResource>
     <EmbeddedResource Include="Form_SerialTest.resx">
       <DependentUpon>Form_SerialTest.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Form_Settings2.resx">
+      <DependentUpon>Form_Settings2.cs</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="Properties\Resources.resx">
       <Generator>ResXFileCodeGenerator</Generator>

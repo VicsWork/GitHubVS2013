@@ -161,5 +161,10 @@ namespace PowerCalibration
             Properties.Settings.Default.PrePost_Test_Enabled = this.checkBoxPreProTest.Checked;
         }
 
+        private void Form_Settings_Load(object sender, EventArgs e)
+        {
+
+        }
+
     }
 }

@@ -32,20 +32,11 @@
             this.TextBoxMeterCOM = new System.Windows.Forms.TextBox();
             this.label2 = new System.Windows.Forms.Label();
             this.groupBox1 = new System.Windows.Forms.GroupBox();
+            this.checkBoxPreProTest = new System.Windows.Forms.CheckBox();
             this.CheckBoxManualMultiMeter = new System.Windows.Forms.CheckBox();
             this.buttonOK = new System.Windows.Forms.Button();
             this.buttonCancel = new System.Windows.Forms.Button();
             this.groupBoxDIO = new System.Windows.Forms.GroupBox();
-            this.numericUpDown_Voltmeter = new System.Windows.Forms.NumericUpDown();
-            this.label5 = new System.Windows.Forms.Label();
-            this.label1 = new System.Windows.Forms.Label();
-            this.comboBoxDIOCtrollerTypes = new System.Windows.Forms.ComboBox();
-            this.label6 = new System.Windows.Forms.Label();
-            this.NumericUpDown_Ember = new System.Windows.Forms.NumericUpDown();
-            this.label4 = new System.Windows.Forms.Label();
-            this.NumericUpDown_Load = new System.Windows.Forms.NumericUpDown();
-            this.label3 = new System.Windows.Forms.Label();
-            this.NumericUpDown_ACPower = new System.Windows.Forms.NumericUpDown();
             this.toolTip1 = new System.Windows.Forms.ToolTip(this.components);
             this.groupBox2 = new System.Windows.Forms.GroupBox();
             this.textBoxEmberInterfaceAddress = new System.Windows.Forms.TextBox();
@@ -58,15 +49,24 @@
             this.groupBox3 = new System.Windows.Forms.GroupBox();
             this.comboBoxShortcutActions = new System.Windows.Forms.ComboBox();
             this.label12 = new System.Windows.Forms.Label();
-            this.checkBoxPreProTest = new System.Windows.Forms.CheckBox();
+            this.numericUpDown_Voltmeter = new System.Windows.Forms.NumericUpDown();
+            this.label5 = new System.Windows.Forms.Label();
+            this.label1 = new System.Windows.Forms.Label();
+            this.label6 = new System.Windows.Forms.Label();
+            this.NumericUpDown_Ember = new System.Windows.Forms.NumericUpDown();
+            this.label4 = new System.Windows.Forms.Label();
+            this.NumericUpDown_Load = new System.Windows.Forms.NumericUpDown();
+            this.label3 = new System.Windows.Forms.Label();
+            this.NumericUpDown_ACPower = new System.Windows.Forms.NumericUpDown();
+            this.comboBoxDIOCtrollerTypes = new System.Windows.Forms.ComboBox();
             this.groupBox1.SuspendLayout();
             this.groupBoxDIO.SuspendLayout();
+            this.groupBox2.SuspendLayout();
+            this.groupBox3.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.numericUpDown_Voltmeter)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.NumericUpDown_Ember)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.NumericUpDown_Load)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.NumericUpDown_ACPower)).BeginInit();
-            this.groupBox2.SuspendLayout();
-            this.groupBox3.SuspendLayout();
             this.SuspendLayout();
             // 
             // TextBoxMeterCOM
@@ -98,6 +98,19 @@
             this.groupBox1.TabIndex = 6;
             this.groupBox1.TabStop = false;
             this.groupBox1.Text = "Measurement";
+            // 
+            // checkBoxPreProTest
+            // 
+            this.checkBoxPreProTest.AutoSize = true;
+            this.checkBoxPreProTest.Checked = true;
+            this.checkBoxPreProTest.CheckState = System.Windows.Forms.CheckState.Checked;
+            this.checkBoxPreProTest.Location = new System.Drawing.Point(7, 57);
+            this.checkBoxPreProTest.Name = "checkBoxPreProTest";
+            this.checkBoxPreProTest.Size = new System.Drawing.Size(92, 17);
+            this.checkBoxPreProTest.TabIndex = 7;
+            this.checkBoxPreProTest.Text = "Pre/Post Test";
+            this.checkBoxPreProTest.UseVisualStyleBackColor = true;
+            this.checkBoxPreProTest.CheckedChanged += new System.EventHandler(this.checkBoxPreProTest_CheckedChanged);
             // 
             // CheckBoxManualMultiMeter
             // 
@@ -147,108 +160,6 @@
             this.groupBoxDIO.TabIndex = 9;
             this.groupBoxDIO.TabStop = false;
             this.groupBoxDIO.Text = "DIO Line";
-            // 
-            // numericUpDown_Voltmeter
-            // 
-            this.numericUpDown_Voltmeter.Location = new System.Drawing.Point(99, 130);
-            this.numericUpDown_Voltmeter.Maximum = new decimal(new int[] {
-            7,
-            0,
-            0,
-            0});
-            this.numericUpDown_Voltmeter.Name = "numericUpDown_Voltmeter";
-            this.numericUpDown_Voltmeter.Size = new System.Drawing.Size(31, 20);
-            this.numericUpDown_Voltmeter.TabIndex = 11;
-            // 
-            // label5
-            // 
-            this.label5.AutoSize = true;
-            this.label5.Location = new System.Drawing.Point(39, 132);
-            this.label5.Name = "label5";
-            this.label5.Size = new System.Drawing.Size(51, 13);
-            this.label5.TabIndex = 10;
-            this.label5.Text = "Voltmeter";
-            // 
-            // label1
-            // 
-            this.label1.AutoSize = true;
-            this.label1.Location = new System.Drawing.Point(7, 27);
-            this.label1.Name = "label1";
-            this.label1.Size = new System.Drawing.Size(31, 13);
-            this.label1.TabIndex = 9;
-            this.label1.Text = "Type";
-            // 
-            // comboBoxDIOCtrollerTypes
-            // 
-            this.comboBoxDIOCtrollerTypes.FormattingEnabled = true;
-            this.comboBoxDIOCtrollerTypes.Location = new System.Drawing.Point(44, 28);
-            this.comboBoxDIOCtrollerTypes.Name = "comboBoxDIOCtrollerTypes";
-            this.comboBoxDIOCtrollerTypes.Size = new System.Drawing.Size(111, 21);
-            this.comboBoxDIOCtrollerTypes.TabIndex = 8;
-            this.comboBoxDIOCtrollerTypes.SelectedIndexChanged += new System.EventHandler(this.comboBoxDIOCtrollerTypes_SelectedIndexChanged);
-            // 
-            // label6
-            // 
-            this.label6.AutoSize = true;
-            this.label6.Location = new System.Drawing.Point(39, 110);
-            this.label6.Name = "label6";
-            this.label6.Size = new System.Drawing.Size(37, 13);
-            this.label6.TabIndex = 7;
-            this.label6.Text = "Ember";
-            // 
-            // NumericUpDown_Ember
-            // 
-            this.NumericUpDown_Ember.Location = new System.Drawing.Point(99, 108);
-            this.NumericUpDown_Ember.Maximum = new decimal(new int[] {
-            7,
-            0,
-            0,
-            0});
-            this.NumericUpDown_Ember.Name = "NumericUpDown_Ember";
-            this.NumericUpDown_Ember.Size = new System.Drawing.Size(31, 20);
-            this.NumericUpDown_Ember.TabIndex = 6;
-            // 
-            // label4
-            // 
-            this.label4.AutoSize = true;
-            this.label4.Location = new System.Drawing.Point(41, 86);
-            this.label4.Name = "label4";
-            this.label4.Size = new System.Drawing.Size(31, 13);
-            this.label4.TabIndex = 3;
-            this.label4.Text = "Load";
-            // 
-            // NumericUpDown_Load
-            // 
-            this.NumericUpDown_Load.Location = new System.Drawing.Point(99, 84);
-            this.NumericUpDown_Load.Maximum = new decimal(new int[] {
-            7,
-            0,
-            0,
-            0});
-            this.NumericUpDown_Load.Name = "NumericUpDown_Load";
-            this.NumericUpDown_Load.Size = new System.Drawing.Size(31, 20);
-            this.NumericUpDown_Load.TabIndex = 2;
-            // 
-            // label3
-            // 
-            this.label3.AutoSize = true;
-            this.label3.Location = new System.Drawing.Point(39, 62);
-            this.label3.Name = "label3";
-            this.label3.Size = new System.Drawing.Size(54, 13);
-            this.label3.TabIndex = 1;
-            this.label3.Text = "AC Power";
-            // 
-            // NumericUpDown_ACPower
-            // 
-            this.NumericUpDown_ACPower.Location = new System.Drawing.Point(99, 61);
-            this.NumericUpDown_ACPower.Maximum = new decimal(new int[] {
-            7,
-            0,
-            0,
-            0});
-            this.NumericUpDown_ACPower.Name = "NumericUpDown_ACPower";
-            this.NumericUpDown_ACPower.Size = new System.Drawing.Size(31, 20);
-            this.NumericUpDown_ACPower.TabIndex = 0;
             // 
             // groupBox2
             // 
@@ -363,18 +274,107 @@
             this.label12.TabIndex = 0;
             this.label12.Text = "SPACE";
             // 
-            // checkBoxPreProTest
+            // numericUpDown_Voltmeter
             // 
-            this.checkBoxPreProTest.AutoSize = true;
-            this.checkBoxPreProTest.Checked = true;
-            this.checkBoxPreProTest.CheckState = System.Windows.Forms.CheckState.Checked;
-            this.checkBoxPreProTest.Location = new System.Drawing.Point(7, 57);
-            this.checkBoxPreProTest.Name = "checkBoxPreProTest";
-            this.checkBoxPreProTest.Size = new System.Drawing.Size(92, 17);
-            this.checkBoxPreProTest.TabIndex = 7;
-            this.checkBoxPreProTest.Text = "Pre/Post Test";
-            this.checkBoxPreProTest.UseVisualStyleBackColor = true;
-            this.checkBoxPreProTest.CheckedChanged += new System.EventHandler(this.checkBoxPreProTest_CheckedChanged);
+            this.numericUpDown_Voltmeter.Location = new System.Drawing.Point(99, 130);
+            this.numericUpDown_Voltmeter.Maximum = new decimal(new int[] {
+            7,
+            0,
+            0,
+            0});
+            this.numericUpDown_Voltmeter.Name = "numericUpDown_Voltmeter";
+            this.numericUpDown_Voltmeter.Size = new System.Drawing.Size(31, 20);
+            this.numericUpDown_Voltmeter.TabIndex = 11;
+            // 
+            // label5
+            // 
+            this.label5.AutoSize = true;
+            this.label5.Location = new System.Drawing.Point(39, 132);
+            this.label5.Name = "label5";
+            this.label5.Size = new System.Drawing.Size(51, 13);
+            this.label5.TabIndex = 10;
+            this.label5.Text = "Voltmeter";
+            // 
+            // label1
+            // 
+            this.label1.AutoSize = true;
+            this.label1.Location = new System.Drawing.Point(7, 27);
+            this.label1.Name = "label1";
+            this.label1.Size = new System.Drawing.Size(31, 13);
+            this.label1.TabIndex = 9;
+            this.label1.Text = "Type";
+            // 
+            // label6
+            // 
+            this.label6.AutoSize = true;
+            this.label6.Location = new System.Drawing.Point(39, 110);
+            this.label6.Name = "label6";
+            this.label6.Size = new System.Drawing.Size(37, 13);
+            this.label6.TabIndex = 7;
+            this.label6.Text = "Ember";
+            // 
+            // NumericUpDown_Ember
+            // 
+            this.NumericUpDown_Ember.Location = new System.Drawing.Point(99, 108);
+            this.NumericUpDown_Ember.Maximum = new decimal(new int[] {
+            7,
+            0,
+            0,
+            0});
+            this.NumericUpDown_Ember.Name = "NumericUpDown_Ember";
+            this.NumericUpDown_Ember.Size = new System.Drawing.Size(31, 20);
+            this.NumericUpDown_Ember.TabIndex = 6;
+            // 
+            // label4
+            // 
+            this.label4.AutoSize = true;
+            this.label4.Location = new System.Drawing.Point(41, 86);
+            this.label4.Name = "label4";
+            this.label4.Size = new System.Drawing.Size(31, 13);
+            this.label4.TabIndex = 3;
+            this.label4.Text = "Load";
+            // 
+            // NumericUpDown_Load
+            // 
+            this.NumericUpDown_Load.Location = new System.Drawing.Point(99, 84);
+            this.NumericUpDown_Load.Maximum = new decimal(new int[] {
+            7,
+            0,
+            0,
+            0});
+            this.NumericUpDown_Load.Name = "NumericUpDown_Load";
+            this.NumericUpDown_Load.Size = new System.Drawing.Size(31, 20);
+            this.NumericUpDown_Load.TabIndex = 2;
+            // 
+            // label3
+            // 
+            this.label3.AutoSize = true;
+            this.label3.Location = new System.Drawing.Point(39, 62);
+            this.label3.Name = "label3";
+            this.label3.Size = new System.Drawing.Size(54, 13);
+            this.label3.TabIndex = 1;
+            this.label3.Text = "AC Power";
+            // 
+            // NumericUpDown_ACPower
+            // 
+            this.NumericUpDown_ACPower.Location = new System.Drawing.Point(99, 61);
+            this.NumericUpDown_ACPower.Maximum = new decimal(new int[] {
+            7,
+            0,
+            0,
+            0});
+            this.NumericUpDown_ACPower.Name = "NumericUpDown_ACPower";
+            this.NumericUpDown_ACPower.Size = new System.Drawing.Size(31, 20);
+            this.NumericUpDown_ACPower.TabIndex = 0;
+            // 
+            // comboBoxDIOCtrollerTypes
+            // 
+            this.comboBoxDIOCtrollerTypes.FormattingEnabled = true;
+            this.comboBoxDIOCtrollerTypes.Location = new System.Drawing.Point(44, 28);
+            this.comboBoxDIOCtrollerTypes.Name = "comboBoxDIOCtrollerTypes";
+            this.comboBoxDIOCtrollerTypes.Size = new System.Drawing.Size(111, 21);
+            this.comboBoxDIOCtrollerTypes.TabIndex = 8;
+            this.comboBoxDIOCtrollerTypes.SelectedIndexChanged += new System.EventHandler(this.comboBoxDIOCtrollerTypes_SelectedIndexChanged);
             // 
             // Form_Settings
             // 
@@ -393,18 +393,19 @@
             this.MaximizeBox = false;
             this.Name = "Form_Settings";
             this.Text = "Settings";
+            this.Load += new System.EventHandler(this.Form_Settings_Load);
             this.groupBox1.ResumeLayout(false);
             this.groupBox1.PerformLayout();
             this.groupBoxDIO.ResumeLayout(false);
             this.groupBoxDIO.PerformLayout();
-            ((System.ComponentModel.ISupportInitialize)(this.numericUpDown_Voltmeter)).EndInit();
-            ((System.ComponentModel.ISupportInitialize)(this.NumericUpDown_Ember)).EndInit();
-            ((System.ComponentModel.ISupportInitialize)(this.NumericUpDown_Load)).EndInit();
-            ((System.ComponentModel.ISupportInitialize)(this.NumericUpDown_ACPower)).EndInit();
             this.groupBox2.ResumeLayout(false);
             this.groupBox2.PerformLayout();
             this.groupBox3.ResumeLayout(false);
             this.groupBox3.PerformLayout();
+            ((System.ComponentModel.ISupportInitialize)(this.numericUpDown_Voltmeter)).EndInit();
+            ((System.ComponentModel.ISupportInitialize)(this.NumericUpDown_Ember)).EndInit();
+            ((System.ComponentModel.ISupportInitialize)(this.NumericUpDown_Load)).EndInit();
+            ((System.ComponentModel.ISupportInitialize)(this.NumericUpDown_ACPower)).EndInit();
             this.ResumeLayout(false);
 
         }
@@ -419,16 +420,6 @@
         private System.Windows.Forms.GroupBox groupBoxDIO;
         private System.Windows.Forms.ToolTip toolTip1;
         public System.Windows.Forms.CheckBox CheckBoxManualMultiMeter;
-        private System.Windows.Forms.Label label1;
-        private System.Windows.Forms.Label label6;
-        public System.Windows.Forms.NumericUpDown NumericUpDown_Ember;
-        private System.Windows.Forms.Label label4;
-        public System.Windows.Forms.NumericUpDown NumericUpDown_Load;
-        private System.Windows.Forms.Label label3;
-        public System.Windows.Forms.NumericUpDown NumericUpDown_ACPower;
-        public System.Windows.Forms.ComboBox comboBoxDIOCtrollerTypes;
-        public System.Windows.Forms.NumericUpDown numericUpDown_Voltmeter;
-        private System.Windows.Forms.Label label5;
         private System.Windows.Forms.GroupBox groupBox2;
         private System.Windows.Forms.Button buttonEmberBinPathBrowse;
         private System.Windows.Forms.Label label7;
@@ -441,5 +432,15 @@
         private System.Windows.Forms.ComboBox comboBoxShortcutActions;
         private System.Windows.Forms.Label label12;
         private System.Windows.Forms.CheckBox checkBoxPreProTest;
+        public System.Windows.Forms.NumericUpDown numericUpDown_Voltmeter;
+        private System.Windows.Forms.Label label5;
+        private System.Windows.Forms.Label label1;
+        public System.Windows.Forms.ComboBox comboBoxDIOCtrollerTypes;
+        private System.Windows.Forms.Label label6;
+        public System.Windows.Forms.NumericUpDown NumericUpDown_Ember;
+        private System.Windows.Forms.Label label4;
+        public System.Windows.Forms.NumericUpDown NumericUpDown_Load;
+        private System.Windows.Forms.Label label3;
+        public System.Windows.Forms.NumericUpDown NumericUpDown_ACPower;
     }
 }

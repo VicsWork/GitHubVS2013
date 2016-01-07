@@ -58,6 +58,7 @@
             this.fT232HToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.calculatorToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.toolStripMenuItemPowerMeter = new System.Windows.Forms.ToolStripMenuItem();
+            this.toolStripMenuItem1 = new System.Windows.Forms.ToolStripMenuItem();
             this.aboutToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.textBoxRunStatus = new System.Windows.Forms.TextBox();
             this.statusStrip = new System.Windows.Forms.StatusStrip();
@@ -67,6 +68,7 @@
             this.buttonCode = new System.Windows.Forms.Button();
             this.buttonAll = new System.Windows.Forms.Button();
             this.buttonRecode = new System.Windows.Forms.Button();
+            this.settings2ToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.contextMenuStatusTextBox.SuspendLayout();
             this.menuStripMain.SuspendLayout();
             this.statusStrip.SuspendLayout();
@@ -167,7 +169,9 @@
             this.serialToolStripMenuItem,
             this.digitalOutputToolStripMenuItem,
             this.calculatorToolStripMenuItem,
-            this.toolStripMenuItemPowerMeter});
+            this.toolStripMenuItemPowerMeter,
+            this.toolStripMenuItem1,
+            this.settings2ToolStripMenuItem});
             this.testToolStripMenuItem.Name = "testToolStripMenuItem";
             this.testToolStripMenuItem.Size = new System.Drawing.Size(48, 20);
             this.testToolStripMenuItem.Text = "Tools";
@@ -175,7 +179,7 @@
             // serialToolStripMenuItem
             // 
             this.serialToolStripMenuItem.Name = "serialToolStripMenuItem";
-            this.serialToolStripMenuItem.Size = new System.Drawing.Size(149, 22);
+            this.serialToolStripMenuItem.Size = new System.Drawing.Size(152, 22);
             this.serialToolStripMenuItem.Text = "Serial Port";
             this.serialToolStripMenuItem.Click += new System.EventHandler(this.toolStripMenuItem_Click_Serial);
             // 
@@ -185,7 +189,7 @@
             this.nIToolStripMenuItem,
             this.fT232HToolStripMenuItem});
             this.digitalOutputToolStripMenuItem.Name = "digitalOutputToolStripMenuItem";
-            this.digitalOutputToolStripMenuItem.Size = new System.Drawing.Size(149, 22);
+            this.digitalOutputToolStripMenuItem.Size = new System.Drawing.Size(152, 22);
             this.digitalOutputToolStripMenuItem.Text = "Digital Output";
             // 
             // nIToolStripMenuItem
@@ -205,16 +209,21 @@
             // calculatorToolStripMenuItem
             // 
             this.calculatorToolStripMenuItem.Name = "calculatorToolStripMenuItem";
-            this.calculatorToolStripMenuItem.Size = new System.Drawing.Size(149, 22);
+            this.calculatorToolStripMenuItem.Size = new System.Drawing.Size(152, 22);
             this.calculatorToolStripMenuItem.Text = "&Calculator";
             this.calculatorToolStripMenuItem.Click += new System.EventHandler(this.toolStripMenuItem_Calculator);
             // 
             // toolStripMenuItemPowerMeter
             // 
             this.toolStripMenuItemPowerMeter.Name = "toolStripMenuItemPowerMeter";
-            this.toolStripMenuItemPowerMeter.Size = new System.Drawing.Size(149, 22);
+            this.toolStripMenuItemPowerMeter.Size = new System.Drawing.Size(152, 22);
             this.toolStripMenuItemPowerMeter.Text = "Power Meter";
             this.toolStripMenuItemPowerMeter.Click += new System.EventHandler(this.toolStripMenuItem_PowerMeter);
+            // 
+            // toolStripMenuItem1
+            // 
+            this.toolStripMenuItem1.Name = "toolStripMenuItem1";
+            this.toolStripMenuItem1.Size = new System.Drawing.Size(152, 22);
             // 
             // aboutToolStripMenuItem
             // 
@@ -296,6 +305,13 @@
             this.buttonRecode.UseVisualStyleBackColor = true;
             this.buttonRecode.Click += new System.EventHandler(this.buttonRecode_Click);
             // 
+            // settings2ToolStripMenuItem
+            // 
+            this.settings2ToolStripMenuItem.Name = "settings2ToolStripMenuItem";
+            this.settings2ToolStripMenuItem.Size = new System.Drawing.Size(152, 22);
+            this.settings2ToolStripMenuItem.Text = "Settings2";
+            this.settings2ToolStripMenuItem.Click += new System.EventHandler(this.settings2ToolStripMenuItem_Click);
+            // 
             // Form_Main
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(96F, 96F);
@@ -354,6 +370,8 @@
         private System.Windows.Forms.ToolStripMenuItem copyToolStripMenuItem;
         private System.Windows.Forms.ToolStripStatusLabel toolStripGeneralStatusLabel;
         private System.Windows.Forms.Button buttonRecode;
+        private System.Windows.Forms.ToolStripMenuItem toolStripMenuItem1;
+        private System.Windows.Forms.ToolStripMenuItem settings2ToolStripMenuItem;
     }
 }
 

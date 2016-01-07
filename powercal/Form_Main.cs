@@ -1837,6 +1837,16 @@ namespace PowerCalibration
             updateOutputStatus(errmsg);
         }
 
+        private void settings2ToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+
+            // Need this to force the creation of dio lines config file when it does not exit
+            Dictionary<string, uint> relay_lines = _relay_ctrl.DicLines_ReadSettings();
+
+            Form_Settings2 dlg = new Form_Settings2();
+            dlg.ShowDialog();
+        }
+
 
     }
 
