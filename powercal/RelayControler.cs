@@ -242,6 +242,7 @@ namespace PowerCalibration
         /// <param name="value"></param>
         public void WriteAll(bool value)
         {
+
             foreach (string key in _dic_lines.Keys)
             {
                 WriteLine(key, value);

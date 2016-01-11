@@ -17,7 +17,13 @@ namespace PowerCalibration
             InitializeComponent();
         }
 
-        private void Form_Settings2_Load(object sender, EventArgs e)
+        private void buttonOK_Click(object sender, EventArgs e)
+        {
+            Properties.Settings.Default.Save();
+            Close();
+        }
+
+        private void Form_Load(object sender, EventArgs e)
         {
 
             // Ember
@@ -74,6 +80,27 @@ namespace PowerCalibration
             Properties.Settings.Default.Relay_Controller_Type = comboBoxDIOCtrollerTypes.Text;
 
         }
+
+
+        private void NumericUpDown_DIOLine_ValueChanged(object sender, EventArgs e)
+        {
+            RelayControler.Device_Types device = (RelayControler.Device_Types)Enum.Parse(
+                typeof(RelayControler.Device_Types), comboBoxDIOCtrollerTypes.Text);
+
+            RelayControler relay_ctrl = new RelayControler(device);
+
+            Dictionary<string, uint> relay_lines = relay_ctrl.DicLines_ReadSettings();
+            relay_lines[PowerCalibration.Relay_Lines.Power] = (uint)NumericUpDown_ACPower.Value;
+            relay_lines[PowerCalibration.Relay_Lines.Load] = (uint)NumericUpDown_Load.Value;
+            relay_lines[PowerCalibration.Relay_Lines.Ember] = (uint)NumericUpDown_Ember.Value;
+            relay_lines[PowerCalibration.Relay_Lines.Voltmeter] = (uint)numericUpDown_Voltmeter.Value;
+
+            relay_ctrl.Dictionary_Lines = relay_lines;
+            relay_ctrl.DicLines_SaveSettings();
+
+        }
+
+
 
         private void setLineEnablement(bool enable)
         {

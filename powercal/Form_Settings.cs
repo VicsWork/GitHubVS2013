@@ -119,6 +119,25 @@ namespace PowerCalibration
 
         }
 
+        private void NumericUpDown_DIOLine_ValueChanged(object sender, EventArgs e)
+        {
+            RelayControler.Device_Types device = (RelayControler.Device_Types)Enum.Parse(
+                typeof(RelayControler.Device_Types), comboBoxDIOCtrollerTypes.Text);
+
+            RelayControler relay_ctrl = new RelayControler(device);
+
+            Dictionary<string, uint> relay_lines = relay_ctrl.DicLines_ReadSettings();
+            relay_lines[PowerCalibration.Relay_Lines.Power] = (uint)NumericUpDown_ACPower.Value;
+            relay_lines[PowerCalibration.Relay_Lines.Load] = (uint)NumericUpDown_Load.Value;
+            relay_lines[PowerCalibration.Relay_Lines.Ember] = (uint)NumericUpDown_Ember.Value;
+            relay_lines[PowerCalibration.Relay_Lines.Voltmeter] = (uint)numericUpDown_Voltmeter.Value;
+
+            relay_ctrl.Dictionary_Lines = relay_lines;
+            relay_ctrl.DicLines_SaveSettings();
+
+        }
+
+
         private void comboBoxEmberInterface_SelectedIndexChanged(object sender, EventArgs e)
         {
             Properties.Settings.Default.Ember_Interface = comboBoxEmberInterface.Text;
@@ -159,11 +178,6 @@ namespace PowerCalibration
         private void checkBoxPreProTest_CheckedChanged(object sender, EventArgs e)
         {
             Properties.Settings.Default.PrePost_Test_Enabled = this.checkBoxPreProTest.Checked;
-        }
-
-        private void Form_Settings_Load(object sender, EventArgs e)
-        {
-
         }
 
     }

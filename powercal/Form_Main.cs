@@ -108,7 +108,6 @@ namespace PowerCalibration
             if (comboBoxBoardTypes.Items.Count > 0)
                 comboBoxBoardTypes.SelectedIndex = index;
 
-
             // Report COM ports found in system
             string[] ports = SerialPort.GetPortNames();
             string msg = "";
@@ -139,7 +138,6 @@ namespace PowerCalibration
             _ember.BatchFilePath = Path.Combine(_app_data_dir, "patchit.bat");
             _ember.Process_ISAChan_Error_Event += p_ember_isachan_ErrorDataReceived;
             _ember.Process_ISAChan_Output_Event += p_ember_isachan_OutputDataReceived;
-
 
             // Enable the app
             setEnablement(true, false);
@@ -704,7 +702,7 @@ namespace PowerCalibration
         }
 
         /// <summary>
-        /// Copys the status selected text or all when nothing selected to
+        /// Copies the status selected text or all when nothing selected to
         /// the clipboard
         /// </summary>
         /// <param name="sender"></param>
@@ -725,20 +723,9 @@ namespace PowerCalibration
         void toolStripMenuItem_Settings(object sender, EventArgs e)
         {
             Form_Settings dlg = new Form_Settings();
-
-            // DIO line assignment
-            Dictionary<string, uint> relay_lines = _relay_ctrl.DicLines_ReadSettings();
-            //dlg.NumericUpDown_ACPower.Value = relay_lines[PowerCalibration.Relay_Lines.Power];
-            //dlg.NumericUpDown_Load.Value = relay_lines[PowerCalibration.Relay_Lines.Load];
-            //dlg.NumericUpDown_Ember.Value = relay_lines[PowerCalibration.Relay_Lines.Ember];
-            //dlg.numericUpDown_Voltmeter.Value = relay_lines[PowerCalibration.Relay_Lines.Voltmeter];
-
             DialogResult rc = dlg.ShowDialog();
             if (rc == DialogResult.OK)
             {
-                // COM ports
-                Properties.Settings.Default.Meter_COM_Port_Name = dlg.TextBoxMeterCOM.Text;
-                Properties.Settings.Default.Meter_Manual_Measurement = dlg.CheckBoxManualMultiMeter.Checked;
 
                 // DIO controller type
                 Properties.Settings.Default.Relay_Controller_Type = dlg.comboBoxDIOCtrollerTypes.Text;
@@ -746,14 +733,10 @@ namespace PowerCalibration
                     Properties.Settings.Default.Relay_Controller_Type);
                 _relay_ctrl = new RelayControler(rdevtype);
 
-                // DIO line assignment
-                //relay_lines = _relay_ctrl.DicLines_ReadSettings();
-                relay_lines[PowerCalibration.Relay_Lines.Power] = (uint)dlg.NumericUpDown_ACPower.Value;
-                relay_lines[PowerCalibration.Relay_Lines.Load] = (uint)dlg.NumericUpDown_Load.Value;
-                relay_lines[PowerCalibration.Relay_Lines.Ember] = (uint)dlg.NumericUpDown_Ember.Value;
-                relay_lines[PowerCalibration.Relay_Lines.Voltmeter] = (uint)dlg.numericUpDown_Voltmeter.Value;
-                _relay_ctrl.Dictionary_Lines = relay_lines;
-                _relay_ctrl.DicLines_SaveSettings();
+
+                // COM ports
+                Properties.Settings.Default.Meter_COM_Port_Name = dlg.TextBoxMeterCOM.Text;
+                Properties.Settings.Default.Meter_Manual_Measurement = dlg.CheckBoxManualMultiMeter.Checked;
 
                 // Ember
                 Properties.Settings.Default.Ember_Interface = dlg.comboBoxEmberInterface.Text;
@@ -1015,11 +998,11 @@ namespace PowerCalibration
                 try
                 {
                     _relay_ctrl.Open();
+                    _relay_ctrl.WriteAll(false);
                 }
                 catch { }
                 finally
                 {
-                    _relay_ctrl.WriteAll(false);
                     _relay_ctrl.Close();
                 }
             }
@@ -1839,12 +1822,17 @@ namespace PowerCalibration
 
         private void settings2ToolStripMenuItem_Click(object sender, EventArgs e)
         {
-
-            // Need this to force the creation of dio lines config file when it does not exit
-            Dictionary<string, uint> relay_lines = _relay_ctrl.DicLines_ReadSettings();
-
             Form_Settings2 dlg = new Form_Settings2();
-            dlg.ShowDialog();
+            DialogResult rc = dlg.ShowDialog();
+            if (rc == DialogResult.OK)
+            {
+                // DIO controller type
+                Properties.Settings.Default.Relay_Controller_Type = dlg.comboBoxDIOCtrollerTypes.Text;
+                RelayControler.Device_Types rdevtype = (RelayControler.Device_Types)Enum.Parse(typeof(RelayControler.Device_Types),
+                    Properties.Settings.Default.Relay_Controller_Type);
+                _relay_ctrl = new RelayControler(rdevtype);
+            }
+
         }
 
 
