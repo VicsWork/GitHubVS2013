@@ -276,8 +276,18 @@ namespace PowerCalibration
                 _meter.SetupForIAC();
                 string current_meter_str = _meter.Measure();
                 current_meter_str = _meter.Measure();
-                current_meter = Double.Parse(current_meter_str);
 
+                try
+                {
+                    current_meter = Double.Parse(current_meter_str);
+                }
+                catch (Exception ex)
+                {
+                    throw;
+                }
+
+                // Note that input should be on white 0.5 A terminal
+                // Make sure COM is set to COMMun
                 if (_meter.Model == MultiMeter.Models.GDM8341)
                     current_meter /= 1000;
             }

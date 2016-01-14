@@ -400,6 +400,10 @@ namespace PowerCalibration
                     {
                         detected = true;
                         Properties.Settings.Default.Meter_COM_Port_Name = portname;
+
+                        Properties.Settings.Default.Meter_Manual_Measurement = false;
+                        Properties.Settings.Default.PrePost_Test_Enabled = true;
+
                         Properties.Settings.Default.Save();
                         string msg = string.Format("Multimeter '{0}' communications port auto detected at {1}", idn.TrimEnd('\n'),
                             Properties.Settings.Default.Meter_COM_Port_Name);
@@ -1252,6 +1256,11 @@ namespace PowerCalibration
                     updateOutputStatus("Power off exception:" + ex.Message);
                 }
 
+                if (_meter != null)
+                {
+                    _meter.CloseSerialPort();
+                }
+
                 updateRunStatus("FAIL", Color.White, Color.Red);
                 updateOutputStatus(_pretest_error_msg);
             }
@@ -1466,6 +1475,11 @@ namespace PowerCalibration
             }
             else
             {
+                if (_meter != null)
+                {
+                    _meter.CloseSerialPort();
+                }
+
                 updateRunStatus("FAIL", Color.White, Color.Red);
                 updateOutputStatus(_calibration_error_msg);
             }
@@ -1662,6 +1676,12 @@ namespace PowerCalibration
                     _calibrate_after_code = false;
                     updateRunStatus("FAIL", Color.White, Color.Red);
                     updateOutputStatus(_coding_error_msg);
+
+                    if (_meter != null)
+                    {
+                        _meter.CloseSerialPort();
+                    }
+
                 }
             }
 

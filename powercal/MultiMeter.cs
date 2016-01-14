@@ -285,6 +285,8 @@ namespace PowerCalibration
                     writeLine(":CONF:CURR:AC 1,0.000001");
                     break;
                 case Models.GDM8341:
+                    // Note that input should be on white 0.5 A terminal
+                    // Make sure COM is set to COMMun
                     writeLine(":CONF:CURR:AC 500");
                     break;
             }
@@ -318,6 +320,7 @@ namespace PowerCalibration
 
 
             string data = waitForData();
+            //data = data.TrimEnd(new char[] { '\r', '\n' });
 
             return data;
         }
