@@ -244,7 +244,15 @@ namespace PowerCalibration
         /// </summary>
         public void SetupForVAC()
         {
-            writeLine(":CONF:VOLT:AC 1000,0.01");
+            switch (Model)
+            {
+                case Models.HP34401A:
+                    writeLine(":CONF:VOLT:AC 1000,0.01");
+                    break;
+                case Models.GDM8341:
+                    writeLine(":CONF:VOLT:AC 500");
+                    break;
+            }
             setTrigger();
         }
 
@@ -253,7 +261,15 @@ namespace PowerCalibration
         /// </summary>
         public void SetupForVDC()
         {
-            writeLine(":CONF:VOLT:DC 1000,0.01");
+            switch (Model)
+            {
+                case Models.HP34401A:
+                    writeLine(":CONF:VOLT:DC 10,0.01");
+                    break;
+                case Models.GDM8341:
+                    writeLine(":CONF:VOLT:DC 5");
+                    break;
+            }
             setTrigger();
         }
 
@@ -263,7 +279,15 @@ namespace PowerCalibration
         /// </summary>
         public void SetupForIAC()
         {
-            writeLine(":CONF:CURR:AC 1,0.000001");
+            switch (Model)
+            {
+                case Models.HP34401A:
+                    writeLine(":CONF:CURR:AC 1,0.000001");
+                    break;
+                case Models.GDM8341:
+                    writeLine(":CONF:CURR:AC 500");
+                    break;
+            }
             setTrigger();
         }
 
@@ -279,11 +303,19 @@ namespace PowerCalibration
             {
                 writeLine(":INIT");
             }
+
             writeLine("*TRG");
-            if (Model == Models.HP34401A)
+
+            switch (Model)
             {
-                writeLine(":FETC?");
+                case Models.HP34401A:
+                    writeLine(":FETC?");
+                    break;
+                case Models.GDM8341:
+                    writeLine(":VAL1?");
+                    break;
             }
+
 
             string data = waitForData();
 

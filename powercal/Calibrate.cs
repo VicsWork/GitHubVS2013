@@ -277,6 +277,9 @@ namespace PowerCalibration
                 string current_meter_str = _meter.Measure();
                 current_meter_str = _meter.Measure();
                 current_meter = Double.Parse(current_meter_str);
+
+                if (_meter.Model == MultiMeter.Models.GDM8341)
+                    current_meter /= 1000;
             }
             msg = string.Format("Meter I = {0:F8}", current_meter);
             TraceLogger.Log(msg);

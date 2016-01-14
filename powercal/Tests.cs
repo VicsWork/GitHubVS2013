@@ -41,6 +41,7 @@ namespace PowerCalibration
             string meter_voltage_str = _meter.Measure();
             double meter_voltage_dc = Double.Parse(meter_voltage_str);
             _meter.SetupForVAC();
+            Thread.Sleep(500);
             meter_voltage_str = _meter.Measure();
             double meter_voltage_ac = Double.Parse(meter_voltage_str);
 
