@@ -103,9 +103,9 @@ namespace PowerCalibration
                         {
                             while (!_serialPort.DsrHolding)
                             {
-                                Thread.Sleep(250);
+                                Thread.Sleep(100);
                                 n++;
-                                if (n > 100)
+                                if (n > 10)
                                     break;
                             }
                         }
@@ -118,7 +118,7 @@ namespace PowerCalibration
                         {
                             Thread.Sleep(100);
                             n++;
-                            if (n > 100)
+                            if (n > 10)
                                 break;
                         }
 

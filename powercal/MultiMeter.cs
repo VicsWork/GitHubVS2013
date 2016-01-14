@@ -19,13 +19,17 @@ namespace PowerCalibration
 
         public bool IsSerialPortOpen
         {
-            get {return this._serialPort.IsOpen;}
+            get { return this._serialPort.IsOpen; }
         }
 
         private bool _waitForDsrHolding = true;
         private string _portName;
         private SerialPort _serialPort;
         private string _value_txt = "";
+
+        public enum Models { NONE, HP34401A, GDM8341 };
+        private Models _model = Models.NONE;
+        public Models Model { get { return _model; } }
 
         /// <summary>
         /// Constructor
@@ -59,7 +63,7 @@ namespace PowerCalibration
         {
             //if (_serialPort != null && _serialPort.IsOpen)
             //{
-            _serialPort.Close();
+            //    _serialPort.Close();
             //}
             //_serialPort = new SerialPort(_portName, 600, Parity.None, 8, StopBits.One);
             _serialPort.PortName = _portName;
@@ -70,7 +74,15 @@ namespace PowerCalibration
             _serialPort.Handshake = Handshake.None;
             _serialPort.DtrEnable = true;
 
-            _serialPort.Open();
+            try
+            {
+                _serialPort.Open();
+            }
+            catch (Exception ex)
+            {
+                string msg = ex.Message;
+                throw;
+            }
 
             return _serialPort;
         }
@@ -172,7 +184,7 @@ namespace PowerCalibration
         }
 
         /// <summary>
-        /// Gets the meter id
+        /// Gets the meter id and sets the Model if id is recognized
         /// </summary>
         /// <returns>meter id string</returns>
         public string IDN()
@@ -180,7 +192,51 @@ namespace PowerCalibration
             clearData();
             writeLine("*IDN?");
             string data = waitForData();
+
+            if (data.StartsWith("HEWLETT-PACKARD,34401A"))
+                _model = Models.HP34401A;
+            else if (data.StartsWith("GWInstek,GDM8341"))
+                _model = Models.GDM8341;
+
             return data;
+        }
+
+        /// <summary>
+        /// Call this function to open the com port and
+        /// This will also detect meter model and setup WaitForDsrHolding
+        /// </summary>
+        public void Init()
+        {
+            OpenComPort();
+
+            if (Model == Models.NONE)
+            {
+                WaitForDsrHolding = false;
+                string data = IDN();
+            }
+
+            switch (Model)
+            {
+                case Models.HP34401A:
+                    WaitForDsrHolding = true;
+                    break;
+                case Models.GDM8341:
+                    WaitForDsrHolding = false;
+                    break;
+            }
+        }
+
+        void setTrigger()
+        {
+            switch (Model)
+            {
+                case Models.HP34401A:
+                    writeLine(":TRIG:SOUR BUS");
+                    break;
+                case Models.GDM8341:
+                    writeLine(":TRIG:SOUR EXT");
+                    break;
+            }
         }
 
         /// <summary>
@@ -189,7 +245,7 @@ namespace PowerCalibration
         public void SetupForVAC()
         {
             writeLine(":CONF:VOLT:AC 1000,0.01");
-            writeLine(":TRIG:SOUR BUS");
+            setTrigger();
         }
 
         /// <summary>
@@ -198,7 +254,7 @@ namespace PowerCalibration
         public void SetupForVDC()
         {
             writeLine(":CONF:VOLT:DC 1000,0.01");
-            writeLine(":TRIG:SOUR BUS");
+            setTrigger();
         }
 
 
@@ -208,7 +264,7 @@ namespace PowerCalibration
         public void SetupForIAC()
         {
             writeLine(":CONF:CURR:AC 1,0.000001");
-            writeLine(":TRIG:SOUR BUS");
+            setTrigger();
         }
 
         /// <summary>
@@ -218,13 +274,19 @@ namespace PowerCalibration
         public string Measure()
         {
             clearData();
-            
-            writeLine(":INIT");
+
+            if (Model == Models.HP34401A)
+            {
+                writeLine(":INIT");
+            }
             writeLine("*TRG");
-            writeLine(":FETC?");
-            
+            if (Model == Models.HP34401A)
+            {
+                writeLine(":FETC?");
+            }
+
             string data = waitForData();
-            
+
             return data;
         }
 

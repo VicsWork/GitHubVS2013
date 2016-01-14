@@ -393,7 +393,10 @@ namespace PowerCalibration
                     string idn = meter.IDN();
                     meter.CloseSerialPort();
 
-                    if (idn.StartsWith("HEWLETT-PACKARD,34401A"))
+                    if (
+                        idn.StartsWith("HEWLETT-PACKARD,34401A") ||
+                        idn.StartsWith("GWInstek,GDM8341")
+                        )
                     {
                         detected = true;
                         Properties.Settings.Default.Meter_COM_Port_Name = portname;
@@ -1028,7 +1031,7 @@ namespace PowerCalibration
 
             // Measure Voltage after power off
             if (!_meter.IsSerialPortOpen)
-                _meter.OpenComPort();
+                _meter.Init();
             _meter.SetupForVAC();
             double vac = -1.0;
             int n = 0;
@@ -1089,7 +1092,7 @@ namespace PowerCalibration
                 _relay_ctrl.WriteLine(Relay_Lines.Voltmeter, true);  // DC
 
             updateOutputStatus("Verify Voltage DC");
-            _meter.OpenComPort();
+            _meter.Init();
             _meter.SetToRemote();
             _meter.ClearError();
             _meter.SetupForVDC();

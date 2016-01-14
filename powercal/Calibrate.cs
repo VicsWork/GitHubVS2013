@@ -272,7 +272,7 @@ namespace PowerCalibration
             }
             else
             {
-                _meter.OpenComPort();
+                _meter.Init();
                 _meter.SetupForIAC();
                 string current_meter_str = _meter.Measure();
                 current_meter_str = _meter.Measure();
@@ -400,7 +400,7 @@ namespace PowerCalibration
                 _relay_ctrl.WriteLine(Relay_Lines.Voltmeter, false);  // AC
 
             fire_run_status("Verify Voltage AC");
-            _meter.OpenComPort();
+            _meter.Init();
             _meter.SetToRemote();
             _meter.ClearError();
             _meter.SetupForVAC();

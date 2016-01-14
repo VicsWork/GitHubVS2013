@@ -33,7 +33,7 @@ namespace PowerCalibration
                 _relay_ctrl.WriteLine(Relay_Lines.Voltmeter, true);  // DC
 
             fire_status("Verify Voltage DC");
-            _meter.OpenComPort();
+            _meter.Init();
             _meter.SetToRemote();
             _meter.ClearError();
             _meter.SetupForVDC();
