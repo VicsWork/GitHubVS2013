@@ -281,7 +281,7 @@ namespace PowerCalibration
                 {
                     current_meter = Double.Parse(current_meter_str);
                 }
-                catch (Exception ex)
+                catch (Exception)
                 {
                     throw;
                 }

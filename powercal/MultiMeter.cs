@@ -204,6 +204,7 @@ namespace PowerCalibration
         /// <summary>
         /// Call this function to open the com port and
         /// This will also detect meter model and setup WaitForDsrHolding
+        /// among other things
         /// </summary>
         public void Init()
         {
@@ -222,19 +223,9 @@ namespace PowerCalibration
                     break;
                 case Models.GDM8341:
                     WaitForDsrHolding = false;
-                    break;
-            }
-        }
-
-        void setTrigger()
-        {
-            switch (Model)
-            {
-                case Models.HP34401A:
-                    writeLine(":TRIG:SOUR BUS");
-                    break;
-                case Models.GDM8341:
-                    writeLine(":TRIG:SOUR EXT");
+                    writeLine("SYST:SCP:MODE COMP");  //Compatible to GDM8246
+                    writeLine("TRIG:SOUR EXT");  // Set trigger to be external
+                    writeLine("TRIG:COUN 2");  // Set trigger COUNT
                     break;
             }
         }
@@ -250,10 +241,10 @@ namespace PowerCalibration
                     writeLine(":CONF:VOLT:AC 1000,0.01");
                     break;
                 case Models.GDM8341:
-                    writeLine(":CONF:VOLT:AC 500");
+                    writeLine("CONF:VOLT:AC 500");
+                    Thread.Sleep(1000);
                     break;
             }
-            setTrigger();
         }
 
         /// <summary>
@@ -267,10 +258,10 @@ namespace PowerCalibration
                     writeLine(":CONF:VOLT:DC 10,0.01");
                     break;
                 case Models.GDM8341:
-                    writeLine(":CONF:VOLT:DC 5");
+                    writeLine("CONF:VOLT:DC 5");
+                    Thread.Sleep(1000);
                     break;
             }
-            setTrigger();
         }
 
 
@@ -287,10 +278,10 @@ namespace PowerCalibration
                 case Models.GDM8341:
                     // Note that input should be on white 0.5 A terminal
                     // Make sure COM is set to COMMun
-                    writeLine(":CONF:CURR:AC 500");
+                    writeLine("CONF:CURR:AC 500");
+                    Thread.Sleep(1000);
                     break;
             }
-            setTrigger();
         }
 
         /// <summary>
@@ -303,10 +294,12 @@ namespace PowerCalibration
 
             if (Model == Models.HP34401A)
             {
-                writeLine(":INIT");
+                writeLine("TRIG:SOUR BUS");
+                writeLine("INIT");
             }
 
             writeLine("*TRG");
+//            Thread.Sleep(250);
 
             switch (Model)
             {
@@ -314,7 +307,7 @@ namespace PowerCalibration
                     writeLine(":FETC?");
                     break;
                 case Models.GDM8341:
-                    writeLine(":VAL1?");
+                    writeLine("VAL1?");
                     break;
             }
 
