@@ -352,8 +352,21 @@ namespace PowerCalibration
                 Properties.Settings.Default.Relay_Controller_Type = _relay_ctrl.Device_Type.ToString();
                 Properties.Settings.Default.Save();
 
-                Form_Settings_old dlg = new Form_Settings_old();
-                dlg.ShowDialog();
+                Form_Settings dlg = new Form_Settings();
+                dlg.TabControl.SelectedTab = dlg.TabControl.TabPages["tabPageDIO"];
+                DialogResult rc = dlg.ShowDialog();
+                if (rc == DialogResult.OK)
+                {
+                    // DIO controller type
+                    Properties.Settings.Default.Relay_Controller_Type = dlg.comboBoxDIOCtrollerTypes.Text;
+                    rdevtype = (RelayControler.Device_Types)Enum.Parse(typeof(RelayControler.Device_Types),
+                        Properties.Settings.Default.Relay_Controller_Type);
+                    _relay_ctrl = new RelayControler(rdevtype);
+                }
+                else
+                {
+                    Properties.Settings.Default.Reload();
+                }
 
             }
             //_relay_ctrl.WriteAll(false);
@@ -1824,6 +1837,11 @@ namespace PowerCalibration
 
             updateRunStatus("FAIL", Color.White, Color.Red);
             updateOutputStatus(errmsg);
+        }
+
+        private void Form_Main_Load(object sender, EventArgs e)
+        {
+
         }
     }
 

@@ -28,7 +28,7 @@
         /// </summary>
         private void InitializeComponent()
         {
-            this.tabControl1 = new System.Windows.Forms.TabControl();
+            this.TabControl = new System.Windows.Forms.TabControl();
             this.tabPageEmber = new System.Windows.Forms.TabPage();
             this.textBoxEmberInterfaceAddress = new System.Windows.Forms.TextBox();
             this.label9 = new System.Windows.Forms.Label();
@@ -60,7 +60,7 @@
             this.checkBox_EnableDBReporting = new System.Windows.Forms.CheckBox();
             this.buttonCancel = new System.Windows.Forms.Button();
             this.buttonOK = new System.Windows.Forms.Button();
-            this.tabControl1.SuspendLayout();
+            this.TabControl.SuspendLayout();
             this.tabPageEmber.SuspendLayout();
             this.tabPageDIO.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.numericUpDown_Voltmeter)).BeginInit();
@@ -72,22 +72,22 @@
             this.tabPageReporting.SuspendLayout();
             this.SuspendLayout();
             // 
-            // tabControl1
+            // TabControl
             // 
-            this.tabControl1.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
+            this.TabControl.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
             | System.Windows.Forms.AnchorStyles.Left) 
             | System.Windows.Forms.AnchorStyles.Right)));
-            this.tabControl1.Controls.Add(this.tabPageEmber);
-            this.tabControl1.Controls.Add(this.tabPageDIO);
-            this.tabControl1.Controls.Add(this.tagPageMeasurement);
-            this.tabControl1.Controls.Add(this.tabPageShortcuts);
-            this.tabControl1.Controls.Add(this.tabPageReporting);
-            this.tabControl1.Location = new System.Drawing.Point(9, 12);
-            this.tabControl1.Multiline = true;
-            this.tabControl1.Name = "tabControl1";
-            this.tabControl1.SelectedIndex = 0;
-            this.tabControl1.Size = new System.Drawing.Size(372, 217);
-            this.tabControl1.TabIndex = 0;
+            this.TabControl.Controls.Add(this.tabPageEmber);
+            this.TabControl.Controls.Add(this.tabPageDIO);
+            this.TabControl.Controls.Add(this.tagPageMeasurement);
+            this.TabControl.Controls.Add(this.tabPageShortcuts);
+            this.TabControl.Controls.Add(this.tabPageReporting);
+            this.TabControl.Location = new System.Drawing.Point(9, 12);
+            this.TabControl.Multiline = true;
+            this.TabControl.Name = "TabControl";
+            this.TabControl.SelectedIndex = 0;
+            this.TabControl.Size = new System.Drawing.Size(372, 217);
+            this.TabControl.TabIndex = 0;
             // 
             // tabPageEmber
             // 
@@ -435,12 +435,12 @@
             this.ClientSize = new System.Drawing.Size(390, 284);
             this.Controls.Add(this.buttonCancel);
             this.Controls.Add(this.buttonOK);
-            this.Controls.Add(this.tabControl1);
+            this.Controls.Add(this.TabControl);
             this.MinimumSize = new System.Drawing.Size(406, 322);
             this.Name = "Form_Settings";
             this.Text = "Settings";
             this.Load += new System.EventHandler(this.Form_Load);
-            this.tabControl1.ResumeLayout(false);
+            this.TabControl.ResumeLayout(false);
             this.tabPageEmber.ResumeLayout(false);
             this.tabPageEmber.PerformLayout();
             this.tabPageDIO.ResumeLayout(false);
@@ -461,7 +461,6 @@
 
         #endregion
 
-        private System.Windows.Forms.TabControl tabControl1;
         private System.Windows.Forms.TabPage tabPageEmber;
         private System.Windows.Forms.TabPage tabPageReporting;
         private System.Windows.Forms.CheckBox checkBox_EnableDBReporting;
@@ -493,5 +492,6 @@
         private System.Windows.Forms.TabPage tabPageShortcuts;
         private System.Windows.Forms.ComboBox comboBoxShortcutActions;
         private System.Windows.Forms.Label label12;
+        public System.Windows.Forms.TabControl TabControl;
     }
 }
