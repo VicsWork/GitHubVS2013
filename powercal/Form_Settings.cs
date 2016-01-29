@@ -16,28 +16,6 @@ namespace PowerCalibration
         {
             InitializeComponent();
             this.Icon = Properties.Resources.IconPowerCalibration;
-
-            CheckBoxManualMultiMeter.Checked = Properties.Settings.Default.Meter_Manual_Measurement;
-            TextBoxMeterCOM.Text = Properties.Settings.Default.Meter_COM_Port_Name;
-
-            // Populate DIO controller types
-            comboBoxDIOCtrollerTypes.Items.Clear();
-            Array relay_types = Enum.GetValues(typeof(RelayControler.Device_Types));
-            foreach (RelayControler.Device_Types relay_type in relay_types)
-                comboBoxDIOCtrollerTypes.Items.Add(relay_type.ToString());
-            comboBoxDIOCtrollerTypes.Text = Properties.Settings.Default.Relay_Controller_Type;
-
-            // Ember
-            comboBoxEmberInterface.Text = Properties.Settings.Default.Ember_Interface;
-            if (Properties.Settings.Default.Ember_Interface == "IP")
-                textBoxEmberInterfaceAddress.Text = Properties.Settings.Default.Ember_Interface_IP_Address;
-            else
-                textBoxEmberInterfaceAddress.Text = Properties.Settings.Default.Ember_Interface_USB_Address;
-            TextBoxEmberBinPath.Text = Properties.Settings.Default.Ember_BinPath;
-
-            comboBoxShortcutActions.Text = Properties.Settings.Default.Shortcut_Spacebar_Action;
-
-            checkBoxPreProTest.Checked = Properties.Settings.Default.PrePost_Test_Enabled;
         }
 
         private void buttonOK_Click(object sender, EventArgs e)
@@ -46,41 +24,29 @@ namespace PowerCalibration
             Close();
         }
 
-        private void setLineEnablement(bool enable)
+        private void Form_Load(object sender, EventArgs e)
         {
-            foreach (Control ctrl in groupBoxDIO.Controls)
-            {
-                if (ctrl.GetType() == typeof(NumericUpDown))
-                {
-                    ctrl.Enabled = enable;
-                }
-            }
-        }
+            // Ember
+            comboBoxEmberInterface.Text = Properties.Settings.Default.Ember_Interface;
+            TextBoxEmberBinPath.Text = Properties.Settings.Default.Ember_BinPath;
 
-        private void CheckBoxManualMultiMeter_CheckedChanged(object sender, EventArgs e)
-        {
-            if (CheckBoxManualMultiMeter.Checked)
-            {
-                TextBoxMeterCOM.Enabled = false;
-                this.checkBoxPreProTest.Checked = false;
-                this.checkBoxPreProTest.Enabled = false;
-            }
-            else
-            {
-                TextBoxMeterCOM.Enabled = true;
-                this.checkBoxPreProTest.Enabled = true;
-                this.checkBoxPreProTest.Checked = Properties.Settings.Default.PrePost_Test_Enabled;
-            }
-        }
+            // Populate DIO controller types
+            comboBoxDIOCtrollerTypes.Items.Clear();
+            Array relay_types = Enum.GetValues(typeof(RelayControler.Device_Types));
+            foreach (RelayControler.Device_Types relay_type in relay_types)
+                comboBoxDIOCtrollerTypes.Items.Add(relay_type.ToString());
+            comboBoxDIOCtrollerTypes.Text = Properties.Settings.Default.Relay_Controller_Type;
 
-        private void buttonEmberBinPathBrowse_Click(object sender, EventArgs e)
-        {
-            FolderBrowserDialog dlg = new FolderBrowserDialog();
-            dlg.SelectedPath = TextBoxEmberBinPath.Text;
-            if (dlg.ShowDialog() == System.Windows.Forms.DialogResult.OK)
-            {
-                TextBoxEmberBinPath.Text = dlg.SelectedPath;
-            }
+            // Multimeter (Measurement)
+            CheckBoxManualMultiMeter.Checked = Properties.Settings.Default.Meter_Manual_Measurement;
+            TextBoxMeterCOM.Text = Properties.Settings.Default.Meter_COM_Port_Name;
+            checkBoxPreProTest.Checked = Properties.Settings.Default.PrePost_Test_Enabled;
+
+            // Shortcuts
+            comboBoxShortcutActions.Text = Properties.Settings.Default.Shortcut_Spacebar_Action;
+
+            // DB
+            this.checkBox_EnableDBReporting.Checked = Properties.Settings.Default.DB_Loging_Enabled;
         }
 
         private void comboBoxDIOCtrollerTypes_SelectedIndexChanged(object sender, EventArgs e)
@@ -119,6 +85,7 @@ namespace PowerCalibration
 
         }
 
+
         private void NumericUpDown_DIOLine_ValueChanged(object sender, EventArgs e)
         {
             RelayControler.Device_Types device = (RelayControler.Device_Types)Enum.Parse(
@@ -138,6 +105,51 @@ namespace PowerCalibration
         }
 
 
+        private void setLineEnablement(bool enable)
+        {
+            foreach (Control ctrl in this.tabPageDIO.Controls)
+            {
+                if (ctrl.GetType() == typeof(NumericUpDown))
+                {
+                    ctrl.Enabled = enable;
+                }
+            }
+        }
+
+        private void CheckBoxManualMultiMeter_CheckedChanged(object sender, EventArgs e)
+        {
+            if (CheckBoxManualMultiMeter.Checked)
+            {
+                TextBoxMeterCOM.Enabled = false;
+                this.checkBoxPreProTest.Checked = false;
+                this.checkBoxPreProTest.Enabled = false;
+            }
+            else
+            {
+                TextBoxMeterCOM.Enabled = true;
+                this.checkBoxPreProTest.Enabled = true;
+                this.checkBoxPreProTest.Checked = Properties.Settings.Default.PrePost_Test_Enabled;
+            }
+
+            Properties.Settings.Default.Meter_Manual_Measurement = CheckBoxManualMultiMeter.Checked;
+
+        }
+
+        private void checkBoxPreProTest_CheckedChanged(object sender, EventArgs e)
+        {
+            Properties.Settings.Default.PrePost_Test_Enabled = this.checkBoxPreProTest.Checked;
+        }
+
+        private void comboBoxShortcutActions_SelectedIndexChanged(object sender, EventArgs e)
+        {
+            Properties.Settings.Default.Shortcut_Spacebar_Action = comboBoxShortcutActions.Text;
+        }
+
+        private void TextBoxMeterCOM_TextChanged(object sender, EventArgs e)
+        {
+            Properties.Settings.Default.Meter_COM_Port_Name = TextBoxMeterCOM.Text;
+        }
+
         private void comboBoxEmberInterface_SelectedIndexChanged(object sender, EventArgs e)
         {
             Properties.Settings.Default.Ember_Interface = comboBoxEmberInterface.Text;
@@ -156,28 +168,19 @@ namespace PowerCalibration
                 Properties.Settings.Default.Ember_Interface_USB_Address = textBoxEmberInterfaceAddress.Text;
         }
 
-        private void buttonCodingSetXY_Click(object sender, EventArgs e)
+        private void TextBoxEmberBinPath_TextChanged(object sender, EventArgs e)
         {
-            MouseHook.Start();
-            MouseHook.MouseAction += MouseHook_MouseAction;
+            Properties.Settings.Default.Ember_BinPath = TextBoxEmberBinPath.Text;
         }
 
-        void MouseHook_MouseAction(object sender, EventArgs e)
+        private void buttonEmberBinPathBrowse_Click(object sender, EventArgs e)
         {
-            MouseHook.Stop();
-
-            MouseHook.POINT p = new MouseHook.POINT();
-            MouseHook.SafeNativeMethods.GetCursorPos(out p);
-        }
-
-        private void comboBoxShortcutActions_SelectedIndexChanged(object sender, EventArgs e)
-        {
-            Properties.Settings.Default.Shortcut_Spacebar_Action = comboBoxShortcutActions.Text;
-        }
-
-        private void checkBoxPreProTest_CheckedChanged(object sender, EventArgs e)
-        {
-            Properties.Settings.Default.PrePost_Test_Enabled = this.checkBoxPreProTest.Checked;
+            FolderBrowserDialog dlg = new FolderBrowserDialog();
+            dlg.SelectedPath = TextBoxEmberBinPath.Text;
+            if (dlg.ShowDialog() == System.Windows.Forms.DialogResult.OK)
+            {
+                TextBoxEmberBinPath.Text = dlg.SelectedPath;
+            }
         }
 
     }

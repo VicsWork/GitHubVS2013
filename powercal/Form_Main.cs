@@ -148,7 +148,6 @@ namespace PowerCalibration
             if (isDBLogingEnabled())
             {
                 // get machine id
-                DB.ConnectionSB = _db_connect_str;
                 Task task_id = new Task<int>(getDBMachineID);
                 task_id.ContinueWith(getDBMachineID_Error, TaskContinuationOptions.OnlyOnFaulted);
                 task_id.Start();
@@ -353,7 +352,7 @@ namespace PowerCalibration
                 Properties.Settings.Default.Relay_Controller_Type = _relay_ctrl.Device_Type.ToString();
                 Properties.Settings.Default.Save();
 
-                Form_Settings dlg = new Form_Settings();
+                Form_Settings_old dlg = new Form_Settings_old();
                 dlg.ShowDialog();
 
             }
@@ -733,35 +732,19 @@ namespace PowerCalibration
             DialogResult rc = dlg.ShowDialog();
             if (rc == DialogResult.OK)
             {
-
                 // DIO controller type
                 Properties.Settings.Default.Relay_Controller_Type = dlg.comboBoxDIOCtrollerTypes.Text;
                 RelayControler.Device_Types rdevtype = (RelayControler.Device_Types)Enum.Parse(typeof(RelayControler.Device_Types),
                     Properties.Settings.Default.Relay_Controller_Type);
                 _relay_ctrl = new RelayControler(rdevtype);
-
-
-                // COM ports
-                Properties.Settings.Default.Meter_COM_Port_Name = dlg.TextBoxMeterCOM.Text;
-                Properties.Settings.Default.Meter_Manual_Measurement = dlg.CheckBoxManualMultiMeter.Checked;
-
-                // Ember
-                Properties.Settings.Default.Ember_Interface = dlg.comboBoxEmberInterface.Text;
-                Properties.Settings.Default.Ember_BinPath = dlg.TextBoxEmberBinPath.Text;
-                if (dlg.comboBoxEmberInterface.Text == "IP")
-                    Properties.Settings.Default.Ember_Interface_IP_Address = dlg.textBoxEmberInterfaceAddress.Text;
-                else
-                    Properties.Settings.Default.Ember_Interface_USB_Address = dlg.textBoxEmberInterfaceAddress.Text;
-
-                Properties.Settings.Default.Save();
-
-                setEnablement(true, false);
             }
             else
             {
                 Properties.Settings.Default.Reload();
             }
+
         }
+
 
         /// <summary>
         /// Opens up a basic calculator for 24bit register values conversions
@@ -1842,23 +1825,6 @@ namespace PowerCalibration
             updateRunStatus("FAIL", Color.White, Color.Red);
             updateOutputStatus(errmsg);
         }
-
-        private void settings2ToolStripMenuItem_Click(object sender, EventArgs e)
-        {
-            Form_Settings2 dlg = new Form_Settings2();
-            DialogResult rc = dlg.ShowDialog();
-            if (rc == DialogResult.OK)
-            {
-                // DIO controller type
-                Properties.Settings.Default.Relay_Controller_Type = dlg.comboBoxDIOCtrollerTypes.Text;
-                RelayControler.Device_Types rdevtype = (RelayControler.Device_Types)Enum.Parse(typeof(RelayControler.Device_Types),
-                    Properties.Settings.Default.Relay_Controller_Type);
-                _relay_ctrl = new RelayControler(rdevtype);
-            }
-
-        }
-
-
     }
 
 

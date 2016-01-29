@@ -108,8 +108,7 @@ namespace PowerCalibration
             while (_value_txt == "")
             {
                 Thread.Sleep(100);
-                n++;
-                if (n > 5)
+                if (n++ > 5)
                 {
                     break;
                 }
@@ -118,8 +117,7 @@ namespace PowerCalibration
             while (_serialPort.BytesToRead > 0)
             {
                 Thread.Sleep(250);
-                n++;
-                if (n > 10)
+                if (n++ > 10)
                 {
                     break;
                 }
@@ -151,7 +149,12 @@ namespace PowerCalibration
                 {
                     Thread.Sleep(250);
                     if (n++ > 20)
-                        throw new Exception("Multimeter not responding to serial commands.  Make sure multi-meter is on and serial cable connected");
+                    {
+                        string msg = "Multimeter not responding to serial commands.";
+                        msg += "  Make sure multi-meter is on and serial cable connected.";
+                        msg += "  DSR holding not set";
+                        throw new Exception(msg);
+                    }
                 }
             }
 
@@ -163,7 +166,7 @@ namespace PowerCalibration
             {
                 Thread.Sleep(100);
                 if (n++ > 20)
-                    throw new Exception("Multimeter write buffer not empty");
+                    throw new Exception("Multimeter write buffer did not empty");
             }
         }
 
@@ -299,7 +302,7 @@ namespace PowerCalibration
             }
 
             writeLine("*TRG");
-//            Thread.Sleep(250);
+            //            Thread.Sleep(250);
 
             switch (Model)
             {
