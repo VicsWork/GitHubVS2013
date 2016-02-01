@@ -20,6 +20,7 @@ namespace PowerCalibration
         TelnetConnection _telnet_connection = null;
         string _cmd_prefix;
         Ember _ember;
+        bool _static_values_read = false;
 
         public class CLIPowerArgsEventArgrs : EventArgs
         {
@@ -42,6 +43,8 @@ namespace PowerCalibration
         delegate void setCLIErrorTextCallback(string text);
 
         delegate void setErrorVisibilityCallback(bool visible);
+
+        delegate void setCalibrationTokensTextCallback(TCLI.Tokens tokens);
 
         CancellationTokenSource _tokenSrc = new CancellationTokenSource();
         Task _task;
@@ -72,19 +75,19 @@ namespace PowerCalibration
                 telnet_address = _ember.Interface_Address;
             _telnet_connection = new TelnetConnection(telnet_address, 4900);
 
-            _cmd_prefix = TCLI.Get_Custom_Command_Prefix(_telnet_connection);
+            //_cmd_prefix = TCLI.Get_Custom_Command_Prefix(_telnet_connection);
 
-            TCLI.Tokens calibration_tokens = TCLI.Parse_Pinfo_Tokens(_telnet_connection, _cmd_prefix);
-            this.labelVFactor.Text = string.Format("Voltage Factor: {0}", calibration_tokens.VoltageFactor);
-            this.labelIFactor.Text = string.Format("Current Factor: {0}", calibration_tokens.CurrentFactor);
-            this.labelVGain.Text = string.Format("VGain Token: 0x{0:X08}", calibration_tokens.VoltageGainToken);
-            this.labelIGain.Text = string.Format("VGain Token: 0x{0:X08}", calibration_tokens.CurrentGainToken);
+            //TCLI.Tokens calibration_tokens = TCLI.Parse_Pinfo_Tokens(_telnet_connection, _cmd_prefix);
+            //this.labelVFactor.Text = string.Format("Voltage Factor: {0}", calibration_tokens.VoltageFactor);
+            //this.labelIFactor.Text = string.Format("Current Factor: {0}", calibration_tokens.CurrentFactor);
+            //this.labelVGain.Text = string.Format("VGain Token: 0x{0:X08}", calibration_tokens.VoltageGainToken);
+            //this.labelIGain.Text = string.Format("VGain Token: 0x{0:X08}", calibration_tokens.CurrentGainToken);
 
-            _uut_voltage_reference = Convert.ToDouble(calibration_tokens.VoltageFactor);
-            _uut_current_reference = Convert.ToDouble(calibration_tokens.CurrentFactor);
+            //_uut_voltage_reference = Convert.ToDouble(calibration_tokens.VoltageFactor);
+            //_uut_current_reference = Convert.ToDouble(calibration_tokens.CurrentFactor);
 
-            string eui = TCLI.Get_EUI(_telnet_connection);
-            this.labelEUI.Text = string.Format("EUI: {0}", eui);
+            //string eui = TCLI.Get_EUI(_telnet_connection);
+            //this.labelEUI.Text = string.Format("EUI: {0}", eui);
 
             this.CLIValue_Event += Form_PowerMeter_CLIValue_Event;
             this.CLIError_Event += Form_PowerMeter_CLIError_Event;
@@ -155,6 +158,46 @@ namespace PowerCalibration
             }
         }
 
+        bool isUUTSaticValuesRead()
+        {
+            return _static_values_read;
+        }
+
+        private void setCalibrationTokensText(TCLI.Tokens calibration_tokens)
+        {
+
+            if (this.InvokeRequired)
+            {
+                setCalibrationTokensTextCallback d = new setCalibrationTokensTextCallback(setCalibrationTokensText);
+                this.Invoke(d, new object[] { calibration_tokens });
+            }
+            else
+            {
+                this.labelVFactor.Text = string.Format("Voltage Factor: {0}", calibration_tokens.VoltageFactor);
+                this.labelIFactor.Text = string.Format("Current Factor: {0}", calibration_tokens.CurrentFactor);
+                this.labelVGain.Text = string.Format("VGain Token: 0x{0:X08}", calibration_tokens.VoltageGainToken);
+                this.labelIGain.Text = string.Format("VGain Token: 0x{0:X08}", calibration_tokens.CurrentGainToken);
+
+                string eui = TCLI.Get_EUI(_telnet_connection);
+                this.labelEUI.Text = string.Format("EUI: {0}", eui);
+            }
+        }
+
+        void readUUTStaticValues()
+        {
+            if (_cmd_prefix == null)
+            {
+                _cmd_prefix = TCLI.Get_Custom_Command_Prefix(_telnet_connection);
+            }
+
+            TCLI.Tokens calibration_tokens = TCLI.Parse_Pinfo_Tokens(_telnet_connection, _cmd_prefix);
+            setCalibrationTokensText(calibration_tokens);
+            _uut_voltage_reference = Convert.ToDouble(calibration_tokens.VoltageFactor);
+            _uut_current_reference = Convert.ToDouble(calibration_tokens.CurrentFactor);
+
+            _static_values_read = true;
+        }
+
         void readCLIValues(CancellationToken ct)
         {
             while (true)
@@ -164,6 +207,11 @@ namespace PowerCalibration
 
                 try
                 {
+                    if ( !isUUTSaticValuesRead() )
+                    {
+                        readUUTStaticValues();
+                    }
+
                     TCLI.Current_Voltage cv = get_uut_data(_uut_voltage_reference, _uut_current_reference);
                     if (CLIValue_Event != null)
                     {
