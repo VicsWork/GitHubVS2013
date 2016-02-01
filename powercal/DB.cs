@@ -24,14 +24,27 @@ namespace PowerCalibration
         /// It creates an entry if not found
         /// </summary>
         /// <returns></returns>
-        public static int getMachineID()
+        public static Tuple<int, int> GetSiteAndMachineIDs()
         {
-            int machine_id = -1;
+            int id_site = -1;
+            int id_machine = -1;
             using (SqlConnection con = new SqlConnection(ConnectionSB.ConnectionString))
             {
                 con.Open();
 
                 object ret_obj = null;
+                using (SqlCommand cmd = new SqlCommand())
+                {
+                    cmd.Connection = con;
+                    string table_name = "[ProductionSite]";
+                    cmd.CommandText = string.Format("select id from {0} where name='{1}'", table_name, Properties.Settings.Default.ProductionSiteName);
+                    ret_obj = cmd.ExecuteScalar();
+                }
+                if (ret_obj != null)
+                    id_site = (int)ret_obj;
+
+
+                ret_obj = null;
                 using (SqlCommand cmd = new SqlCommand())
                 {
                     cmd.Connection = con;
@@ -90,12 +103,11 @@ namespace PowerCalibration
                         ret_obj = cmd.ExecuteScalar();
                     }
                 }
-
                 if (ret_obj != null)
-                    machine_id = (int)ret_obj;
+                    id_machine = (int)ret_obj;
             }
 
-            return machine_id;
+            return Tuple.Create(id_site, id_machine);
         }
 
         /// <summary>

@@ -165,5 +165,17 @@ namespace PowerCalibration.Properties {
                 this["DB_Loging_Enabled"] = value;
             }
         }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("Centralite")]
+        public string ProductionSiteName {
+            get {
+                return ((string)(this["ProductionSiteName"]));
+            }
+            set {
+                this["ProductionSiteName"] = value;
+            }
+        }
     }
 }

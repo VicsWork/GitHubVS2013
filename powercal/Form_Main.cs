@@ -66,13 +66,15 @@ namespace PowerCalibration
         Task _task_updatedb;
         DataTable _datatable_calibrate;
         uint _db_total_written = 0;
-        int _machine_id = -1;
+        Tuple<int, int> _site_machine_id;
 
         /// <summary>
         /// The main form constructor
         /// </summary>
         public Form_Main()
         {
+            _site_machine_id = Tuple.Create(-1, -1);
+
             Stream outResultsFile = File.Create("output.txt");
             var textListener = new TextWriterTraceListener(outResultsFile);
             Trace.Listeners.Add(textListener);
@@ -148,7 +150,7 @@ namespace PowerCalibration
             if (isDBLogingEnabled())
             {
                 // get machine id
-                Task task_id = new Task<int>(getDBMachineID);
+                Task task_id = new Task<Tuple<int,int>>(GetSiteAndMachineIDs);
                 task_id.ContinueWith(getDBMachineID_Error, TaskContinuationOptions.OnlyOnFaulted);
                 task_id.Start();
                 // Create the internal result data table
@@ -196,15 +198,15 @@ namespace PowerCalibration
         /// Helper to get db machine id
         /// </summary>
         /// <returns></returns>
-        int getDBMachineID()
+        Tuple<int, int> GetSiteAndMachineIDs()
         {
-            if (_machine_id > 0)
-                return _machine_id;
+            if (_site_machine_id.Item1 > 0 && _site_machine_id.Item2 > 0)
+                return _site_machine_id;
 
             DB.ConnectionSB = _db_connect_str;
-            _machine_id = DB.getMachineID();
+            _site_machine_id = DB.GetSiteAndMachineIDs();
 
-            return _machine_id;
+            return _site_machine_id;
         }
 
         void getDBMachineID_Error(Task task)
@@ -275,7 +277,8 @@ namespace PowerCalibration
             try
             {
                 // Update result table with 
-                int machine_id = getDBMachineID();
+                Tuple<int, int> site_machine_id = GetSiteAndMachineIDs();
+                int machine_id = site_machine_id.Item2;
                 if (machine_id >= 0)
                 {
                     foreach (DataRow r in _datatable_calibrate.Rows)
