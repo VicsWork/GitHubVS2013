@@ -19,6 +19,52 @@ namespace PowerCalibration
 
         public static SqlConnectionStringBuilder ConnectionSB { get { return _constr; } set { _constr = value; } }
 
+
+        /// <summary>
+        /// Gets the EUI Id
+        /// </summary>
+        /// <param name="eui"></param>
+        /// <returns>EUI ID</returns>
+        public static int GetEUIID(string eui)
+        {
+            int id = -1;
+            using (SqlConnection con = new SqlConnection(ConnectionSB.ConnectionString))
+            {
+                con.Open();
+
+                object ret_obj = null;
+                using (SqlCommand cmd = new SqlCommand())
+                {
+                    cmd.Connection = con;
+                    string table_name = "[EuiList]";
+                    cmd.CommandText = string.Format("select id from {0} where EUI='{1}'", table_name, eui);
+                    ret_obj = cmd.ExecuteScalar();
+
+                    if (ret_obj == null)
+                    {
+                        Tuple<int, int> site_machine_id = GetSiteAndMachineIDs();
+
+                        // Insert into database
+                        cmd.CommandText = string.Format(
+                            "insert into {0} (EUI, ProductionSiteId) values ('{1}', '{2}')",
+                            table_name, eui, site_machine_id.Item1);
+
+                        int n = cmd.ExecuteNonQuery();
+
+                        TraceLogger.Log(cmd.CommandText);
+
+                        // Get the id
+                        cmd.CommandText = string.Format("select id from {0} where EUI='{1}'", table_name, eui);
+                        ret_obj = cmd.ExecuteScalar();
+                    }
+                }
+                if (ret_obj != null)
+                    id = (int)ret_obj;
+            }
+            return id;
+        }
+
+
         /// <summary>
         /// Gets the machine id from database
         /// It creates an entry if not found
@@ -42,7 +88,6 @@ namespace PowerCalibration
                 }
                 if (ret_obj != null)
                     id_site = (int)ret_obj;
-
 
                 ret_obj = null;
                 using (SqlCommand cmd = new SqlCommand())

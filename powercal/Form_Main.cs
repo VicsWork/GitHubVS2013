@@ -150,7 +150,7 @@ namespace PowerCalibration
             if (isDBLogingEnabled())
             {
                 // get machine id
-                Task task_id = new Task<Tuple<int,int>>(GetSiteAndMachineIDs);
+                Task task_id = new Task<Tuple<int, int>>(GetSiteAndMachineIDs);
                 task_id.ContinueWith(getDBMachineID_Error, TaskContinuationOptions.OnlyOnFaulted);
                 task_id.Start();
                 // Create the internal result data table
@@ -218,13 +218,11 @@ namespace PowerCalibration
         /// </summary>
         void createResultTable()
         {
-            _datatable_calibrate = new DataTable("results");
-            _datatable_calibrate.Columns.Add("voltage_gain", typeof(SqlInt32));
-            _datatable_calibrate.Columns.Add("current_gain", typeof(SqlInt32));
-            //_datatable_calibrate.Columns.Add("eui", typeof(char[]));
-            _datatable_calibrate.Columns.Add("timestamp", typeof(SqlDateTime));
-            _datatable_calibrate.Columns.Add("machine_id", typeof(SqlInt32));
-
+            _datatable_calibrate = new DataTable("CalibrationResults");
+            _datatable_calibrate.Columns.Add("VoltageGain", typeof(SqlInt32));
+            _datatable_calibrate.Columns.Add("CurrentGain", typeof(SqlInt32));
+            _datatable_calibrate.Columns.Add("Eui", typeof(string));
+            _datatable_calibrate.Columns.Add("DateCalibrated", typeof(SqlDateTime));
         }
 
         /// <summary>
@@ -236,17 +234,22 @@ namespace PowerCalibration
             return _db_Loging;
         }
 
-
+        /// <summary>
+        /// Handle the calibration results
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
         void calibrationResults_Event(object sender, CalibrationResultsEventArgs e)
         {
-            // Check whether db loging is disabled
+            // Check whether db logging is disabled
             if (!isDBLogingEnabled())
                 return;
 
             DataRow r = _datatable_calibrate.NewRow();
-            r["voltage_gain"] = e.Voltage_gain;
-            r["current_gain"] = e.Current_gain;
-            r["timestamp"] = e.timestamp;
+            r["VoltageGain"] = e.Voltage_gain;
+            r["CurrentGain"] = e.Current_gain;
+            r["Eui"] = e.EUI;
+            r["DateCalibrated"] = e.Timestamp;
 
             lock (_datatable_calibrate)
             {
@@ -270,6 +273,9 @@ namespace PowerCalibration
 
         }
 
+        /// <summary>
+        /// Save results to database
+        /// </summary>
         void updateDB()
         {
             string msg = "";
@@ -281,33 +287,37 @@ namespace PowerCalibration
                 int machine_id = site_machine_id.Item2;
                 if (machine_id >= 0)
                 {
+                    DB.ConnectionSB = _db_connect_str;
                     foreach (DataRow r in _datatable_calibrate.Rows)
                     {
-                        r["machine_id"] = machine_id;
+                        string eui = (string)r["Eui"];
+                        int eui_id = DB.GetEUIID(eui);
+
+                        using (SqlConnection con = new SqlConnection(_db_connect_str.ConnectionString))
+                        {
+                            con.Open();
+
+                            using (SqlCommand cmd = new SqlCommand())
+                            {
+                                cmd.Connection = con;
+                                string table_name = "[CalibrationResults]";
+
+                                cmd.CommandText = string.Format(
+                                    "insert into {0} (EuiId, VoltageGain, CurrentGain, DateCalibrated, MachineId) values ('{1}', '{2}', '{3}', '{4}', '{5}')",
+                                    table_name, eui_id, r["VoltageGain"], r["CurrentGain"], r["DateCalibrated"], machine_id);
+
+                                int n = cmd.ExecuteNonQuery();
+                            }
+                        }
                     }
                 }
 
-                using (SqlBulkCopy bulkCopy = new SqlBulkCopy(_db_connect_str.ConnectionString, SqlBulkCopyOptions.KeepIdentity))
-                {
-                    bulkCopy.DestinationTableName = "Results";
+                _db_total_written += (uint)_datatable_calibrate.Rows.Count;
 
-                    bulkCopy.ColumnMappings.Add("voltage_gain", "voltage_gain");
-                    bulkCopy.ColumnMappings.Add("current_gain", "current_gain");
-                    bulkCopy.ColumnMappings.Add("timestamp", "timestamp");
-                    bulkCopy.ColumnMappings.Add("machine_id", "machine_id");
+                msg = string.Format("{0}W/{1}T {2:H:mm:ss}",
+                    _datatable_calibrate.Rows.Count, _db_total_written, DateTime.Now);
 
-                    lock (_datatable_calibrate)
-                    {
-                        bulkCopy.WriteToServer(_datatable_calibrate);
-
-                        _db_total_written += (uint)_datatable_calibrate.Rows.Count;
-
-                        msg = string.Format("{0}W/{1}T {2:H:mm:ss}",
-                            _datatable_calibrate.Rows.Count, _db_total_written, DateTime.Now);
-
-                        _datatable_calibrate.Rows.Clear();
-                    }
-                }
+                _datatable_calibrate.Rows.Clear();
 
             }
             catch (Exception ex)
@@ -319,11 +329,7 @@ namespace PowerCalibration
                 TraceLogger.Log(msg);
             }
 
-            try
-            {
-                toolStripGeneralStatusLabel.Text = msg;
-            }
-            catch { };
+            try{ toolStripGeneralStatusLabel.Text = msg; } catch { };
         }
 
         /// <summary>
@@ -787,29 +793,6 @@ namespace PowerCalibration
                 _relay_ctrl.WriteLine(Relay_Lines.Ember, true);
                 _relay_ctrl.WriteLine(Relay_Lines.Load, true);
                 Thread.Sleep(1000);
-
-
-                //TelnetConnection telnet_connection = new TelnetConnection(Properties.Settings.Default.Ember_Interface_IP_Address, 4900);
-                //int trycount = 0;
-                //string cmd_prefix = "";
-                //while (trycount < 10)
-                //{
-                //    try
-                //    {
-                //        trycount++;
-                //        cmd_prefix = TCLI.Get_Custom_Command_Prefix(telnet_connection);
-                //        if (cmd_prefix != null && cmd_prefix != "")
-                //            break;
-                //    }
-                //    catch
-                //    {
-                //        _relay_ctrl.WriteLine(Relay_Lines.Power, false);
-                //        Thread.Sleep(200);
-                //        _relay_ctrl.WriteLine(Relay_Lines.Power, true);
-                //    }
-                //}
-                //telnet_connection.Close();
-
 
                 Calibrate calibrate = new Calibrate();
                 calibrate.BoardType = (BoardTypes)Enum.Parse(typeof(BoardTypes), comboBoxBoardTypes.Text);
@@ -1294,7 +1277,6 @@ namespace PowerCalibration
                     _task_uut.ContinueWith(coding_exception_handler, TaskContinuationOptions.OnlyOnFaulted);
                     _task_uut.ContinueWith(coding_done_handler, TaskContinuationOptions.OnlyOnRanToCompletion);
                     _task_uut.Start();
-
                 }
                 else if (_next_task == TaskTypes.Calibrate)
                 {
@@ -1586,7 +1568,7 @@ namespace PowerCalibration
                 if (_stopwatch_running.IsRunning)
                     _stopwatch_running.Stop();
 
-                msg = string.Format("Idel {0:dd\\.hh\\:mm\\:ss}", _stopwatch_idel.Elapsed);
+                msg = string.Format("Idle {0:dd\\.hh\\:mm\\:ss}", _stopwatch_idel.Elapsed);
 
             }
             toolStripTimingStatusLabel.Text = msg;
@@ -1744,7 +1726,7 @@ namespace PowerCalibration
         }
 
         /// <summary>
-        /// Clickes the calibrate button
+        /// Clicks the calibrate button
         /// </summary>
         void clickCalibrate()
         {
@@ -1821,7 +1803,9 @@ namespace PowerCalibration
             updateRunStatus(status_txt);
 
             if (status_txt == "Patch UUT Tokens")
+            {
                 activate();
+            }
         }
 
         void recode_Status_Event(object sender, string status_txt)
@@ -1833,6 +1817,7 @@ namespace PowerCalibration
         {
             updateRunStatus("PASS", Color.White, Color.Green);
         }
+
         void recoder_exception_handler(Task task)
         {
             var exception = task.Exception;
@@ -1842,10 +1827,6 @@ namespace PowerCalibration
             updateOutputStatus(errmsg);
         }
 
-        private void Form_Main_Load(object sender, EventArgs e)
-        {
-
-        }
     }
 
 

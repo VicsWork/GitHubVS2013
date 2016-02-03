@@ -316,7 +316,6 @@
             this.Name = "Form_Main";
             this.Text = "FormMain";
             this.FormClosing += new System.Windows.Forms.FormClosingEventHandler(this.FormMain_FormClosing);
-            this.Load += new System.EventHandler(this.Form_Main_Load);
             this.Shown += new System.EventHandler(this.Form_Main_Shown);
             this.contextMenuStatusTextBox.ResumeLayout(false);
             this.menuStripMain.ResumeLayout(false);

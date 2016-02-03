@@ -15,7 +15,10 @@ namespace PowerCalibration
     {
         public int Voltage_gain;
         public int Current_gain;
-        public DateTime timestamp;
+
+        public string EUI;
+
+        public DateTime Timestamp;
     }
 
     class Calibrate
@@ -209,39 +212,58 @@ namespace PowerCalibration
 
             // Connect the load and verify ac
             _relay_ctrl.WriteLine(Relay_Lines.Load, true);
-            
+
             // Close the UUT relay
             TCLI.Set_Relay_State(_telnet_connection, true);
-            
+
             Thread.Sleep(1000);
             verify_voltage_ac();
 
             string cmd_prefix = TCLI.Get_Custom_Command_Prefix(_telnet_connection);
             TraceLogger.Log("cmd_prefix = " + cmd_prefix);
 
+            string eui = TCLI.Get_EUI(_telnet_connection);
+            TraceLogger.Log("eui = " + eui);
+
             // Get UUT current/voltage values
             fire_run_status("Get UUT values");
 
             TCLI.Current_Voltage cv = new TCLI.Current_Voltage();
             double power1 = 0.0, power2 = 0.0;
-            for (int i = 0; i < 10; i++)
+            int max_try_count = 5;
+            for (int i = 0; i < max_try_count; i++)
             {
-                cv = TCLI.Parse_Pload_Registers(
-                    _telnet_connection, cmd_prefix, _voltage_ac_reference, _current_ac_reference);
+                bool error_reading = false;
+                try
+                {
+                    cv = TCLI.Parse_Pload_Registers(
+                        _telnet_connection, cmd_prefix, _voltage_ac_reference, _current_ac_reference);
+                }
+                catch (Exception ex)
+                {
+                    if (i + 1 >= max_try_count)
+                    {
+                        throw;
+                    }
+                    error_reading = true;
+                    fire_status(ex.Message + ".  Retrying...");
+                }
 
-                power1 = cv.Voltage * cv.Current;
-                double delta1 = 100;
-                if (power1 != 0)
-                    delta1 = Math.Abs((power2 - power1) * 100 / power1);
+                if (!error_reading)
+                {
+                    power1 = cv.Voltage * cv.Current;
+                    double delta1 = 100;
+                    if (power1 != 0)
+                        delta1 = Math.Abs((power2 - power1) * 100 / power1);
 
-                msg = string.Format("Cirrus I = {0:F8}, V = {1:F8}, P = {2:F8}, D = {3:F8}",
-                    cv.Current, cv.Voltage, cv.Current * cv.Voltage, delta1);
-                fire_status(msg);
-                //TraceLogger.Log(msg);
+                    msg = string.Format("Cirrus I = {0:F8}, V = {1:F8}, P = {2:F8}, D = {3:F8}",
+                        cv.Current, cv.Voltage, cv.Current * cv.Voltage, delta1);
+                    fire_status(msg);
+                    //TraceLogger.Log(msg);
 
-                if (delta1 != 100.0 && delta1 != 0.0 && delta1 < 1.0)
-                    break;
-
+                    if (delta1 != 100.0 && delta1 != 0.0 && delta1 < 1.0)
+                        break;
+                }
                 power2 = power1;
                 Thread.Sleep(250);
             }
@@ -343,7 +365,8 @@ namespace PowerCalibration
             fire_status(msg);
 
             CalibrationResultsEventArgs args_results = new CalibrationResultsEventArgs();
-            args_results.timestamp = DateTime.Now;
+            args_results.Timestamp = DateTime.Now;
+            args_results.EUI = eui;
             args_results.Voltage_gain = voltage_gain_int;
             args_results.Current_gain = current_gain_int;
             fire_results_status(args_results);
@@ -368,16 +391,44 @@ namespace PowerCalibration
 
             // Get UUT current/voltage values
             fire_run_status("Get UUT calibrated values");
-            cv = TCLI.Parse_Pload_Registers(
-                _telnet_connection, cmd_prefix, _voltage_ac_reference, _current_ac_reference);
-            msg = string.Format("Cirrus I = {0:F8}, V = {1:F8}, P = {2:F8}",
-                cv.Current, cv.Voltage, cv.Current * cv.Voltage);
-            TraceLogger.Log(msg);
-            cv = TCLI.Parse_Pload_Registers(
-                _telnet_connection, cmd_prefix, _voltage_ac_reference, _current_ac_reference);
-            msg = string.Format("Cirrus I = {0:F8}, V = {1:F8}, P = {2:F8}",
-                cv.Current, cv.Voltage, cv.Current * cv.Voltage);
-            fire_status(msg);
+            power1 = 0.0; power2 = 0.0;
+            cv = new TCLI.Current_Voltage();
+            max_try_count = 5;
+            for (int i = 0; i < max_try_count; i++)
+            {
+                bool error_reading = false;
+                try
+                {
+                    cv = TCLI.Parse_Pload_Registers(
+                        _telnet_connection, cmd_prefix, _voltage_ac_reference, _current_ac_reference);
+                }
+                catch (Exception ex)
+                {
+                    if (i + 1 >= max_try_count)
+                    {
+                        throw;
+                    }
+                    error_reading = true;
+                    fire_status(ex.Message + ".  Retrying...");
+                }
+
+                if (!error_reading)
+                {
+                    power1 = cv.Voltage * cv.Current;
+                    double delta1 = 100;
+                    if (power1 != 0)
+                        delta1 = Math.Abs((power2 - power1) * 100 / power1);
+
+                    msg = string.Format("Cirrus I = {0:F8}, V = {1:F8}, P = {2:F8}, D = {3:F8}",
+                        cv.Current, cv.Voltage, cv.Current * cv.Voltage, delta1);
+                    fire_status(msg);
+
+                    if (delta1 != 100.0 && delta1 != 0.0 && delta1 < 1.0)
+                        break;
+                }
+                power2 = power1;
+                Thread.Sleep(250);
+            }
 
             // Check calibration
             double delta = voltage_meter * 0.3;
