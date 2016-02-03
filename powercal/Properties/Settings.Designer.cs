@@ -136,9 +136,9 @@ namespace PowerCalibration.Properties {
         [global::System.Configuration.SpecialSettingAttribute(global::System.Configuration.SpecialSetting.ConnectionString)]
         [global::System.Configuration.DefaultSettingValueAttribute("Data Source=a1040.centralite.com;Initial Catalog=PowerCalibration;Integrated Secu" +
             "rity=True")]
-        public string PowerCalibrationConnectionString {
+        public string PowerCalibrationConnectionString2 {
             get {
-                return ((string)(this["PowerCalibrationConnectionString"]));
+                return ((string)(this["PowerCalibrationConnectionString2"]));
             }
         }
         
@@ -175,6 +175,17 @@ namespace PowerCalibration.Properties {
             }
             set {
                 this["ProductionSiteName"] = value;
+            }
+        }
+        
+        [global::System.Configuration.ApplicationScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.SpecialSettingAttribute(global::System.Configuration.SpecialSetting.ConnectionString)]
+        [global::System.Configuration.DefaultSettingValueAttribute("Data Source=zeus.centralite.com;Initial Catalog=ManufacturingStore_v2;Integrated " +
+            "Security=True")]
+        public string PowerCalibrationConnectionString {
+            get {
+                return ((string)(this["PowerCalibrationConnectionString"]));
             }
         }
     }

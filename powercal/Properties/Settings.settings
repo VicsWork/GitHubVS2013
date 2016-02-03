@@ -29,7 +29,7 @@
     <Setting Name="Shortcut_Spacebar_Action" Type="System.String" Scope="User">
       <Value Profile="(Default)">All</Value>
     </Setting>
-    <Setting Name="PowerCalibrationConnectionString" Type="(Connection string)" Scope="Application">
+    <Setting Name="PowerCalibrationConnectionString2" Type="(Connection string)" Scope="Application">
       <DesignTimeValue Profile="(Default)">&lt;?xml version="1.0" encoding="utf-16"?&gt;
 &lt;SerializableConnectionString xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema"&gt;
   &lt;ConnectionString&gt;Data Source=a1040.centralite.com;Initial Catalog=PowerCalibration;Integrated Security=True&lt;/ConnectionString&gt;
@@ -45,6 +45,13 @@
     </Setting>
     <Setting Name="ProductionSiteName" Type="System.String" Scope="User">
       <Value Profile="(Default)">Centralite</Value>
+    </Setting>
+    <Setting Name="PowerCalibrationConnectionString" Type="(Connection string)" Scope="Application">
+      <DesignTimeValue Profile="(Default)">&lt;?xml version="1.0" encoding="utf-16"?&gt;
+&lt;SerializableConnectionString xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema"&gt;
+  &lt;ConnectionString&gt;Data Source=zeus.centralite.com;Initial Catalog=ManufacturingStore_v2;Integrated Security=True&lt;/ConnectionString&gt;
+&lt;/SerializableConnectionString&gt;</DesignTimeValue>
+      <Value Profile="(Default)">Data Source=zeus.centralite.com;Initial Catalog=ManufacturingStore_v2;Integrated Security=True</Value>
     </Setting>
   </Settings>
 </SettingsFile>
