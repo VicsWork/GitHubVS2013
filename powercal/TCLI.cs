@@ -240,8 +240,7 @@ namespace PowerCalibration
                 data += telnet_connection.Read();
                 if (data.Contains("pload"))
                     break;
-                try_count++;
-                if (try_count > 3)
+                if (try_count++ > 3)
                     break;
             }
 
@@ -271,16 +270,26 @@ namespace PowerCalibration
         /// <returns></returns>
         public static string Get_EUI(TelnetConnection telnet_connection)
         {
-            TCLI.Wait_For_Prompt(telnet_connection);
-
             string eui = null;
-            telnet_connection.WriteLine("info");
-            Thread.Sleep(500);
-            string datain = telnet_connection.Read();
-            Trace.WriteLine(datain);
+            int try_count = 0;
+            string datain = "";
+            string pattern = Regex.Escape("node [(>)") + "([0-9,A-F]{16})" + Regex.Escape("]");
+
+            TCLI.Wait_For_Prompt(telnet_connection);
+            while (true)
+            {
+                telnet_connection.WriteLine("info");
+                Thread.Sleep(500);
+                datain = telnet_connection.Read();
+                if (datain != null && datain.Length > 0 && Regex.Match(datain, pattern).Groups.Count == 2)
+                    break;
+                if (try_count++ > 3)
+                    break;
+            }
+
+
             if (datain != null && datain.Length > 0)
             {
-                string pattern = Regex.Escape("node [(>)") + "([0-9,A-F]{16})" + Regex.Escape("]");
                 Match match = Regex.Match(datain, pattern);
                 if (match.Groups.Count != 2)
                 {

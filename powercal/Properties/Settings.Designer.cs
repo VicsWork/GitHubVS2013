@@ -182,7 +182,7 @@ namespace PowerCalibration.Properties {
         [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
         [global::System.Configuration.SpecialSettingAttribute(global::System.Configuration.SpecialSetting.ConnectionString)]
         [global::System.Configuration.DefaultSettingValueAttribute("Data Source=zeus.centralite.com;Initial Catalog=ManufacturingStore_v2;Integrated " +
-            "Security=True")]
+            "Security=FALSE;User Id=mfgTester;Password=mfgTester")]
         public string PowerCalibrationConnectionString {
             get {
                 return ((string)(this["PowerCalibrationConnectionString"]));
