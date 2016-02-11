@@ -131,17 +131,6 @@ namespace PowerCalibration.Properties {
             }
         }
         
-        [global::System.Configuration.ApplicationScopedSettingAttribute()]
-        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
-        [global::System.Configuration.SpecialSettingAttribute(global::System.Configuration.SpecialSetting.ConnectionString)]
-        [global::System.Configuration.DefaultSettingValueAttribute("Data Source=a1040.centralite.com;Initial Catalog=PowerCalibration;Integrated Secu" +
-            "rity=True")]
-        public string PowerCalibrationConnectionString2 {
-            get {
-                return ((string)(this["PowerCalibrationConnectionString2"]));
-            }
-        }
-        
         [global::System.Configuration.UserScopedSettingAttribute()]
         [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
         [global::System.Configuration.DefaultSettingValueAttribute("True")]
@@ -186,6 +175,65 @@ namespace PowerCalibration.Properties {
         public string PowerCalibrationConnectionString {
             get {
                 return ((string)(this["PowerCalibrationConnectionString"]));
+            }
+        }
+        
+        [global::System.Configuration.ApplicationScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.SpecialSettingAttribute(global::System.Configuration.SpecialSetting.ConnectionString)]
+        [global::System.Configuration.DefaultSettingValueAttribute("Data Source=a1040.centralite.com;Initial Catalog=PowerCalibration;Integrated Secu" +
+            "rity=True")]
+        public string PowerCalibrationConnectionString2 {
+            get {
+                return ((string)(this["PowerCalibrationConnectionString2"]));
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("120")]
+        public double CalibrationLoadVoltageValue {
+            get {
+                return ((double)(this["CalibrationLoadVoltageValue"]));
+            }
+            set {
+                this["CalibrationLoadVoltageValue"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("20")]
+        public double CalibrationLoadVoltageTolarance {
+            get {
+                return ((double)(this["CalibrationLoadVoltageTolarance"]));
+            }
+            set {
+                this["CalibrationLoadVoltageTolarance"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("500")]
+        public double CalibrationLoadResistorValue {
+            get {
+                return ((double)(this["CalibrationLoadResistorValue"]));
+            }
+            set {
+                this["CalibrationLoadResistorValue"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("20")]
+        public double CalibrationLoadResistorTolarance {
+            get {
+                return ((double)(this["CalibrationLoadResistorTolarance"]));
+            }
+            set {
+                this["CalibrationLoadResistorTolarance"] = value;
             }
         }
     }

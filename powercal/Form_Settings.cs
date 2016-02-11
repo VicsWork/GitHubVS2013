@@ -37,6 +37,13 @@ namespace PowerCalibration
                 comboBoxDIOCtrollerTypes.Items.Add(relay_type.ToString());
             comboBoxDIOCtrollerTypes.Text = Properties.Settings.Default.Relay_Controller_Type;
 
+            // Calibration
+            double v = Properties.Settings.Default.CalibrationLoadVoltageValue;
+            double r = Properties.Settings.Default.CalibrationLoadResistorValue;
+
+            textBoxLoadVoltageValue.Text = string.Format("{0:F2}", v);
+            textBoxLoadResitorValue.Text = string.Format("{0:F2}", r);
+
             // Multimeter (Measurement)
             CheckBoxManualMultiMeter.Checked = Properties.Settings.Default.Meter_Manual_Measurement;
             TextBoxMeterCOM.Text = Properties.Settings.Default.Meter_COM_Port_Name;
@@ -181,6 +188,65 @@ namespace PowerCalibration
             {
                 TextBoxEmberBinPath.Text = dlg.SelectedPath;
             }
+        }
+
+        private void textBoxLoadValues_TextChanged(object sender, EventArgs e)
+        {
+            try
+            {
+                double v = Properties.Settings.Default.CalibrationLoadVoltageValue;
+                double r = Properties.Settings.Default.CalibrationLoadResistorValue;
+
+                double i = v / r;
+
+                TextBox textbox = (TextBox)sender;
+                string tag = (string)textbox.Tag;
+                if (tag == "voltage")
+                {
+                    v = Convert.ToDouble(textBoxLoadVoltageValue.Text);
+                    i = v / r;
+                }
+                else if (tag == "resistance")
+                {
+                    r = Convert.ToDouble(textBoxLoadResitorValue.Text);
+                    i = v / r;
+                }
+                else if (tag == "power")
+                {
+                    double p = Convert.ToDouble(textBoxLoadPower.Text);
+                    i = p / v;
+                    r = v / i;
+                }
+
+                Properties.Settings.Default.CalibrationLoadVoltageValue = v;
+                Properties.Settings.Default.CalibrationLoadResistorValue = r;
+
+
+                if (tag == "voltage" || tag == "resistance")
+                {
+                    textBoxLoadPower.TextChanged -= textBoxLoadValues_TextChanged;
+
+                    textBoxLoadPower.Text = string.Format("{0:F2}", v * i);
+
+                    textBoxLoadPower.TextChanged += textBoxLoadValues_TextChanged;
+
+                }
+                else if (tag == "power")
+                {
+                    textBoxLoadResitorValue.TextChanged -= textBoxLoadValues_TextChanged;
+
+                    textBoxLoadResitorValue.Text = string.Format("{0:F2}", r);
+
+                    textBoxLoadResitorValue.TextChanged -= textBoxLoadValues_TextChanged;
+                }
+
+                textBoxLoadCurrent.Text = string.Format("{0:F2}", i);
+            }
+            catch (FormatException ex)
+            {
+                string msg = ex.Message;
+            }
+
         }
 
     }

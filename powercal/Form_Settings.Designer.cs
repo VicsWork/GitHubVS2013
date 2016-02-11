@@ -48,6 +48,17 @@
             this.NumericUpDown_Load = new System.Windows.Forms.NumericUpDown();
             this.label3 = new System.Windows.Forms.Label();
             this.NumericUpDown_ACPower = new System.Windows.Forms.NumericUpDown();
+            this.tabPageCalibration = new System.Windows.Forms.TabPage();
+            this.tableLayoutPanel1 = new System.Windows.Forms.TableLayoutPanel();
+            this.label10 = new System.Windows.Forms.Label();
+            this.label13 = new System.Windows.Forms.Label();
+            this.textBoxLoadVoltageValue = new System.Windows.Forms.TextBox();
+            this.textBoxLoadResitorValue = new System.Windows.Forms.TextBox();
+            this.label14 = new System.Windows.Forms.Label();
+            this.label15 = new System.Windows.Forms.Label();
+            this.textBoxLoadCurrent = new System.Windows.Forms.TextBox();
+            this.label16 = new System.Windows.Forms.Label();
+            this.textBoxLoadPower = new System.Windows.Forms.TextBox();
             this.tagPageMeasurement = new System.Windows.Forms.TabPage();
             this.checkBoxPreProTest = new System.Windows.Forms.CheckBox();
             this.CheckBoxManualMultiMeter = new System.Windows.Forms.CheckBox();
@@ -67,6 +78,8 @@
             ((System.ComponentModel.ISupportInitialize)(this.NumericUpDown_Ember)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.NumericUpDown_Load)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.NumericUpDown_ACPower)).BeginInit();
+            this.tabPageCalibration.SuspendLayout();
+            this.tableLayoutPanel1.SuspendLayout();
             this.tagPageMeasurement.SuspendLayout();
             this.tabPageShortcuts.SuspendLayout();
             this.tabPageReporting.SuspendLayout();
@@ -79,6 +92,7 @@
             | System.Windows.Forms.AnchorStyles.Right)));
             this.TabControl.Controls.Add(this.tabPageEmber);
             this.TabControl.Controls.Add(this.tabPageDIO);
+            this.TabControl.Controls.Add(this.tabPageCalibration);
             this.TabControl.Controls.Add(this.tagPageMeasurement);
             this.TabControl.Controls.Add(this.tabPageShortcuts);
             this.TabControl.Controls.Add(this.tabPageReporting);
@@ -299,6 +313,126 @@
             this.NumericUpDown_ACPower.TabIndex = 1;
             this.NumericUpDown_ACPower.ValueChanged += new System.EventHandler(this.NumericUpDown_DIOLine_ValueChanged);
             // 
+            // tabPageCalibration
+            // 
+            this.tabPageCalibration.Controls.Add(this.tableLayoutPanel1);
+            this.tabPageCalibration.Location = new System.Drawing.Point(4, 22);
+            this.tabPageCalibration.Name = "tabPageCalibration";
+            this.tabPageCalibration.Size = new System.Drawing.Size(364, 191);
+            this.tabPageCalibration.TabIndex = 5;
+            this.tabPageCalibration.Text = "Calibration";
+            this.tabPageCalibration.UseVisualStyleBackColor = true;
+            // 
+            // tableLayoutPanel1
+            // 
+            this.tableLayoutPanel1.ColumnCount = 2;
+            this.tableLayoutPanel1.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle());
+            this.tableLayoutPanel1.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle());
+            this.tableLayoutPanel1.Controls.Add(this.label10, 1, 0);
+            this.tableLayoutPanel1.Controls.Add(this.label13, 0, 1);
+            this.tableLayoutPanel1.Controls.Add(this.textBoxLoadVoltageValue, 1, 1);
+            this.tableLayoutPanel1.Controls.Add(this.textBoxLoadResitorValue, 1, 2);
+            this.tableLayoutPanel1.Controls.Add(this.label14, 0, 2);
+            this.tableLayoutPanel1.Controls.Add(this.label15, 0, 4);
+            this.tableLayoutPanel1.Controls.Add(this.label16, 0, 3);
+            this.tableLayoutPanel1.Controls.Add(this.textBoxLoadPower, 1, 3);
+            this.tableLayoutPanel1.Controls.Add(this.textBoxLoadCurrent, 1, 4);
+            this.tableLayoutPanel1.Location = new System.Drawing.Point(6, 3);
+            this.tableLayoutPanel1.Name = "tableLayoutPanel1";
+            this.tableLayoutPanel1.RowCount = 6;
+            this.tableLayoutPanel1.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 20F));
+            this.tableLayoutPanel1.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 20F));
+            this.tableLayoutPanel1.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 20F));
+            this.tableLayoutPanel1.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 20F));
+            this.tableLayoutPanel1.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 20F));
+            this.tableLayoutPanel1.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 20F));
+            this.tableLayoutPanel1.Size = new System.Drawing.Size(358, 122);
+            this.tableLayoutPanel1.TabIndex = 1;
+            // 
+            // label10
+            // 
+            this.label10.AutoSize = true;
+            this.label10.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.label10.Location = new System.Drawing.Point(109, 0);
+            this.label10.Name = "label10";
+            this.label10.Size = new System.Drawing.Size(34, 13);
+            this.label10.TabIndex = 0;
+            this.label10.Text = "Value";
+            // 
+            // label13
+            // 
+            this.label13.AutoSize = true;
+            this.label13.Location = new System.Drawing.Point(3, 20);
+            this.label13.Name = "label13";
+            this.label13.Size = new System.Drawing.Size(100, 13);
+            this.label13.TabIndex = 2;
+            this.label13.Text = "Load Voltage (VAC)";
+            // 
+            // textBoxLoadVoltageValue
+            // 
+            this.textBoxLoadVoltageValue.Location = new System.Drawing.Point(109, 23);
+            this.textBoxLoadVoltageValue.Name = "textBoxLoadVoltageValue";
+            this.textBoxLoadVoltageValue.Size = new System.Drawing.Size(100, 20);
+            this.textBoxLoadVoltageValue.TabIndex = 0;
+            this.textBoxLoadVoltageValue.Tag = "voltage";
+            this.textBoxLoadVoltageValue.Text = "120";
+            this.textBoxLoadVoltageValue.TextChanged += new System.EventHandler(this.textBoxLoadValues_TextChanged);
+            // 
+            // textBoxLoadResitorValue
+            // 
+            this.textBoxLoadResitorValue.Location = new System.Drawing.Point(109, 43);
+            this.textBoxLoadResitorValue.Name = "textBoxLoadResitorValue";
+            this.textBoxLoadResitorValue.Size = new System.Drawing.Size(100, 20);
+            this.textBoxLoadResitorValue.TabIndex = 1;
+            this.textBoxLoadResitorValue.Tag = "resistance";
+            this.textBoxLoadResitorValue.Text = "500";
+            this.textBoxLoadResitorValue.TextChanged += new System.EventHandler(this.textBoxLoadValues_TextChanged);
+            // 
+            // label14
+            // 
+            this.label14.AutoSize = true;
+            this.label14.Location = new System.Drawing.Point(3, 40);
+            this.label14.Name = "label14";
+            this.label14.Size = new System.Drawing.Size(67, 13);
+            this.label14.TabIndex = 5;
+            this.label14.Text = "Load (Ohms)";
+            // 
+            // label15
+            // 
+            this.label15.AutoSize = true;
+            this.label15.Location = new System.Drawing.Point(3, 80);
+            this.label15.Name = "label15";
+            this.label15.Size = new System.Drawing.Size(84, 13);
+            this.label15.TabIndex = 8;
+            this.label15.Text = "Load Current (A)";
+            // 
+            // textBoxLoadCurrent
+            // 
+            this.textBoxLoadCurrent.Location = new System.Drawing.Point(109, 83);
+            this.textBoxLoadCurrent.Name = "textBoxLoadCurrent";
+            this.textBoxLoadCurrent.ReadOnly = true;
+            this.textBoxLoadCurrent.Size = new System.Drawing.Size(100, 20);
+            this.textBoxLoadCurrent.TabIndex = 3;
+            this.textBoxLoadCurrent.Tag = "current";
+            // 
+            // label16
+            // 
+            this.label16.AutoSize = true;
+            this.label16.Location = new System.Drawing.Point(3, 60);
+            this.label16.Name = "label16";
+            this.label16.Size = new System.Drawing.Size(84, 13);
+            this.label16.TabIndex = 10;
+            this.label16.Text = "Load Power (W)";
+            // 
+            // textBoxLoadPower
+            // 
+            this.textBoxLoadPower.Location = new System.Drawing.Point(109, 63);
+            this.textBoxLoadPower.Name = "textBoxLoadPower";
+            this.textBoxLoadPower.Size = new System.Drawing.Size(100, 20);
+            this.textBoxLoadPower.TabIndex = 2;
+            this.textBoxLoadPower.Tag = "power";
+            this.textBoxLoadPower.TextChanged += new System.EventHandler(this.textBoxLoadValues_TextChanged);
+            // 
             // tagPageMeasurement
             // 
             this.tagPageMeasurement.Controls.Add(this.checkBoxPreProTest);
@@ -411,20 +545,22 @@
             // 
             // buttonCancel
             // 
+            this.buttonCancel.Anchor = System.Windows.Forms.AnchorStyles.Bottom;
             this.buttonCancel.DialogResult = System.Windows.Forms.DialogResult.Cancel;
             this.buttonCancel.Location = new System.Drawing.Point(198, 249);
             this.buttonCancel.Name = "buttonCancel";
             this.buttonCancel.Size = new System.Drawing.Size(75, 23);
-            this.buttonCancel.TabIndex = 10;
+            this.buttonCancel.TabIndex = 1;
             this.buttonCancel.Text = "&Cancel";
             // 
             // buttonOK
             // 
+            this.buttonOK.Anchor = System.Windows.Forms.AnchorStyles.Bottom;
             this.buttonOK.DialogResult = System.Windows.Forms.DialogResult.OK;
             this.buttonOK.Location = new System.Drawing.Point(117, 249);
             this.buttonOK.Name = "buttonOK";
             this.buttonOK.Size = new System.Drawing.Size(75, 23);
-            this.buttonOK.TabIndex = 9;
+            this.buttonOK.TabIndex = 0;
             this.buttonOK.Text = "&OK";
             this.buttonOK.Click += new System.EventHandler(this.buttonOK_Click);
             // 
@@ -449,6 +585,9 @@
             ((System.ComponentModel.ISupportInitialize)(this.NumericUpDown_Ember)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this.NumericUpDown_Load)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this.NumericUpDown_ACPower)).EndInit();
+            this.tabPageCalibration.ResumeLayout(false);
+            this.tableLayoutPanel1.ResumeLayout(false);
+            this.tableLayoutPanel1.PerformLayout();
             this.tagPageMeasurement.ResumeLayout(false);
             this.tagPageMeasurement.PerformLayout();
             this.tabPageShortcuts.ResumeLayout(false);
@@ -493,5 +632,16 @@
         private System.Windows.Forms.ComboBox comboBoxShortcutActions;
         private System.Windows.Forms.Label label12;
         public System.Windows.Forms.TabControl TabControl;
+        private System.Windows.Forms.TabPage tabPageCalibration;
+        private System.Windows.Forms.TableLayoutPanel tableLayoutPanel1;
+        private System.Windows.Forms.Label label10;
+        private System.Windows.Forms.Label label13;
+        private System.Windows.Forms.TextBox textBoxLoadVoltageValue;
+        private System.Windows.Forms.Label label14;
+        private System.Windows.Forms.TextBox textBoxLoadResitorValue;
+        private System.Windows.Forms.Label label15;
+        private System.Windows.Forms.TextBox textBoxLoadCurrent;
+        private System.Windows.Forms.Label label16;
+        private System.Windows.Forms.TextBox textBoxLoadPower;
     }
 }
