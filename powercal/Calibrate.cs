@@ -44,11 +44,17 @@ namespace PowerCalibration
         /// <summary>
         /// Voltage and current limits
         /// </summary>
-        double _voltage_ac_low_limit = 0.0;
-        double _voltage_ac_high_limit = 0.0;
+        double _load_voltage_ac_low_limit = 0.0;
+        double _load_voltage_ac_high_limit = 0.0;
 
-        double _current_ac_low_limit = 0.0;
-        double _current_ac_high_limit = 0.0;
+        double _load_current_ac_low_limit = 0.0;
+        double _load_current_ac_high_limit = 0.0;
+
+        double _uut_voltage_ac_low_limit = 0.0;
+        double _uut_voltage_ac_high_limit = 0.0;
+
+        double _uut_current_ac_low_limit = 0.0;
+        double _uut_current_ac_high_limit = 0.0;
 
         double _voltage_dc_low_limit = 0.0;
         double _voltage_dc_high_limit = 0.0;
@@ -149,11 +155,17 @@ namespace PowerCalibration
                     break;
             }
 
-            _voltage_ac_high_limit = voltage_ac_load + voltage_ac_delta;
-            _voltage_ac_low_limit = voltage_ac_load - voltage_ac_delta;
+            _load_voltage_ac_high_limit = voltage_ac_load + voltage_ac_delta;
+            _load_voltage_ac_low_limit = voltage_ac_load - voltage_ac_delta;
 
-            _current_ac_high_limit = current_ac_load + current_ac_delta;
-            _current_ac_low_limit = current_ac_load - current_ac_delta;
+            _load_current_ac_high_limit = current_ac_load + current_ac_delta;
+            _load_current_ac_low_limit = current_ac_load - current_ac_delta;
+
+            _uut_voltage_ac_high_limit = voltage_ac_load * 3;
+            _uut_voltage_ac_low_limit = voltage_ac_load / 3;
+
+            _uut_current_ac_high_limit = current_ac_load * 3;
+            _uut_current_ac_low_limit = current_ac_load / 3;
 
             _voltage_dc_high_limit = voltage_dc + voltage_dc_delta;
             _voltage_dc_low_limit = voltage_dc - voltage_dc_delta;
@@ -270,21 +282,18 @@ namespace PowerCalibration
                 Thread.Sleep(250);
             }
 
-            if (cv.Voltage < 100 || cv.Voltage > 260)
-            //if (cv.Voltage < _voltage_ac_low_limit || cv.Voltage > _voltage_ac_high_limit)
+            if (cv.Voltage < _uut_voltage_ac_low_limit || cv.Voltage > _uut_voltage_ac_high_limit)
             {
                 msg = string.Format(
-                    "Cirrus voltage before calibration not within limit values: {0:F8} < {1:F8} < {2:F8}",
-                    _voltage_ac_low_limit, cv.Voltage, _voltage_ac_high_limit);
+                    "Cirrus voltage before calibration not within allowed limit values: {0:F8} < {1:F8} < {2:F8}",
+                    _uut_voltage_ac_low_limit, cv.Voltage, _uut_voltage_ac_high_limit);
                 throw new Exception(msg);
             }
-            //if (cv.Current < _current_low_limit || cv.Current > _current_high_limit)
-            if (cv.Current < 0.01 || cv.Current > 1)
+            if (cv.Current < _uut_current_ac_low_limit || cv.Current > _uut_current_ac_high_limit)
             {
-                //msg = string.Format(
-                //    "Cirrus current before calibration not within limit values: {0:F8} < {1:F8} < {2:F8}", 
-                //    _current_ac_low_limit, cv.Current, _current_ac_high_limit);
-                msg = string.Format("Cirrus current before calibration not within limit values: {0:F8} < {1:F8} < {2:F8}", 0.01, cv.Current, 1);
+                msg = string.Format(
+                    "Cirrus current before calibration not within allowed limit values: {0:F8} < {1:F8} < {2:F8}",
+                    _uut_current_ac_low_limit, cv.Current, _uut_current_ac_high_limit);
                 throw new Exception(msg);
             }
 
@@ -339,20 +348,20 @@ namespace PowerCalibration
             fire_status(msg);
 
             //if (voltage_meter < 100 || voltage_meter > 260)
-            if (voltage_meter < _voltage_ac_low_limit || voltage_meter > _voltage_ac_high_limit)
+            if (voltage_meter < _load_voltage_ac_low_limit || voltage_meter > _load_voltage_ac_high_limit)
             {
                 msg = string.Format(
                     "Meter voltage before calibration not within limit values: {0:F8} < {1:F8} < {2:F8}",
-                    _voltage_ac_low_limit, voltage_meter, _voltage_ac_high_limit);
+                    _load_voltage_ac_low_limit, voltage_meter, _load_voltage_ac_high_limit);
                 throw new Exception(msg);
             }
             
-            if (current_meter < _current_ac_low_limit || current_meter > _current_ac_high_limit)
+            if (current_meter < _load_current_ac_low_limit || current_meter > _load_current_ac_high_limit)
             //if (current_meter < 0.01 || current_meter > 1)
             {
                 msg = string.Format(
                     "Meter current before calibration not within limit values: {0:F8} < {1:F8} < {2:F8}", 
-                    _current_ac_low_limit, current_meter, _current_ac_high_limit);
+                    _load_current_ac_low_limit, current_meter, _load_current_ac_high_limit);
                 //msg = string.Format("Meter current before calibration not within limit values: {0:F8} < {1:F8} < {2:F8}", 0.01, current_meter, 1);
                 throw new Exception(msg);
             }
@@ -484,9 +493,9 @@ namespace PowerCalibration
             _meter.CloseSerialPort();
 
             //if (meter_voltage < 100 || meter_voltage > 260)
-            if (meter_voltage < _voltage_ac_low_limit || meter_voltage > _voltage_ac_high_limit)
+            if (meter_voltage < _load_voltage_ac_low_limit || meter_voltage > _load_voltage_ac_high_limit)
             {
-                msg = string.Format("Voltage AC is not within limits values: {0:F8} < {1:F8} < {2:F8}", _voltage_ac_low_limit, meter_voltage, _voltage_ac_high_limit);
+                msg = string.Format("Voltage AC is not within limits values: {0:F8} < {1:F8} < {2:F8}", _load_voltage_ac_low_limit, meter_voltage, _load_voltage_ac_high_limit);
                 TraceLogger.Log(msg);
                 throw new Exception(msg);
             }
