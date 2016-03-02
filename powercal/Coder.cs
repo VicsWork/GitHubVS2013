@@ -31,7 +31,7 @@ namespace PowerCalibration
 
             IntPtr hwnd = activateMainWnd();
             moveToStatus();
-            
+
             //AutoItX.Send("{SPACE}");
             click_Start();
             moveToStatus();
@@ -94,6 +94,13 @@ namespace PowerCalibration
                     Point p = moveToStatus();
                 }
             }
+
+            // minimize if coding passed
+            if (pixel_color == _cgreen && Properties.Settings.Default.CodeMinimizedOnPASS)
+            {
+                AutoItX.WinSetState(hwnd, AutoItX.SW_SHOWMINIMIZED);
+            }
+
         }
 
         IntPtr getWin(string win_desc)
@@ -264,6 +271,6 @@ namespace PowerCalibration
             return new Point(point.X + 65, point.Y);
         }
 
-    
+
     }
 }

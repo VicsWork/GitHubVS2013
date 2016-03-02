@@ -64,5 +64,8 @@
     <Setting Name="CalibrationLoadResistorTolarance" Type="System.Double" Scope="User">
       <Value Profile="(Default)">20</Value>
     </Setting>
+    <Setting Name="CodeMinimizedOnPASS" Type="System.Boolean" Scope="User">
+      <Value Profile="(Default)">False</Value>
+    </Setting>
   </Settings>
 </SettingsFile>

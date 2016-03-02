@@ -236,5 +236,17 @@ namespace PowerCalibration.Properties {
                 this["CalibrationLoadResistorTolarance"] = value;
             }
         }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("False")]
+        public bool CodeMinimizedOnPASS {
+            get {
+                return ((bool)(this["CodeMinimizedOnPASS"]));
+            }
+            set {
+                this["CodeMinimizedOnPASS"] = value;
+            }
+        }
     }
 }

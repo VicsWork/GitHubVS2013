@@ -54,6 +54,10 @@ namespace PowerCalibration
 
             // DB
             this.checkBox_EnableDBReporting.Checked = Properties.Settings.Default.DB_Loging_Enabled;
+
+            // Coding
+            this.checkBoxCodeMinOnPass.Checked = Properties.Settings.Default.CodeMinimizedOnPASS;
+
         }
 
         private void comboBoxDIOCtrollerTypes_SelectedIndexChanged(object sender, EventArgs e)
@@ -247,6 +251,21 @@ namespace PowerCalibration
                 string msg = ex.Message;
             }
 
+        }
+
+        private void comboBoxShortcutActions_SelectedIndexChanged_1(object sender, EventArgs e)
+        {
+            Properties.Settings.Default.Shortcut_Spacebar_Action = comboBoxShortcutActions.Text;
+        }
+
+        private void checkBox_EnableDBReporting_CheckedChanged(object sender, EventArgs e)
+        {
+            Properties.Settings.Default.DB_Loging_Enabled = this.checkBox_EnableDBReporting.Checked;
+        }
+
+        private void checkBoxCodeMinOnPass_CheckedChanged(object sender, EventArgs e)
+        {
+            Properties.Settings.Default.CodeMinimizedOnPASS = this.checkBoxCodeMinOnPass.Checked;
         }
 
     }

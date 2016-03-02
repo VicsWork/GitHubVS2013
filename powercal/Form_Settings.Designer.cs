@@ -28,6 +28,7 @@
         /// </summary>
         private void InitializeComponent()
         {
+            this.components = new System.ComponentModel.Container();
             this.TabControl = new System.Windows.Forms.TabControl();
             this.tabPageEmber = new System.Windows.Forms.TabPage();
             this.textBoxEmberInterfaceAddress = new System.Windows.Forms.TextBox();
@@ -56,21 +57,25 @@
             this.textBoxLoadResitorValue = new System.Windows.Forms.TextBox();
             this.label14 = new System.Windows.Forms.Label();
             this.label15 = new System.Windows.Forms.Label();
-            this.textBoxLoadCurrent = new System.Windows.Forms.TextBox();
             this.label16 = new System.Windows.Forms.Label();
             this.textBoxLoadPower = new System.Windows.Forms.TextBox();
+            this.textBoxLoadCurrent = new System.Windows.Forms.TextBox();
             this.tagPageMeasurement = new System.Windows.Forms.TabPage();
             this.checkBoxPreProTest = new System.Windows.Forms.CheckBox();
             this.CheckBoxManualMultiMeter = new System.Windows.Forms.CheckBox();
             this.TextBoxMeterCOM = new System.Windows.Forms.TextBox();
             this.label2 = new System.Windows.Forms.Label();
-            this.tabPageShortcuts = new System.Windows.Forms.TabPage();
+            this.tabPageMisc = new System.Windows.Forms.TabPage();
+            this.groupBox3 = new System.Windows.Forms.GroupBox();
+            this.checkBoxCodeMinOnPass = new System.Windows.Forms.CheckBox();
+            this.groupBox2 = new System.Windows.Forms.GroupBox();
+            this.checkBox_EnableDBReporting = new System.Windows.Forms.CheckBox();
+            this.groupBox1 = new System.Windows.Forms.GroupBox();
             this.comboBoxShortcutActions = new System.Windows.Forms.ComboBox();
             this.label12 = new System.Windows.Forms.Label();
-            this.tabPageReporting = new System.Windows.Forms.TabPage();
-            this.checkBox_EnableDBReporting = new System.Windows.Forms.CheckBox();
             this.buttonCancel = new System.Windows.Forms.Button();
             this.buttonOK = new System.Windows.Forms.Button();
+            this.toolTip1 = new System.Windows.Forms.ToolTip(this.components);
             this.TabControl.SuspendLayout();
             this.tabPageEmber.SuspendLayout();
             this.tabPageDIO.SuspendLayout();
@@ -81,8 +86,10 @@
             this.tabPageCalibration.SuspendLayout();
             this.tableLayoutPanel1.SuspendLayout();
             this.tagPageMeasurement.SuspendLayout();
-            this.tabPageShortcuts.SuspendLayout();
-            this.tabPageReporting.SuspendLayout();
+            this.tabPageMisc.SuspendLayout();
+            this.groupBox3.SuspendLayout();
+            this.groupBox2.SuspendLayout();
+            this.groupBox1.SuspendLayout();
             this.SuspendLayout();
             // 
             // TabControl
@@ -94,8 +101,7 @@
             this.TabControl.Controls.Add(this.tabPageDIO);
             this.TabControl.Controls.Add(this.tabPageCalibration);
             this.TabControl.Controls.Add(this.tagPageMeasurement);
-            this.TabControl.Controls.Add(this.tabPageShortcuts);
-            this.TabControl.Controls.Add(this.tabPageReporting);
+            this.TabControl.Controls.Add(this.tabPageMisc);
             this.TabControl.Location = new System.Drawing.Point(9, 12);
             this.TabControl.Multiline = true;
             this.TabControl.Name = "TabControl";
@@ -406,15 +412,6 @@
             this.label15.TabIndex = 8;
             this.label15.Text = "Load Current (A)";
             // 
-            // textBoxLoadCurrent
-            // 
-            this.textBoxLoadCurrent.Location = new System.Drawing.Point(109, 83);
-            this.textBoxLoadCurrent.Name = "textBoxLoadCurrent";
-            this.textBoxLoadCurrent.ReadOnly = true;
-            this.textBoxLoadCurrent.Size = new System.Drawing.Size(100, 20);
-            this.textBoxLoadCurrent.TabIndex = 3;
-            this.textBoxLoadCurrent.Tag = "current";
-            // 
             // label16
             // 
             this.label16.AutoSize = true;
@@ -432,6 +429,15 @@
             this.textBoxLoadPower.TabIndex = 2;
             this.textBoxLoadPower.Tag = "power";
             this.textBoxLoadPower.TextChanged += new System.EventHandler(this.textBoxLoadValues_TextChanged);
+            // 
+            // textBoxLoadCurrent
+            // 
+            this.textBoxLoadCurrent.Location = new System.Drawing.Point(109, 83);
+            this.textBoxLoadCurrent.Name = "textBoxLoadCurrent";
+            this.textBoxLoadCurrent.ReadOnly = true;
+            this.textBoxLoadCurrent.Size = new System.Drawing.Size(100, 20);
+            this.textBoxLoadCurrent.TabIndex = 3;
+            this.textBoxLoadCurrent.Tag = "current";
             // 
             // tagPageMeasurement
             // 
@@ -488,16 +494,72 @@
             this.label2.TabIndex = 8;
             this.label2.Text = "Multi-meter port";
             // 
-            // tabPageShortcuts
+            // tabPageMisc
             // 
-            this.tabPageShortcuts.Controls.Add(this.comboBoxShortcutActions);
-            this.tabPageShortcuts.Controls.Add(this.label12);
-            this.tabPageShortcuts.Location = new System.Drawing.Point(4, 22);
-            this.tabPageShortcuts.Name = "tabPageShortcuts";
-            this.tabPageShortcuts.Size = new System.Drawing.Size(364, 191);
-            this.tabPageShortcuts.TabIndex = 4;
-            this.tabPageShortcuts.Text = "Shortcuts";
-            this.tabPageShortcuts.UseVisualStyleBackColor = true;
+            this.tabPageMisc.Controls.Add(this.groupBox3);
+            this.tabPageMisc.Controls.Add(this.groupBox2);
+            this.tabPageMisc.Controls.Add(this.groupBox1);
+            this.tabPageMisc.Location = new System.Drawing.Point(4, 22);
+            this.tabPageMisc.Name = "tabPageMisc";
+            this.tabPageMisc.Size = new System.Drawing.Size(364, 191);
+            this.tabPageMisc.TabIndex = 6;
+            this.tabPageMisc.Text = "Misc";
+            this.tabPageMisc.UseVisualStyleBackColor = true;
+            // 
+            // groupBox3
+            // 
+            this.groupBox3.Controls.Add(this.checkBoxCodeMinOnPass);
+            this.groupBox3.Location = new System.Drawing.Point(3, 133);
+            this.groupBox3.Name = "groupBox3";
+            this.groupBox3.Size = new System.Drawing.Size(358, 55);
+            this.groupBox3.TabIndex = 9;
+            this.groupBox3.TabStop = false;
+            this.groupBox3.Text = "Coding";
+            // 
+            // checkBoxCodeMinOnPass
+            // 
+            this.checkBoxCodeMinOnPass.AutoSize = true;
+            this.checkBoxCodeMinOnPass.Location = new System.Drawing.Point(6, 17);
+            this.checkBoxCodeMinOnPass.Name = "checkBoxCodeMinOnPass";
+            this.checkBoxCodeMinOnPass.Size = new System.Drawing.Size(66, 17);
+            this.checkBoxCodeMinOnPass.TabIndex = 7;
+            this.checkBoxCodeMinOnPass.Text = "Minimize";
+            this.toolTip1.SetToolTip(this.checkBoxCodeMinOnPass, "Minimizes the coding windows upon a successfull completion");
+            this.checkBoxCodeMinOnPass.UseVisualStyleBackColor = true;
+            this.checkBoxCodeMinOnPass.CheckedChanged += new System.EventHandler(this.checkBoxCodeMinOnPass_CheckedChanged);
+            // 
+            // groupBox2
+            // 
+            this.groupBox2.Controls.Add(this.checkBox_EnableDBReporting);
+            this.groupBox2.Location = new System.Drawing.Point(3, 65);
+            this.groupBox2.Name = "groupBox2";
+            this.groupBox2.Size = new System.Drawing.Size(358, 62);
+            this.groupBox2.TabIndex = 8;
+            this.groupBox2.TabStop = false;
+            this.groupBox2.Text = "Database";
+            // 
+            // checkBox_EnableDBReporting
+            // 
+            this.checkBox_EnableDBReporting.AutoSize = true;
+            this.checkBox_EnableDBReporting.Location = new System.Drawing.Point(6, 22);
+            this.checkBox_EnableDBReporting.Name = "checkBox_EnableDBReporting";
+            this.checkBox_EnableDBReporting.Size = new System.Drawing.Size(108, 17);
+            this.checkBox_EnableDBReporting.TabIndex = 6;
+            this.checkBox_EnableDBReporting.Text = "Enable Reporting";
+            this.toolTip1.SetToolTip(this.checkBox_EnableDBReporting, "Enables reporting to the database");
+            this.checkBox_EnableDBReporting.UseVisualStyleBackColor = true;
+            this.checkBox_EnableDBReporting.CheckedChanged += new System.EventHandler(this.checkBox_EnableDBReporting_CheckedChanged);
+            // 
+            // groupBox1
+            // 
+            this.groupBox1.Controls.Add(this.comboBoxShortcutActions);
+            this.groupBox1.Controls.Add(this.label12);
+            this.groupBox1.Location = new System.Drawing.Point(3, 10);
+            this.groupBox1.Name = "groupBox1";
+            this.groupBox1.Size = new System.Drawing.Size(358, 49);
+            this.groupBox1.TabIndex = 7;
+            this.groupBox1.TabStop = false;
+            this.groupBox1.Text = "Keyboard Shortcuts";
             // 
             // comboBoxShortcutActions
             // 
@@ -507,41 +569,21 @@
             "Calibrate",
             "Code",
             "ReCode"});
-            this.comboBoxShortcutActions.Location = new System.Drawing.Point(50, 7);
+            this.comboBoxShortcutActions.Location = new System.Drawing.Point(54, 16);
             this.comboBoxShortcutActions.Name = "comboBoxShortcutActions";
             this.comboBoxShortcutActions.Size = new System.Drawing.Size(121, 21);
-            this.comboBoxShortcutActions.TabIndex = 3;
-            this.comboBoxShortcutActions.SelectedIndexChanged += new System.EventHandler(this.comboBoxShortcutActions_SelectedIndexChanged);
+            this.comboBoxShortcutActions.TabIndex = 5;
+            this.comboBoxShortcutActions.SelectedIndexChanged += new System.EventHandler(this.comboBoxShortcutActions_SelectedIndexChanged_1);
             // 
             // label12
             // 
             this.label12.AutoSize = true;
-            this.label12.Location = new System.Drawing.Point(3, 10);
+            this.label12.Location = new System.Drawing.Point(6, 19);
             this.label12.Name = "label12";
             this.label12.Size = new System.Drawing.Size(42, 13);
-            this.label12.TabIndex = 2;
+            this.label12.TabIndex = 4;
             this.label12.Text = "SPACE";
-            // 
-            // tabPageReporting
-            // 
-            this.tabPageReporting.Controls.Add(this.checkBox_EnableDBReporting);
-            this.tabPageReporting.Location = new System.Drawing.Point(4, 22);
-            this.tabPageReporting.Name = "tabPageReporting";
-            this.tabPageReporting.Padding = new System.Windows.Forms.Padding(3);
-            this.tabPageReporting.Size = new System.Drawing.Size(364, 191);
-            this.tabPageReporting.TabIndex = 1;
-            this.tabPageReporting.Text = "Reporting";
-            this.tabPageReporting.UseVisualStyleBackColor = true;
-            // 
-            // checkBox_EnableDBReporting
-            // 
-            this.checkBox_EnableDBReporting.AutoSize = true;
-            this.checkBox_EnableDBReporting.Location = new System.Drawing.Point(3, 6);
-            this.checkBox_EnableDBReporting.Name = "checkBox_EnableDBReporting";
-            this.checkBox_EnableDBReporting.Size = new System.Drawing.Size(157, 17);
-            this.checkBox_EnableDBReporting.TabIndex = 0;
-            this.checkBox_EnableDBReporting.Text = "Enable Database Reporting";
-            this.checkBox_EnableDBReporting.UseVisualStyleBackColor = true;
+            this.toolTip1.SetToolTip(this.label12, "Selects the action for the SPACE key");
             // 
             // buttonCancel
             // 
@@ -590,10 +632,13 @@
             this.tableLayoutPanel1.PerformLayout();
             this.tagPageMeasurement.ResumeLayout(false);
             this.tagPageMeasurement.PerformLayout();
-            this.tabPageShortcuts.ResumeLayout(false);
-            this.tabPageShortcuts.PerformLayout();
-            this.tabPageReporting.ResumeLayout(false);
-            this.tabPageReporting.PerformLayout();
+            this.tabPageMisc.ResumeLayout(false);
+            this.groupBox3.ResumeLayout(false);
+            this.groupBox3.PerformLayout();
+            this.groupBox2.ResumeLayout(false);
+            this.groupBox2.PerformLayout();
+            this.groupBox1.ResumeLayout(false);
+            this.groupBox1.PerformLayout();
             this.ResumeLayout(false);
 
         }
@@ -601,8 +646,6 @@
         #endregion
 
         private System.Windows.Forms.TabPage tabPageEmber;
-        private System.Windows.Forms.TabPage tabPageReporting;
-        private System.Windows.Forms.CheckBox checkBox_EnableDBReporting;
         public System.Windows.Forms.TextBox textBoxEmberInterfaceAddress;
         private System.Windows.Forms.Label label9;
         public System.Windows.Forms.ComboBox comboBoxEmberInterface;
@@ -628,9 +671,6 @@
         public System.Windows.Forms.CheckBox CheckBoxManualMultiMeter;
         public System.Windows.Forms.TextBox TextBoxMeterCOM;
         private System.Windows.Forms.Label label2;
-        private System.Windows.Forms.TabPage tabPageShortcuts;
-        private System.Windows.Forms.ComboBox comboBoxShortcutActions;
-        private System.Windows.Forms.Label label12;
         public System.Windows.Forms.TabControl TabControl;
         private System.Windows.Forms.TabPage tabPageCalibration;
         private System.Windows.Forms.TableLayoutPanel tableLayoutPanel1;
@@ -643,5 +683,14 @@
         private System.Windows.Forms.TextBox textBoxLoadCurrent;
         private System.Windows.Forms.Label label16;
         private System.Windows.Forms.TextBox textBoxLoadPower;
+        private System.Windows.Forms.TabPage tabPageMisc;
+        private System.Windows.Forms.CheckBox checkBox_EnableDBReporting;
+        private System.Windows.Forms.ComboBox comboBoxShortcutActions;
+        private System.Windows.Forms.Label label12;
+        private System.Windows.Forms.GroupBox groupBox1;
+        private System.Windows.Forms.GroupBox groupBox3;
+        private System.Windows.Forms.CheckBox checkBoxCodeMinOnPass;
+        private System.Windows.Forms.GroupBox groupBox2;
+        private System.Windows.Forms.ToolTip toolTip1;
     }
 }

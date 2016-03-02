@@ -75,6 +75,7 @@ namespace PowerCalibration
         {
             _site_machine_id = Tuple.Create(-1, -1);
 
+            // Init the trace listener
             Stream outResultsFile = File.Create("output.txt");
             var textListener = new TextWriterTraceListener(outResultsFile);
             Trace.Listeners.Add(textListener);
