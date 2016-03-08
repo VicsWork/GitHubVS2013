@@ -13,6 +13,7 @@ using System.Collections;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Text.RegularExpressions;
+using System.Reflection;
 
 using System.Runtime.Serialization;
 using System.Xml;
@@ -73,12 +74,22 @@ namespace PowerCalibration
         /// </summary>
         public Form_Main()
         {
+            string msg = "";
             _site_machine_id = Tuple.Create(-1, -1);
 
             // Init the trace listener
-            Stream outResultsFile = File.Create("output.txt");
-            var textListener = new TextWriterTraceListener(outResultsFile);
-            Trace.Listeners.Add(textListener);
+            try
+            {
+                Stream outResultsFile = File.Create("output.txt");
+                var textListener = new TextWriterTraceListener(outResultsFile);
+                Trace.Listeners.Add(textListener);
+            }
+            catch (System.IO.IOException ex)
+            {
+                // Most likely we are already running
+                MessageBox.Show("Trace listener already opened.\r\n\"" + this.assemblyTitle + "\" may already be running?\r\nExiting...", this.assemblyTitle);
+                this.Close();
+            }
 
             InitializeComponent();
             Icon = Properties.Resources.IconPowerCalibration;
@@ -96,9 +107,7 @@ namespace PowerCalibration
             initLogFile();
 
             // Set the title to match assembly info from About dlg
-            AboutBox aboutdlg = new AboutBox();
-            this.Text = aboutdlg.AssemblyTitle;
-            aboutdlg.Dispose();
+            this.Text = this.assemblyTitle;
 
             // Init the status text box
             runStatus_Init();
@@ -113,7 +122,6 @@ namespace PowerCalibration
 
             // Report COM ports found in system
             string[] ports = SerialPort.GetPortNames();
-            string msg = "";
             foreach (string portname in ports)
             {
                 msg += string.Format("{0}, ", portname);
@@ -1826,6 +1834,23 @@ namespace PowerCalibration
 
             updateRunStatus("FAIL", Color.White, Color.Red);
             updateOutputStatus(errmsg);
+        }
+
+        string assemblyTitle
+        {
+            get
+            {
+                object[] attributes = Assembly.GetExecutingAssembly().GetCustomAttributes(typeof(AssemblyTitleAttribute), false);
+                if (attributes.Length > 0)
+                {
+                    AssemblyTitleAttribute titleAttribute = (AssemblyTitleAttribute)attributes[0];
+                    if (titleAttribute.Title != "")
+                    {
+                        return titleAttribute.Title;
+                    }
+                }
+                return System.IO.Path.GetFileNameWithoutExtension(Assembly.GetExecutingAssembly().CodeBase);
+            }
         }
 
     }

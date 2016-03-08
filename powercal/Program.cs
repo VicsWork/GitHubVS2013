@@ -20,8 +20,11 @@ namespace PowerCalibration
             Application.ThreadException += Application_ThreadException;
             AppDomain.CurrentDomain.UnhandledException += CurrentDomain_UnhandledException;
 
-
-            Application.Run(new Form_Main());
+            Form_Main form_main = new Form_Main();
+            if (!form_main.IsDisposed)
+            {
+                Application.Run(form_main);
+            }
         }
 
         static void CurrentDomain_UnhandledException(object sender, UnhandledExceptionEventArgs e)
