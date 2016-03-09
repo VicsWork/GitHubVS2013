@@ -160,10 +160,13 @@ namespace PowerCalibration
 
             // A temp hack to get the correct db connect string based on the gateway settings
             IPAddress gateip = DB.GetFiratGatewayAddress();
-            if (gateip.Address == IPAddress.Parse("172.19.0.1").Address) 
+            if (gateip.ToString() == IPAddress.Parse("172.19.0.2").ToString()) 
             {
                 _db_connect_str = new SqlConnectionStringBuilder(Properties.Settings.Default.DBConnectionString_Keytronics);
             }
+            updateOutputStatus("Gateway = " + gateip.ToString());
+            updateOutputStatus("DBConStr = " + _db_connect_str);
+
 
             _db_Loging = Properties.Settings.Default.DB_Loging_Enabled;
             if (isDBLogingEnabled())
