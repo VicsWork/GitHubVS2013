@@ -26,6 +26,8 @@ namespace PowerCalibration
 
         private void Form_Load(object sender, EventArgs e)
         {
+            this.labelDBConnectStr.Visible = false;
+
             // Ember
             comboBoxEmberInterface.Text = Properties.Settings.Default.Ember_Interface;
             TextBoxEmberBinPath.Text = Properties.Settings.Default.Ember_BinPath;
@@ -261,11 +263,20 @@ namespace PowerCalibration
         private void checkBox_EnableDBReporting_CheckedChanged(object sender, EventArgs e)
         {
             Properties.Settings.Default.DB_Loging_Enabled = this.checkBox_EnableDBReporting.Checked;
+            this.labelDBConnectStr.Text = Properties.Settings.Default.PowerCalibrationConnectionString;
         }
 
         private void checkBoxCodeMinOnPass_CheckedChanged(object sender, EventArgs e)
         {
             Properties.Settings.Default.CodeMinimizedOnPASS = this.checkBoxCodeMinOnPass.Checked;
+        }
+
+        private void TabControl_KeyUp(object sender, KeyEventArgs e)
+        {
+            if (e.Modifiers == Keys.Control && e.KeyCode == Keys.D)
+            {
+                this.labelDBConnectStr.Visible = true;
+            }
         }
 
     }

@@ -76,6 +76,7 @@
             this.buttonCancel = new System.Windows.Forms.Button();
             this.buttonOK = new System.Windows.Forms.Button();
             this.toolTip1 = new System.Windows.Forms.ToolTip(this.components);
+            this.labelDBConnectStr = new System.Windows.Forms.Label();
             this.TabControl.SuspendLayout();
             this.tabPageEmber.SuspendLayout();
             this.tabPageDIO.SuspendLayout();
@@ -108,6 +109,7 @@
             this.TabControl.SelectedIndex = 0;
             this.TabControl.Size = new System.Drawing.Size(372, 217);
             this.TabControl.TabIndex = 0;
+            this.TabControl.KeyUp += new System.Windows.Forms.KeyEventHandler(this.TabControl_KeyUp);
             // 
             // tabPageEmber
             // 
@@ -508,6 +510,8 @@
             // 
             // groupBox3
             // 
+            this.groupBox3.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
+            | System.Windows.Forms.AnchorStyles.Right)));
             this.groupBox3.Controls.Add(this.checkBoxCodeMinOnPass);
             this.groupBox3.Location = new System.Drawing.Point(3, 133);
             this.groupBox3.Name = "groupBox3";
@@ -530,6 +534,9 @@
             // 
             // groupBox2
             // 
+            this.groupBox2.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
+            | System.Windows.Forms.AnchorStyles.Right)));
+            this.groupBox2.Controls.Add(this.labelDBConnectStr);
             this.groupBox2.Controls.Add(this.checkBox_EnableDBReporting);
             this.groupBox2.Location = new System.Drawing.Point(3, 65);
             this.groupBox2.Name = "groupBox2";
@@ -552,6 +559,8 @@
             // 
             // groupBox1
             // 
+            this.groupBox1.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
+            | System.Windows.Forms.AnchorStyles.Right)));
             this.groupBox1.Controls.Add(this.comboBoxShortcutActions);
             this.groupBox1.Controls.Add(this.label12);
             this.groupBox1.Location = new System.Drawing.Point(3, 10);
@@ -605,6 +614,14 @@
             this.buttonOK.TabIndex = 0;
             this.buttonOK.Text = "&OK";
             this.buttonOK.Click += new System.EventHandler(this.buttonOK_Click);
+            // 
+            // labelDBConnectStr
+            // 
+            this.labelDBConnectStr.AutoSize = true;
+            this.labelDBConnectStr.Location = new System.Drawing.Point(7, 43);
+            this.labelDBConnectStr.Name = "labelDBConnectStr";
+            this.labelDBConnectStr.Size = new System.Drawing.Size(0, 13);
+            this.labelDBConnectStr.TabIndex = 7;
             // 
             // Form_Settings
             // 
@@ -692,5 +709,6 @@
         private System.Windows.Forms.CheckBox checkBoxCodeMinOnPass;
         private System.Windows.Forms.GroupBox groupBox2;
         private System.Windows.Forms.ToolTip toolTip1;
+        private System.Windows.Forms.Label labelDBConnectStr;
     }
 }
