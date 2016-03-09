@@ -15,6 +15,8 @@ using System.Threading.Tasks;
 using System.Text.RegularExpressions;
 using System.Reflection;
 
+using System.Net;
+
 using System.Runtime.Serialization;
 using System.Xml;
 
@@ -154,8 +156,16 @@ namespace PowerCalibration
             setEnablement(true, false);
 
             // Init the db connection string
+            _db_connect_str = new SqlConnectionStringBuilder(Properties.Settings.Default.DBConnectionString);
+
+            // A temp hack to get the correct db connect string based on the gateway settings
+            IPAddress gateip = DB.GetFiratGatewayAddress();
+            if (gateip.Address == IPAddress.Parse("172.19.0.1").Address) 
+            {
+                _db_connect_str = new SqlConnectionStringBuilder(Properties.Settings.Default.DBConnectionString_Keytronics);
+            }
+
             _db_Loging = Properties.Settings.Default.DB_Loging_Enabled;
-            _db_connect_str = new SqlConnectionStringBuilder(Properties.Settings.Default.PowerCalibrationConnectionString);
             if (isDBLogingEnabled())
             {
                 // get machine id
@@ -170,7 +180,6 @@ namespace PowerCalibration
             {
                 updateOutputStatus("DB logging disabled");
             }
-
 
             //CalibrationResultsEventArgs e = new CalibrationResultsEventArgs();
             //e.Current_gain = 1;

@@ -172,9 +172,9 @@ namespace PowerCalibration.Properties {
         [global::System.Configuration.SpecialSettingAttribute(global::System.Configuration.SpecialSetting.ConnectionString)]
         [global::System.Configuration.DefaultSettingValueAttribute("Data Source=zeus.centralite.com;Initial Catalog=ManufacturingStore_v2;Integrated " +
             "Security=FALSE;User Id=mfgTester;Password=mfgTester")]
-        public string PowerCalibrationConnectionString {
+        public string DBConnectionString {
             get {
-                return ((string)(this["PowerCalibrationConnectionString"]));
+                return ((string)(this["DBConnectionString"]));
             }
         }
         
@@ -183,9 +183,9 @@ namespace PowerCalibration.Properties {
         [global::System.Configuration.SpecialSettingAttribute(global::System.Configuration.SpecialSetting.ConnectionString)]
         [global::System.Configuration.DefaultSettingValueAttribute("Data Source=a1040.centralite.com;Initial Catalog=PowerCalibration;Integrated Secu" +
             "rity=True")]
-        public string PowerCalibrationConnectionString2 {
+        public string DBConnectionString_Debug {
             get {
-                return ((string)(this["PowerCalibrationConnectionString2"]));
+                return ((string)(this["DBConnectionString_Debug"]));
             }
         }
         
@@ -246,6 +246,19 @@ namespace PowerCalibration.Properties {
             }
             set {
                 this["CodeMinimizedOnPASS"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("Data Source=172.24.16.100;Initial Catalog=PowerCalibration;Integrated Security=Tr" +
+            "ue")]
+        public string DBConnectionString_Keytronics {
+            get {
+                return ((string)(this["DBConnectionString_Keytronics"]));
+            }
+            set {
+                this["DBConnectionString_Keytronics"] = value;
             }
         }
     }

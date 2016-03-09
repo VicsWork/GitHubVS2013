@@ -7,6 +7,7 @@ using System.Threading.Tasks;
 using System.Data.SqlClient;
 using System.Data.SqlTypes;
 
+using System.Net;
 using System.Net.NetworkInformation;
 
 using Microsoft.Win32;
@@ -173,6 +174,18 @@ namespace PowerCalibration
                 .FirstOrDefault();
 
             return myInterfaceAddress;
+        }
+
+        public static IPAddress GetFiratGatewayAddress()
+        {
+            NetworkInterface nic = GetFirstNic();
+
+            var gate = nic.GetIPProperties().GatewayAddresses
+                .Where(n => n.Address.AddressFamily == System.Net.Sockets.AddressFamily.InterNetwork)
+                .FirstOrDefault();
+
+            return gate.Address;
+
         }
 
         /// <summary>

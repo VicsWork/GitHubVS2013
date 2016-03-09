@@ -263,7 +263,7 @@ namespace PowerCalibration
         private void checkBox_EnableDBReporting_CheckedChanged(object sender, EventArgs e)
         {
             Properties.Settings.Default.DB_Loging_Enabled = this.checkBox_EnableDBReporting.Checked;
-            this.labelDBConnectStr.Text = Properties.Settings.Default.PowerCalibrationConnectionString;
+            this.labelDBConnectStr.Text = Properties.Settings.Default.DBConnectionString;
         }
 
         private void checkBoxCodeMinOnPass_CheckedChanged(object sender, EventArgs e)
