@@ -87,7 +87,7 @@ namespace PowerCalibration
             catch (System.IO.IOException)
             {
                 // Most likely we are already running
-                MessageBox.Show("Trace listener already opened.\r\n\"" + this.assemblyTitle + "\" may already be running?\r\nExiting...", this.assemblyTitle);
+                MessageBox.Show("Unable to open trace listener.\r\n\"" + this.assemblyTitle + "\" may already be running?\r\nExiting...", this.assemblyTitle);
                 this.Close();
             }
 
