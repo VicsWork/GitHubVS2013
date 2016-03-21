@@ -68,7 +68,7 @@
       <Value Profile="(Default)">False</Value>
     </Setting>
     <Setting Name="DBConnectionString_Keytronics" Type="System.String" Scope="Application">
-      <Value Profile="(Default)">Data Source=rs01;Initial Catalog=PowerCalibration;Integrated Security=True</Value>
+      <Value Profile="(Default)">Data Source=rs01;Initial Catalog=ManufacturingStore_v2;Integrated Security=True</Value>
     </Setting>
   </Settings>
 </SettingsFile>
