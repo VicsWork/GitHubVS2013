@@ -249,16 +249,12 @@ namespace PowerCalibration.Properties {
             }
         }
         
-        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Configuration.ApplicationScopedSettingAttribute()]
         [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
-        [global::System.Configuration.DefaultSettingValueAttribute("Data Source=172.24.16.100;Initial Catalog=PowerCalibration;Integrated Security=Tr" +
-            "ue")]
+        [global::System.Configuration.DefaultSettingValueAttribute("Data Source=rs01;Initial Catalog=PowerCalibration;Integrated Security=True")]
         public string DBConnectionString_Keytronics {
             get {
                 return ((string)(this["DBConnectionString_Keytronics"]));
-            }
-            set {
-                this["DBConnectionString_Keytronics"] = value;
             }
         }
     }
