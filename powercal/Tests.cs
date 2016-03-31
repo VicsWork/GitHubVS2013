@@ -30,7 +30,7 @@ namespace PowerCalibration
             }
 
             if (_relay_ctrl != null && _relay_ctrl.Device_Type != RelayControler.Device_Types.Manual)
-                _relay_ctrl.WriteLine(Relay_Lines.Voltmeter, true);  // DC
+                _relay_ctrl.WriteLine(Relay_Lines.Vac_Vdc, true);  // DC
 
             fire_status("Verify Voltage DC");
             _meter.Init();

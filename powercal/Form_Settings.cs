@@ -78,10 +78,11 @@ namespace PowerCalibration
                     RelayControler relay_ctrl = new RelayControler(device);
 
                     Dictionary<string, uint> relay_lines = relay_ctrl.DicLines_ReadSettings();
+
                     NumericUpDown_ACPower.Value = relay_lines[PowerCalibration.Relay_Lines.Power];
                     NumericUpDown_Load.Value = relay_lines[PowerCalibration.Relay_Lines.Load];
                     NumericUpDown_Ember.Value = relay_lines[PowerCalibration.Relay_Lines.Ember];
-                    numericUpDown_Voltmeter.Value = relay_lines[PowerCalibration.Relay_Lines.Voltmeter];
+                    numericUpDown_VacVdc.Value = relay_lines[PowerCalibration.Relay_Lines.Vac_Vdc];
 
                     setLineEnablement(true);
                 }
@@ -110,7 +111,7 @@ namespace PowerCalibration
             relay_lines[PowerCalibration.Relay_Lines.Power] = (uint)NumericUpDown_ACPower.Value;
             relay_lines[PowerCalibration.Relay_Lines.Load] = (uint)NumericUpDown_Load.Value;
             relay_lines[PowerCalibration.Relay_Lines.Ember] = (uint)NumericUpDown_Ember.Value;
-            relay_lines[PowerCalibration.Relay_Lines.Voltmeter] = (uint)numericUpDown_Voltmeter.Value;
+            relay_lines[PowerCalibration.Relay_Lines.Vac_Vdc] = (uint)numericUpDown_VacVdc.Value;
 
             relay_ctrl.Dictionary_Lines = relay_lines;
             relay_ctrl.DicLines_SaveSettings();

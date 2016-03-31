@@ -39,7 +39,7 @@ namespace PowerCalibration
             labelEmber.Text += string.Format("({0})", linenum);
             NumericUpDown_Ember.Tag = linenum;
 
-            linenum = lines[PowerCalibration.Relay_Lines.Voltmeter];
+            linenum = lines[PowerCalibration.Relay_Lines.Vac_Vdc];
             labelVoltmeter.Text += string.Format("({0})", linenum);
             numericUpDown_Voltmeter.Tag = linenum;
 
@@ -82,7 +82,7 @@ namespace PowerCalibration
                 NumericUpDown_ACPower.Value = Convert.ToDecimal( _relayCtrl.ReadLine(PowerCalibration.Relay_Lines.Power) );
                 NumericUpDown_Load.Value = Convert.ToDecimal(_relayCtrl.ReadLine(PowerCalibration.Relay_Lines.Load) );
                 NumericUpDown_Ember.Value = Convert.ToDecimal(_relayCtrl.ReadLine(PowerCalibration.Relay_Lines.Ember));
-                numericUpDown_Voltmeter.Value = Convert.ToDecimal(_relayCtrl.ReadLine(PowerCalibration.Relay_Lines.Voltmeter));
+                numericUpDown_Voltmeter.Value = Convert.ToDecimal(_relayCtrl.ReadLine(PowerCalibration.Relay_Lines.Vac_Vdc));
             }
             catch (Exception ex)
             {

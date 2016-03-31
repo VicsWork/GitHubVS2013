@@ -197,6 +197,7 @@
     <Compile Include="Settings.cs" />
     <Compile Include="TCLI.cs" />
     <Compile Include="TelnetInterface.cs" />
+    <Compile Include="Tests_Honeycomb.cs" />
     <Compile Include="TraceLogger.cs" />
     <EmbeddedResource Include="AboutBox1.resx">
       <DependentUpon>AboutBox1.cs</DependentUpon>

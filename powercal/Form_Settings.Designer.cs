@@ -39,7 +39,7 @@
             this.label7 = new System.Windows.Forms.Label();
             this.TextBoxEmberBinPath = new System.Windows.Forms.TextBox();
             this.tabPageDIO = new System.Windows.Forms.TabPage();
-            this.numericUpDown_Voltmeter = new System.Windows.Forms.NumericUpDown();
+            this.numericUpDown_VacVdc = new System.Windows.Forms.NumericUpDown();
             this.label5 = new System.Windows.Forms.Label();
             this.label1 = new System.Windows.Forms.Label();
             this.comboBoxDIOCtrollerTypes = new System.Windows.Forms.ComboBox();
@@ -69,6 +69,7 @@
             this.groupBox3 = new System.Windows.Forms.GroupBox();
             this.checkBoxCodeMinOnPass = new System.Windows.Forms.CheckBox();
             this.groupBox2 = new System.Windows.Forms.GroupBox();
+            this.labelDBConnectStr = new System.Windows.Forms.Label();
             this.checkBox_EnableDBReporting = new System.Windows.Forms.CheckBox();
             this.groupBox1 = new System.Windows.Forms.GroupBox();
             this.comboBoxShortcutActions = new System.Windows.Forms.ComboBox();
@@ -76,11 +77,10 @@
             this.buttonCancel = new System.Windows.Forms.Button();
             this.buttonOK = new System.Windows.Forms.Button();
             this.toolTip1 = new System.Windows.Forms.ToolTip(this.components);
-            this.labelDBConnectStr = new System.Windows.Forms.Label();
             this.TabControl.SuspendLayout();
             this.tabPageEmber.SuspendLayout();
             this.tabPageDIO.SuspendLayout();
-            ((System.ComponentModel.ISupportInitialize)(this.numericUpDown_Voltmeter)).BeginInit();
+            ((System.ComponentModel.ISupportInitialize)(this.numericUpDown_VacVdc)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.NumericUpDown_Ember)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.NumericUpDown_Load)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.NumericUpDown_ACPower)).BeginInit();
@@ -198,7 +198,7 @@
             // 
             // tabPageDIO
             // 
-            this.tabPageDIO.Controls.Add(this.numericUpDown_Voltmeter);
+            this.tabPageDIO.Controls.Add(this.numericUpDown_VacVdc);
             this.tabPageDIO.Controls.Add(this.label5);
             this.tabPageDIO.Controls.Add(this.label1);
             this.tabPageDIO.Controls.Add(this.comboBoxDIOCtrollerTypes);
@@ -215,27 +215,27 @@
             this.tabPageDIO.Text = "DIO";
             this.tabPageDIO.UseVisualStyleBackColor = true;
             // 
-            // numericUpDown_Voltmeter
+            // numericUpDown_VacVdc
             // 
-            this.numericUpDown_Voltmeter.Location = new System.Drawing.Point(188, 126);
-            this.numericUpDown_Voltmeter.Maximum = new decimal(new int[] {
+            this.numericUpDown_VacVdc.Location = new System.Drawing.Point(188, 126);
+            this.numericUpDown_VacVdc.Maximum = new decimal(new int[] {
             7,
             0,
             0,
             0});
-            this.numericUpDown_Voltmeter.Name = "numericUpDown_Voltmeter";
-            this.numericUpDown_Voltmeter.Size = new System.Drawing.Size(31, 20);
-            this.numericUpDown_Voltmeter.TabIndex = 4;
-            this.numericUpDown_Voltmeter.ValueChanged += new System.EventHandler(this.NumericUpDown_DIOLine_ValueChanged);
+            this.numericUpDown_VacVdc.Name = "numericUpDown_VacVdc";
+            this.numericUpDown_VacVdc.Size = new System.Drawing.Size(31, 20);
+            this.numericUpDown_VacVdc.TabIndex = 4;
+            this.numericUpDown_VacVdc.ValueChanged += new System.EventHandler(this.NumericUpDown_DIOLine_ValueChanged);
             // 
             // label5
             // 
             this.label5.AutoSize = true;
             this.label5.Location = new System.Drawing.Point(101, 127);
             this.label5.Name = "label5";
-            this.label5.Size = new System.Drawing.Size(51, 13);
+            this.label5.Size = new System.Drawing.Size(50, 13);
             this.label5.TabIndex = 20;
-            this.label5.Text = "Voltmeter";
+            this.label5.Text = "Vac/Vdc";
             // 
             // label1
             // 
@@ -545,6 +545,14 @@
             this.groupBox2.TabStop = false;
             this.groupBox2.Text = "Database";
             // 
+            // labelDBConnectStr
+            // 
+            this.labelDBConnectStr.AutoSize = true;
+            this.labelDBConnectStr.Location = new System.Drawing.Point(7, 43);
+            this.labelDBConnectStr.Name = "labelDBConnectStr";
+            this.labelDBConnectStr.Size = new System.Drawing.Size(0, 13);
+            this.labelDBConnectStr.TabIndex = 7;
+            // 
             // checkBox_EnableDBReporting
             // 
             this.checkBox_EnableDBReporting.AutoSize = true;
@@ -615,14 +623,6 @@
             this.buttonOK.Text = "&OK";
             this.buttonOK.Click += new System.EventHandler(this.buttonOK_Click);
             // 
-            // labelDBConnectStr
-            // 
-            this.labelDBConnectStr.AutoSize = true;
-            this.labelDBConnectStr.Location = new System.Drawing.Point(7, 43);
-            this.labelDBConnectStr.Name = "labelDBConnectStr";
-            this.labelDBConnectStr.Size = new System.Drawing.Size(0, 13);
-            this.labelDBConnectStr.TabIndex = 7;
-            // 
             // Form_Settings
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
@@ -640,7 +640,7 @@
             this.tabPageEmber.PerformLayout();
             this.tabPageDIO.ResumeLayout(false);
             this.tabPageDIO.PerformLayout();
-            ((System.ComponentModel.ISupportInitialize)(this.numericUpDown_Voltmeter)).EndInit();
+            ((System.ComponentModel.ISupportInitialize)(this.numericUpDown_VacVdc)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this.NumericUpDown_Ember)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this.NumericUpDown_Load)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this.NumericUpDown_ACPower)).EndInit();
@@ -671,7 +671,7 @@
         private System.Windows.Forms.Label label7;
         public System.Windows.Forms.TextBox TextBoxEmberBinPath;
         private System.Windows.Forms.TabPage tabPageDIO;
-        public System.Windows.Forms.NumericUpDown numericUpDown_Voltmeter;
+        public System.Windows.Forms.NumericUpDown numericUpDown_VacVdc;
         private System.Windows.Forms.Label label5;
         private System.Windows.Forms.Label label1;
         public System.Windows.Forms.ComboBox comboBoxDIOCtrollerTypes;

@@ -46,9 +46,15 @@ namespace PowerCalibration
             NumericUpDown_Ember.Tag = linenum;
             NumericUpDown_Ember.Value = Convert.ToDecimal(_relayCtrl.ReadLine(linenum));
 
-            linenum = lines[PowerCalibration.Relay_Lines.Voltmeter];
-            labelVoltmeter.Text += string.Format("({0})", linenum);
-            numericUpDown_Voltmeter.Tag = linenum;
+            linenum = lines[PowerCalibration.Relay_Lines.Vac_Vdc];
+            labelVacVdc.Text += string.Format("({0})", linenum);
+            numericUpDown_VacVdc.Tag = linenum;
+            numericUpDown_VacVdc.Value = Convert.ToDecimal(_relayCtrl.ReadLine(linenum));
+
+            linenum = lines[PowerCalibration.Relay_Lines.TestRelays_VacVdc];
+            labelTest_VacVdc.Text += string.Format("({0})", linenum);
+            numericUpDown_Test_VacVdc.Tag = linenum;
+            numericUpDown_Test_VacVdc.Value = Convert.ToDecimal(_relayCtrl.ReadLine(linenum));
 
             updateLineValues();
         }
@@ -74,7 +80,13 @@ namespace PowerCalibration
         {
             var ctrls = groupBoxDIOLines.Controls.OfType<NumericUpDown>();
             foreach (NumericUpDown ctrl in ctrls)
-                ctrl.Value = Convert.ToDecimal(_relayCtrl.ReadLine((uint)ctrl.Tag));
+            {
+                try
+                {
+                    ctrl.Value = Convert.ToDecimal(_relayCtrl.ReadLine((uint)ctrl.Tag));
+                }
+                catch { }
+            }
         }
     }
 }

@@ -102,6 +102,15 @@ namespace PowerCalibration
             return _dic_lines;
         }
 
+        public void RecreateSettingsFile()
+        {
+            if (File.Exists(_diclines_settings_file))
+            {
+                File.Delete(_diclines_settings_file);
+            }
+            DicLines_SaveSettings();
+        }
+
         /// <summary>
         /// Adds a line and its initial value to the dictionary
         /// </summary>

@@ -144,15 +144,26 @@ namespace PowerCalibration
                     _current_gain_adress = 0x08080984;
                     _referece_adress = 0x08080988;
                     _ac_offset_adress = 0x080809CC;
-
                     break;
+
+                case BoardTypes.Honeycomb:
+                    _voltage_gain_adress = 0x080409CC;
+                    _current_gain_adress = 0x080409D0;
+                    _referece_adress = 0x080409D4;
+                    _ac_offset_adress = 0x080409D6;
+
+                    _current_ac_reference = 10;
+                    break;
+
                 case BoardTypes.Zebrashark:
                     //_cmd_prefix = "cs5480";  // SPI interface
                     break;
+
                 case BoardTypes.Milkshark:
                 case BoardTypes.Mudshark:
                     _current_ac_reference = 10;
                     break;
+
             }
 
             _load_voltage_ac_high_limit = voltage_ac_load + voltage_ac_delta;
@@ -476,7 +487,7 @@ namespace PowerCalibration
                 return;
 
             if (_relay_ctrl != null && _relay_ctrl.Device_Type != RelayControler.Device_Types.Manual)
-                _relay_ctrl.WriteLine(Relay_Lines.Voltmeter, false);  // AC
+                _relay_ctrl.WriteLine(Relay_Lines.Vac_Vdc, false);  // AC
 
             fire_run_status("Verify Voltage AC");
             _meter.Init();

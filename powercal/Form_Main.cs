@@ -30,7 +30,7 @@ using System.Data.SqlTypes;
 
 namespace PowerCalibration
 {
-    enum BoardTypes { Humpback, Hornshark, Mudshark, Hooktooth, Milkshark, Zebrashark };
+    enum BoardTypes { Humpback, Honeycomb, Hornshark, Mudshark, Hooktooth, Milkshark, Zebrashark };
 
     public partial class Form_Main : Form, ICalibrationService
     {
@@ -70,6 +70,26 @@ namespace PowerCalibration
         DataTable _datatable_calibrate;
         uint _db_total_written = 0;
         Tuple<int, int> _site_machine_id;
+
+
+        private void button1_Click(object sender, EventArgs e)
+        {
+            if (_meter == null)
+            {
+                _meter = new MultiMeter(Properties.Settings.Default.Meter_COM_Port_Name);
+            }
+
+            if (_relay_ctrl == null)
+            {
+                _relay_ctrl = new RelayControler(RelayControler.Device_Types.FT232H);
+            }
+
+
+            Tests_Honeycomb hct = new Tests_Honeycomb(_relay_ctrl, _meter);
+            hct.Verify_Continuity(false, new CancellationTokenSource().Token);
+
+
+        }
 
         /// <summary>
         /// The main form constructor
@@ -340,7 +360,8 @@ namespace PowerCalibration
                 TraceLogger.Log(msg);
             }
 
-            try{ toolStripGeneralStatusLabel.Text = msg; } catch { };
+            try { toolStripGeneralStatusLabel.Text = msg; }
+            catch { };
         }
 
         /// <summary>
@@ -354,6 +375,13 @@ namespace PowerCalibration
             try
             {
                 _relay_ctrl = new RelayControler(rdevtype);
+
+
+                // In this version we are adding a new line for Honeycomb
+                // So lets refresh the file as to not to have conflicts with older versions
+                // Should not cause any problems unless someone rewired the relay controller
+                _relay_ctrl.RecreateSettingsFile();
+
                 _relay_ctrl.Open();
                 initRelayController_Lines();
                 msg = string.Format("Relay controller \"{0}\" ready.", rdevtype);
@@ -401,7 +429,11 @@ namespace PowerCalibration
                 _relay_ctrl.DicLines_AddLine(Relay_Lines.Power, 0);
                 _relay_ctrl.DicLines_AddLine(Relay_Lines.Load, 1);
                 _relay_ctrl.DicLines_AddLine(Relay_Lines.Ember, 2);
-                _relay_ctrl.DicLines_AddLine(Relay_Lines.Voltmeter, 3);
+                _relay_ctrl.DicLines_AddLine(Relay_Lines.Vac_Vdc, 3);
+
+                // Only use on Honeycomb
+                _relay_ctrl.DicLines_AddLine(Relay_Lines.TestRelays_VacVdc, 4);
+
                 _relay_ctrl.DicLines_SaveSettings();
             }
         }
@@ -1024,7 +1056,7 @@ namespace PowerCalibration
                 return -1;
 
             if (_relay_ctrl != null && _relay_ctrl.Device_Type != RelayControler.Device_Types.Manual)
-                _relay_ctrl.WriteLine(Relay_Lines.Voltmeter, false);  // AC measure
+                _relay_ctrl.WriteLine(Relay_Lines.Vac_Vdc, false);  // AC measure
 
             // Measure Voltage after power off
             if (!_meter.IsSerialPortOpen)
@@ -1048,7 +1080,7 @@ namespace PowerCalibration
             }
 
             if (_relay_ctrl != null && _relay_ctrl.Device_Type != RelayControler.Device_Types.Manual)
-                _relay_ctrl.WriteLine(Relay_Lines.Voltmeter, true);  // DC Measure
+                _relay_ctrl.WriteLine(Relay_Lines.Vac_Vdc, true);  // DC Measure
             _meter.SetupForVDC();
 
             double vdc = -1.0;
@@ -1086,7 +1118,7 @@ namespace PowerCalibration
                 return;
 
             if (_relay_ctrl != null && _relay_ctrl.Device_Type != RelayControler.Device_Types.Manual)
-                _relay_ctrl.WriteLine(Relay_Lines.Voltmeter, true);  // DC
+                _relay_ctrl.WriteLine(Relay_Lines.Vac_Vdc, true);  // DC
 
             updateOutputStatus("Verify Voltage DC");
             _meter.Init();
@@ -1198,6 +1230,7 @@ namespace PowerCalibration
             _relay_ctrl.WriteLine(Relay_Lines.Ember, false);
             _relay_ctrl.WriteLine(Relay_Lines.Load, false);
             _relay_ctrl.WriteLine(Relay_Lines.Power, true);
+            _relay_ctrl.WriteLine(Relay_Lines.TestRelays_VacVdc, false);
 
             if (!Properties.Settings.Default.PrePost_Test_Enabled)
             {
@@ -1866,12 +1899,17 @@ namespace PowerCalibration
         static string _key_acPower = "AC Power";
         static string _key_load = "Load";
         static string _key_ember = "Ember";
-        static string _key_volts = "Voltmeter";
+        static string _key_vac_or_vdc = "VacVdc";
+        static string _key_relaytest_vacvdc = "Relaytest_VacVdc";
 
         public static string Power { get { return _key_acPower; } }
         public static string Load { get { return _key_load; } }
         public static string Ember { get { return _key_ember; } }
-        public static string Voltmeter { get { return _key_volts; } }
+        public static string Vac_Vdc { get { return _key_vac_or_vdc; } }
+
+        // Honeycomb
+        public static string TestRelays_VacVdc { get { return _key_relaytest_vacvdc; } }
+
     }
 
 }

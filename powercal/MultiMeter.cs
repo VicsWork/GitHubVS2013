@@ -288,6 +288,28 @@ namespace PowerCalibration
         }
 
         /// <summary>
+        /// Sets up the meter for Resistance measurement
+        /// Only GDM8341
+        /// </summary>
+        /// <param name="range"></param>
+        public void SetupForResistance(int range)
+        {
+            string conf = string.Format("CONF:RES {0}", range);
+            writeLine(conf);
+            Thread.Sleep(1000);
+        }
+
+        /// <summary>
+        /// Sets up the meter for Continuity measurement
+        /// Only GDM8341
+        /// </summary>
+        public void SetupForContinuity()
+        {
+            writeLine("CONF:CONT");
+            //Thread.Sleep(1000);
+        }
+
+        /// <summary>
         /// Triggers meter and returns measurement
         /// </summary>
         /// <returns>measurement</returns>
