@@ -74,21 +74,45 @@ namespace PowerCalibration
 
         private void button1_Click(object sender, EventArgs e)
         {
-            if (_meter == null)
+            try
             {
-                _meter = new MultiMeter(Properties.Settings.Default.Meter_COM_Port_Name);
+                _relay_ctrl.OpenIfClosed();
+                _relay_ctrl.WriteLine(Relay_Lines.Ember, true);
+                _relay_ctrl.WriteLine(Relay_Lines.Power, true);
+                Thread.Sleep(1000);
+
+                if (_telnet_connection == null || !_telnet_connection.IsConnected)
+                {
+                    _telnet_connection = new TelnetConnection(Properties.Settings.Default.Ember_Interface_IP_Address, 4900);
+                }
+
+
+                Tests_Honeycomb hct = new Tests_Honeycomb(_relay_ctrl, _meter, _telnet_connection);
+                hct.Status_Event += hct_Status_Event;
+
+
+                updateOutputStatus("Verify Door Relay Continuity");
+                hct.Verify_DoorRelay_Continuity();
+
+                updateOutputStatus("Verify Capacitive Relay");
+                hct.Verify_Capacitance();
+
+            }
+            finally
+            {
+                if (_telnet_connection != null)
+                {
+                    _telnet_connection.Close();
+                }
+                _relay_ctrl.WriteAll(false);
+                _relay_ctrl.Close();
             }
 
-            if (_relay_ctrl == null)
-            {
-                _relay_ctrl = new RelayControler(RelayControler.Device_Types.FT232H);
-            }
+        }
 
-
-            Tests_Honeycomb hct = new Tests_Honeycomb(_relay_ctrl, _meter);
-            hct.Verify_Continuity(false, new CancellationTokenSource().Token);
-
-
+        void hct_Status_Event(object sender, string status_txt)
+        {
+            updateOutputStatus(status_txt);
         }
 
         /// <summary>
@@ -1466,7 +1490,6 @@ namespace PowerCalibration
             calibrate.MultiMeter = _meter;
             calibrate.RelayController = _relay_ctrl;
             calibrate.TelnetConnection = _telnet_connection;
-
 
             _cancel_token_uut = new CancellationTokenSource();
             _task_uut = new Task(() => calibrate.Run(_cancel_token_uut.Token), _cancel_token_uut.Token);

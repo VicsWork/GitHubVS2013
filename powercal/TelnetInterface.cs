@@ -31,6 +31,12 @@ namespace MinimalisticTelnet
         TcpClient _tcpSocket;
         int _timeOutMs = 100;
 
+        /// <summary>
+        /// Initializes a new instance of the System.Net.Sockets.TcpClient class and 
+        /// connects to the specified port on the specified host.
+        /// </summary>
+        /// <param name="Hostname"></param>
+        /// <param name="Port"></param>
         public TelnetConnection(string Hostname, int Port)
         {
             _tcpSocket = new TcpClient(Hostname, Port);

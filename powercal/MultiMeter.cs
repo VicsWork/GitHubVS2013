@@ -229,6 +229,7 @@ namespace PowerCalibration
                     writeLine("SYST:SCP:MODE COMP");  //Compatible to GDM8246
                     writeLine("TRIG:SOUR EXT");  // Set trigger to be external
                     writeLine("TRIG:COUN 2");  // Set trigger COUNT
+                    writeLine("TRIG:AUTO OFF");
                     break;
             }
         }
@@ -306,7 +307,23 @@ namespace PowerCalibration
         public void SetupForContinuity()
         {
             writeLine("CONF:CONT");
-            //Thread.Sleep(1000);
+            Thread.Sleep(1000);
+        }
+
+        /// <summary>
+        /// Sets up the meter for Capacitance measurement
+        /// Only GDM8341
+        /// </summary>
+        /// <param name="range"></param>
+        public void SetupForCapacitance(int range)
+        {
+            string conf = string.Format("CONF:CAP {0}", range);
+            writeLine(conf);
+
+            writeLine("TRIG:SOUR EXT");  // Set trigger to be external
+            writeLine("TRIG:COUN 2");  // Set trigger COUNT
+
+            Thread.Sleep(1000);
         }
 
         /// <summary>

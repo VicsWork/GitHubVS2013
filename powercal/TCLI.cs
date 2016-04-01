@@ -331,14 +331,22 @@ namespace PowerCalibration
         {
             telnet_connection.Read();
             int n = 0;
+            string data = "";
             while (n < 3)
             {
                 telnet_connection.WriteLine("");
-                string data = telnet_connection.Read();
+                data = telnet_connection.Read();
                 if (data.Contains('>'))
                     break;
                 n++;
             }
+
+            if (!data.Contains('>'))
+            {
+                throw new Exception( 
+                    string.Format("Telnet session prompt not detected" ) );
+            }
+
         }
 
     }

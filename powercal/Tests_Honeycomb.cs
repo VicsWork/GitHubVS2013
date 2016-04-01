@@ -12,28 +12,37 @@ namespace PowerCalibration
     class Tests_Honeycomb
     {
 
-        RelayControler _relay_ctrl;
+        RelayControler _jig_relay_ctrl;
         MultiMeter _meter;
+        TelnetConnection _telnet_conn;
 
         public delegate void StatusHandler(object sender, string status_txt);
         public event StatusHandler Status_Event;
 
-        public RelayControler RelayController { get { return _relay_ctrl; } set { _relay_ctrl = value; } }
+        public RelayControler JigRelayController { get { return _jig_relay_ctrl; } set { _jig_relay_ctrl = value; } }
         public MultiMeter MultiMeter { get { return _meter; } set { _meter = value; } }
 
-        public Tests_Honeycomb(RelayControler relay_controller, MultiMeter multi_meter)
+        public enum Relay { Continuity = 0, Capacitor, Resistor};
+
+        public Tests_Honeycomb(RelayControler jig_relay_controller, MultiMeter multi_meter, TelnetConnection telnet_connection)
         {
-            _relay_ctrl = relay_controller;
+            _jig_relay_ctrl = jig_relay_controller;
             _meter = multi_meter;
+            _telnet_conn = telnet_connection;
 
             if (_meter == null)
             {
-                throw new Exception("Meter not specified");
+                _meter = new MultiMeter(Properties.Settings.Default.Meter_COM_Port_Name);
             }
 
-            if (_relay_ctrl == null)
+            if (_jig_relay_ctrl == null)
             {
-                throw new Exception("Relay controller not specified");
+                _jig_relay_ctrl = new RelayControler(RelayControler.Device_Types.FT232H);
+            }
+
+            if(_telnet_conn == null || !_telnet_conn.IsConnected)
+            {
+                _telnet_conn = new TelnetConnection(Properties.Settings.Default.Ember_Interface_IP_Address, 4900);
             }
 
         }
@@ -42,52 +51,52 @@ namespace PowerCalibration
         /// 
         /// </summary>
         /// <param name="telnet_connection"></param>
-        /// <param name="relay"></param>
-        /// <param name="value"></param>
-        public static void Set_Relay_State(TelnetConnection telnet_connection, uint relay, bool value)
+        /// <param name="relay_num">The relay</param>
+        /// <param name="value">0 to opens the relay, 1 closes the relay</param>
+        public void Set_UUT_Relay_State(Relay relay_num, bool close_open)
         {
-            if (value)
+            string cmd = "cu finaltest ";
+
+            int num = (int)relay_num;
+
+            if (close_open)
             {
-                TCLI.Wait_For_Prompt(telnet_connection);
-
-                if (value)
-                {
-                    telnet_connection.WriteLine("write 1 6 0 1 0x10 {01}");
-                }
-
-                TCLI.Wait_For_Prompt(telnet_connection);
-
+                cmd += string.Format(" closerelay {0}", num);
             }
             else
             {
-                telnet_connection.WriteLine("write 1 6 0 1 0x10 {00}");
+                cmd += string.Format(" openrelay {0}", num);
             }
+
+            TCLI.Wait_For_Prompt(_telnet_conn);
+            _telnet_conn.WriteLine(cmd);
+            fire_status(cmd);
         }
 
 
-        public void Verify_Continuity(bool isShort, CancellationToken cancel)
+        public void Verify_DoorRelay_Continuity()
         {
-            double max_short = 0.1;
-            double max_open = 1.0;
+            double max_short = 0.01;  // We usually get 0.00030000
+            double max_open = 9.9; // usually 9.9999
 
-            _relay_ctrl.WriteLine(Relay_Lines.TestRelays_VacVdc, true);
-
-            fire_status("Verify Continuity");
+            _jig_relay_ctrl.WriteLine(Relay_Lines.TestRelays_VacVdc, true);
             _meter.Init();
-
             try
             {
                 _meter.SetToRemote();
                 _meter.ClearError();
                 _meter.SetupForContinuity();
 
+                Set_UUT_Relay_State(Tests_Honeycomb.Relay.Continuity, true);
+                Thread.Sleep(500);
+
                 string cont_str = _meter.Measure();
                 double r = Convert.ToDouble(cont_str);
 
-                string msg = string.Format("Continuity measurement was {0:F8} ohms", r);
+                string msg = string.Format("Continuity measurement with relay closed was {0:F8} ohms", r);
                 fire_status(msg);
 
-                if (isShort && r > max_short)
+                if (r > max_short)
                 {
                     msg += string.Format(" . Max set to {0:F8}", max_short);
                     TraceLogger.Log(msg);
@@ -95,7 +104,16 @@ namespace PowerCalibration
 
                 }
 
-                if(!isShort && r < max_open)
+                Set_UUT_Relay_State(Tests_Honeycomb.Relay.Continuity, false);
+                Thread.Sleep(500);
+
+                cont_str = _meter.Measure();
+                r = Convert.ToDouble(cont_str);
+
+                msg = string.Format("Continuity measurement with relay opened was {0:F8} ohms", r);
+                fire_status(msg);
+
+                if (r < max_open)
                 {
                     msg += string.Format(" . Max set to {0:F8}", max_open);
                     TraceLogger.Log(msg);
@@ -104,11 +122,67 @@ namespace PowerCalibration
             }
             finally
             {
-
                 _meter.CloseSerialPort();
             }
 
         }
+
+        public void Verify_Capacitance()
+        {
+
+            _jig_relay_ctrl.WriteLine(Relay_Lines.TestRelays_VacVdc, true);
+
+            _meter.Init();
+            try
+            {
+                _meter.SetToRemote();
+                _meter.ClearError();
+
+                int multiplier = 1000;
+                _meter.SetupForCapacitance(5*multiplier);
+
+                Set_UUT_Relay_State(Tests_Honeycomb.Relay.Capacitor, true);
+                Thread.Sleep(500);
+
+                string cont_str = _meter.Measure();
+                double c = Convert.ToDouble(cont_str)/multiplier;
+                string msg = string.Format("Capacitance measurement relay close was {0:F8} uF", c);
+                fire_status(msg);
+
+
+                double exp_val = 1.0;
+                double exp_max = exp_val + exp_val * 0.20;
+                double exp_min = exp_val - exp_val * 0.20;
+
+                if (c > exp_max || c < exp_min)
+                {
+                    msg = string.Format("Capacitance measurement with relay closed was {0:F8} uF, limit high {0:F8} uF, limit low {0:F8} uF", c, exp_max, exp_min);
+                }
+
+                Set_UUT_Relay_State(Tests_Honeycomb.Relay.Capacitor, false);
+                Thread.Sleep(500);
+
+                cont_str = _meter.Measure();
+                c = Convert.ToDouble(cont_str) / multiplier;
+                msg = string.Format("Capacitance measurement relay open was {0:F8} uF", c);
+                fire_status(msg);
+
+                exp_max = 0.1;
+                if (c > 0.1)
+                {
+                    msg = string.Format("Capacitance measurement with relay opened was {0:F8} uF, limit high {0:F8} uF", c, exp_max);
+                }
+
+            }
+            finally
+            {
+                _meter.CloseSerialPort();
+                Set_UUT_Relay_State(Tests_Honeycomb.Relay.Capacitor, false);
+            }
+
+
+        }
+
 
         void fire_status(string msg)
         {
