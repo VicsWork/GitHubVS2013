@@ -67,7 +67,6 @@
             this.buttonCode = new System.Windows.Forms.Button();
             this.buttonAll = new System.Windows.Forms.Button();
             this.buttonRecode = new System.Windows.Forms.Button();
-            this.button1 = new System.Windows.Forms.Button();
             this.contextMenuStatusTextBox.SuspendLayout();
             this.menuStripMain.SuspendLayout();
             this.statusStrip.SuspendLayout();
@@ -297,22 +296,11 @@
             this.buttonRecode.UseVisualStyleBackColor = true;
             this.buttonRecode.Click += new System.EventHandler(this.buttonRecode_Click);
             // 
-            // button1
-            // 
-            this.button1.Location = new System.Drawing.Point(481, 34);
-            this.button1.Name = "button1";
-            this.button1.Size = new System.Drawing.Size(75, 23);
-            this.button1.TabIndex = 15;
-            this.button1.Text = "&Test";
-            this.button1.UseVisualStyleBackColor = true;
-            this.button1.Click += new System.EventHandler(this.button1_Click);
-            // 
             // Form_Main
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(96F, 96F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Dpi;
             this.ClientSize = new System.Drawing.Size(832, 557);
-            this.Controls.Add(this.button1);
             this.Controls.Add(this.buttonAll);
             this.Controls.Add(this.buttonCode);
             this.Controls.Add(this.statusStrip);
@@ -366,7 +354,6 @@
         private System.Windows.Forms.ToolStripMenuItem fT232HToolStripMenuItem;
         private System.Windows.Forms.ToolStripMenuItem calculatorToolStripMenuItem;
         private System.Windows.Forms.ToolStripMenuItem toolStripMenuItemPowerMeter;
-        private System.Windows.Forms.Button button1;
     }
 }
 

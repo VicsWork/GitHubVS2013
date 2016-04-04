@@ -31,6 +31,8 @@
             this.channelParametersGroupBox = new System.Windows.Forms.GroupBox();
             this.Label_physicalChannel = new System.Windows.Forms.Label();
             this.groupBoxDIOLines = new System.Windows.Forms.GroupBox();
+            this.numericUpDown_Test_VacVdc = new System.Windows.Forms.NumericUpDown();
+            this.labelTest_VacVdc = new System.Windows.Forms.Label();
             this.NumericUpDown_ACPower = new System.Windows.Forms.NumericUpDown();
             this.numericUpDown_VacVdc = new System.Windows.Forms.NumericUpDown();
             this.labelVacVdc = new System.Windows.Forms.Label();
@@ -40,15 +42,16 @@
             this.NumericUpDown_Load = new System.Windows.Forms.NumericUpDown();
             this.labelACPower = new System.Windows.Forms.Label();
             this.buttonAllOff = new System.Windows.Forms.Button();
-            this.numericUpDown_Test_VacVdc = new System.Windows.Forms.NumericUpDown();
-            this.labelTest_VacVdc = new System.Windows.Forms.Label();
+            this.numericUpDown_TestC5 = new System.Windows.Forms.NumericUpDown();
+            this.labelTestC5 = new System.Windows.Forms.Label();
             this.channelParametersGroupBox.SuspendLayout();
             this.groupBoxDIOLines.SuspendLayout();
+            ((System.ComponentModel.ISupportInitialize)(this.numericUpDown_Test_VacVdc)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.NumericUpDown_ACPower)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.numericUpDown_VacVdc)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.NumericUpDown_Ember)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.NumericUpDown_Load)).BeginInit();
-            ((System.ComponentModel.ISupportInitialize)(this.numericUpDown_Test_VacVdc)).BeginInit();
+            ((System.ComponentModel.ISupportInitialize)(this.numericUpDown_TestC5)).BeginInit();
             this.SuspendLayout();
             // 
             // channelParametersGroupBox
@@ -73,6 +76,8 @@
             // 
             // groupBoxDIOLines
             // 
+            this.groupBoxDIOLines.Controls.Add(this.numericUpDown_TestC5);
+            this.groupBoxDIOLines.Controls.Add(this.labelTestC5);
             this.groupBoxDIOLines.Controls.Add(this.numericUpDown_Test_VacVdc);
             this.groupBoxDIOLines.Controls.Add(this.labelTest_VacVdc);
             this.groupBoxDIOLines.Controls.Add(this.NumericUpDown_ACPower);
@@ -85,10 +90,32 @@
             this.groupBoxDIOLines.Controls.Add(this.labelACPower);
             this.groupBoxDIOLines.Location = new System.Drawing.Point(28, 102);
             this.groupBoxDIOLines.Name = "groupBoxDIOLines";
-            this.groupBoxDIOLines.Size = new System.Drawing.Size(258, 130);
+            this.groupBoxDIOLines.Size = new System.Drawing.Size(258, 161);
             this.groupBoxDIOLines.TabIndex = 0;
             this.groupBoxDIOLines.TabStop = false;
             this.groupBoxDIOLines.Text = "DIO Line Values";
+            // 
+            // numericUpDown_Test_VacVdc
+            // 
+            this.numericUpDown_Test_VacVdc.Location = new System.Drawing.Point(221, 37);
+            this.numericUpDown_Test_VacVdc.Maximum = new decimal(new int[] {
+            1,
+            0,
+            0,
+            0});
+            this.numericUpDown_Test_VacVdc.Name = "numericUpDown_Test_VacVdc";
+            this.numericUpDown_Test_VacVdc.Size = new System.Drawing.Size(31, 20);
+            this.numericUpDown_Test_VacVdc.TabIndex = 4;
+            this.numericUpDown_Test_VacVdc.ValueChanged += new System.EventHandler(this.numericUpDown_ValueChanged);
+            // 
+            // labelTest_VacVdc
+            // 
+            this.labelTest_VacVdc.AutoSize = true;
+            this.labelTest_VacVdc.Location = new System.Drawing.Point(129, 37);
+            this.labelTest_VacVdc.Name = "labelTest_VacVdc";
+            this.labelTest_VacVdc.Size = new System.Drawing.Size(64, 13);
+            this.labelTest_VacVdc.TabIndex = 14;
+            this.labelTest_VacVdc.Text = "Test/Vacdc";
             // 
             // NumericUpDown_ACPower
             // 
@@ -105,7 +132,7 @@
             // 
             // numericUpDown_VacVdc
             // 
-            this.numericUpDown_VacVdc.Location = new System.Drawing.Point(213, 66);
+            this.numericUpDown_VacVdc.Location = new System.Drawing.Point(80, 122);
             this.numericUpDown_VacVdc.Maximum = new decimal(new int[] {
             1,
             0,
@@ -119,16 +146,17 @@
             // labelVacVdc
             // 
             this.labelVacVdc.AutoSize = true;
-            this.labelVacVdc.Location = new System.Drawing.Point(131, 68);
+            this.labelVacVdc.Location = new System.Drawing.Point(6, 124);
             this.labelVacVdc.Name = "labelVacVdc";
             this.labelVacVdc.Size = new System.Drawing.Size(50, 13);
             this.labelVacVdc.TabIndex = 12;
             this.labelVacVdc.Text = "Vac/Vdc";
+            this.labelVacVdc.Click += new System.EventHandler(this.labelVacVdc_Click);
             // 
             // labelEmber
             // 
             this.labelEmber.AutoSize = true;
-            this.labelEmber.Location = new System.Drawing.Point(131, 42);
+            this.labelEmber.Location = new System.Drawing.Point(6, 95);
             this.labelEmber.Name = "labelEmber";
             this.labelEmber.Size = new System.Drawing.Size(37, 13);
             this.labelEmber.TabIndex = 7;
@@ -136,7 +164,7 @@
             // 
             // NumericUpDown_Ember
             // 
-            this.NumericUpDown_Ember.Location = new System.Drawing.Point(213, 30);
+            this.NumericUpDown_Ember.Location = new System.Drawing.Point(80, 93);
             this.NumericUpDown_Ember.Maximum = new decimal(new int[] {
             1,
             0,
@@ -144,13 +172,13 @@
             0});
             this.NumericUpDown_Ember.Name = "NumericUpDown_Ember";
             this.NumericUpDown_Ember.Size = new System.Drawing.Size(31, 20);
-            this.NumericUpDown_Ember.TabIndex = 1;
+            this.NumericUpDown_Ember.TabIndex = 2;
             this.NumericUpDown_Ember.ValueChanged += new System.EventHandler(this.numericUpDown_ValueChanged);
             // 
             // labelLoad
             // 
             this.labelLoad.AutoSize = true;
-            this.labelLoad.Location = new System.Drawing.Point(7, 68);
+            this.labelLoad.Location = new System.Drawing.Point(6, 66);
             this.labelLoad.Name = "labelLoad";
             this.labelLoad.Size = new System.Drawing.Size(31, 13);
             this.labelLoad.TabIndex = 3;
@@ -158,7 +186,7 @@
             // 
             // NumericUpDown_Load
             // 
-            this.NumericUpDown_Load.Location = new System.Drawing.Point(80, 66);
+            this.NumericUpDown_Load.Location = new System.Drawing.Point(80, 64);
             this.NumericUpDown_Load.Maximum = new decimal(new int[] {
             1,
             0,
@@ -166,13 +194,13 @@
             0});
             this.NumericUpDown_Load.Name = "NumericUpDown_Load";
             this.NumericUpDown_Load.Size = new System.Drawing.Size(31, 20);
-            this.NumericUpDown_Load.TabIndex = 2;
+            this.NumericUpDown_Load.TabIndex = 1;
             this.NumericUpDown_Load.ValueChanged += new System.EventHandler(this.numericUpDown_ValueChanged);
             // 
             // labelACPower
             // 
             this.labelACPower.AutoSize = true;
-            this.labelACPower.Location = new System.Drawing.Point(6, 42);
+            this.labelACPower.Location = new System.Drawing.Point(5, 37);
             this.labelACPower.Name = "labelACPower";
             this.labelACPower.Size = new System.Drawing.Size(54, 13);
             this.labelACPower.TabIndex = 1;
@@ -183,38 +211,38 @@
             this.buttonAllOff.Location = new System.Drawing.Point(211, 32);
             this.buttonAllOff.Name = "buttonAllOff";
             this.buttonAllOff.Size = new System.Drawing.Size(75, 23);
-            this.buttonAllOff.TabIndex = 7;
+            this.buttonAllOff.TabIndex = 0;
             this.buttonAllOff.Text = "All O&ff";
             this.buttonAllOff.UseVisualStyleBackColor = true;
             this.buttonAllOff.Click += new System.EventHandler(this.buttonAllOff_Click);
             // 
-            // numericUpDown_Test_VacVdc
+            // numericUpDown_TestC5
             // 
-            this.numericUpDown_Test_VacVdc.Location = new System.Drawing.Point(143, 102);
-            this.numericUpDown_Test_VacVdc.Maximum = new decimal(new int[] {
+            this.numericUpDown_TestC5.Location = new System.Drawing.Point(221, 71);
+            this.numericUpDown_TestC5.Maximum = new decimal(new int[] {
             1,
             0,
             0,
             0});
-            this.numericUpDown_Test_VacVdc.Name = "numericUpDown_Test_VacVdc";
-            this.numericUpDown_Test_VacVdc.Size = new System.Drawing.Size(31, 20);
-            this.numericUpDown_Test_VacVdc.TabIndex = 13;
-            this.numericUpDown_Test_VacVdc.ValueChanged += new System.EventHandler(this.numericUpDown_ValueChanged);
+            this.numericUpDown_TestC5.Name = "numericUpDown_TestC5";
+            this.numericUpDown_TestC5.Size = new System.Drawing.Size(31, 20);
+            this.numericUpDown_TestC5.TabIndex = 15;
+            this.numericUpDown_TestC5.ValueChanged += new System.EventHandler(this.numericUpDown_ValueChanged);
             // 
-            // labelTest_VacVdc
+            // labelTestC5
             // 
-            this.labelTest_VacVdc.AutoSize = true;
-            this.labelTest_VacVdc.Location = new System.Drawing.Point(49, 104);
-            this.labelTest_VacVdc.Name = "labelTest_VacVdc";
-            this.labelTest_VacVdc.Size = new System.Drawing.Size(77, 13);
-            this.labelTest_VacVdc.TabIndex = 14;
-            this.labelTest_VacVdc.Text = "Test/Vac_Vdc";
+            this.labelTestC5.AutoSize = true;
+            this.labelTestC5.Location = new System.Drawing.Point(129, 71);
+            this.labelTestC5.Name = "labelTestC5";
+            this.labelTestC5.Size = new System.Drawing.Size(44, 13);
+            this.labelTestC5.TabIndex = 16;
+            this.labelTestC5.Text = "Test C5";
             // 
             // Form_FT232H_DIO_Test
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(310, 244);
+            this.ClientSize = new System.Drawing.Size(307, 280);
             this.Controls.Add(this.buttonAllOff);
             this.Controls.Add(this.groupBoxDIOLines);
             this.Controls.Add(this.channelParametersGroupBox);
@@ -224,11 +252,12 @@
             this.channelParametersGroupBox.ResumeLayout(false);
             this.groupBoxDIOLines.ResumeLayout(false);
             this.groupBoxDIOLines.PerformLayout();
+            ((System.ComponentModel.ISupportInitialize)(this.numericUpDown_Test_VacVdc)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this.NumericUpDown_ACPower)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this.numericUpDown_VacVdc)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this.NumericUpDown_Ember)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this.NumericUpDown_Load)).EndInit();
-            ((System.ComponentModel.ISupportInitialize)(this.numericUpDown_Test_VacVdc)).EndInit();
+            ((System.ComponentModel.ISupportInitialize)(this.numericUpDown_TestC5)).EndInit();
             this.ResumeLayout(false);
 
         }
@@ -249,5 +278,7 @@
         private System.Windows.Forms.Button buttonAllOff;
         public System.Windows.Forms.NumericUpDown numericUpDown_Test_VacVdc;
         private System.Windows.Forms.Label labelTest_VacVdc;
+        public System.Windows.Forms.NumericUpDown numericUpDown_TestC5;
+        private System.Windows.Forms.Label labelTestC5;
     }
 }

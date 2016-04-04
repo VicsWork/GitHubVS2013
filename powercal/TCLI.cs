@@ -327,6 +327,10 @@ namespace PowerCalibration
             }
         }
 
+        /// <summary>
+        /// Inputs a blank line and waits for the prompt
+        /// </summary>
+        /// <param name="telnet_connection"></param>
         public static void Wait_For_Prompt(TelnetConnection telnet_connection)
         {
             telnet_connection.Read();
@@ -343,10 +347,39 @@ namespace PowerCalibration
 
             if (!data.Contains('>'))
             {
-                throw new Exception( 
-                    string.Format("Telnet session prompt not detected" ) );
+                throw new Exception("Telnet session prompt not detected");
+            }
+        }
+
+        /// <summary>
+        /// Sends a command and waits for specific message to be returned
+        /// </summary>
+        /// <param name="telnet_connection"></param>
+        /// <param name="command"></param>
+        /// <param name="expected_data"></param>
+        /// <param name="retry_count"></param>
+        /// <param name="delay_ms"></param>
+        public static void Wait_For_String(TelnetConnection telnet_connection, string command, string expected_data, int retry_count = 3, int delay_ms=100)
+        {
+            telnet_connection.Read();
+            int n = 0;
+            string data = "";
+            while (n < retry_count)
+            {
+                telnet_connection.WriteLine(command);
+                Thread.Sleep(delay_ms);
+                data = telnet_connection.Read();
+                if (data.Contains(expected_data))
+                    break;
+                n++;
             }
 
+            if (!data.Contains(expected_data))
+            {
+                string msg = string.Format("Telnet session data not detected after command \"{0}\".  Expected: \"{1}\". Received: \"{2}\"",
+                    command, expected_data, data);
+                throw new Exception(msg);
+            }
         }
 
     }

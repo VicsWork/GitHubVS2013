@@ -19,10 +19,34 @@ namespace PowerCalibration
         public delegate void StatusHandler(object sender, string status_txt);
         public event StatusHandler Status_Event;
 
+        public delegate void RunStatusHandler(object sender, string status_txt);
+        public event RunStatusHandler Run_Status_Event;
+
         public RelayControler JigRelayController { get { return _jig_relay_ctrl; } set { _jig_relay_ctrl = value; } }
         public MultiMeter MultiMeter { get { return _meter; } set { _meter = value; } }
 
         public enum Relay { Continuity = 0, Capacitor, Resistor};
+
+        /// <summary>
+        /// Runs all tests
+        /// </summary>
+        public void Run_Tests(CancellationToken cancel)
+        {
+            if (cancel.IsCancellationRequested) return;
+            string msg = string.Format("Verify LASER");
+            fire_run_status(msg);
+            VerifyLaser();
+
+            if (cancel.IsCancellationRequested) return;
+            msg = "Verify Door Relay Continuity";
+            fire_run_status(msg);
+            Verify_DoorRelay_Continuity();
+
+            if (cancel.IsCancellationRequested) return;
+            msg = "Verify Capacitive Relay";
+            fire_run_status(msg);
+            Verify_Capacitance();
+        }
 
         public Tests_Honeycomb(RelayControler jig_relay_controller, MultiMeter multi_meter, TelnetConnection telnet_connection)
         {
@@ -40,7 +64,7 @@ namespace PowerCalibration
                 _jig_relay_ctrl = new RelayControler(RelayControler.Device_Types.FT232H);
             }
 
-            if(_telnet_conn == null || !_telnet_conn.IsConnected)
+            if(_telnet_conn == null)
             {
                 _telnet_conn = new TelnetConnection(Properties.Settings.Default.Ember_Interface_IP_Address, 4900);
             }
@@ -127,6 +151,9 @@ namespace PowerCalibration
 
         }
 
+        /// <summary>
+        /// Verifies the Capacitor relay
+        /// </summary>
         public void Verify_Capacitance()
         {
 
@@ -180,6 +207,31 @@ namespace PowerCalibration
                 Set_UUT_Relay_State(Tests_Honeycomb.Relay.Capacitor, false);
             }
 
+        }
+
+        /// <summary>
+        /// Verifies the LASER circuit
+        /// </summary>
+        public void VerifyLaser()
+        {
+            string msg = string.Format("Apply LASER signal");
+            fire_status(msg);
+            _jig_relay_ctrl.WriteLine(5, true);
+            Thread.Sleep(500);
+
+            TCLI.Wait_For_Prompt(_telnet_conn);
+            msg = string.Format("Detect Laser is available");
+            fire_status(msg);
+            TCLI.Wait_For_String(_telnet_conn, "cu isLaserConnected", "Laser is available");
+
+            msg = string.Format("Remove LASER signal");
+            fire_status(msg);
+            _jig_relay_ctrl.WriteLine(5, false);
+            Thread.Sleep(500);
+
+            msg = string.Format("Detect Laser is NOT available");
+            fire_status(msg);
+            TCLI.Wait_For_String(_telnet_conn, "cu isLaserConnected", "Laser is NOT available");
 
         }
 
@@ -192,6 +244,13 @@ namespace PowerCalibration
             }
         }
 
+        void fire_run_status(string msg)
+        {
+            if (Run_Status_Event != null)
+            {
+                Run_Status_Event(this, msg);
+            }
+        }
 
     }
 }

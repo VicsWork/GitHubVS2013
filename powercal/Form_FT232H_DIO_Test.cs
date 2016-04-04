@@ -56,6 +56,11 @@ namespace PowerCalibration
             numericUpDown_Test_VacVdc.Tag = linenum;
             numericUpDown_Test_VacVdc.Value = Convert.ToDecimal(_relayCtrl.ReadLine(linenum));
 
+            linenum = 5;
+            labelTestC5.Text += string.Format("({0})", linenum);
+            numericUpDown_TestC5.Tag = linenum;
+            numericUpDown_TestC5.Value = Convert.ToDecimal(_relayCtrl.ReadLine(linenum));
+
             updateLineValues();
         }
 
@@ -87,6 +92,11 @@ namespace PowerCalibration
                 }
                 catch { }
             }
+        }
+
+        private void labelVacVdc_Click(object sender, EventArgs e)
+        {
+
         }
     }
 }

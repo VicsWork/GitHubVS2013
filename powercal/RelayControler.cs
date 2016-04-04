@@ -346,6 +346,12 @@ namespace PowerCalibration
                 }
             }
 
+            if (name == null)
+            {
+                name = string.Format("C{0}", linenum);
+                _dic_lines.Add(name, linenum);
+            }
+
             return name;
 
         }

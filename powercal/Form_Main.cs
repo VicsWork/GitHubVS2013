@@ -46,6 +46,8 @@ namespace PowerCalibration
         string _calibration_error_msg = null;  //  If set this will indicate the calibration error
         string _coding_error_msg;  //  If set this will indicate the coding error
         string _pretest_error_msg;  //  If set this will indicate the pretest error
+        string _test_error_msg;  //  If set this will indicate error for tests usually run after calibration
+
 
         Task _task_uut;
         CancellationTokenSource _cancel_token_uut = new CancellationTokenSource();  // Used to cancel coding
@@ -70,50 +72,6 @@ namespace PowerCalibration
         DataTable _datatable_calibrate;
         uint _db_total_written = 0;
         Tuple<int, int> _site_machine_id;
-
-
-        private void button1_Click(object sender, EventArgs e)
-        {
-            try
-            {
-                _relay_ctrl.OpenIfClosed();
-                _relay_ctrl.WriteLine(Relay_Lines.Ember, true);
-                _relay_ctrl.WriteLine(Relay_Lines.Power, true);
-                Thread.Sleep(1000);
-
-                if (_telnet_connection == null || !_telnet_connection.IsConnected)
-                {
-                    _telnet_connection = new TelnetConnection(Properties.Settings.Default.Ember_Interface_IP_Address, 4900);
-                }
-
-
-                Tests_Honeycomb hct = new Tests_Honeycomb(_relay_ctrl, _meter, _telnet_connection);
-                hct.Status_Event += hct_Status_Event;
-
-
-                updateOutputStatus("Verify Door Relay Continuity");
-                hct.Verify_DoorRelay_Continuity();
-
-                updateOutputStatus("Verify Capacitive Relay");
-                hct.Verify_Capacitance();
-
-            }
-            finally
-            {
-                if (_telnet_connection != null)
-                {
-                    _telnet_connection.Close();
-                }
-                _relay_ctrl.WriteAll(false);
-                _relay_ctrl.Close();
-            }
-
-        }
-
-        void hct_Status_Event(object sender, string status_txt)
-        {
-            updateOutputStatus(status_txt);
-        }
 
         /// <summary>
         /// The main form constructor
@@ -1479,6 +1437,11 @@ namespace PowerCalibration
             //clear calibrate after code
             _calibrate_after_code = false;
 
+
+            //for debug
+            //calibration_done();
+            //return;
+
             // Run the calibration
             Calibrate calibrate = new Calibrate(); // Calibration object
             calibrate.Status_Event += calibrate_Status_event;
@@ -1499,6 +1462,15 @@ namespace PowerCalibration
                 calibration_done_handler, TaskContinuationOptions.OnlyOnRanToCompletion);
             _task_uut.Start();
 
+        }
+
+        void close_telnet()
+        {
+            if (_telnet_connection != null)
+            {
+                TraceLogger.Log("Close telnet");
+                _telnet_connection.Close();
+            }
         }
 
         /// <summary>
@@ -1536,11 +1508,7 @@ namespace PowerCalibration
             if (_ember.Interface == Ember.Interfaces.USB)
                 _ember.CloseISAChannels();
 
-            if (_telnet_connection != null)
-            {
-                TraceLogger.Log("Close telnet");
-                _telnet_connection.Close();
-            }
+            close_telnet();
 
             // Stop running watch and report time lapse
             _stopwatch_running.Stop();
@@ -1554,6 +1522,16 @@ namespace PowerCalibration
             setEnablement(true, false);
 
             updateOutputStatus("End Calibration".PadBoth(80, '-'));
+
+            // Run other tests if not error
+            if (_calibration_error_msg == null)
+            {
+                if (getSelectedBoardType() == BoardTypes.Honeycomb)
+                {
+                    _telnet_connection = new TelnetConnection(Properties.Settings.Default.Ember_Interface_IP_Address, 4900);
+                    hct_Run_Tests();
+                }
+            }
         }
 
         /// <summary>
@@ -1607,6 +1585,118 @@ namespace PowerCalibration
         {
             updateRunStatus(status_txt);
         }
+
+        void hct_Run_Tests()
+        {
+            try
+            {
+                // Disable the app
+                setEnablement(false, false);
+                // Clear error message
+                _test_error_msg = null;
+
+                setRunStatus("Start Honeycomb Tests", Color.Black, Color.White);
+                updateOutputStatus("Start Honeycomb Tests".PadBoth(80, '-'));
+
+                // Open relay controller and make sure power and ember are on
+                _relay_ctrl.OpenIfClosed();
+                _relay_ctrl.WriteLine(Relay_Lines.Ember, true);
+                _relay_ctrl.WriteLine(Relay_Lines.Power, true);
+                relaysSet();
+
+                Thread.Sleep(1000);
+
+                // Start the telnet session
+                if (_telnet_connection == null)
+                {
+                    _telnet_connection = new TelnetConnection(Properties.Settings.Default.Ember_Interface_IP_Address, 4900);
+                }
+
+                Tests_Honeycomb hct = new Tests_Honeycomb(_relay_ctrl, _meter, _telnet_connection);
+                hct.Status_Event += hct_Status_Event;
+                hct.Run_Status_Event += hct_Run_Status_Event;
+
+                _cancel_token_uut = new CancellationTokenSource();
+                _task_uut = new Task(() => hct.Run_Tests(_cancel_token_uut.Token), _cancel_token_uut.Token);
+                _task_uut.ContinueWith(
+                    hct_exception_handler, TaskContinuationOptions.OnlyOnFaulted);
+                _task_uut.ContinueWith(
+                    hct_done_handler, TaskContinuationOptions.OnlyOnRanToCompletion);
+                _task_uut.Start();
+
+            }
+            catch(Exception ex)
+            {
+                _test_error_msg = ex.Message;
+                htc_done();
+            }
+        }
+
+        void hct_Status_Event(object sender, string status_txt)
+        {
+            updateOutputStatus(status_txt);
+        }
+
+        void hct_exception_handler(Task task)
+        {
+            var exception = task.Exception;
+            string errmsg = exception.InnerException.Message;
+
+            _test_error_msg = errmsg;
+            htc_done();
+        }
+
+        void hct_done_handler(Task task)
+        {
+            htc_done();
+        }
+
+        void htc_done()
+        {
+            try
+            {
+                power_off();
+            }
+            catch (Exception ex)
+            {
+                updateOutputStatus("Power off exception:" + ex.Message);
+            }
+
+            // Check PASS or FAIL
+            if (_test_error_msg == null)
+            {
+                updateRunStatus("PASS", Color.White, Color.Green);
+
+            }
+            else
+            {
+                if (_meter != null)
+                {
+                    _meter.CloseSerialPort();
+                }
+
+                updateRunStatus("FAIL", Color.White, Color.Red);
+                updateOutputStatus(_test_error_msg);
+            }
+
+            close_telnet();
+
+            // Stop running watch and report time lapse
+            _stopwatch_running.Stop();
+            string elapsedTime = String.Format("Elapsed time {0:00} seconds", _stopwatch_running.Elapsed.TotalSeconds);
+            updateOutputStatus(elapsedTime);
+            _stopwatch_running.Reset();
+
+            setEnablement(true, false);
+
+            updateOutputStatus("End Honeycomb tests".PadBoth(80, '-'));
+        }
+
+        void hct_Run_Status_Event(object sender, string status_txt)
+        {
+            updateRunStatus(status_txt);
+        }
+
 
         /// <summary>
         /// Updates GUI with info
@@ -1846,7 +1936,6 @@ namespace PowerCalibration
 
         private void buttonRecode_Click(object sender, EventArgs e)
         {
-
             this.textBoxOutputStatus.Clear();
             runStatus_Init();
 
