@@ -17,8 +17,8 @@ namespace PowerCalibration
         TelnetConnection _telnet_conn;
 
 
-        const uint _testx4a_vacdc_relay_linenum = 4;
-        const uint _testlaser_relay_linenum = 5;
+        const uint _test_x4a_vacdc_relay_linenum = 4;
+        const uint _test_laser_relay_linenum = 5;
 
         public bool _init_testx4a_relay = true;  // Indicates to set relay that controls meter to VAC_VDC relay or to Test X4A port
         public bool _init_meter = true;  // Indicates whether the meter needs to be initialize
@@ -104,7 +104,7 @@ namespace PowerCalibration
                 close_meter();
 
                 _init_testx4a_relay = true;
-                _jig_relay_ctrl.WriteLine(_testx4a_vacdc_relay_linenum, false);
+                _jig_relay_ctrl.WriteLine(_test_x4a_vacdc_relay_linenum, false);
             }
 
         }
@@ -138,7 +138,7 @@ namespace PowerCalibration
         {
             if (_init_testx4a_relay)
             {
-                _jig_relay_ctrl.WriteLine(_testx4a_vacdc_relay_linenum, true);
+                _jig_relay_ctrl.WriteLine(_test_x4a_vacdc_relay_linenum, true);
             }
         }
 
@@ -286,7 +286,7 @@ namespace PowerCalibration
         {
             string msg = string.Format("Apply LASER signal");
             fire_status(msg);
-            _jig_relay_ctrl.WriteLine(_testlaser_relay_linenum, true);
+            _jig_relay_ctrl.WriteLine(_test_laser_relay_linenum, true);
             Thread.Sleep(500);
 
             TCLI.Wait_For_Prompt(_telnet_conn);
@@ -296,7 +296,7 @@ namespace PowerCalibration
 
             msg = string.Format("Remove LASER signal");
             fire_status(msg);
-            _jig_relay_ctrl.WriteLine(_testlaser_relay_linenum, false);
+            _jig_relay_ctrl.WriteLine(_test_laser_relay_linenum, false);
             Thread.Sleep(500);
 
             msg = string.Format("Detect Laser is NOT available");
