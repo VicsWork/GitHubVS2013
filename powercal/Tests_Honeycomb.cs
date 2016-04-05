@@ -16,6 +16,16 @@ namespace PowerCalibration
         MultiMeter _meter;
         TelnetConnection _telnet_conn;
 
+
+        const uint _testx4a_vacdc_relay_linenum = 4;
+        const uint _testlaser_relay_linenum = 5;
+
+        public bool _init_testx4a_relay = true;  // Indicates to set relay that controls meter to VAC_VDC relay or to Test X4A port
+        public bool _init_meter = true;  // Indicates whether the meter needs to be initialize
+
+        public bool _enable_resistor_test = false;
+
+
         public delegate void StatusHandler(object sender, string status_txt);
         public event StatusHandler Status_Event;
 
@@ -27,27 +37,13 @@ namespace PowerCalibration
 
         public enum Relay { Continuity = 0, Capacitor, Resistor};
 
+
         /// <summary>
-        /// Runs all tests
+        /// Constructor
         /// </summary>
-        public void Run_Tests(CancellationToken cancel)
-        {
-            if (cancel.IsCancellationRequested) return;
-            string msg = string.Format("Verify LASER");
-            fire_run_status(msg);
-            VerifyLaser();
-
-            if (cancel.IsCancellationRequested) return;
-            msg = "Verify Door Relay Continuity";
-            fire_run_status(msg);
-            Verify_DoorRelay_Continuity();
-
-            if (cancel.IsCancellationRequested) return;
-            msg = "Verify Capacitive Relay";
-            fire_run_status(msg);
-            Verify_Capacitance();
-        }
-
+        /// <param name="jig_relay_controller"></param>
+        /// <param name="multi_meter"></param>
+        /// <param name="telnet_connection"></param>
         public Tests_Honeycomb(RelayControler jig_relay_controller, MultiMeter multi_meter, TelnetConnection telnet_connection)
         {
             _jig_relay_ctrl = jig_relay_controller;
@@ -68,7 +64,82 @@ namespace PowerCalibration
             {
                 _telnet_conn = new TelnetConnection(Properties.Settings.Default.Ember_Interface_IP_Address, 4900);
             }
+        }
 
+        /// <summary>
+        /// Runs all tests
+        /// </summary>
+        public void Run_Tests(CancellationToken cancel)
+        {
+            if (cancel.IsCancellationRequested) return;
+
+            _init_meter = true;
+            init_meter();
+            _init_meter = false;
+
+            _init_testx4a_relay = true;
+            init_relay_testx4a();
+            _init_testx4a_relay = false;
+
+            try
+            {
+                if (cancel.IsCancellationRequested) return;
+                string msg = string.Format("Verify LASER");
+                fire_run_status(msg);
+                VerifyLaser();
+
+                if (cancel.IsCancellationRequested) return;
+                msg = "Verify Door Relay Continuity";
+                fire_run_status(msg);
+                Verify_DoorRelay_Continuity();
+
+                if (cancel.IsCancellationRequested) return;
+                msg = "Verify Capacitive Relay";
+                fire_run_status(msg);
+                Verify_Capacitance();
+            }
+            finally
+            {
+                _init_meter = true;
+                close_meter();
+
+                _init_testx4a_relay = true;
+                _jig_relay_ctrl.WriteLine(_testx4a_vacdc_relay_linenum, false);
+            }
+
+        }
+
+        /// <summary>
+        /// Use to setup the meter if _init_meter is set
+        /// </summary>
+        void init_meter()
+        {
+            if (_init_meter)
+            {
+                _meter.Init();
+                _meter.SetToRemote();
+                _meter.ClearError();
+            }
+        }
+
+        /// <summary>
+        /// Use to close the meter when no longer needed if _init_meter is set
+        /// </summary>
+        void close_meter()
+        {
+            if (_init_meter)
+            {
+                _meter.CloseSerialPort();
+            }
+
+        }
+
+        void init_relay_testx4a()
+        {
+            if (_init_testx4a_relay)
+            {
+                _jig_relay_ctrl.WriteLine(_testx4a_vacdc_relay_linenum, true);
+            }
         }
 
         /// <summary>
@@ -80,7 +151,6 @@ namespace PowerCalibration
         public void Set_UUT_Relay_State(Relay relay_num, bool close_open)
         {
             string cmd = "cu finaltest ";
-
             int num = (int)relay_num;
 
             if (close_open)
@@ -103,12 +173,11 @@ namespace PowerCalibration
             double max_short = 0.01;  // We usually get 0.00030000
             double max_open = 9.9; // usually 9.9999
 
-            _jig_relay_ctrl.WriteLine(Relay_Lines.TestRelays_VacVdc, true);
-            _meter.Init();
+            init_relay_testx4a();
+            init_meter();
+
             try
             {
-                _meter.SetToRemote();
-                _meter.ClearError();
                 _meter.SetupForContinuity();
 
                 Set_UUT_Relay_State(Tests_Honeycomb.Relay.Continuity, true);
@@ -146,7 +215,7 @@ namespace PowerCalibration
             }
             finally
             {
-                _meter.CloseSerialPort();
+                close_meter();
             }
 
         }
@@ -156,15 +225,11 @@ namespace PowerCalibration
         /// </summary>
         public void Verify_Capacitance()
         {
+            init_relay_testx4a();
+            init_meter();
 
-            _jig_relay_ctrl.WriteLine(Relay_Lines.TestRelays_VacVdc, true);
-
-            _meter.Init();
             try
             {
-                _meter.SetToRemote();
-                _meter.ClearError();
-
                 int multiplier = 1000;
                 _meter.SetupForCapacitance(5*multiplier);
 
@@ -203,10 +268,15 @@ namespace PowerCalibration
             }
             finally
             {
-                _meter.CloseSerialPort();
+                close_meter();
                 Set_UUT_Relay_State(Tests_Honeycomb.Relay.Capacitor, false);
             }
 
+        }
+
+        public void Verify_Resitance() 
+        {
+            init_relay_testx4a();
         }
 
         /// <summary>
@@ -216,7 +286,7 @@ namespace PowerCalibration
         {
             string msg = string.Format("Apply LASER signal");
             fire_status(msg);
-            _jig_relay_ctrl.WriteLine(5, true);
+            _jig_relay_ctrl.WriteLine(_testlaser_relay_linenum, true);
             Thread.Sleep(500);
 
             TCLI.Wait_For_Prompt(_telnet_conn);
@@ -226,13 +296,12 @@ namespace PowerCalibration
 
             msg = string.Format("Remove LASER signal");
             fire_status(msg);
-            _jig_relay_ctrl.WriteLine(5, false);
+            _jig_relay_ctrl.WriteLine(_testlaser_relay_linenum, false);
             Thread.Sleep(500);
 
             msg = string.Format("Detect Laser is NOT available");
             fire_status(msg);
             TCLI.Wait_For_String(_telnet_conn, "cu isLaserConnected", "Laser is NOT available");
-
         }
 
 

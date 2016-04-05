@@ -31,6 +31,8 @@
             this.channelParametersGroupBox = new System.Windows.Forms.GroupBox();
             this.Label_physicalChannel = new System.Windows.Forms.Label();
             this.groupBoxDIOLines = new System.Windows.Forms.GroupBox();
+            this.numericUpDown_TestC5 = new System.Windows.Forms.NumericUpDown();
+            this.labelTestC5 = new System.Windows.Forms.Label();
             this.numericUpDown_Test_VacVdc = new System.Windows.Forms.NumericUpDown();
             this.labelTest_VacVdc = new System.Windows.Forms.Label();
             this.NumericUpDown_ACPower = new System.Windows.Forms.NumericUpDown();
@@ -42,16 +44,14 @@
             this.NumericUpDown_Load = new System.Windows.Forms.NumericUpDown();
             this.labelACPower = new System.Windows.Forms.Label();
             this.buttonAllOff = new System.Windows.Forms.Button();
-            this.numericUpDown_TestC5 = new System.Windows.Forms.NumericUpDown();
-            this.labelTestC5 = new System.Windows.Forms.Label();
             this.channelParametersGroupBox.SuspendLayout();
             this.groupBoxDIOLines.SuspendLayout();
+            ((System.ComponentModel.ISupportInitialize)(this.numericUpDown_TestC5)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.numericUpDown_Test_VacVdc)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.NumericUpDown_ACPower)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.numericUpDown_VacVdc)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.NumericUpDown_Ember)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.NumericUpDown_Load)).BeginInit();
-            ((System.ComponentModel.ISupportInitialize)(this.numericUpDown_TestC5)).BeginInit();
             this.SuspendLayout();
             // 
             // channelParametersGroupBox
@@ -95,6 +95,28 @@
             this.groupBoxDIOLines.TabStop = false;
             this.groupBoxDIOLines.Text = "DIO Line Values";
             // 
+            // numericUpDown_TestC5
+            // 
+            this.numericUpDown_TestC5.Location = new System.Drawing.Point(221, 71);
+            this.numericUpDown_TestC5.Maximum = new decimal(new int[] {
+            1,
+            0,
+            0,
+            0});
+            this.numericUpDown_TestC5.Name = "numericUpDown_TestC5";
+            this.numericUpDown_TestC5.Size = new System.Drawing.Size(31, 20);
+            this.numericUpDown_TestC5.TabIndex = 15;
+            this.numericUpDown_TestC5.ValueChanged += new System.EventHandler(this.numericUpDown_ValueChanged);
+            // 
+            // labelTestC5
+            // 
+            this.labelTestC5.AutoSize = true;
+            this.labelTestC5.Location = new System.Drawing.Point(129, 71);
+            this.labelTestC5.Name = "labelTestC5";
+            this.labelTestC5.Size = new System.Drawing.Size(41, 13);
+            this.labelTestC5.TabIndex = 16;
+            this.labelTestC5.Text = "TestC5";
+            // 
             // numericUpDown_Test_VacVdc
             // 
             this.numericUpDown_Test_VacVdc.Location = new System.Drawing.Point(221, 37);
@@ -113,9 +135,9 @@
             this.labelTest_VacVdc.AutoSize = true;
             this.labelTest_VacVdc.Location = new System.Drawing.Point(129, 37);
             this.labelTest_VacVdc.Name = "labelTest_VacVdc";
-            this.labelTest_VacVdc.Size = new System.Drawing.Size(64, 13);
+            this.labelTest_VacVdc.Size = new System.Drawing.Size(41, 13);
             this.labelTest_VacVdc.TabIndex = 14;
-            this.labelTest_VacVdc.Text = "Test/Vacdc";
+            this.labelTest_VacVdc.Text = "TestC4";
             // 
             // NumericUpDown_ACPower
             // 
@@ -151,7 +173,6 @@
             this.labelVacVdc.Size = new System.Drawing.Size(50, 13);
             this.labelVacVdc.TabIndex = 12;
             this.labelVacVdc.Text = "Vac/Vdc";
-            this.labelVacVdc.Click += new System.EventHandler(this.labelVacVdc_Click);
             // 
             // labelEmber
             // 
@@ -216,28 +237,6 @@
             this.buttonAllOff.UseVisualStyleBackColor = true;
             this.buttonAllOff.Click += new System.EventHandler(this.buttonAllOff_Click);
             // 
-            // numericUpDown_TestC5
-            // 
-            this.numericUpDown_TestC5.Location = new System.Drawing.Point(221, 71);
-            this.numericUpDown_TestC5.Maximum = new decimal(new int[] {
-            1,
-            0,
-            0,
-            0});
-            this.numericUpDown_TestC5.Name = "numericUpDown_TestC5";
-            this.numericUpDown_TestC5.Size = new System.Drawing.Size(31, 20);
-            this.numericUpDown_TestC5.TabIndex = 15;
-            this.numericUpDown_TestC5.ValueChanged += new System.EventHandler(this.numericUpDown_ValueChanged);
-            // 
-            // labelTestC5
-            // 
-            this.labelTestC5.AutoSize = true;
-            this.labelTestC5.Location = new System.Drawing.Point(129, 71);
-            this.labelTestC5.Name = "labelTestC5";
-            this.labelTestC5.Size = new System.Drawing.Size(44, 13);
-            this.labelTestC5.TabIndex = 16;
-            this.labelTestC5.Text = "Test C5";
-            // 
             // Form_FT232H_DIO_Test
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
@@ -252,12 +251,12 @@
             this.channelParametersGroupBox.ResumeLayout(false);
             this.groupBoxDIOLines.ResumeLayout(false);
             this.groupBoxDIOLines.PerformLayout();
+            ((System.ComponentModel.ISupportInitialize)(this.numericUpDown_TestC5)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this.numericUpDown_Test_VacVdc)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this.NumericUpDown_ACPower)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this.numericUpDown_VacVdc)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this.NumericUpDown_Ember)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this.NumericUpDown_Load)).EndInit();
-            ((System.ComponentModel.ISupportInitialize)(this.numericUpDown_TestC5)).EndInit();
             this.ResumeLayout(false);
 
         }

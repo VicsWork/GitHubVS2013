@@ -359,9 +359,10 @@ namespace PowerCalibration
                 _relay_ctrl = new RelayControler(rdevtype);
 
 
-                // In this version we are adding a new line for Honeycomb
+                // In this version we are adding a new lines for Honeycomb
                 // So lets refresh the file as to not to have conflicts with older versions
                 // Should not cause any problems unless someone rewired the relay controller
+                _relay_ctrl.ClearDictionaries();
                 _relay_ctrl.RecreateSettingsFile();
 
                 _relay_ctrl.Open();
@@ -412,9 +413,6 @@ namespace PowerCalibration
                 _relay_ctrl.DicLines_AddLine(Relay_Lines.Load, 1);
                 _relay_ctrl.DicLines_AddLine(Relay_Lines.Ember, 2);
                 _relay_ctrl.DicLines_AddLine(Relay_Lines.Vac_Vdc, 3);
-
-                // Only use on Honeycomb
-                _relay_ctrl.DicLines_AddLine(Relay_Lines.TestRelays_VacVdc, 4);
 
                 _relay_ctrl.DicLines_SaveSettings();
             }
@@ -952,6 +950,17 @@ namespace PowerCalibration
             Properties.Settings.Default.Save();
 
             updateRunStatus("Ready for " + comboBoxBoardTypes.Text);
+
+            // Only use on Honeycomb
+            //if (_relay_ctrl != null && getSelectedBoardType() == BoardTypes.Honeycomb)
+            //{
+            //    string key = "TestX4A";
+            //    if ( !_relay_ctrl.Dictionary_Lines.ContainsKey(key) )
+            //    {
+            //        _relay_ctrl.DicLines_AddLine(key, 4);
+            //    }
+            //}
+
         }
 
         /// <summary>
@@ -1212,7 +1221,9 @@ namespace PowerCalibration
             _relay_ctrl.WriteLine(Relay_Lines.Ember, false);
             _relay_ctrl.WriteLine(Relay_Lines.Load, false);
             _relay_ctrl.WriteLine(Relay_Lines.Power, true);
-            _relay_ctrl.WriteLine(Relay_Lines.TestRelays_VacVdc, false);
+            if(getSelectedBoardType() == BoardTypes.Honeycomb){
+                _relay_ctrl.WriteLine(4, false);
+            }
 
             if (!Properties.Settings.Default.PrePost_Test_Enabled)
             {
@@ -2012,15 +2023,11 @@ namespace PowerCalibration
         static string _key_load = "Load";
         static string _key_ember = "Ember";
         static string _key_vac_or_vdc = "VacVdc";
-        static string _key_relaytest_vacvdc = "Relaytest_VacVdc";
 
         public static string Power { get { return _key_acPower; } }
         public static string Load { get { return _key_load; } }
         public static string Ember { get { return _key_ember; } }
         public static string Vac_Vdc { get { return _key_vac_or_vdc; } }
-
-        // Honeycomb
-        public static string TestRelays_VacVdc { get { return _key_relaytest_vacvdc; } }
 
     }
 

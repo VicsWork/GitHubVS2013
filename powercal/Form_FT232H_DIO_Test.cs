@@ -51,7 +51,12 @@ namespace PowerCalibration
             numericUpDown_VacVdc.Tag = linenum;
             numericUpDown_VacVdc.Value = Convert.ToDecimal(_relayCtrl.ReadLine(linenum));
 
-            linenum = lines[PowerCalibration.Relay_Lines.TestRelays_VacVdc];
+            Dictionary<string, uint> relay_lines = _relayCtrl.Dictionary_Lines;
+            linenum = 4;
+            //if(_relayCtrl.Dictionary_Lines.Count > linenum){
+
+            //    labelTest_VacVdc.Text = relay_lines.ElementAt((int)linenum).Key;
+            //}
             labelTest_VacVdc.Text += string.Format("({0})", linenum);
             numericUpDown_Test_VacVdc.Tag = linenum;
             numericUpDown_Test_VacVdc.Value = Convert.ToDecimal(_relayCtrl.ReadLine(linenum));
@@ -92,11 +97,6 @@ namespace PowerCalibration
                 }
                 catch { }
             }
-        }
-
-        private void labelVacVdc_Click(object sender, EventArgs e)
-        {
-
         }
     }
 }

@@ -72,6 +72,15 @@ namespace PowerCalibration
         }
 
         /// <summary>
+        /// Clears all dictionaries
+        /// </summary>
+        public void ClearDictionaries()
+        {
+            _dic_lines.Clear();
+            _dic_values.Clear();
+        }
+
+        /// <summary>
         /// Read line settings from file
         /// </summary>
         /// <returns></returns>
