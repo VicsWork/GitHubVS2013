@@ -159,7 +159,6 @@ namespace PowerCalibration
 
             // Init the db connection string
             _db_connect_str = new SqlConnectionStringBuilder(Properties.Settings.Default.DBConnectionString);
-
             _db_Loging = Properties.Settings.Default.DB_Loging_Enabled;
             if (isDBLogingEnabled())
             {
@@ -527,9 +526,24 @@ namespace PowerCalibration
                 comboBoxBoardTypes.Enabled = enable;
                 menuStripMain.Enabled = enable;
 
+                setTestButtonEnablement(enable);
+
                 setCodeEnablement(enable, isCoding);
 
                 setButtonsVisible();
+            }
+        }
+
+        void setTestButtonEnablement(bool enable)
+        {
+
+            if (getSelectedBoardType() == BoardTypes.Honeycomb)
+            {
+                this.buttonTest.Enabled = enable;
+            }
+            else
+            {
+                this.buttonTest.Enabled = false;
             }
         }
 
@@ -950,6 +964,8 @@ namespace PowerCalibration
             Properties.Settings.Default.Save();
 
             updateRunStatus("Ready for " + comboBoxBoardTypes.Text);
+
+            setTestButtonEnablement(true);
 
             // Only use on Honeycomb
             //if (_relay_ctrl != null && getSelectedBoardType() == BoardTypes.Honeycomb)
@@ -2009,6 +2025,11 @@ namespace PowerCalibration
                 }
                 return System.IO.Path.GetFileNameWithoutExtension(Assembly.GetExecutingAssembly().CodeBase);
             }
+        }
+
+        private void buttonTest_Click(object sender, EventArgs e)
+        {
+            hct_Run_Tests();
         }
 
     }

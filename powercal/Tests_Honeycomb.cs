@@ -4,6 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using System.Threading;
+using System.Text.RegularExpressions;
 
 using MinimalisticTelnet;
 
@@ -83,6 +84,13 @@ namespace PowerCalibration
 
             try
             {
+
+                int id = getSensorId();
+                if (id > 0)
+                {
+                    //TCLI.Wait_For_Prompt
+                }
+
                 if (cancel.IsCancellationRequested) return;
                 string msg = string.Format("Verify LASER");
                 fire_run_status(msg);
@@ -304,6 +312,14 @@ namespace PowerCalibration
             TCLI.Wait_For_String(_telnet_conn, "cu isLaserConnected", "Laser is NOT available");
         }
 
+
+        int getSensorId()
+        {
+            Match m = TCLI.Wait_For_Match(_telnet_conn, "cu si4355 readSensorId", "Current si4355 Sensor ID: ([0-9,A-F]+)");
+            string idstr = m.Groups[1].Value;
+            int id = Convert.ToInt32(idstr, 16);
+            return id;
+        }
 
         void fire_status(string msg)
         {

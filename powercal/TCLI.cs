@@ -331,21 +331,28 @@ namespace PowerCalibration
         /// Inputs a blank line and waits for the prompt
         /// </summary>
         /// <param name="telnet_connection"></param>
-        public static void Wait_For_Prompt(TelnetConnection telnet_connection)
+        /// <param name="prompt">The expected prompt.  Default '>'</param>
+        /// <param name="sendEnter">Whether to send CR before waiting</param>
+        /// <param name="retry_count">The max number of times that we read the session looking for the prompt</param>
+        public static void Wait_For_Prompt(TelnetConnection telnet_connection, string prompt = ">", bool sendEnter = true, int retry_count = 3)
         {
             telnet_connection.Read();
             int n = 0;
             string data = "";
-            while (n < 3)
+            while (n < retry_count)
             {
-                telnet_connection.WriteLine("");
+                if (sendEnter)
+                {
+                    telnet_connection.WriteLine("");
+                }
+
                 data = telnet_connection.Read();
-                if (data.Contains('>'))
+                if (data.Contains(prompt))
                     break;
                 n++;
             }
 
-            if (!data.Contains('>'))
+            if (!data.Contains(prompt))
             {
                 throw new Exception("Telnet session prompt not detected");
             }
@@ -359,7 +366,7 @@ namespace PowerCalibration
         /// <param name="expected_data"></param>
         /// <param name="retry_count"></param>
         /// <param name="delay_ms"></param>
-        public static void Wait_For_String(TelnetConnection telnet_connection, string command, string expected_data, int retry_count = 3, int delay_ms=100)
+        public static string Wait_For_String(TelnetConnection telnet_connection, string command, string expected_data, int retry_count = 3, int delay_ms = 100)
         {
             telnet_connection.Read();
             int n = 0;
@@ -380,7 +387,40 @@ namespace PowerCalibration
                     command, expected_data, data);
                 throw new Exception(msg);
             }
+
+            return data;
         }
+
+        public static Match Wait_For_Match(TelnetConnection telnet_connection, string command, string pattern, int retry_count = 3, int delay_ms = 100)
+        {
+            telnet_connection.Read();
+            int n = 0;
+            string data = "";
+
+            Match match;
+
+            while (n < retry_count)
+            {
+                telnet_connection.WriteLine(command);
+
+                Thread.Sleep(delay_ms);
+                data = telnet_connection.Read();
+
+                match = Regex.Match(data, pattern);
+
+                if (match.Success)
+                {
+                    return match;
+                }
+
+                n++;
+            }
+
+            string msg = string.Format("Telnet session data not match found after command \"{0}\".  Expected: \"{1}\". Received: \"{2}\"",
+                command, pattern, data);
+            throw new Exception(msg);
+        }
+
 
     }
 }

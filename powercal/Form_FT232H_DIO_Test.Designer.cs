@@ -44,6 +44,8 @@
             this.NumericUpDown_Load = new System.Windows.Forms.NumericUpDown();
             this.labelACPower = new System.Windows.Forms.Label();
             this.buttonAllOff = new System.Windows.Forms.Button();
+            this.numericUpDown_TestC6 = new System.Windows.Forms.NumericUpDown();
+            this.labelTestC6 = new System.Windows.Forms.Label();
             this.channelParametersGroupBox.SuspendLayout();
             this.groupBoxDIOLines.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.numericUpDown_TestC5)).BeginInit();
@@ -52,6 +54,7 @@
             ((System.ComponentModel.ISupportInitialize)(this.numericUpDown_VacVdc)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.NumericUpDown_Ember)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.NumericUpDown_Load)).BeginInit();
+            ((System.ComponentModel.ISupportInitialize)(this.numericUpDown_TestC6)).BeginInit();
             this.SuspendLayout();
             // 
             // channelParametersGroupBox
@@ -76,6 +79,8 @@
             // 
             // groupBoxDIOLines
             // 
+            this.groupBoxDIOLines.Controls.Add(this.numericUpDown_TestC6);
+            this.groupBoxDIOLines.Controls.Add(this.labelTestC6);
             this.groupBoxDIOLines.Controls.Add(this.numericUpDown_TestC5);
             this.groupBoxDIOLines.Controls.Add(this.labelTestC5);
             this.groupBoxDIOLines.Controls.Add(this.numericUpDown_Test_VacVdc);
@@ -97,7 +102,7 @@
             // 
             // numericUpDown_TestC5
             // 
-            this.numericUpDown_TestC5.Location = new System.Drawing.Point(221, 71);
+            this.numericUpDown_TestC5.Location = new System.Drawing.Point(221, 66);
             this.numericUpDown_TestC5.Maximum = new decimal(new int[] {
             1,
             0,
@@ -111,7 +116,7 @@
             // labelTestC5
             // 
             this.labelTestC5.AutoSize = true;
-            this.labelTestC5.Location = new System.Drawing.Point(129, 71);
+            this.labelTestC5.Location = new System.Drawing.Point(129, 66);
             this.labelTestC5.Name = "labelTestC5";
             this.labelTestC5.Size = new System.Drawing.Size(41, 13);
             this.labelTestC5.TabIndex = 16;
@@ -237,6 +242,28 @@
             this.buttonAllOff.UseVisualStyleBackColor = true;
             this.buttonAllOff.Click += new System.EventHandler(this.buttonAllOff_Click);
             // 
+            // numericUpDown_TestC6
+            // 
+            this.numericUpDown_TestC6.Location = new System.Drawing.Point(221, 95);
+            this.numericUpDown_TestC6.Maximum = new decimal(new int[] {
+            1,
+            0,
+            0,
+            0});
+            this.numericUpDown_TestC6.Name = "numericUpDown_TestC6";
+            this.numericUpDown_TestC6.Size = new System.Drawing.Size(31, 20);
+            this.numericUpDown_TestC6.TabIndex = 17;
+            this.numericUpDown_TestC6.ValueChanged += new System.EventHandler(this.numericUpDown_ValueChanged);
+            // 
+            // labelTestC6
+            // 
+            this.labelTestC6.AutoSize = true;
+            this.labelTestC6.Location = new System.Drawing.Point(129, 95);
+            this.labelTestC6.Name = "labelTestC6";
+            this.labelTestC6.Size = new System.Drawing.Size(41, 13);
+            this.labelTestC6.TabIndex = 18;
+            this.labelTestC6.Text = "TestC6";
+            // 
             // Form_FT232H_DIO_Test
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
@@ -257,6 +284,7 @@
             ((System.ComponentModel.ISupportInitialize)(this.numericUpDown_VacVdc)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this.NumericUpDown_Ember)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this.NumericUpDown_Load)).EndInit();
+            ((System.ComponentModel.ISupportInitialize)(this.numericUpDown_TestC6)).EndInit();
             this.ResumeLayout(false);
 
         }
@@ -279,5 +307,7 @@
         private System.Windows.Forms.Label labelTest_VacVdc;
         public System.Windows.Forms.NumericUpDown numericUpDown_TestC5;
         private System.Windows.Forms.Label labelTestC5;
+        public System.Windows.Forms.NumericUpDown numericUpDown_TestC6;
+        private System.Windows.Forms.Label labelTestC6;
     }
 }

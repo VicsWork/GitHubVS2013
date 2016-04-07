@@ -150,7 +150,7 @@ namespace PowerCalibration
                     _voltage_gain_adress = 0x080409CC;
                     _current_gain_adress = 0x080409D0;
                     _referece_adress = 0x080409D4;
-                    _ac_offset_adress = 0x080409D6;
+                    _ac_offset_adress = 0x080409D8;
 
                     _current_ac_reference = 10;
                     break;

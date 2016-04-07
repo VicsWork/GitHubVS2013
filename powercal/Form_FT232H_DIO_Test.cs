@@ -66,6 +66,11 @@ namespace PowerCalibration
             numericUpDown_TestC5.Tag = linenum;
             numericUpDown_TestC5.Value = Convert.ToDecimal(_relayCtrl.ReadLine(linenum));
 
+            linenum = 6;
+            labelTestC6.Text += string.Format("({0})", linenum);
+            numericUpDown_TestC6.Tag = linenum;
+            numericUpDown_TestC6.Value = Convert.ToDecimal(_relayCtrl.ReadLine(linenum));
+
             updateLineValues();
         }
 
