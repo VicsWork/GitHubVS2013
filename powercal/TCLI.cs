@@ -359,6 +359,37 @@ namespace PowerCalibration
         }
 
         /// <summary>
+        /// Waits for output
+        /// </summary>
+        /// <param name="telnet_connection"></param>
+        /// <param name="expected_data"></param>
+        /// <param name="timeout_ms"></param>
+        /// <param name="sample_ms"></param>
+        /// <returns></returns>
+        public static string Wait_For_String(TelnetConnection telnet_connection, string expected_data, int timeout_ms, int sample_ms = 250)
+        {
+            int total_wait = 0;
+            string data = "";
+            while (total_wait < timeout_ms)
+            {
+                data += telnet_connection.Read();
+                if (data.Contains(expected_data))
+                    break;
+                Thread.Sleep(sample_ms);
+                total_wait += sample_ms;
+            }
+
+            if (!data.Contains(expected_data))
+            {
+                string msg = string.Format("Telnet session timeout after {0} ms waiting for data \"{1}\". Data was: \"{2}\"",
+                    total_wait, expected_data, data);
+                throw new Exception(msg);
+            }
+
+            return data;
+        }
+
+        /// <summary>
         /// Sends a command and waits for specific message to be returned
         /// </summary>
         /// <param name="telnet_connection"></param>
@@ -368,7 +399,7 @@ namespace PowerCalibration
         /// <param name="delay_ms"></param>
         public static string Wait_For_String(TelnetConnection telnet_connection, string command, string expected_data, int retry_count = 3, int delay_ms = 100)
         {
-            telnet_connection.Read();
+            Wait_For_Prompt(telnet_connection);
             int n = 0;
             string data = "";
             while (n < retry_count)
@@ -376,8 +407,13 @@ namespace PowerCalibration
                 telnet_connection.WriteLine(command);
                 Thread.Sleep(delay_ms);
                 data = telnet_connection.Read();
-                if (data.Contains(expected_data))
-                    break;
+                if (data != null)
+                {
+                    if (data.Contains(expected_data))
+                    {
+                        break;
+                    }
+                }
                 n++;
             }
 
@@ -393,7 +429,7 @@ namespace PowerCalibration
 
         public static Match Wait_For_Match(TelnetConnection telnet_connection, string command, string pattern, int retry_count = 3, int delay_ms = 100)
         {
-            telnet_connection.Read();
+            Wait_For_Prompt(telnet_connection);
             int n = 0;
             string data = "";
 
@@ -405,12 +441,14 @@ namespace PowerCalibration
 
                 Thread.Sleep(delay_ms);
                 data = telnet_connection.Read();
-
-                match = Regex.Match(data, pattern);
-
-                if (match.Success)
+                if (data != null)
                 {
-                    return match;
+                    match = Regex.Match(data, pattern);
+
+                    if (match.Success)
+                    {
+                        return match;
+                    }
                 }
 
                 n++;

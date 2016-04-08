@@ -20,6 +20,7 @@ namespace PowerCalibration
 
         const uint _test_x4a_vacdc_relay_linenum = 4;
         const uint _test_laser_relay_linenum = 5;
+        const uint _test_joinhoney_button_linenum = 6;
 
         public bool _init_testx4a_relay = true;  // Indicates to set relay that controls meter to VAC_VDC relay or to Test X4A port
         public bool _init_meter = true;  // Indicates whether the meter needs to be initialize
@@ -36,7 +37,7 @@ namespace PowerCalibration
         public RelayControler JigRelayController { get { return _jig_relay_ctrl; } set { _jig_relay_ctrl = value; } }
         public MultiMeter MultiMeter { get { return _meter; } set { _meter = value; } }
 
-        public enum Relay { Continuity = 0, Capacitor, Resistor};
+        public enum Relay { Continuity = 0, Capacitor, Resistor };
 
 
         /// <summary>
@@ -61,7 +62,7 @@ namespace PowerCalibration
                 _jig_relay_ctrl = new RelayControler(RelayControler.Device_Types.FT232H);
             }
 
-            if(_telnet_conn == null)
+            if (_telnet_conn == null || !_telnet_conn.IsConnected)
             {
                 _telnet_conn = new TelnetConnection(Properties.Settings.Default.Ember_Interface_IP_Address, 4900);
             }
@@ -85,11 +86,7 @@ namespace PowerCalibration
             try
             {
 
-                int id = getSensorId();
-                if (id > 0)
-                {
-                    //TCLI.Wait_For_Prompt
-                }
+                int id = pairWithSensor();
 
                 if (cancel.IsCancellationRequested) return;
                 string msg = string.Format("Verify LASER");
@@ -105,6 +102,11 @@ namespace PowerCalibration
                 msg = "Verify Capacitive Relay";
                 fire_run_status(msg);
                 Verify_Capacitance();
+            }
+            catch (Exception ex)
+            {
+                string msg = ex.Message;
+                throw;
             }
             finally
             {
@@ -239,13 +241,13 @@ namespace PowerCalibration
             try
             {
                 int multiplier = 1000;
-                _meter.SetupForCapacitance(5*multiplier);
+                _meter.SetupForCapacitance(5 * multiplier);
 
                 Set_UUT_Relay_State(Tests_Honeycomb.Relay.Capacitor, true);
                 Thread.Sleep(500);
 
                 string cont_str = _meter.Measure();
-                double c = Convert.ToDouble(cont_str)/multiplier;
+                double c = Convert.ToDouble(cont_str) / multiplier;
                 string msg = string.Format("Capacitance measurement relay close was {0:F8} uF", c);
                 fire_status(msg);
 
@@ -282,7 +284,7 @@ namespace PowerCalibration
 
         }
 
-        public void Verify_Resitance() 
+        public void Verify_Resitance()
         {
             init_relay_testx4a();
         }
@@ -319,6 +321,65 @@ namespace PowerCalibration
             string idstr = m.Groups[1].Value;
             int id = Convert.ToInt32(idstr, 16);
             return id;
+        }
+
+        int clearSensorId()
+        {
+
+            // Check to see whether we have a sensor
+            int id = getSensorId();
+            // Just return here.  There is no need to clear anything
+            if (id == 0)
+                return id;
+
+            // Clear the sensor
+            string data = "";
+            data = TCLI.Wait_For_String(_telnet_conn, "cu si4355 clearSensorId", "si4355 Sensor ID cleared");
+
+            // Get the id after we cleaned it.  It now should be zero
+            id = getSensorId();
+            if (id == 0)
+                return id;
+
+            string msg = string.Format("Unable to clear sensor id after command \"cu si4355 clearSensorId\".  Data was: {0}",
+                data);
+            throw new Exception(msg);
+
+        }
+
+
+        /// <summary>
+        /// Clears the any current id
+        /// Turns jig relay on to press pairing switch on sensor
+        /// Waits for pairing
+        /// </summary>
+        /// <returns>Sensor id</returns>
+        int pairWithSensor()
+        {
+            int id = clearSensorId();
+            _jig_relay_ctrl.WriteLine(_test_joinhoney_button_linenum, true);
+            Thread.Sleep(1000);
+            try
+            {
+                // Note that the id is part of this
+                string data = TCLI.Wait_For_String(_telnet_conn, "New sensor paired", 10000, 1000);
+                Match m = Regex.Match(data, "New sensor paired.*([0-9,A-F]+)");
+                if (m.Success)
+                {
+                    id = Convert.ToInt32(m.Groups[1].Value);
+                }
+            }
+            catch
+            {
+                throw;
+            }
+            finally
+            {
+                _jig_relay_ctrl.WriteLine(_test_joinhoney_button_linenum, false);
+            }
+            return id;
+            //id = getSensorId();
+
         }
 
         void fire_status(string msg)
