@@ -82,14 +82,13 @@ namespace PowerCalibration
             _init_testx4a_relay = true;
             init_relay_testx4a();
             _init_testx4a_relay = false;
+            string msg = "";
 
             try
             {
 
-                int id = pairWithSensor();
-
                 if (cancel.IsCancellationRequested) return;
-                string msg = string.Format("Verify LASER");
+                msg = string.Format("Verify LASER");
                 fire_run_status(msg);
                 VerifyLaser();
 
@@ -102,10 +101,20 @@ namespace PowerCalibration
                 msg = "Verify Capacitive Relay";
                 fire_run_status(msg);
                 Verify_Capacitance();
+
+                if (cancel.IsCancellationRequested) return;
+                msg = "Pair with Sensor";
+                fire_run_status(msg);
+                int id = pairWithSensor();  
+                // TODO: May want to verify we got the right sensor id here
+
+                clearSensorId();
+
             }
             catch (Exception ex)
             {
-                string msg = ex.Message;
+                msg = string.Format("Error detected during \"{0}\".  Error was \"{1}\"", msg, ex.Message);
+                fire_status(msg);
                 throw;
             }
             finally
@@ -185,6 +194,7 @@ namespace PowerCalibration
 
             init_relay_testx4a();
             init_meter();
+            string msg = "";
 
             try
             {
@@ -194,9 +204,20 @@ namespace PowerCalibration
                 Thread.Sleep(500);
 
                 string cont_str = _meter.Measure();
-                double r = Convert.ToDouble(cont_str);
 
-                string msg = string.Format("Continuity measurement with relay closed was {0:F8} ohms", r);
+                double r = 0.0;
+                try
+                {
+                    r = Convert.ToDouble(cont_str);
+                }
+                catch
+                {
+                    msg = string.Format("Error reading continuity from meter.  Meter returned \"{0}\"", cont_str);
+                    fire_status(msg); 
+                    throw;
+                }
+
+                msg = string.Format("Continuity measurement with relay closed was {0:F8} ohms", r);
                 fire_status(msg);
 
                 if (r > max_short)
@@ -330,18 +351,27 @@ namespace PowerCalibration
             int id = getSensorId();
             // Just return here.  There is no need to clear anything
             if (id == 0)
+            {
                 return id;
+            }
 
             // Clear the sensor
+            string msg = string.Format("Clear Sensor id");
+            fire_status(msg);
+
             string data = "";
             data = TCLI.Wait_For_String(_telnet_conn, "cu si4355 clearSensorId", "si4355 Sensor ID cleared");
 
             // Get the id after we cleaned it.  It now should be zero
             id = getSensorId();
             if (id == 0)
+            {
+                Thread.Sleep(1000);
                 return id;
+            }
 
-            string msg = string.Format("Unable to clear sensor id after command \"cu si4355 clearSensorId\".  Data was: {0}",
+            msg = string.Format(
+                "Unable to clear sensor id after command \"cu si4355 clearSensorId\".  Data was: {0}",
                 data);
             throw new Exception(msg);
 
@@ -357,16 +387,27 @@ namespace PowerCalibration
         int pairWithSensor()
         {
             int id = clearSensorId();
+
+            string msg = string.Format("Press sensor join switch");
+            fire_status(msg);
+            TCLI.Wait_For_Prompt(_telnet_conn);
             _jig_relay_ctrl.WriteLine(_test_joinhoney_button_linenum, true);
-            Thread.Sleep(1000);
+            Thread.Sleep(3000);  // This can be shorter than 3 sec. but if too short we won't hear 3 beeps
             try
             {
                 // Note that the id is part of this
                 string data = TCLI.Wait_For_String(_telnet_conn, "New sensor paired", 10000, 1000);
-                Match m = Regex.Match(data, "New sensor paired.*([0-9,A-F]+)");
+                Match m = Regex.Match(data, "New sensor paired, ([0-9,A-F]+)");
                 if (m.Success)
                 {
-                    id = Convert.ToInt32(m.Groups[1].Value);
+                    id = Convert.ToInt32(m.Groups[1].Value, 16);
+                    msg = string.Format("Paired with Sensor id 0x{0:X}", id);
+                    fire_status(msg);
+                }
+                else
+                {
+                    msg = string.Format("Unable to pair with sensor. Telnet data was \"{0}\"", data);
+                    fire_status(msg);
                 }
             }
             catch
@@ -375,6 +416,8 @@ namespace PowerCalibration
             }
             finally
             {
+                msg = string.Format("Release sensor join switch");
+                fire_status(msg);
                 _jig_relay_ctrl.WriteLine(_test_joinhoney_button_linenum, false);
             }
             return id;
