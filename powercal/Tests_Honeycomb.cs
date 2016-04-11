@@ -103,9 +103,14 @@ namespace PowerCalibration
                 Verify_Capacitance();
 
                 if (cancel.IsCancellationRequested) return;
+                msg = "Verify Resistance Relay";
+                fire_run_status(msg);
+                Verify_Resitance();
+
+                if (cancel.IsCancellationRequested) return;
                 msg = "Pair with Sensor";
                 fire_run_status(msg);
-                int id = pairWithSensor();  
+                int id = pairWithSensor();
                 // TODO: May want to verify we got the right sensor id here
 
                 clearSensorId();
@@ -213,7 +218,7 @@ namespace PowerCalibration
                 catch
                 {
                     msg = string.Format("Error reading continuity from meter.  Meter returned \"{0}\"", cont_str);
-                    fire_status(msg); 
+                    fire_status(msg);
                     throw;
                 }
 
@@ -305,9 +310,44 @@ namespace PowerCalibration
 
         }
 
+        /// <summary>
+        /// Verifies the resistor
+        /// Note that we need a release version of the firmware for this to work due to the fact
+        /// that the line that controls the relay it's also used for debug
+        /// </summary>
         public void Verify_Resitance()
         {
             init_relay_testx4a();
+            init_meter();
+
+            try
+            {
+                _meter.SetupForResistance(100);
+
+                Set_UUT_Relay_State(Tests_Honeycomb.Relay.Resistor, true);
+                Thread.Sleep(500);
+
+                string r_str = _meter.Measure();
+                double r = Convert.ToDouble(r_str);
+                string msg = string.Format("Resistance measurement relay closed was {0:F8} Ohms", r);
+                fire_status(msg);
+                // TODO: add check
+
+                Set_UUT_Relay_State(Tests_Honeycomb.Relay.Resistor, false);
+                Thread.Sleep(500);
+
+                r_str = _meter.Measure();
+                r = Convert.ToDouble(r_str);
+                msg = string.Format("Resistance measurement relay open was {0:F8} Ohms", r);
+                fire_status(msg);
+                // TODO: add check
+
+            }
+            finally
+            {
+                close_meter();
+                Set_UUT_Relay_State(Tests_Honeycomb.Relay.Capacitor, false);
+            }
         }
 
         /// <summary>
@@ -348,12 +388,12 @@ namespace PowerCalibration
         {
 
             // Check to see whether we have a sensor
-            int id = getSensorId();
+            //int id = getSensorId();
             // Just return here.  There is no need to clear anything
-            if (id == 0)
-            {
-                return id;
-            }
+            //if (id == 0)
+            //{
+            //    return id;
+            //}
 
             // Clear the sensor
             string msg = string.Format("Clear Sensor id");
@@ -363,7 +403,7 @@ namespace PowerCalibration
             data = TCLI.Wait_For_String(_telnet_conn, "cu si4355 clearSensorId", "si4355 Sensor ID cleared");
 
             // Get the id after we cleaned it.  It now should be zero
-            id = getSensorId();
+            int id = getSensorId();
             if (id == 0)
             {
                 Thread.Sleep(1000);
@@ -392,22 +432,50 @@ namespace PowerCalibration
             fire_status(msg);
             TCLI.Wait_For_Prompt(_telnet_conn);
             _jig_relay_ctrl.WriteLine(_test_joinhoney_button_linenum, true);
-            Thread.Sleep(3000);  // This can be shorter than 3 sec. but if too short we won't hear 3 beeps
             try
             {
                 // Note that the id is part of this
-                string data = TCLI.Wait_For_String(_telnet_conn, "New sensor paired", 10000, 1000);
-                Match m = Regex.Match(data, "New sensor paired, ([0-9,A-F]+)");
-                if (m.Success)
+                string data = "";
+                try
                 {
-                    id = Convert.ToInt32(m.Groups[1].Value, 16);
-                    msg = string.Format("Paired with Sensor id 0x{0:X}", id);
-                    fire_status(msg);
+                    data = TCLI.Wait_For_String(_telnet_conn, "New sensor paired", 4000, 1000);
+                    Match m = Regex.Match(data, "New sensor paired, ([0-9,A-F]+)");
+                    if (m.Success)
+                    {
+                        Thread.Sleep(3000);  // This can be shorter than 3 sec. but if too short we won't hear 3 beeps
+                        id = Convert.ToInt32(m.Groups[1].Value, 16);
+                        msg = string.Format("Paired with Sensor id 0x{0:X}", id);
+                        fire_status(msg);
+                    }
+                    else
+                    {
+                        msg = string.Format("Unable to pair with sensor. Telnet data was \"{0}\"", data);
+                        fire_status(msg);
+                    }
                 }
-                else
+                catch
                 {
-                    msg = string.Format("Unable to pair with sensor. Telnet data was \"{0}\"", data);
-                    fire_status(msg);
+                    // Ugly but somehow I'm having to cycle power to get it to join the sensor
+                    // Usually always after calibration
+                    _jig_relay_ctrl.WriteLine(_test_joinhoney_button_linenum, false);
+                    clearSensorId();
+
+                    _jig_relay_ctrl.WriteLine(Relay_Lines.Power, false);
+                    Thread.Sleep(500);
+                    _jig_relay_ctrl.WriteLine(Relay_Lines.Power, true);
+                    Thread.Sleep(500);
+                    _jig_relay_ctrl.WriteLine(_test_joinhoney_button_linenum, true);
+                    Thread.Sleep(1000);
+                    id = getSensorId();
+                    if (id > 0)
+                    {
+                        msg = string.Format("Paired2 with Sensor id 0x{0:X}", id);
+                        fire_status(msg);
+                    }
+                    else
+                    {
+                        throw;
+                    }
                 }
             }
             catch
