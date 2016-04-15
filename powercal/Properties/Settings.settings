@@ -21,7 +21,7 @@
       <Value Profile="(Default)">IP</Value>
     </Setting>
     <Setting Name="Ember_Interface_IP_Address" Type="System.String" Scope="User">
-      <Value Profile="(Default)">172.19.14.93</Value>
+      <Value Profile="(Default)">0.0.0.0</Value>
     </Setting>
     <Setting Name="Ember_Interface_USB_Address" Type="System.String" Scope="User">
       <Value Profile="(Default)">0</Value>
@@ -66,6 +66,9 @@
     </Setting>
     <Setting Name="CodeMinimizedOnPASS" Type="System.Boolean" Scope="User">
       <Value Profile="(Default)">False</Value>
+    </Setting>
+    <Setting Name="HoneycombSensorID" Type="System.Int32" Scope="User">
+      <Value Profile="(Default)">41463025</Value>
     </Setting>
   </Settings>
 </SettingsFile>

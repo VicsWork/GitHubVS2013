@@ -965,7 +965,38 @@ namespace PowerCalibration
 
             updateRunStatus("Ready for " + comboBoxBoardTypes.Text);
 
+
+            string isa3ip = Properties.Settings.Default.Ember_Interface_IP_Address;
+            if (isa3ip == "0.0.0.0")
+            {
+                try
+                {
+                    DB.ConnectionSB = new SqlConnectionStringBuilder(Properties.Settings.Default.DBConnectionString);
+                    string[] ips = DB.GetISAAdapterIPsfromLocation("Jig Honeycomb");
+                    if(ips.Length >=1 ){
+
+                        Properties.Settings.Default.Ember_Interface_IP_Address = ips[0];
+                        Properties.Settings.Default.Save();
+
+                        string msg = string.Format("ISA3 adapter ip set to {0}", ips[0]);
+                        updateOutputStatus(msg);
+                    }
+                    else{
+                        throw new Exception("Unable to get ISA3 ip");
+                    }
+
+                }
+                catch (Exception ex)
+                {
+                    string msg = "ISA3 adapter ip not set: " + ex.Message;
+                    updateOutputStatus(msg);
+                }
+
+            }
+
             setTestButtonEnablement(true);
+
+
 
             // Only use on Honeycomb
             //if (_relay_ctrl != null && getSelectedBoardType() == BoardTypes.Honeycomb)

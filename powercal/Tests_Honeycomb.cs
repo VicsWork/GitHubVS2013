@@ -17,7 +17,6 @@ namespace PowerCalibration
         MultiMeter _meter;
         TelnetConnection _telnet_conn;
 
-
         const uint _test_x4a_vacdc_relay_linenum = 4;
         const uint _test_laser_relay_linenum = 5;
         const uint _test_joinhoney_button_linenum = 6;
@@ -38,6 +37,8 @@ namespace PowerCalibration
         public MultiMeter MultiMeter { get { return _meter; } set { _meter = value; } }
 
         public enum Relay { Continuity = 0, Capacitor, Resistor };
+
+        int _sensor_id = Properties.Settings.Default.HoneycombSensorID;
 
 
         /// <summary>
@@ -111,8 +112,21 @@ namespace PowerCalibration
                 msg = "Pair with Sensor";
                 fire_run_status(msg);
                 int id = pairWithSensor();
-                // TODO: May want to verify we got the right sensor id here
+                if (id != _sensor_id)
+                {
+                    msg = string.Format("Pair with incorrect sensor 0x{0:X}.  Expected sensor id = 0x{1:X}. Retrying...",
+                            id, _sensor_id);
+                    fire_run_status(msg);
 
+                    clearSensorId();
+                    id = pairWithSensor();
+                    if (id != _sensor_id)
+                    {
+                        msg = string.Format("Pair with incorrect sensor 0x{0:X}. Expected sensor id = 0x{1:X}", 
+                            id, _sensor_id);
+                    }
+
+                }
                 clearSensorId();
 
             }
