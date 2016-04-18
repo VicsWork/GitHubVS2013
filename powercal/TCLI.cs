@@ -328,6 +328,16 @@ namespace PowerCalibration
         }
 
         /// <summary>
+        /// Just a wrapper that reads and returns the telnet data
+        /// </summary>
+        /// <param name="telnet_connection"></param>
+        /// <returns></returns>
+        public static string Read(TelnetConnection telnet_connection)
+        {
+            return telnet_connection.Read();
+        }
+
+        /// <summary>
         /// Inputs a blank line and waits for the prompt
         /// </summary>
         /// <param name="telnet_connection"></param>

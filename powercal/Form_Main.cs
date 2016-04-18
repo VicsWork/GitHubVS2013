@@ -1142,6 +1142,9 @@ namespace PowerCalibration
             msg = string.Format("Meter VAC = {0:F8}.  VDC  = {1:F8}.", vac, vdc);
             updateOutputStatus(msg);
 
+            if (_relay_ctrl != null && _relay_ctrl.Device_Type != RelayControler.Device_Types.Manual)
+                _relay_ctrl.WriteLine(Relay_Lines.Vac_Vdc, false);
+
             return vac;
         }
 

@@ -176,8 +176,6 @@ namespace PowerCalibration
                     return datalist.ToArray();
                 }
             }
-
-            return new string[]{};
         }
 
 
