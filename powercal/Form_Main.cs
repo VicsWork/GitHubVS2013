@@ -1488,11 +1488,64 @@ namespace PowerCalibration
                 _relay_ctrl.WriteLine(Relay_Lines.Power, true);
                 Thread.Sleep(1000);
             }
-            // Connect the load
-            _relay_ctrl.WriteLine(Relay_Lines.Load, true);
 
             setRunStatus("Start Calibration", Color.Black, Color.White);
             updateOutputStatus("Start Calibration".PadBoth(80, '-'));
+
+            // Get MFG String and set board type
+            string mfg_str = null;
+            try
+            {
+                mfg_str = TCLI.Get_MFGString(_telnet_connection);
+            }
+            catch (Exception ex)
+            {
+                string msg = ex.Message;
+            }
+            bool autodetected = false;
+            if (mfg_str != null)
+            {
+                // Strip postfix
+                string pmfgstr = mfg_str;
+                int pos = mfg_str.IndexOf('-');
+                if (pos > 0)
+                    pmfgstr = mfg_str.Substring(0, pos);
+
+                switch (pmfgstr)
+                {
+                    case "3110":
+                        comboBoxBoardTypes.Text = BoardTypes.Mudshark.ToString();
+                        autodetected = true;
+                        break;
+                    case "3200":
+                        comboBoxBoardTypes.Text = BoardTypes.Humpback.ToString();
+                        autodetected = true;
+                        break;
+                    case "3210":
+                        comboBoxBoardTypes.Text = BoardTypes.Zebrashark.ToString();
+                        autodetected = true;
+                        break;
+                    case "3115":
+                        comboBoxBoardTypes.Text = BoardTypes.Hornshark.ToString();
+                        autodetected = true;
+                        break;
+                    case "3220":
+                        comboBoxBoardTypes.Text = BoardTypes.Honeycomb.ToString();
+                        autodetected = true;
+                        break;
+                }
+            }
+            if (autodetected)
+            {
+                string msg = string.Format("Board type {0} auto selected from MFG string {1}", 
+                    getSelectedBoardType(), mfg_str);
+                updateOutputStatus(msg);
+            }
+
+
+            // Connect the load
+            _relay_ctrl.WriteLine(Relay_Lines.Load, true);
+            
             relaysSet();
 
             //clear calibrate after code

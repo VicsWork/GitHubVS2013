@@ -308,6 +308,42 @@ namespace PowerCalibration
         }
 
         /// <summary>
+        /// Gets the MFG string
+        /// </summary>
+        /// <param name="telnet_connection"></param>
+        /// <returns></returns>
+        public static string Get_MFGString(TelnetConnection telnet_connection)
+        {
+            string mfgstr = null;
+            string datain = "";
+            string pattern = "MFG String: (\\S+)";
+
+            TCLI.Wait_For_Prompt(telnet_connection);
+            telnet_connection.WriteLine("info");
+            Thread.Sleep(500);
+            datain = telnet_connection.Read();
+
+
+            if (datain != null && datain.Length > 0)
+            {
+                Match match = Regex.Match(datain, pattern);
+                if (match.Groups.Count != 2)
+                {
+                    string msg = string.Format("Unable to parse info MFG String.  Output was:{0}", datain);
+                    throw new Exception(msg);
+                }
+                mfgstr = match.Groups[1].Value;
+            }
+            else
+            {
+                string msg = string.Format("No data received after \"Info\" command");
+                throw new Exception(msg);
+            }
+
+            return mfgstr;
+        }
+
+        /// <summary>
         /// Sets the state of the relay
         /// </summary>
         /// <param name="telnet_connection"></param>
