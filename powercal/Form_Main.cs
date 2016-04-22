@@ -1496,11 +1496,15 @@ namespace PowerCalibration
             string mfg_str = null;
             try
             {
+                _relay_ctrl.WriteLine(Relay_Lines.Power, true);
+                _relay_ctrl.WriteLine(Relay_Lines.Ember, true);
+
                 mfg_str = TCLI.Get_MFGString(_telnet_connection);
             }
             catch (Exception ex)
             {
-                string msg = ex.Message;
+                string msg = string.Format("Unable to read MFG string: {0}", ex.Message);
+                updateOutputStatus(msg);
             }
             bool autodetected = false;
             if (mfg_str != null)
