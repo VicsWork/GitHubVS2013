@@ -1443,9 +1443,9 @@ namespace PowerCalibration
                 // Reset device 
                 setRunStatus("Reset UUT");
                 _relay_ctrl.WriteLine(Relay_Lines.Power, false);
-                Thread.Sleep(250);
+                Thread.Sleep(500);
                 _relay_ctrl.WriteLine(Relay_Lines.Power, true);
-                Thread.Sleep(1000);
+                Thread.Sleep(1500);
             }
 
             setRunStatus("Start Calibration", Color.Black, Color.White);
