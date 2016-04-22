@@ -156,7 +156,7 @@ namespace PowerCalibration
             return Tuple.Create(id_site, id_machine);
         }
 
-        public static string[] GetISAAdapterIPsfromLocation(string location)
+        public static string[] GetISAAdapterIPsFromLikeLocation(string location)
         {
             using (SqlConnection con = new SqlConnection(ConnectionSB.ConnectionString))
             {
@@ -166,7 +166,7 @@ namespace PowerCalibration
                 {
                     cmd.Connection = con;
                     string table_name = "[InsightAdapter]";
-                    cmd.CommandText = string.Format("select IpAddress from {0} where Location='{1}'", table_name, location);
+                    cmd.CommandText = string.Format("select IpAddress from {0} where Location like '{1}'", table_name, location);
                     SqlDataReader reader = cmd.ExecuteReader();
                     List<string> datalist = new List<string>();
                     while (reader.Read())

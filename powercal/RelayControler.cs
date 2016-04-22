@@ -41,6 +41,18 @@ namespace PowerCalibration
         public bool IsOpened { get { return _isOpened; } }
 
         /// <summary>
+        /// The device id is set when it is opened
+        /// </summary>
+        uint _id = 0;
+        public uint ID { get { return _id; } }
+
+        /// <summary>
+        /// The device serial is set when it is opened
+        /// </summary>
+        string _serial_number = "";
+        public string SerialNumber { get { return _serial_number; } }
+
+        /// <summary>
         /// Inits internal dictionary that holds line number and state info
         /// </summary>
         private void _initDicLines()
@@ -203,9 +215,14 @@ namespace PowerCalibration
         /// </summary>
         public void Open()
         {
+
             if (_dev_type == Device_Types.FT232H)
             {
                 _ft232hdio.Open((uint)_ftdi_dev_index);
+                _id = _ft232hdio.GetDeviceID();
+                _serial_number = _ft232hdio.GetSerialNumber();
+
+
                 // Open functions resets device
                 // Re-set line state
                 foreach (string key in _dic_lines.Keys)
@@ -216,6 +233,7 @@ namespace PowerCalibration
                 }
             }
             _isOpened = true;
+
         }
 
         /// <summary>

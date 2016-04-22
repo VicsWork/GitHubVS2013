@@ -70,6 +70,7 @@ namespace DIO
             status = _ftdi.SetBitMode(0xFF, FTDI.FT_BIT_MODES.FT_BIT_MODE_MPSSE);
             if (status != FTDI.FT_STATUS.FT_OK)
                 throw new Exception(string.Format("Unable to set bit mode MPSEE to device at index {0}", index));
+
         }
 
         /// <summary>
@@ -100,6 +101,33 @@ namespace DIO
             }
 
             return index;
+        }
+
+        /// <summary>
+        /// Get the device id
+        /// </summary>
+        /// <returns></returns>
+        public uint GetDeviceID()
+        {
+            uint id = 0;
+            FTDI.FT_STATUS status = _ftdi.GetDeviceID(ref id);
+            if (status != FTDI.FT_STATUS.FT_OK)
+                throw new Exception("Unable to get device id");
+            return id;
+        }
+
+        /// <summary>
+        /// Gets the device serial number
+        /// </summary>
+        /// <returns></returns>
+        public string GetSerialNumber()
+        {
+            string serialNumber;
+            FTDI.FT_STATUS status = _ftdi.GetSerialNumber(out serialNumber);
+            if (status != FTDI.FT_STATUS.FT_OK)
+                throw new Exception("Unable to get device id");
+            return serialNumber;
+            
         }
 
         /// <summary>

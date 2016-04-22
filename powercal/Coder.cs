@@ -19,9 +19,18 @@ namespace PowerCalibration
 
         string _win_desc = "[REGEXPTITLE:Ember Bootloader and Range Test .*]";
 
+        float _dpiX, _dpiY;
+
         public Coder(TimeSpan timeout)
         {
             _timeout = timeout;
+
+            using (Graphics graphics = Graphics.FromHwnd(IntPtr.Zero))
+            {
+                _dpiX = graphics.DpiX;
+                _dpiY = graphics.DpiY;
+            }
+
         }
 
         public void Code(CancellationToken cancel)
@@ -229,8 +238,16 @@ namespace PowerCalibration
         {
             Rectangle rec_grid = getGridPos();
 
-            int x = rec_grid.X + 290;
-            int y = rec_grid.Y + 32;
+            int x = 290;
+            int y = 32;
+            if (_dpiX >= 120)
+            {
+                x = 295;
+                y = 40;
+            }
+
+            x = rec_grid.X + x;
+            y = rec_grid.Y + y;
 
             return new Point(x, y);
         }
@@ -258,8 +275,16 @@ namespace PowerCalibration
         {
             Rectangle rec_combo4 = getCombo4Pos();
 
-            int x = rec_combo4.X + 200;
-            int y = rec_combo4.Y + rec_combo4.Height / 2 + 5;
+            int x = 200;
+            int y = 5;
+            if (_dpiX >= 120)
+            {
+                x = 250;
+                y = 10;
+            }
+
+            x = rec_combo4.X + x;
+            y = rec_combo4.Y + rec_combo4.Height / 2 + y;
 
             return new Point(x, y);
         }
@@ -268,7 +293,13 @@ namespace PowerCalibration
         {
             Point point = guessStartTest_AbortTestPos();
 
-            return new Point(point.X + 65, point.Y);
+            int x = 65;
+            if (_dpiX >= 120)
+            {
+                x = 75;
+            }
+
+            return new Point(point.X + x, point.Y);
         }
 
 

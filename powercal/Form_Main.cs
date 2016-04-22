@@ -366,7 +366,7 @@ namespace PowerCalibration
 
                 _relay_ctrl.Open();
                 initRelayController_Lines();
-                msg = string.Format("Relay controller \"{0}\" ready.", rdevtype);
+                msg = string.Format("Relay controller \"{0}:{1}\" ready.", rdevtype, _relay_ctrl.SerialNumber);
                 updateOutputStatus(msg);
             }
             catch (Exception ex)
@@ -965,48 +965,7 @@ namespace PowerCalibration
 
             updateRunStatus("Ready for " + comboBoxBoardTypes.Text);
 
-
-            string isa3ip = Properties.Settings.Default.Ember_Interface_IP_Address;
-            if (isa3ip == "0.0.0.0")
-            {
-                try
-                {
-                    DB.ConnectionSB = new SqlConnectionStringBuilder(Properties.Settings.Default.DBConnectionString);
-                    string[] ips = DB.GetISAAdapterIPsfromLocation("Jig Honeycomb");
-                    if(ips.Length >=1 ){
-
-                        Properties.Settings.Default.Ember_Interface_IP_Address = ips[0];
-                        Properties.Settings.Default.Save();
-
-                        string msg = string.Format("ISA3 adapter ip set to {0}", ips[0]);
-                        updateOutputStatus(msg);
-                    }
-                    else{
-                        throw new Exception("Unable to get ISA3 ip");
-                    }
-
-                }
-                catch (Exception ex)
-                {
-                    string msg = "ISA3 adapter ip not set: " + ex.Message;
-                    updateOutputStatus(msg);
-                }
-
-            }
-
             setTestButtonEnablement(true);
-
-
-
-            // Only use on Honeycomb
-            //if (_relay_ctrl != null && getSelectedBoardType() == BoardTypes.Honeycomb)
-            //{
-            //    string key = "TestX4A";
-            //    if ( !_relay_ctrl.Dictionary_Lines.ContainsKey(key) )
-            //    {
-            //        _relay_ctrl.DicLines_AddLine(key, 4);
-            //    }
-            //}
 
         }
 
@@ -1859,7 +1818,43 @@ namespace PowerCalibration
             // Init relay controller
             initRelayController();
 
-            ///buttonCalibrate.Focus();
+
+            // Try to find isa3 ip if not set
+            string isa3ip = Properties.Settings.Default.Ember_Interface_IP_Address;
+            if (isa3ip == "0.0.0.0")
+            {
+                try
+                {
+                    DB.ConnectionSB = new SqlConnectionStringBuilder(Properties.Settings.Default.DBConnectionString);
+
+                    // First try using relay controller id
+                    string[] ips = new string[]{};
+                    if(_relay_ctrl.ID != 0)
+                        ips = DB.GetISAAdapterIPsFromLikeLocation( string.Format("%FT232H:{0}%", _relay_ctrl.SerialNumber) );
+                    if(ips.Length == 0)
+                        ips = DB.GetISAAdapterIPsFromLikeLocation( string.Format("%{0}%", getSelectedBoardType() ) );
+
+                    if(ips.Length >=1 ){
+
+                        Properties.Settings.Default.Ember_Interface_IP_Address = ips[0];
+                        Properties.Settings.Default.Save();
+
+                        string msg = string.Format("ISA3 adapter ip set to {0}", ips[0]);
+                        updateOutputStatus(msg);
+                    }
+                    else{
+                        throw new Exception("Unable to get ISA3 ip");
+                    }
+
+                }
+                catch (Exception ex)
+                {
+                    string msg = "ISA3 adapter ip not set: " + ex.Message;
+                    updateOutputStatus(msg);
+                }
+
+            }
+
             buttonAll.Focus();
         }
 
