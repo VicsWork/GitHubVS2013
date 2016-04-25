@@ -531,6 +531,7 @@ namespace PowerCalibration
             _ember.RefereceAdress = _referece_adress;
             _ember.ACOffsetAdress = _ac_offset_adress;
             _ember.CreateCalibrationPatchBath(voltage_gain, current_gain);
+            _ember.ReadProtect_Enabled = Properties.Settings.Default.Ember_ReadProtect_Enabled;
 
             bool patchit_fail = false;
             string exception_msg = "";

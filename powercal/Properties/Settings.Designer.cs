@@ -259,5 +259,17 @@ namespace PowerCalibration.Properties {
                 this["HoneycombSensorID"] = value;
             }
         }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("False")]
+        public bool Ember_ReadProtect_Enabled {
+            get {
+                return ((bool)(this["Ember_ReadProtect_Enabled"]));
+            }
+            set {
+                this["Ember_ReadProtect_Enabled"] = value;
+            }
+        }
     }
 }

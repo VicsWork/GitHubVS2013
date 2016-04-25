@@ -27,6 +27,9 @@ namespace PowerCalibration
         public int VoltageRefereceValue { get { return _voltageRefValue; } set { _voltageRefValue = value; } }
         public int CurrentRefereceValue { get { return _currentRefValue; } set { _currentRefValue = value; } }
 
+        bool _readProtect_enabled = false;
+        public bool ReadProtect_Enabled { get { return _readProtect_enabled; } set { _readProtect_enabled = value; } }
+
         string _batch_file = "C:\\patchit.bat";
         string _ember_exe = "em3xx_load";
         string _ember_bin_path = "C:\\Program Files (x86)\\Ember\\ISA3 Utilities\\bin";
