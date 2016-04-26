@@ -150,7 +150,7 @@ namespace PowerCalibration
             // Init the Ember object
             _ember = new Ember();
             _ember.Work_Path = _app_data_dir;
-            _ember.BatchFilePath = Path.Combine(_app_data_dir, "patchit.bat");
+            _ember.BatchFilePatchPath = Path.Combine(_app_data_dir, "patchit.bat");
             _ember.Process_ISAChan_Error_Event += p_ember_isachan_ErrorDataReceived;
             _ember.Process_ISAChan_Output_Event += p_ember_isachan_OutputDataReceived;
 
@@ -1555,6 +1555,22 @@ namespace PowerCalibration
         /// </summary>
         void calibration_done()
         {
+            // todo: this enablerdprot needs to be done at the end
+            // so we probably want to move hct_Run_Tests to after coding
+            if (Properties.Settings.Default.Ember_ReadProtect_Enabled)
+            {
+                try
+                {
+                    updateRunStatus("EnableRdProt");
+                    string output = _ember.EnableRdProt();
+                    //updateOutputStatus(output);
+                }
+                catch (Exception ex)
+                {
+                    updateOutputStatus("EnableRdProt exception:" + ex.Message);
+                }
+            }
+
             try
             {
                 power_off();

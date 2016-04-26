@@ -82,7 +82,7 @@ namespace PowerCalibration
         /// <summary>
         /// Path to where the Ember programming batch file is created
         /// </summary>
-        string _ember_batchfile_path = Path.Combine(_app_data_dir, "patchit.bat");
+        string _ember_batchfile_patch_path = Path.Combine(_app_data_dir, "patchit.bat");
 
         public BoardTypes BoardType
         {
@@ -523,15 +523,15 @@ namespace PowerCalibration
         string patch(int voltage_gain, int current_gain)
         {
             _ember.EmberBinPath = Properties.Settings.Default.Ember_BinPath;
-            _ember.BatchFilePath = _ember_batchfile_path;
+            _ember.BatchFilePatchPath = _ember_batchfile_patch_path;
             _ember.VoltageRefereceValue = _voltage_ac_reference;
             _ember.CurrentRefereceValue = _current_ac_reference;
             _ember.VoltageAdress = _voltage_gain_adress;
             _ember.CurrentAdress = _current_gain_adress;
             _ember.RefereceAdress = _referece_adress;
             _ember.ACOffsetAdress = _ac_offset_adress;
+
             _ember.CreateCalibrationPatchBath(voltage_gain, current_gain);
-            _ember.ReadProtect_Enabled = Properties.Settings.Default.Ember_ReadProtect_Enabled;
 
             bool patchit_fail = false;
             string exception_msg = "";

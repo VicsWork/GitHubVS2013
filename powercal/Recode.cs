@@ -149,8 +149,9 @@ namespace PowerCalibration
                 _ember.CurrentRefereceValue = caltokens.CurrentFactor;
                 string cmd_str = _ember.CreateCalibrationPatchBath(vgain: caltokens.VoltageGainToken, igain: caltokens.CurrentGainToken);
                 if (File.Exists(log_file))
+                {
                     File.AppendAllText(log_file, cmd_str);
-
+                }
 
                 while (true)
                 {

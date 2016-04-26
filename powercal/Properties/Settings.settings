@@ -71,7 +71,7 @@
       <Value Profile="(Default)">41463025</Value>
     </Setting>
     <Setting Name="Ember_ReadProtect_Enabled" Type="System.Boolean" Scope="User">
-      <Value Profile="(Default)">False</Value>
+      <Value Profile="(Default)">True</Value>
     </Setting>
   </Settings>
 </SettingsFile>
