@@ -65,7 +65,7 @@
             this.toolStripTimingStatusLabel = new System.Windows.Forms.ToolStripStatusLabel();
             this.timer_Update_Idle = new System.Windows.Forms.Timer(this.components);
             this.buttonCode = new System.Windows.Forms.Button();
-            this.buttonAll = new System.Windows.Forms.Button();
+            this.buttonRun = new System.Windows.Forms.Button();
             this.buttonRecode = new System.Windows.Forms.Button();
             this.buttonTest = new System.Windows.Forms.Button();
             this.contextMenuStatusTextBox.SuspendLayout();
@@ -121,6 +121,7 @@
             this.buttonCalibrate.TabIndex = 6;
             this.buttonCalibrate.Text = "Ca&librate";
             this.buttonCalibrate.UseVisualStyleBackColor = true;
+            this.buttonCalibrate.Visible = false;
             this.buttonCalibrate.Click += new System.EventHandler(this.buttonClick_Calibrate);
             // 
             // comboBoxBoardTypes
@@ -274,26 +275,27 @@
             this.buttonCode.TabIndex = 12;
             this.buttonCode.Text = "&Code";
             this.buttonCode.UseVisualStyleBackColor = true;
+            this.buttonCode.Visible = false;
             this.buttonCode.Click += new System.EventHandler(this.buttonClick_Code);
             // 
-            // buttonAll
+            // buttonRun
             // 
-            this.buttonAll.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
-            this.buttonAll.Location = new System.Drawing.Point(745, 34);
-            this.buttonAll.Name = "buttonAll";
-            this.buttonAll.Size = new System.Drawing.Size(75, 23);
-            this.buttonAll.TabIndex = 13;
-            this.buttonAll.Text = "&All";
-            this.buttonAll.UseVisualStyleBackColor = true;
-            this.buttonAll.Click += new System.EventHandler(this.buttonClick_All);
+            this.buttonRun.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
+            this.buttonRun.Location = new System.Drawing.Point(745, 34);
+            this.buttonRun.Name = "buttonRun";
+            this.buttonRun.Size = new System.Drawing.Size(75, 23);
+            this.buttonRun.TabIndex = 13;
+            this.buttonRun.Text = "&Run";
+            this.buttonRun.UseVisualStyleBackColor = true;
+            this.buttonRun.Click += new System.EventHandler(this.buttonClick_Run);
             // 
             // buttonRecode
             // 
-            this.buttonRecode.Location = new System.Drawing.Point(745, 35);
+            this.buttonRecode.Location = new System.Drawing.Point(421, 35);
             this.buttonRecode.Name = "buttonRecode";
             this.buttonRecode.Size = new System.Drawing.Size(75, 23);
             this.buttonRecode.TabIndex = 14;
-            this.buttonRecode.Text = "&Recode";
+            this.buttonRecode.Text = "R&ecode";
             this.buttonRecode.UseVisualStyleBackColor = true;
             this.buttonRecode.Click += new System.EventHandler(this.buttonRecode_Click);
             // 
@@ -303,8 +305,9 @@
             this.buttonTest.Name = "buttonTest";
             this.buttonTest.Size = new System.Drawing.Size(75, 23);
             this.buttonTest.TabIndex = 15;
-            this.buttonTest.Text = "&Test";
+            this.buttonTest.Text = "Te&st";
             this.buttonTest.UseVisualStyleBackColor = true;
+            this.buttonTest.Visible = false;
             this.buttonTest.Click += new System.EventHandler(this.buttonTest_Click);
             // 
             // Form_Main
@@ -313,7 +316,7 @@
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Dpi;
             this.ClientSize = new System.Drawing.Size(832, 557);
             this.Controls.Add(this.buttonTest);
-            this.Controls.Add(this.buttonAll);
+            this.Controls.Add(this.buttonRun);
             this.Controls.Add(this.buttonCode);
             this.Controls.Add(this.statusStrip);
             this.Controls.Add(this.textBoxRunStatus);
@@ -355,7 +358,7 @@
         private System.Windows.Forms.ToolStripStatusLabel toolStripTimingStatusLabel;
         private System.Windows.Forms.Timer timer_Update_Idle;
         private System.Windows.Forms.Button buttonCode;
-        private System.Windows.Forms.Button buttonAll;
+        private System.Windows.Forms.Button buttonRun;
         private System.Windows.Forms.ToolStripMenuItem copyToolStripMenuItem;
         private System.Windows.Forms.ToolStripStatusLabel toolStripGeneralStatusLabel;
         private System.Windows.Forms.Button buttonRecode;

@@ -26,9 +26,6 @@
     <Setting Name="Ember_Interface_USB_Address" Type="System.String" Scope="User">
       <Value Profile="(Default)">0</Value>
     </Setting>
-    <Setting Name="Shortcut_Spacebar_Action" Type="System.String" Scope="User">
-      <Value Profile="(Default)">All</Value>
-    </Setting>
     <Setting Name="PrePost_Test_Enabled" Type="System.Boolean" Scope="User">
       <Value Profile="(Default)">True</Value>
     </Setting>
@@ -71,7 +68,7 @@
       <Value Profile="(Default)">41463025</Value>
     </Setting>
     <Setting Name="Ember_ReadProtect_Enabled" Type="System.Boolean" Scope="User">
-      <Value Profile="(Default)">True</Value>
+      <Value Profile="(Default)">False</Value>
     </Setting>
   </Settings>
 </SettingsFile>

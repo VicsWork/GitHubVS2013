@@ -293,9 +293,9 @@ namespace PowerCalibration
         /// Only GDM8341
         /// </summary>
         /// <param name="range"></param>
-        public void SetupForResistance(int range)
+        public void SetupForResistance(string range)
         {
-            string conf = string.Format("CONF:RES {0}", range);
+            string conf = "CONF:RES " + range;
             writeLine(conf);
             Thread.Sleep(1000);
         }

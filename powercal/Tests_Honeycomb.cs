@@ -111,6 +111,7 @@ namespace PowerCalibration
                 if (cancel.IsCancellationRequested) return;
                 msg = "Pairing with Sensor Test";
                 fire_run_status(msg);
+                clearSensorId();
                 int id = pairWithSensor();
                 if (id != _sensor_id)
                 {
@@ -120,6 +121,27 @@ namespace PowerCalibration
                     fire_run_status(msg);
 
                     clearSensorId();
+                    _jig_relay_ctrl.WriteLine(Relay_Lines.Power, false);
+                    Thread.Sleep(1000);
+                    _jig_relay_ctrl.WriteLine(Relay_Lines.Power, true);
+                    Thread.Sleep(1000);
+
+                    for (int i = 0; i < 3; i++)
+                    {
+                        try
+                        {
+                            TCLI.Wait_For_Prompt(_telnet_conn);
+                            break;
+                        }
+                        catch
+                        {
+                            _jig_relay_ctrl.WriteLine(Relay_Lines.Power, false);
+                            Thread.Sleep(1000);
+                            _jig_relay_ctrl.WriteLine(Relay_Lines.Power, true);
+                            Thread.Sleep(1000);
+                        }
+                    }
+
                     id = pairWithSensor();
                     if (id != _sensor_id)
                     {
@@ -303,6 +325,7 @@ namespace PowerCalibration
                 if (c > exp_max || c < exp_min)
                 {
                     msg = string.Format("Capacitance measurement with relay closed was {0:F8} uF, limit high {0:F8} uF, limit low {0:F8} uF", c, exp_max, exp_min);
+                    throw new Exception(msg);
                 }
 
                 Set_UUT_Relay_State(Tests_Honeycomb.Relay.Capacitor, false);
@@ -317,6 +340,7 @@ namespace PowerCalibration
                 if (c > 0.1)
                 {
                     msg = string.Format("Capacitance measurement with relay opened was {0:F8} uF, limit high {0:F8} uF", c, exp_max);
+                    throw new Exception(msg);
                 }
 
             }
@@ -340,25 +364,40 @@ namespace PowerCalibration
 
             try
             {
-                _meter.SetupForResistance(100);
+                _meter.SetupForResistance("0.5");
 
                 Set_UUT_Relay_State(Tests_Honeycomb.Relay.Resistor, true);
                 Thread.Sleep(500);
 
                 string r_str = _meter.Measure();
-                double r = Convert.ToDouble(r_str);
+                double r = Convert.ToDouble(r_str) * 1000;
                 string msg = string.Format("Resistance measurement relay closed was {0:F8} Ohms", r);
                 fire_status(msg);
-                // TODO: add check
+                double exp_val = 200.0;
+                double exp_max = exp_val + exp_val * 0.20;
+                double exp_min = exp_val - exp_val * 0.20;
+
+                if (r > exp_max || r < exp_min)
+                {
+                    msg = string.Format("Resistance measurement with relay closed was {0:F8} Ohms, limit high {0:F8} Ohms, limit low {0:F8} Ohms", r, exp_max, exp_min);
+                    throw new Exception(msg);
+                }
+
 
                 Set_UUT_Relay_State(Tests_Honeycomb.Relay.Resistor, false);
                 Thread.Sleep(500);
 
                 r_str = _meter.Measure();
-                r = Convert.ToDouble(r_str);
+                r = Convert.ToDouble(r_str) * 1000;
                 msg = string.Format("Resistance measurement relay open was {0:F8} Ohms", r);
                 fire_status(msg);
-                // TODO: add check
+
+                exp_min = 999;
+                if (r < exp_min)
+                {
+                    msg = string.Format("Resistance measurement with relay opened was {0:F8} Ohms, limit high {0:F8} Ohms", r, exp_max);
+                    throw new Exception(msg);
+                }
 
             }
             finally
@@ -444,8 +483,7 @@ namespace PowerCalibration
         /// <returns>Sensor id</returns>
         int pairWithSensor()
         {
-            int id = clearSensorId();
-
+            int id = 0;
             string msg = "";
             TCLI.Wait_For_Prompt(_telnet_conn);
             try
@@ -458,7 +496,7 @@ namespace PowerCalibration
                     msg = string.Format("Press sensor join switch");
                     fire_status(msg);
                     _jig_relay_ctrl.WriteLine(_test_joinhoney_button_linenum, true);
-                    Thread.Sleep(3000);
+                    Thread.Sleep(2000);
 
                     data += TCLI.Read(_telnet_conn);
 
@@ -477,8 +515,18 @@ namespace PowerCalibration
                         fire_status(msg);
                         _jig_relay_ctrl.WriteLine(_test_joinhoney_button_linenum, false);
                         Thread.Sleep(1000);
+
+                        id = getSensorId();
+                        if (id != 0)
+                        {
+                            msg = string.Format("Paired with Sensor id 0x{0:X}", id);
+                            fire_status(msg);
+                            break;
+                        }
                     }
                 }
+
+                TraceLogger.Log(data);
             }
             finally
             {

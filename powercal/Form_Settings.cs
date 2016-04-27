@@ -51,9 +51,6 @@ namespace PowerCalibration
             TextBoxMeterCOM.Text = Properties.Settings.Default.Meter_COM_Port_Name;
             checkBoxPreProTest.Checked = Properties.Settings.Default.PrePost_Test_Enabled;
 
-            // Shortcuts
-            comboBoxShortcutActions.Text = Properties.Settings.Default.Shortcut_Spacebar_Action;
-
             // DB
             this.checkBox_EnableDBReporting.Checked = Properties.Settings.Default.DB_Loging_Enabled;
 
@@ -154,11 +151,6 @@ namespace PowerCalibration
             Properties.Settings.Default.PrePost_Test_Enabled = this.checkBoxPreProTest.Checked;
         }
 
-        private void comboBoxShortcutActions_SelectedIndexChanged(object sender, EventArgs e)
-        {
-            Properties.Settings.Default.Shortcut_Spacebar_Action = comboBoxShortcutActions.Text;
-        }
-
         private void TextBoxMeterCOM_TextChanged(object sender, EventArgs e)
         {
             Properties.Settings.Default.Meter_COM_Port_Name = TextBoxMeterCOM.Text;
@@ -254,11 +246,6 @@ namespace PowerCalibration
                 string msg = ex.Message;
             }
 
-        }
-
-        private void comboBoxShortcutActions_SelectedIndexChanged_1(object sender, EventArgs e)
-        {
-            Properties.Settings.Default.Shortcut_Spacebar_Action = comboBoxShortcutActions.Text;
         }
 
         private void checkBox_EnableDBReporting_CheckedChanged(object sender, EventArgs e)

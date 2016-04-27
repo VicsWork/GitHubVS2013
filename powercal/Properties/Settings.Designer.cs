@@ -121,18 +121,6 @@ namespace PowerCalibration.Properties {
         
         [global::System.Configuration.UserScopedSettingAttribute()]
         [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
-        [global::System.Configuration.DefaultSettingValueAttribute("All")]
-        public string Shortcut_Spacebar_Action {
-            get {
-                return ((string)(this["Shortcut_Spacebar_Action"]));
-            }
-            set {
-                this["Shortcut_Spacebar_Action"] = value;
-            }
-        }
-        
-        [global::System.Configuration.UserScopedSettingAttribute()]
-        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
         [global::System.Configuration.DefaultSettingValueAttribute("True")]
         public bool PrePost_Test_Enabled {
             get {
@@ -262,7 +250,7 @@ namespace PowerCalibration.Properties {
         
         [global::System.Configuration.UserScopedSettingAttribute()]
         [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
-        [global::System.Configuration.DefaultSettingValueAttribute("True")]
+        [global::System.Configuration.DefaultSettingValueAttribute("False")]
         public bool Ember_ReadProtect_Enabled {
             get {
                 return ((bool)(this["Ember_ReadProtect_Enabled"]));
