@@ -35,7 +35,6 @@ namespace PowerCalibration
     public partial class Form_Main : Form, ICalibrationService
     {
         enum TaskTypes { Pretest, Code, Test, Calibrate, Recode };
-        TaskTypes _pretest_next_task;  // Tells pretest task what to run when done
 
         MultiMeter _meter = null; // The multimeter controller
         RelayControler _relay_ctrl; // The relay controller
@@ -62,6 +61,7 @@ namespace PowerCalibration
         delegate void clickCalibrateCallback();  // Clicks Calibrate
         delegate void activateCallback();  // Activates the form
         delegate void setTextCallback(string txt);  // Set object text
+        delegate void setControlTextCallback(Control control, string txt);  // Set object text
         delegate void setTextColorCallback(string txt, Color forecolor, Color backcolor); // Set objects color
         delegate void setEnablementCallback(bool enable, bool isCoding);  // Set enablement
         delegate BoardTypes getSelectedBoardTypeCallback();
@@ -75,7 +75,7 @@ namespace PowerCalibration
 
         bool _supervisor_mode = false;  // Use to enable/hide features
 
-        bool _run_all = true;  // Indicates the run button was pressed;
+        bool _running_all = true;  // Indicates the run button was pressed;
 
         /// <summary>
         /// The main form constructor
@@ -615,6 +615,45 @@ namespace PowerCalibration
         }
 
         /// <summary>
+        /// Shows a dialog with specified message
+        /// </summary>
+        /// <param name="msg"></param>
+        void showDialogMsg(string msg)
+        {
+            if (this.InvokeRequired)
+            {
+                setTextCallback d = new setTextCallback(showDialogMsg);
+                this.Invoke(d, new object[] { msg });
+            }
+            else
+            {
+                MessageBox.Show(msg);
+            }
+        }
+
+        /// <summary>
+        /// Sets the text property of any control as long as it has one
+        /// </summary>
+        /// <param name="control"></param>
+        /// <param name="text"></param>
+        void controlSetText(Control control, string text)
+        {
+            if (control.InvokeRequired)
+            {
+                setControlTextCallback d = new setControlTextCallback(controlSetText);
+                this.Invoke(d, new object[] { control, text });
+            }
+            else
+            {
+                var property = control.GetType().GetProperty("Text");
+                if (property != null)
+                {
+                    property.SetValue(control, text);
+                }
+            }
+        }
+
+        /// <summary>
         /// Updates the output status text box and log file
         /// </summary>
         /// <param name="text"></param>
@@ -748,7 +787,8 @@ namespace PowerCalibration
                     on_off_str = "ON";
                 msg_dlg += string.Format("{0} = {1}\r\n", key, on_off_str);
 
-                MessageBox.Show(msg_dlg);
+                showDialogMsg(msg_dlg);
+                //MessageBox.Show(msg_dlg);
             }
             string status = _relay_ctrl.ToStatusText();
             updateOutputStatus(status);
@@ -1192,7 +1232,7 @@ namespace PowerCalibration
         /// <summary>
         /// Verifies DC Voltage
         /// </summary>
-        void preTest()
+        void preTest(TaskTypes next_task)
         {
             // Start the running watch
             _stopwatch_running.Restart();
@@ -1236,7 +1276,7 @@ namespace PowerCalibration
 
             if (!Properties.Settings.Default.PrePost_Test_Enabled)
             {
-                pretest_done();
+                pretest_done(next_task);
                 return;
             }
 
@@ -1253,8 +1293,8 @@ namespace PowerCalibration
 
             _cancel_token_uut = new CancellationTokenSource();
             _task_uut = new Task(() => pretest.Verify_Voltage(_cancel_token_uut.Token), _cancel_token_uut.Token);
-            _task_uut.ContinueWith(pretest_done_handler, TaskContinuationOptions.OnlyOnRanToCompletion);
-            _task_uut.ContinueWith(pretest_exception_handler, TaskContinuationOptions.OnlyOnFaulted);
+            _task_uut.ContinueWith((t) => pretest_done_handler(next_task), TaskContinuationOptions.OnlyOnRanToCompletion);
+            _task_uut.ContinueWith((t) => pretest_exception_handler(t, next_task), TaskContinuationOptions.OnlyOnFaulted);
             _task_uut.Start();
 
         }
@@ -1262,7 +1302,7 @@ namespace PowerCalibration
         /// <summary>
         /// Pretest done handler
         /// </summary>
-        void pretest_done()
+        void pretest_done(TaskTypes next_task)
         {
             // Check PASS or FAIL
             if (_pretest_error_msg == null)
@@ -1297,7 +1337,6 @@ namespace PowerCalibration
             string elapsedTime = string.Format("Elapsed time {0:00} seconds", _stopwatch_running.Elapsed.TotalSeconds);
             updateOutputStatus(elapsedTime);
             updateOutputStatus("End Pre-test".PadBoth(80, '-'));
-            _stopwatch_running.Reset();
 
             if (_pretest_error_msg != null)
             {
@@ -1310,7 +1349,7 @@ namespace PowerCalibration
                 // Start the running stopwatch
                 _stopwatch_running.Restart();
                 // Run the next task
-                switch (_pretest_next_task)
+                switch (next_task)
                 {
                     case TaskTypes.Code:
                         code();
@@ -1333,7 +1372,7 @@ namespace PowerCalibration
             }
             catch (Exception ex)
             {
-                switch (_pretest_next_task)
+                switch (next_task)
                 {
                     case TaskTypes.Code:
                         _coding_error_msg = ex.Message;
@@ -1374,21 +1413,21 @@ namespace PowerCalibration
         /// Handles when pretest is done
         /// </summary>
         /// <param name="task"></param>
-        void pretest_done_handler(Task task)
+        void pretest_done_handler(TaskTypes next_task)
         {
-            pretest_done();
+            pretest_done(next_task);
         }
 
         /// <summary>
         /// Handles when pretest throws an error
         /// </summary>
         /// <param name="task"></param>
-        void pretest_exception_handler(Task task)
+        void pretest_exception_handler(Task task, TaskTypes next_task)
         {
             var exception = task.Exception;
             string errmsg = exception.InnerException.Message;
             _pretest_error_msg = errmsg;
-            pretest_done();
+            pretest_done(next_task);
         }
 
         /// <summary>
@@ -1410,9 +1449,7 @@ namespace PowerCalibration
         {
             if (!this.buttonCalibrate.Enabled) return;
 
-            _pretest_next_task = TaskTypes.Calibrate;
-            preTest();
-
+            preTest(TaskTypes.Calibrate);
         }
 
         /// <summary>
@@ -1420,58 +1457,29 @@ namespace PowerCalibration
         /// </summary>
         void calibrate()
         {
-            // Check to see if Ember is to be used as USB and open ISA channel if so
-            // Also set the box address
-            Ember.Interfaces ember_interface = (Ember.Interfaces)Enum.Parse(
-                typeof(Ember.Interfaces), Properties.Settings.Default.Ember_Interface);
-            _ember.Interface = ember_interface;
-            if (_ember.Interface == Ember.Interfaces.USB)
-            {
-                _ember.Interface_Address = Properties.Settings.Default.Ember_Interface_USB_Address;
-                TraceLogger.Log("Start Ember isachan");
-                _ember.OpenISAChannels();
-            }
-            else
-            {
-                _ember.Interface_Address = Properties.Settings.Default.Ember_Interface_IP_Address;
-            }
-
-            // Create a new telnet connection
-            TraceLogger.Log("Start telnet");
-            // If interface is USB we use localhost
-            string telnet_address = "localhost";
-            if (_ember.Interface == Ember.Interfaces.IP)
-                telnet_address = _ember.Interface_Address;
-            _telnet_connection = new TelnetConnection(telnet_address, 4900);
-
-            if (_run_all)
-            {
-                // We are in code+calibrate mode
-                // Reset device 
-                setRunStatus("Reset UUT");
-                _relay_ctrl.WriteLine(Relay_Lines.Power, false);
-                Thread.Sleep(500);
-                _relay_ctrl.WriteLine(Relay_Lines.Power, true);
-                Thread.Sleep(1500);
-            }
-
             setRunStatus("Start Calibration", Color.Black, Color.White);
             updateOutputStatus("Start Calibration".PadBoth(80, '-'));
 
             // Get MFG String and set board type
+            _relay_ctrl.WriteLine(Relay_Lines.Power, true);
+            _relay_ctrl.WriteLine(Relay_Lines.Ember, true);
             string mfg_str = null;
-            try
+            string msg = "";
+            for (int i = 0; i < 3; i++)
             {
-                _relay_ctrl.WriteLine(Relay_Lines.Power, true);
-                _relay_ctrl.WriteLine(Relay_Lines.Ember, true);
+                try
+                {
 
-                mfg_str = TCLI.Get_MFGString(_telnet_connection);
+                    mfg_str = TCLI.Get_MFGString(_telnet_connection);
+                    break;
+                }
+                catch (Exception ex)
+                {
+                    string.Format("Unable to read MFG string: {0}", ex.Message);
+                }
             }
-            catch (Exception ex)
-            {
-                string msg = string.Format("Unable to read MFG string: {0}", ex.Message);
-                updateOutputStatus(msg);
-            }
+
+
             bool autodetected = false;
             if (mfg_str != null)
             {
@@ -1484,30 +1492,41 @@ namespace PowerCalibration
                 switch (pmfgstr)
                 {
                     case "3110":
-                        comboBoxBoardTypes.Text = BoardTypes.Mudshark.ToString();
+                        //comboBoxBoardTypes.Text = BoardTypes.Mudshark.ToString();
+                        controlSetText(comboBoxBoardTypes, BoardTypes.Mudshark.ToString());
                         autodetected = true;
                         break;
                     case "3200":
-                        comboBoxBoardTypes.Text = BoardTypes.Humpback.ToString();
+                        //comboBoxBoardTypes.Text = BoardTypes.Humpback.ToString();
+                        controlSetText(comboBoxBoardTypes, BoardTypes.Humpback.ToString());
                         autodetected = true;
                         break;
                     case "3210":
-                        comboBoxBoardTypes.Text = BoardTypes.Zebrashark.ToString();
+                        //comboBoxBoardTypes.Text = BoardTypes.Zebrashark.ToString();
+                        controlSetText(comboBoxBoardTypes, BoardTypes.Zebrashark.ToString());
                         autodetected = true;
                         break;
                     case "3115":
-                        comboBoxBoardTypes.Text = BoardTypes.Hornshark.ToString();
+                        //comboBoxBoardTypes.Text = BoardTypes.Hornshark.ToString();
+                        controlSetText(comboBoxBoardTypes, BoardTypes.Hornshark.ToString());
                         autodetected = true;
                         break;
                     case "3220":
-                        comboBoxBoardTypes.Text = BoardTypes.Honeycomb.ToString();
+                        //comboBoxBoardTypes.Text = BoardTypes.Honeycomb.ToString();
+                        controlSetText(comboBoxBoardTypes, BoardTypes.Honeycomb.ToString());
                         autodetected = true;
                         break;
                 }
             }
+            else
+            {
+                msg = string.Format("Unable to read MFG string");
+                updateOutputStatus(msg);
+            }
+
             if (autodetected)
             {
-                string msg = string.Format("Board type {0} auto selected from MFG string {1}",
+                msg = string.Format("Board type {0} auto selected from MFG string {1}",
                     getSelectedBoardType(), mfg_str);
                 updateOutputStatus(msg);
             }
@@ -1559,12 +1578,14 @@ namespace PowerCalibration
         void calibration_done()
         {
             // enable read protection only if enable and this is a complete run
-            if (_run_all && Properties.Settings.Default.Ember_ReadProtect_Enabled)
+            if (_running_all && Properties.Settings.Default.Ember_ReadProtect_Enabled)
             {
                 try
                 {
                     updateRunStatus("EnableRdProt");
+                    // todo: may want to change to a task
                     string output = _ember.EnableRdProt();
+                    TraceLogger.Log(output);
                     //updateOutputStatus(output);
                 }
                 catch (Exception ex)
@@ -1573,7 +1594,7 @@ namespace PowerCalibration
                 }
             }
 
-            _run_all = false;  // Reset
+            _running_all = false;  // Reset
 
             try
             {
@@ -1603,15 +1624,16 @@ namespace PowerCalibration
 
             TraceLogger.Log("Close Ember isachan");
             if (_ember.Interface == Ember.Interfaces.USB)
+            {
                 _ember.CloseISAChannels();
-
+            }
             close_telnet();
 
             // Stop running watch and report time lapse
             _stopwatch_running.Stop();
             string elapsedTime = String.Format("Elapsed time {0:00} seconds", _stopwatch_running.Elapsed.TotalSeconds);
             updateOutputStatus(elapsedTime);
-            _stopwatch_running.Reset();
+            //_stopwatch_running.Reset();
 
             setEnablement(true, false);
 
@@ -1783,7 +1805,7 @@ namespace PowerCalibration
 
             updateOutputStatus("End Honeycomb tests".PadBoth(80, '-'));
 
-            if (_run_all && _test_error_msg == null)
+            if (_running_all && _test_error_msg == null)
             {
                 calibrate();
             }
@@ -1910,8 +1932,7 @@ namespace PowerCalibration
             buttonCode.Text = "&Cancel";
             setEnablement(false, true);
 
-            _pretest_next_task = TaskTypes.Code;
-            preTest();
+            preTest(TaskTypes.Code);
         }
 
         /// <summary>
@@ -1950,7 +1971,7 @@ namespace PowerCalibration
 
             // Turn power off if we are not calibrating after this or
             // there was a coding problem
-            if (!_run_all && _coding_error_msg != null)
+            if (!_running_all && _coding_error_msg != null)
             {
                 try
                 {
@@ -1972,10 +1993,57 @@ namespace PowerCalibration
 
             updateOutputStatus("End Coding".PadBoth(80, '-'));
 
-            // Run calibration if everything is OK
-            if (_run_all && _coding_error_msg == null &&
+            // Run next task if everything is OK
+            if (_running_all && _coding_error_msg == null &&
                 !_cancel_token_uut.IsCancellationRequested)
             {
+
+                // Check to see if Ember is to be used as USB and open ISA channel if so
+                // Also set the box address
+                Ember.Interfaces ember_interface = (Ember.Interfaces)Enum.Parse(
+                    typeof(Ember.Interfaces), Properties.Settings.Default.Ember_Interface);
+                _ember.Interface = ember_interface;
+                if (_ember.Interface == Ember.Interfaces.USB)
+                {
+                    _ember.Interface_Address = Properties.Settings.Default.Ember_Interface_USB_Address;
+                    TraceLogger.Log("Start Ember isachan");
+                    _ember.OpenISAChannels();
+                }
+                else
+                {
+                    _ember.Interface_Address = Properties.Settings.Default.Ember_Interface_IP_Address;
+                }
+
+                // Create a new telnet connection
+                TraceLogger.Log("Start telnet");
+                // If interface is USB we use localhost
+                string telnet_address = "localhost";
+                if (_ember.Interface == Ember.Interfaces.IP)
+                    telnet_address = _ember.Interface_Address;
+                _telnet_connection = new TelnetConnection(telnet_address, 4900);
+
+                setRunStatus("Reset UUT");
+                TraceLogger.Log("Reset UUT");
+                relaysShowSetttings();
+
+                _relay_ctrl.WriteLine(Relay_Lines.Ember, true);
+                for (int i = 0; i < 3; i++)
+                {
+                    _relay_ctrl.WriteLine(Relay_Lines.Power, false);
+                    Thread.Sleep(1000);
+                    _relay_ctrl.WriteLine(Relay_Lines.Power, true);
+                    Thread.Sleep(1000);
+                    try
+                    {
+                        TCLI.Wait_For_Prompt(_telnet_connection);
+                        break;
+                    }
+                    catch (Exception ex)
+                    {
+                        string msg = ex.Message;
+                    }
+                }
+
                 if (getSelectedBoardType() == BoardTypes.Honeycomb)
                 {
                     hct_Run_Tests();
@@ -2051,15 +2119,13 @@ namespace PowerCalibration
         /// <param name="e"></param>
         void buttonClick_Run(object sender, EventArgs e)
         {
-            _run_all = true;
-            _pretest_next_task = TaskTypes.Code;
-            preTest();
+            _running_all = true;
+            preTest(TaskTypes.Code);
         }
 
         private void buttonRecode_Click(object sender, EventArgs e)
         {
-            _pretest_next_task = TaskTypes.Recode;
-            preTest();
+            preTest(TaskTypes.Recode);
         }
 
         /// <summary>
@@ -2130,8 +2196,7 @@ namespace PowerCalibration
 
         private void buttonTest_Click(object sender, EventArgs e)
         {
-            _pretest_next_task = TaskTypes.Test;
-            preTest();
+            preTest(TaskTypes.Test);
         }
 
     }
