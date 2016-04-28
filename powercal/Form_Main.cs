@@ -61,7 +61,7 @@ namespace PowerCalibration
         delegate void clickCalibrateCallback();  // Clicks Calibrate
         delegate void activateCallback();  // Activates the form
         delegate void setTextCallback(string txt);  // Set object text
-        delegate void setControlTextCallback(Control control, string txt);  // Set object text
+        delegate void setControlPropertyValueCallback(Control control, object value, string property_name);  // Set object text
         delegate void setTextColorCallback(string txt, Color forecolor, Color backcolor); // Set objects color
         delegate void setEnablementCallback(bool enable, bool isCoding);  // Set enablement
         delegate BoardTypes getSelectedBoardTypeCallback();
@@ -377,7 +377,7 @@ namespace PowerCalibration
             catch (Exception ex)
             {
                 msg = string.Format("{0}\r\nTry unplugging and re-plugging the USB device.\r\nThen try to change relay controller in settings dialog", ex.Message);
-                MessageBox.Show(msg);
+                showDialogMsg(msg);
 
                 msg = string.Format("Unable to init relay controller \"{0}\".  Switching to Manual relay mode", rdevtype);
                 updateOutputStatus(msg);
@@ -635,20 +635,20 @@ namespace PowerCalibration
         /// Sets the text property of any control as long as it has one
         /// </summary>
         /// <param name="control"></param>
-        /// <param name="text"></param>
-        void controlSetText(Control control, string text)
+        /// <param name="value"></param>
+        void controlSetText(Control control, object value, string property_name = "Text")
         {
             if (control.InvokeRequired)
             {
-                setControlTextCallback d = new setControlTextCallback(controlSetText);
-                this.Invoke(d, new object[] { control, text });
+                setControlPropertyValueCallback d = new setControlPropertyValueCallback(controlSetText);
+                this.Invoke(d, new object[] { control, value, property_name });
             }
             else
             {
-                var property = control.GetType().GetProperty("Text");
+                var property = control.GetType().GetProperty(property_name);
                 if (property != null)
                 {
-                    property.SetValue(control, text);
+                    property.SetValue(control, value);
                 }
             }
         }
@@ -675,16 +675,19 @@ namespace PowerCalibration
         /// <param name="text"></param>
         void setRunStatus(string text)
         {
-            if (this.textBoxRunStatus.InvokeRequired)
-            {
-                setTextCallback d = new setTextCallback(setRunStatus);
-                this.Invoke(d, new object[] { text });
-            }
-            else
-            {
-                this.textBoxRunStatus.Text = text;
-                this.textBoxRunStatus.Update();
-            }
+            controlSetText(textBoxRunStatus, text);
+            /*            
+                        if (this.textBoxRunStatus.InvokeRequired)
+                        {
+                            setTextCallback d = new setTextCallback(setRunStatus);
+                            this.Invoke(d, new object[] { text });
+                        }
+                        else
+                        {
+                            this.textBoxRunStatus.Text = text;
+                            this.textBoxRunStatus.Update();
+                        }
+             */
         }
 
         /// <summary>
@@ -788,7 +791,6 @@ namespace PowerCalibration
                 msg_dlg += string.Format("{0} = {1}\r\n", key, on_off_str);
 
                 showDialogMsg(msg_dlg);
-                //MessageBox.Show(msg_dlg);
             }
             string status = _relay_ctrl.ToStatusText();
             updateOutputStatus(status);
@@ -1492,27 +1494,22 @@ namespace PowerCalibration
                 switch (pmfgstr)
                 {
                     case "3110":
-                        //comboBoxBoardTypes.Text = BoardTypes.Mudshark.ToString();
                         controlSetText(comboBoxBoardTypes, BoardTypes.Mudshark.ToString());
                         autodetected = true;
                         break;
                     case "3200":
-                        //comboBoxBoardTypes.Text = BoardTypes.Humpback.ToString();
                         controlSetText(comboBoxBoardTypes, BoardTypes.Humpback.ToString());
                         autodetected = true;
                         break;
                     case "3210":
-                        //comboBoxBoardTypes.Text = BoardTypes.Zebrashark.ToString();
                         controlSetText(comboBoxBoardTypes, BoardTypes.Zebrashark.ToString());
                         autodetected = true;
                         break;
                     case "3115":
-                        //comboBoxBoardTypes.Text = BoardTypes.Hornshark.ToString();
                         controlSetText(comboBoxBoardTypes, BoardTypes.Hornshark.ToString());
                         autodetected = true;
                         break;
                     case "3220":
-                        //comboBoxBoardTypes.Text = BoardTypes.Honeycomb.ToString();
                         controlSetText(comboBoxBoardTypes, BoardTypes.Honeycomb.ToString());
                         autodetected = true;
                         break;
@@ -1860,6 +1857,7 @@ namespace PowerCalibration
             // Init relay controller
             initRelayController();
 
+            string msg = "";
 
             // Try to find isa3 ip if not set
             string isa3ip = Properties.Settings.Default.Ember_Interface_IP_Address;
@@ -1882,7 +1880,7 @@ namespace PowerCalibration
                         Properties.Settings.Default.Ember_Interface_IP_Address = ips[0];
                         Properties.Settings.Default.Save();
 
-                        string msg = string.Format("ISA3 adapter ip set to {0}", ips[0]);
+                        msg = string.Format("ISA3 adapter ip set to {0}", ips[0]);
                         updateOutputStatus(msg);
                     }
                     else
@@ -1893,11 +1891,16 @@ namespace PowerCalibration
                 }
                 catch (Exception ex)
                 {
-                    string msg = "ISA3 adapter ip not set: " + ex.Message;
+                    msg = "ISA3 adapter ip not set: " + ex.Message;
                     updateOutputStatus(msg);
                 }
 
             }
+
+            // Report EnableRdProt
+            msg = "EnableRdProt = " + Properties.Settings.Default.Ember_ReadProtect_Enabled.ToString();
+            updateOutputStatus(msg);
+
 
             buttonRun.Focus();
         }
@@ -2024,11 +2027,13 @@ namespace PowerCalibration
 
                 setRunStatus("Reset UUT");
                 TraceLogger.Log("Reset UUT");
-                relaysShowSetttings();
 
                 _relay_ctrl.WriteLine(Relay_Lines.Ember, true);
                 for (int i = 0; i < 3; i++)
                 {
+                    if (_relay_ctrl.Device_Type == RelayControler.Device_Types.Manual)
+                        showDialogMsg("Reset UUT");
+
                     _relay_ctrl.WriteLine(Relay_Lines.Power, false);
                     Thread.Sleep(1000);
                     _relay_ctrl.WriteLine(Relay_Lines.Power, true);

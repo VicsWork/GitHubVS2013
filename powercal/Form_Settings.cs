@@ -12,11 +12,39 @@ namespace PowerCalibration
 {
     public partial class Form_Settings : Form
     {
+        TabPage _superTab;
         public Form_Settings()
         {
             InitializeComponent();
             this.Icon = Properties.Resources.IconPowerCalibration;
+
+            // Remove the supre tab
+            _superTab = tabPageSuper;
+            TabControl.TabPages.Remove(tabPageSuper);
+
         }
+
+        protected override bool ProcessCmdKey(ref Message msg, Keys keyData)
+        {
+            if (keyData ==  (Keys.Control | Keys.D))
+            {
+                labelDBConnectStr.Visible = !labelDBConnectStr.Visible;
+
+                if (_superTab != null)
+                {
+                    TabControl.TabPages.Add(_superTab);
+                    _superTab = null;
+                }
+                else
+                {
+                    _superTab = tabPageSuper;
+                    TabControl.TabPages.Remove(tabPageSuper);
+                }
+            }
+
+            return base.ProcessCmdKey(ref msg, keyData);
+        }
+
 
         private void buttonOK_Click(object sender, EventArgs e)
         {
@@ -56,6 +84,9 @@ namespace PowerCalibration
 
             // Coding
             this.checkBoxCodeMinOnPass.Checked = Properties.Settings.Default.CodeMinimizedOnPASS;
+
+            // Super
+            this.checkBox_EnableDBReporting.Checked = Properties.Settings.Default.Ember_ReadProtect_Enabled;
 
         }
 
@@ -259,13 +290,9 @@ namespace PowerCalibration
             Properties.Settings.Default.CodeMinimizedOnPASS = this.checkBoxCodeMinOnPass.Checked;
         }
 
-        private void TabControl_KeyUp(object sender, KeyEventArgs e)
+        private void checkBoxEnableRdProt_CheckedChanged(object sender, EventArgs e)
         {
-            if (e.Modifiers == Keys.Control && e.KeyCode == Keys.D)
-            {
-                this.labelDBConnectStr.Visible = true;
-            }
+            Properties.Settings.Default.Ember_ReadProtect_Enabled = this.checkBoxEnableRdProt.Checked;
         }
-
     }
 }

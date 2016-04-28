@@ -74,6 +74,9 @@
             this.buttonCancel = new System.Windows.Forms.Button();
             this.buttonOK = new System.Windows.Forms.Button();
             this.toolTip1 = new System.Windows.Forms.ToolTip(this.components);
+            this.tabPageSuper = new System.Windows.Forms.TabPage();
+            this.groupBox1 = new System.Windows.Forms.GroupBox();
+            this.checkBoxEnableRdProt = new System.Windows.Forms.CheckBox();
             this.TabControl.SuspendLayout();
             this.tabPageEmber.SuspendLayout();
             this.tabPageDIO.SuspendLayout();
@@ -87,6 +90,8 @@
             this.tabPageMisc.SuspendLayout();
             this.groupBox3.SuspendLayout();
             this.groupBox2.SuspendLayout();
+            this.tabPageSuper.SuspendLayout();
+            this.groupBox1.SuspendLayout();
             this.SuspendLayout();
             // 
             // TabControl
@@ -99,13 +104,13 @@
             this.TabControl.Controls.Add(this.tabPageCalibration);
             this.TabControl.Controls.Add(this.tagPageMeasurement);
             this.TabControl.Controls.Add(this.tabPageMisc);
+            this.TabControl.Controls.Add(this.tabPageSuper);
             this.TabControl.Location = new System.Drawing.Point(9, 12);
             this.TabControl.Multiline = true;
             this.TabControl.Name = "TabControl";
             this.TabControl.SelectedIndex = 0;
             this.TabControl.Size = new System.Drawing.Size(372, 217);
             this.TabControl.TabIndex = 0;
-            this.TabControl.KeyUp += new System.Windows.Forms.KeyEventHandler(this.TabControl_KeyUp);
             // 
             // tabPageEmber
             // 
@@ -581,6 +586,39 @@
             this.buttonOK.Text = "&OK";
             this.buttonOK.Click += new System.EventHandler(this.buttonOK_Click);
             // 
+            // tabPageSuper
+            // 
+            this.tabPageSuper.Controls.Add(this.groupBox1);
+            this.tabPageSuper.Location = new System.Drawing.Point(4, 22);
+            this.tabPageSuper.Name = "tabPageSuper";
+            this.tabPageSuper.Size = new System.Drawing.Size(364, 191);
+            this.tabPageSuper.TabIndex = 7;
+            this.tabPageSuper.Text = "Super";
+            this.tabPageSuper.UseVisualStyleBackColor = true;
+            // 
+            // groupBox1
+            // 
+            this.groupBox1.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
+            | System.Windows.Forms.AnchorStyles.Right)));
+            this.groupBox1.Controls.Add(this.checkBoxEnableRdProt);
+            this.groupBox1.Location = new System.Drawing.Point(3, 3);
+            this.groupBox1.Name = "groupBox1";
+            this.groupBox1.Size = new System.Drawing.Size(358, 55);
+            this.groupBox1.TabIndex = 10;
+            this.groupBox1.TabStop = false;
+            this.groupBox1.Text = "Post Process";
+            // 
+            // checkBoxEnableRdProt
+            // 
+            this.checkBoxEnableRdProt.AutoSize = true;
+            this.checkBoxEnableRdProt.Location = new System.Drawing.Point(6, 17);
+            this.checkBoxEnableRdProt.Name = "checkBoxEnableRdProt";
+            this.checkBoxEnableRdProt.Size = new System.Drawing.Size(92, 17);
+            this.checkBoxEnableRdProt.TabIndex = 7;
+            this.checkBoxEnableRdProt.Text = "EnableRdProt";
+            this.checkBoxEnableRdProt.UseVisualStyleBackColor = true;
+            this.checkBoxEnableRdProt.CheckedChanged += new System.EventHandler(this.checkBoxEnableRdProt_CheckedChanged);
+            // 
             // Form_Settings
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
@@ -612,6 +650,9 @@
             this.groupBox3.PerformLayout();
             this.groupBox2.ResumeLayout(false);
             this.groupBox2.PerformLayout();
+            this.tabPageSuper.ResumeLayout(false);
+            this.groupBox1.ResumeLayout(false);
+            this.groupBox1.PerformLayout();
             this.ResumeLayout(false);
 
         }
@@ -663,5 +704,8 @@
         private System.Windows.Forms.GroupBox groupBox2;
         private System.Windows.Forms.ToolTip toolTip1;
         private System.Windows.Forms.Label labelDBConnectStr;
+        private System.Windows.Forms.TabPage tabPageSuper;
+        private System.Windows.Forms.GroupBox groupBox1;
+        private System.Windows.Forms.CheckBox checkBoxEnableRdProt;
     }
 }
