@@ -86,7 +86,7 @@ namespace PowerCalibration
             this.checkBoxCodeMinOnPass.Checked = Properties.Settings.Default.CodeMinimizedOnPASS;
 
             // Super
-            this.checkBox_EnableDBReporting.Checked = Properties.Settings.Default.Ember_ReadProtect_Enabled;
+            this.checkBoxEnableRdProt.Checked = Properties.Settings.Default.Ember_ReadProtect_Enabled;
 
         }
 
@@ -294,5 +294,6 @@ namespace PowerCalibration
         {
             Properties.Settings.Default.Ember_ReadProtect_Enabled = this.checkBoxEnableRdProt.Checked;
         }
+
     }
 }
