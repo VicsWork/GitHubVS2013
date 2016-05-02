@@ -882,15 +882,14 @@ namespace PowerCalibration
                 Calibrate calibrate = new Calibrate();
                 calibrate.BoardType = (BoardTypes)Enum.Parse(typeof(BoardTypes), comboBoxBoardTypes.Text);
 
-                string ember_interface = Properties.Settings.Default.Ember_Interface;
-                string ember_address = Properties.Settings.Default.Ember_Interface_IP_Address;
-                if (Properties.Settings.Default.Ember_Interface == "USB")
-                    ember_address = Properties.Settings.Default.Ember_Interface_USB_Address;
+                if (_telnet_connection == null || !_telnet_connection.IsConnected)
+                {
+                    createTelnet();
+                }
 
-                Form_PowerMeter power_meter_dlg = new Form_PowerMeter(ember_interface, ember_address);
-                //calibrate.Voltage_Referencer, calibrate.Current_Referencer);
-
+                Form_PowerMeter power_meter_dlg = new Form_PowerMeter(_telnet_connection);
                 power_meter_dlg.ShowDialog();
+                close_telnet();
                 _relay_ctrl.Close();
             }
             catch (Exception)
@@ -1357,12 +1356,19 @@ namespace PowerCalibration
                         code();
                         break;
                     case TaskTypes.Calibrate:
+                        if (_telnet_connection == null || !_telnet_connection.IsConnected)
+                        {
+                            createTelnet();
+                        }
                         calibrate();
                         break;
                     case TaskTypes.Test:
                         if (getSelectedBoardType() == BoardTypes.Honeycomb)
                         {
-                            _telnet_connection = new TelnetConnection(Properties.Settings.Default.Ember_Interface_IP_Address, 4900);
+                            if (_telnet_connection == null || !_telnet_connection.IsConnected)
+                            {
+                                createTelnet();
+                            }
                             hct_Run_Tests();
                         }
                         break;
@@ -1567,6 +1573,12 @@ namespace PowerCalibration
                 TraceLogger.Log("Close telnet");
                 _telnet_connection.Close();
             }
+
+            if (_ember.Interface == Ember.Interfaces.USB)
+            {
+                _ember.CloseISAChannels();
+            }
+
         }
 
         /// <summary>
@@ -1619,11 +1631,6 @@ namespace PowerCalibration
                 updateOutputStatus(_calibration_error_msg);
             }
 
-            TraceLogger.Log("Close Ember isachan");
-            if (_ember.Interface == Ember.Interfaces.USB)
-            {
-                _ember.CloseISAChannels();
-            }
             close_telnet();
 
             // Stop running watch and report time lapse
@@ -1703,8 +1710,9 @@ namespace PowerCalibration
                 // Start the telnet session
                 if (_telnet_connection == null)
                 {
-                    _telnet_connection = new TelnetConnection(Properties.Settings.Default.Ember_Interface_IP_Address, 4900);
+                    createTelnet();
                 }
+
 
                 for (int i = 0; i < 3; i++)
                 {
@@ -1939,6 +1947,36 @@ namespace PowerCalibration
         }
 
         /// <summary>
+        /// Creates telnet session using app settings
+        /// </summary>
+        void createTelnet()
+        {
+            // Check to see if Ember is to be used as USB and open ISA channel if so
+            // Also set the box address
+            Ember.Interfaces ember_interface = (Ember.Interfaces)Enum.Parse(
+                typeof(Ember.Interfaces), Properties.Settings.Default.Ember_Interface);
+            _ember.Interface = ember_interface;
+            if (_ember.Interface == Ember.Interfaces.USB)
+            {
+                _ember.Interface_Address = Properties.Settings.Default.Ember_Interface_USB_Address;
+                TraceLogger.Log("Start Ember isachan");
+                _ember.OpenISAChannels();
+            }
+            else
+            {
+                _ember.Interface_Address = Properties.Settings.Default.Ember_Interface_IP_Address;
+            }
+
+            // Create a new telnet connection
+            TraceLogger.Log("Start telnet");
+            // If interface is USB we use localhost
+            string telnet_address = "localhost";
+            if (_ember.Interface == Ember.Interfaces.IP)
+                telnet_address = _ember.Interface_Address;
+            _telnet_connection = new TelnetConnection(telnet_address, 4900);
+        }
+
+        /// <summary>
         /// Coding done handler
         /// </summary>
         void coding_done()
@@ -2001,29 +2039,10 @@ namespace PowerCalibration
                 !_cancel_token_uut.IsCancellationRequested)
             {
 
-                // Check to see if Ember is to be used as USB and open ISA channel if so
-                // Also set the box address
-                Ember.Interfaces ember_interface = (Ember.Interfaces)Enum.Parse(
-                    typeof(Ember.Interfaces), Properties.Settings.Default.Ember_Interface);
-                _ember.Interface = ember_interface;
-                if (_ember.Interface == Ember.Interfaces.USB)
+                if (_telnet_connection == null || !_telnet_connection.IsConnected)
                 {
-                    _ember.Interface_Address = Properties.Settings.Default.Ember_Interface_USB_Address;
-                    TraceLogger.Log("Start Ember isachan");
-                    _ember.OpenISAChannels();
+                    createTelnet();
                 }
-                else
-                {
-                    _ember.Interface_Address = Properties.Settings.Default.Ember_Interface_IP_Address;
-                }
-
-                // Create a new telnet connection
-                TraceLogger.Log("Start telnet");
-                // If interface is USB we use localhost
-                string telnet_address = "localhost";
-                if (_ember.Interface == Ember.Interfaces.IP)
-                    telnet_address = _ember.Interface_Address;
-                _telnet_connection = new TelnetConnection(telnet_address, 4900);
 
                 setRunStatus("Reset UUT");
                 TraceLogger.Log("Reset UUT");

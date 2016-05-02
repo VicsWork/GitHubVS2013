@@ -109,6 +109,7 @@ namespace PowerCalibration
             {
                 try
                 {
+                    TraceLogger.Log("Close Ember isachan");
                     _process_ember_isachan.CancelErrorRead();
                     _process_ember_isachan.CancelOutputRead();
                     if (!_process_ember_isachan.HasExited)

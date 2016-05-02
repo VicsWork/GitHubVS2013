@@ -26,7 +26,7 @@ namespace MinimalisticTelnet
         SGA = 3
     }
 
-    class TelnetConnection : IDisposable
+    public class TelnetConnection : IDisposable
     {
         TcpClient _tcpSocket;
         int _timeOutMs = 100;
