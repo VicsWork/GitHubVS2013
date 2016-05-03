@@ -331,7 +331,12 @@ namespace PowerCalibration
             }
             else if (_dev_type == Device_Types.FT232H)
             {
-                _ft232hdio.SetPin(_ftdi_bus, linenum, value);
+                FTD2XX_NET.FTDI.FT_STATUS status = _ft232hdio.SetPin(_ftdi_bus, linenum, value);
+                if (status != FTD2XX_NET.FTDI.FT_STATUS.FT_OK)
+                {
+                    throw new Exception( 
+                        string.Format("Error setting pin {0} to state {1}. Error = {2}", linenum, value, status.ToString() ) );
+                }
                 return;
             }
         }

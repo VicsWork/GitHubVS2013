@@ -374,6 +374,16 @@ namespace PowerCalibration
         }
 
         /// <summary>
+        /// Wrapper for writeline
+        /// </summary>
+        /// <param name="telnet_connection"></param>
+        /// <param name="text"></param>
+        public static void WriteLine(TelnetConnection telnet_connection, string text)
+        {
+            telnet_connection.WriteLine(text);
+        }
+
+        /// <summary>
         /// Inputs a blank line and waits for the prompt
         /// </summary>
         /// <param name="telnet_connection"></param>

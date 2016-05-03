@@ -87,7 +87,39 @@ namespace PowerCalibration
 
             try
             {
+                /******************************************************/
+                if (cancel.IsCancellationRequested) return;
+                msg = "Pairing with Sensor Test";
+                fire_run_status(msg);
+                clearSensorId();
+                int id = pairWithSensor();
+                if (id != 0 && id != _sensor_id)
+                {
+                    if (cancel.IsCancellationRequested) return;
+                    msg = string.Format("Pair with incorrect sensor 0x{0:X}.  Expected sensor id = 0x{1:X}. Retrying...",
+                            id, _sensor_id);
+                    fire_run_status(msg);
 
+                    clearSensorId();
+                    _jig_relay_ctrl.WriteLine(Relay_Lines.Power, false);
+                    Thread.Sleep(1000);
+                    _jig_relay_ctrl.WriteLine(Relay_Lines.Power, true);
+                    Thread.Sleep(1000);
+
+                    id = pairWithSensor();
+                    if (id != _sensor_id)
+                    {
+                        if(id != 0)
+                            clearSensorId();
+                        msg = string.Format("Pair with incorrect sensor 0x{0:X}. Expected sensor id = 0x{1:X}",
+                            id, _sensor_id);
+                        throw new Exception(msg);
+                    }
+                }
+                clearSensorId();
+                /******************************************************/
+
+                /******************************************************/
                 if (cancel.IsCancellationRequested) return;
                 msg = string.Format("LASER Test");
                 fire_run_status(msg);
@@ -107,58 +139,12 @@ namespace PowerCalibration
                 msg = "Resistance Relay Test";
                 fire_run_status(msg);
                 Verify_Resitance();
-
-                if (cancel.IsCancellationRequested) return;
-                msg = "Pairing with Sensor Test";
-                fire_run_status(msg);
-                clearSensorId();
-                int id = pairWithSensor();
-                if (id != _sensor_id)
-                {
-                    if (cancel.IsCancellationRequested) return;
-                    msg = string.Format("Pair with incorrect sensor 0x{0:X}.  Expected sensor id = 0x{1:X}. Retrying...",
-                            id, _sensor_id);
-                    fire_run_status(msg);
-
-                    clearSensorId();
-                    _jig_relay_ctrl.WriteLine(Relay_Lines.Power, false);
-                    Thread.Sleep(1000);
-                    _jig_relay_ctrl.WriteLine(Relay_Lines.Power, true);
-                    Thread.Sleep(1000);
-
-                    for (int i = 0; i < 3; i++)
-                    {
-                        try
-                        {
-                            TCLI.Wait_For_Prompt(_telnet_conn);
-                            break;
-                        }
-                        catch
-                        {
-                            _jig_relay_ctrl.WriteLine(Relay_Lines.Power, false);
-                            Thread.Sleep(1000);
-                            _jig_relay_ctrl.WriteLine(Relay_Lines.Power, true);
-                            Thread.Sleep(1000);
-                        }
-                    }
-
-                    id = pairWithSensor();
-                    if (id != _sensor_id)
-                    {
-                        if(id != 0)
-                            clearSensorId();
-                        msg = string.Format("Pair with incorrect sensor 0x{0:X}. Expected sensor id = 0x{1:X}",
-                            id, _sensor_id);
-                        throw new Exception(msg);
-                    }
-
-                }
-                clearSensorId();
+                /******************************************************/
 
             }
             catch (Exception ex)
             {
-                msg = string.Format("Error detected during \"{0}\".  Error was \"{1}\"", msg, ex.Message);
+                msg = string.Format("{0}", ex.Message);
                 fire_status(msg);
                 throw;
             }
@@ -443,27 +429,18 @@ namespace PowerCalibration
 
         int clearSensorId()
         {
-
-            // Check to see whether we have a sensor
-            //int id = getSensorId();
-            // Just return here.  There is no need to clear anything
-            //if (id == 0)
-            //{
-            //    return id;
-            //}
-
             // Clear the sensor
             string msg = string.Format("Clear Sensor id");
             fire_status(msg);
 
             string data = "";
-            data = TCLI.Wait_For_String(_telnet_conn, "cu si4355 clearSensorId", "si4355 Sensor ID cleared");
+            //data = TCLI.Wait_For_String(_telnet_conn, "cu si4355 clearSensorId", "si4355 Sensor ID cleared");
+            TCLI.WriteLine(_telnet_conn, "cu si4355 clearSensorId");
 
             // Get the id after we cleaned it.  It now should be zero
             int id = getSensorId();
             if (id == 0)
             {
-                //Thread.Sleep(500);
                 return id;
             }
 
@@ -491,35 +468,33 @@ namespace PowerCalibration
                 // Note that the id is part of this
                 string data = "";
 
-                for (int i = 0; i < 3; i++)
+                for (int i = 0; i < 5; i++)
                 {
-                    msg = string.Format("Press sensor join switch");
+                    msg = string.Format("Toggle sensor join switch");
                     fire_status(msg);
+
                     _jig_relay_ctrl.WriteLine(_test_joinhoney_button_linenum, true);
                     Thread.Sleep(2000);
+                    _jig_relay_ctrl.WriteLine(_test_joinhoney_button_linenum, false);
 
                     data += TCLI.Read(_telnet_conn);
 
+                    // Try to find a match
                     Match m = Regex.Match(data, "New sensor paired, ([0-9,A-F]+)");
                     if (m.Success)
                     {
-                        Thread.Sleep(2000);  // This can be shorter than 3 sec. but if too short we won't hear 3 beeps
                         id = Convert.ToInt32(m.Groups[1].Value, 16);
-                        msg = string.Format("Paired with Sensor id 0x{0:X}", id);
+                        msg = string.Format("Paired with Sensor id {0} (0x{0:X})", id);
                         fire_status(msg);
                         break;
                     }
                     else
                     {
-                        msg = string.Format("Release sensor join switch. Try {0}", i+1);
-                        fire_status(msg);
-                        _jig_relay_ctrl.WriteLine(_test_joinhoney_button_linenum, false);
-                        Thread.Sleep(1000);
-
+                        // Just in case, query for the id
                         id = getSensorId();
                         if (id != 0)
                         {
-                            msg = string.Format("Paired with Sensor id 0x{0:X}", id);
+                            msg = string.Format("Paired with Sensor id {0} (0x{0:X})", id);
                             fire_status(msg);
                             break;
                         }

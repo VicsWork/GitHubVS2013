@@ -230,6 +230,7 @@ namespace PowerCalibration
         {
             Exception e = task.Exception.InnerException;
         }
+
         /// <summary>
         /// Creates the internal data table to store results
         /// </summary>
@@ -249,45 +250,6 @@ namespace PowerCalibration
         bool isDBLogingEnabled()
         {
             return _db_Loging;
-        }
-
-        /// <summary>
-        /// Handle the calibration results
-        /// </summary>
-        /// <param name="sender"></param>
-        /// <param name="e"></param>
-        void calibrationResults_Event(object sender, CalibrationResultsEventArgs e)
-        {
-            // Check whether db logging is disabled
-            if (!isDBLogingEnabled())
-                return;
-
-            DataRow r = _datatable_calibrate.NewRow();
-            r["VoltageGain"] = e.Voltage_gain;
-            r["CurrentGain"] = e.Current_gain;
-            r["Eui"] = e.EUI;
-            r["DateCalibrated"] = e.Timestamp;
-
-            lock (_datatable_calibrate)
-            {
-                _datatable_calibrate.Rows.Add(r);
-            }
-
-            if (_task_updatedb == null || _task_updatedb.Status != TaskStatus.Created)
-            {
-                _task_updatedb = new Task(updateDB);
-            }
-
-            if (_task_updatedb.Status != TaskStatus.Running)
-            {
-                _task_updatedb.Start();
-            }
-
-            if (_datatable_calibrate.Rows.Count > 10000)
-            {
-                _datatable_calibrate.Rows.Clear();
-            }
-
         }
 
         /// <summary>
@@ -735,26 +697,43 @@ namespace PowerCalibration
         }
 
         /// <summary>
-        /// Invokes Serial test dld
+        /// Activates the form
         /// </summary>
-        /// <param name="sender"></param>
-        /// <param name="e"></param>
-        void toolStripMenuItem_Click_Serial(object sender, EventArgs e)
+        void activate()
         {
-            Form_SerialTest dlg = new Form_SerialTest();
-            //DialogResult result = dlg.ShowDialog();
-            dlg.Show();
+            if (InvokeRequired)
+            {
+                activateCallback d = new activateCallback(activate);
+                this.Invoke(d);
+            }
+            else
+            {
+                Activate();
+            }
         }
 
         /// <summary>
-        /// Invokes About dialog
+        /// Closes the board relay using custom command
         /// </summary>
-        /// <param name="sender"></param>
-        /// <param name="e"></param>
-        void toolStripMenuItem_Click_About(object sender, EventArgs e)
+        /// <param name="board_type"></param>
+        /// <param name="telnet_connection"></param>
+        void set_board_relay(BoardTypes board_type, TelnetConnection telnet_connection, bool value)
         {
-            AboutBox dlg = new AboutBox();
-            DialogResult result = dlg.ShowDialog();
+            switch (board_type)
+            {
+                // These boards have relays
+                case BoardTypes.Hooktooth:
+                case BoardTypes.Hornshark:
+                case BoardTypes.Humpback:
+                case BoardTypes.Zebrashark:
+                    updateRunStatus(string.Format("Set UUT Relay {0}", value.ToString()));
+                    if (value)
+                        telnet_connection.WriteLine("write 1 6 0 1 0x10 {01}");
+                    else
+                        telnet_connection.WriteLine("write 1 6 0 1 0x10 {00}");
+                    break;
+            }
+
         }
 
         /// <summary>
@@ -806,6 +785,29 @@ namespace PowerCalibration
         }
 
         /// <summary>
+        /// Invokes Serial test dld
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        void toolStripMenuItem_Click_Serial(object sender, EventArgs e)
+        {
+            Form_SerialTest dlg = new Form_SerialTest();
+            //DialogResult result = dlg.ShowDialog();
+            dlg.Show();
+        }
+
+        /// <summary>
+        /// Invokes About dialog
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        void toolStripMenuItem_Click_About(object sender, EventArgs e)
+        {
+            AboutBox dlg = new AboutBox();
+            DialogResult result = dlg.ShowDialog();
+        }
+
+        /// <summary>
         /// Clears the Output status text
         /// </summary>
         /// <param name="sender"></param>
@@ -823,10 +825,18 @@ namespace PowerCalibration
         /// <param name="e"></param>
         void toolStripMenuItem_StatusCopy(object sender, EventArgs e)
         {
-            string text = textBoxOutputStatus.SelectedText;
-            if (text.Length == 0)
-                text = textBoxOutputStatus.Text;
-            System.Windows.Forms.Clipboard.SetText(text);
+            try
+            {
+                string text = textBoxOutputStatus.SelectedText;
+                if (text.Length == 0)
+                    text = textBoxOutputStatus.Text;
+                System.Windows.Forms.Clipboard.SetText(text);
+            }
+            catch (Exception ex)
+            {
+                // The clipboard settext  may fail when using vnc
+                TraceLogger.Log("Exception in toolStripMenuItem_StatusCopy: " + ex.Message);
+            }
         }
 
         /// <summary>
@@ -975,30 +985,6 @@ namespace PowerCalibration
         }
 
         /// <summary>
-        /// Closes the board relay using custom command
-        /// </summary>
-        /// <param name="board_type"></param>
-        /// <param name="telnet_connection"></param>
-        void set_board_relay(BoardTypes board_type, TelnetConnection telnet_connection, bool value)
-        {
-            switch (board_type)
-            {
-                // These boards have relays
-                case BoardTypes.Hooktooth:
-                case BoardTypes.Hornshark:
-                case BoardTypes.Humpback:
-                case BoardTypes.Zebrashark:
-                    updateRunStatus(string.Format("Set UUT Relay {0}", value.ToString()));
-                    if (value)
-                        telnet_connection.WriteLine("write 1 6 0 1 0x10 {01}");
-                    else
-                        telnet_connection.WriteLine("write 1 6 0 1 0x10 {00}");
-                    break;
-            }
-
-        }
-
-        /// <summary>
         /// Remember the last board we used
         /// 
 
@@ -1078,6 +1064,54 @@ namespace PowerCalibration
         }
 
         /// <summary>
+        /// Creates telnet session using app settings
+        /// </summary>
+        void createTelnet()
+        {
+            // Check to see if Ember is to be used as USB and open ISA channel if so
+            // Also set the box address
+            Ember.Interfaces ember_interface = (Ember.Interfaces)Enum.Parse(
+                typeof(Ember.Interfaces), Properties.Settings.Default.Ember_Interface);
+            _ember.Interface = ember_interface;
+            if (_ember.Interface == Ember.Interfaces.USB)
+            {
+                _ember.Interface_Address = Properties.Settings.Default.Ember_Interface_USB_Address;
+                TraceLogger.Log("Start Ember isachan");
+                _ember.OpenISAChannels();
+            }
+            else
+            {
+                _ember.Interface_Address = Properties.Settings.Default.Ember_Interface_IP_Address;
+            }
+
+            // Create a new telnet connection
+            TraceLogger.Log("Start telnet");
+            // If interface is USB we use localhost
+            string telnet_address = "localhost";
+            if (_ember.Interface == Ember.Interfaces.IP)
+                telnet_address = _ember.Interface_Address;
+            _telnet_connection = new TelnetConnection(telnet_address, 4900);
+        }
+
+        /// <summary>
+        /// Closes telnet and ISA channels
+        /// </summary>
+        void close_telnet()
+        {
+            if (_telnet_connection != null)
+            {
+                TraceLogger.Log("Close telnet");
+                _telnet_connection.Close();
+            }
+
+            if (_ember.Interface == Ember.Interfaces.USB)
+            {
+                _ember.CloseISAChannels();
+            }
+
+        }
+
+        /// <summary>
         /// Wait for VAC power to be off
         /// </summary>
         /// <returns></returns>
@@ -1089,6 +1123,7 @@ namespace PowerCalibration
             if (_meter == null)
                 return -1;
 
+            _relay_ctrl.OpenIfClosed();
             if (_relay_ctrl != null && _relay_ctrl.Device_Type != RelayControler.Device_Types.Manual)
                 _relay_ctrl.WriteLine(Relay_Lines.Vac_Vdc, false);  // AC measure
 
@@ -1197,11 +1232,11 @@ namespace PowerCalibration
             // Turn power off
             if (_relay_ctrl != null)
             {
+                _relay_ctrl.OpenIfClosed();
                 _relay_ctrl.WriteLine(PowerCalibration.Relay_Lines.Ember, false);
                 _relay_ctrl.WriteLine(PowerCalibration.Relay_Lines.Power, false);
                 _relay_ctrl.WriteLine(PowerCalibration.Relay_Lines.Load, false);
                 relaysShowSetttings();
-                _relay_ctrl.Close();
             }
 
             // Wait for power off
@@ -1209,6 +1244,7 @@ namespace PowerCalibration
             {
                 wait_for_power_off();
             }
+            _relay_ctrl.Close();
 
         }
 
@@ -1247,7 +1283,7 @@ namespace PowerCalibration
             // Clear output status
             textBoxOutputStatus.Clear();
 
-            // Clear toolstrip
+            // Clear tool strip
             toolStripTimingStatusLabel.Text = "";
             statusStrip.Update();
 
@@ -1256,8 +1292,6 @@ namespace PowerCalibration
 
             // Clear the error
             _pretest_error_msg = null;
-            _coding_error_msg = null;
-            _calibration_error_msg = null;
 
             // Init the meter object
             if (Properties.Settings.Default.Meter_Manual_Measurement)
@@ -1266,7 +1300,7 @@ namespace PowerCalibration
                 _meter = new MultiMeter(Properties.Settings.Default.Meter_COM_Port_Name);
 
 
-            _relay_ctrl.Open();
+            _relay_ctrl.OpenIfClosed();
             _relay_ctrl.WriteLine(Relay_Lines.Ember, false);
             _relay_ctrl.WriteLine(Relay_Lines.Load, false);
             _relay_ctrl.WriteLine(Relay_Lines.Power, true);
@@ -1353,23 +1387,56 @@ namespace PowerCalibration
                 switch (next_task)
                 {
                     case TaskTypes.Code:
-                        code();
-                        break;
-                    case TaskTypes.Calibrate:
-                        if (_telnet_connection == null || !_telnet_connection.IsConnected)
+                        _coding_error_msg = null;
+                        try
                         {
-                            createTelnet();
+                            _relay_ctrl.OpenIfClosed();
+                            //code();
+                            coding_done();
                         }
-                        calibrate();
+                        catch (Exception ex)
+                        {
+                            _coding_error_msg = ex.Message;
+                            coding_done();
+                        }
                         break;
-                    case TaskTypes.Test:
-                        if (getSelectedBoardType() == BoardTypes.Honeycomb)
+
+                    case TaskTypes.Calibrate:
+                        _calibration_error_msg = null;
+                        try
                         {
                             if (_telnet_connection == null || !_telnet_connection.IsConnected)
                             {
                                 createTelnet();
                             }
-                            hct_Run_Tests();
+                            _relay_ctrl.OpenIfClosed();
+                            calibrate();
+                        }
+                        catch (Exception ex)
+                        {
+                            _calibration_error_msg = ex.Message;
+                            calibration_done();
+                        }
+                        break;
+
+                    case TaskTypes.Test:
+                        if (getSelectedBoardType() == BoardTypes.Honeycomb)
+                        {
+                            _test_error_msg = null;
+                            try
+                            {
+                                if (_telnet_connection == null || !_telnet_connection.IsConnected)
+                                {
+                                    createTelnet();
+                                }
+                                _relay_ctrl.OpenIfClosed();
+                                hct_Run_Tests();
+                            }
+                            catch (Exception ex)
+                            {
+                                _test_error_msg = ex.Message;
+                                hct_done();
+                            }
                         }
                         break;
                     case TaskTypes.Recode:
@@ -1396,25 +1463,6 @@ namespace PowerCalibration
                 }
 
             }
-        }
-
-        /// <summary>
-        /// Starts the coding task
-        /// </summary>
-        void code()
-        {
-            // Init coder
-            Coder coder = new Coder(new TimeSpan(0, 2, 0));
-
-            setRunStatus("Start Coding", Color.Black, Color.White);
-            updateOutputStatus("Start Coding".PadBoth(80, '-'));
-            // Run coding
-            _cancel_token_uut = new CancellationTokenSource();
-            _task_uut = new Task(() => coder.Code(_cancel_token_uut.Token), _cancel_token_uut.Token);
-            _task_uut.ContinueWith(coding_exception_handler, TaskContinuationOptions.OnlyOnFaulted);
-            _task_uut.ContinueWith(coding_done_handler, TaskContinuationOptions.OnlyOnRanToCompletion);
-            _task_uut.Start();
-
         }
 
         /// <summary>
@@ -1455,6 +1503,8 @@ namespace PowerCalibration
         /// <param name="e"></param>
         void buttonClick_Calibrate(object sender, EventArgs e)
         {
+            _running_all = false;
+
             if (!this.buttonCalibrate.Enabled) return;
 
             preTest(TaskTypes.Calibrate);
@@ -1465,10 +1515,17 @@ namespace PowerCalibration
         /// </summary>
         void calibrate()
         {
+            _calibration_error_msg = null;
+
             setRunStatus("Start Calibration", Color.Black, Color.White);
             updateOutputStatus("Start Calibration".PadBoth(80, '-'));
 
             // Get MFG String and set board type
+            if (_telnet_connection == null || !_telnet_connection.IsConnected)
+            {
+                createTelnet();
+            }
+            _relay_ctrl.OpenIfClosed();
             _relay_ctrl.WriteLine(Relay_Lines.Power, true);
             _relay_ctrl.WriteLine(Relay_Lines.Ember, true);
             string mfg_str = null;
@@ -1483,7 +1540,7 @@ namespace PowerCalibration
                 }
                 catch (Exception ex)
                 {
-                    string.Format("Unable to read MFG string: {0}", ex.Message);
+                    msg = string.Format("Unable to read MFG string: {0}", ex.Message);
                 }
             }
 
@@ -1546,10 +1603,10 @@ namespace PowerCalibration
 
             // Run the calibration
             Calibrate calibrate = new Calibrate(); // Calibration object
-            calibrate.Status_Event += calibrate_Status_event;
-            calibrate.Run_Status_Event += calibrate_Run_Status_Event;
-            calibrate.Relay_Event += calibrate_Relay_Event;
-            calibrate.CalibrationResults_Event += calibrationResults_Event;
+            calibrate.Status_Event += calibration_Status_event;
+            calibrate.Run_Status_Event += calibration_Run_Status_Event;
+            calibrate.Relay_Event += calibration_Relay_Event;
+            calibrate.CalibrationResults_Event += calibration_Results_Event;
             calibrate.BoardType = getSelectedBoardType();
             calibrate.Ember = _ember;
             calibrate.MultiMeter = _meter;
@@ -1559,25 +1616,10 @@ namespace PowerCalibration
             _cancel_token_uut = new CancellationTokenSource();
             _task_uut = new Task(() => calibrate.Run(_cancel_token_uut.Token), _cancel_token_uut.Token);
             _task_uut.ContinueWith(
-                calibrate_exception_handler, TaskContinuationOptions.OnlyOnFaulted);
+                calibration_exception_handler, TaskContinuationOptions.OnlyOnFaulted);
             _task_uut.ContinueWith(
                 calibration_done_handler, TaskContinuationOptions.OnlyOnRanToCompletion);
             _task_uut.Start();
-
-        }
-
-        void close_telnet()
-        {
-            if (_telnet_connection != null)
-            {
-                TraceLogger.Log("Close telnet");
-                _telnet_connection.Close();
-            }
-
-            if (_ember.Interface == Ember.Interfaces.USB)
-            {
-                _ember.CloseISAChannels();
-            }
 
         }
 
@@ -1658,7 +1700,7 @@ namespace PowerCalibration
         /// Handles when calibration throws an error
         /// </summary>
         /// <param name="task"></param>
-        void calibrate_exception_handler(Task task)
+        void calibration_exception_handler(Task task)
         {
             var exception = task.Exception;
             string errmsg = exception.InnerException.Message;
@@ -1668,11 +1710,50 @@ namespace PowerCalibration
         }
 
         /// <summary>
+        /// Handle the calibration results
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        void calibration_Results_Event(object sender, CalibrationResultsEventArgs e)
+        {
+            // Check whether db logging is disabled
+            if (!isDBLogingEnabled())
+                return;
+
+            DataRow r = _datatable_calibrate.NewRow();
+            r["VoltageGain"] = e.Voltage_gain;
+            r["CurrentGain"] = e.Current_gain;
+            r["Eui"] = e.EUI;
+            r["DateCalibrated"] = e.Timestamp;
+
+            lock (_datatable_calibrate)
+            {
+                _datatable_calibrate.Rows.Add(r);
+            }
+
+            if (_task_updatedb == null || _task_updatedb.Status != TaskStatus.Created)
+            {
+                _task_updatedb = new Task(updateDB);
+            }
+
+            if (_task_updatedb.Status != TaskStatus.Running)
+            {
+                _task_updatedb.Start();
+            }
+
+            if (_datatable_calibrate.Rows.Count > 10000)
+            {
+                _datatable_calibrate.Rows.Clear();
+            }
+
+        }
+
+        /// <summary>
         /// Handles relay controller event
         /// </summary>
         /// <param name="sender"></param>
         /// <param name="relay_controller"></param>
-        void calibrate_Relay_Event(object sender, RelayControler relay_controller)
+        void calibration_Relay_Event(object sender, RelayControler relay_controller)
         {
             relaysShowSetttings();
         }
@@ -1682,7 +1763,7 @@ namespace PowerCalibration
         /// </summary>
         /// <param name="sender"></param>
         /// <param name="status_txt"></param>
-        void calibrate_Status_event(object sender, string status_txt)
+        void calibration_Status_event(object sender, string status_txt)
         {
             updateOutputStatus(status_txt);
         }
@@ -1692,7 +1773,7 @@ namespace PowerCalibration
         /// </summary>
         /// <param name="sender"></param>
         /// <param name="status_txt"></param>
-        void calibrate_Run_Status_Event(object sender, string status_txt)
+        void calibration_Run_Status_Event(object sender, string status_txt)
         {
             updateRunStatus(status_txt);
         }
@@ -1747,7 +1828,7 @@ namespace PowerCalibration
             catch (Exception ex)
             {
                 _test_error_msg = ex.Message;
-                htc_done();
+                hct_done();
             }
         }
 
@@ -1762,23 +1843,26 @@ namespace PowerCalibration
             string errmsg = exception.InnerException.Message;
 
             _test_error_msg = errmsg;
-            htc_done();
+            hct_done();
         }
 
         void hct_done_handler(Task task)
         {
-            htc_done();
+            hct_done();
         }
 
-        void htc_done()
+        void hct_done()
         {
-            try
+            if (!_running_all || _test_error_msg != null)
             {
-                power_off();
-            }
-            catch (Exception ex)
-            {
-                updateOutputStatus("Power off exception:" + ex.Message);
+                try
+                {
+                    power_off();
+                }
+                catch (Exception ex)
+                {
+                    updateOutputStatus("Power off exception:" + ex.Message);
+                }
             }
 
             // Check PASS or FAIL
@@ -1929,6 +2013,8 @@ namespace PowerCalibration
         /// <param name="e"></param>
         void buttonClick_Code(object sender, EventArgs e)
         {
+            _running_all = false;
+
             // Just in case
             if (!this.buttonCode.Enabled) return;
 
@@ -1947,33 +2033,23 @@ namespace PowerCalibration
         }
 
         /// <summary>
-        /// Creates telnet session using app settings
+        /// Starts the coding task
         /// </summary>
-        void createTelnet()
+        void code()
         {
-            // Check to see if Ember is to be used as USB and open ISA channel if so
-            // Also set the box address
-            Ember.Interfaces ember_interface = (Ember.Interfaces)Enum.Parse(
-                typeof(Ember.Interfaces), Properties.Settings.Default.Ember_Interface);
-            _ember.Interface = ember_interface;
-            if (_ember.Interface == Ember.Interfaces.USB)
-            {
-                _ember.Interface_Address = Properties.Settings.Default.Ember_Interface_USB_Address;
-                TraceLogger.Log("Start Ember isachan");
-                _ember.OpenISAChannels();
-            }
-            else
-            {
-                _ember.Interface_Address = Properties.Settings.Default.Ember_Interface_IP_Address;
-            }
+            // Init coder
+            Coder coder = new Coder(new TimeSpan(0, 2, 0));
+            _coding_error_msg = null;
 
-            // Create a new telnet connection
-            TraceLogger.Log("Start telnet");
-            // If interface is USB we use localhost
-            string telnet_address = "localhost";
-            if (_ember.Interface == Ember.Interfaces.IP)
-                telnet_address = _ember.Interface_Address;
-            _telnet_connection = new TelnetConnection(telnet_address, 4900);
+            setRunStatus("Start Coding", Color.Black, Color.White);
+            updateOutputStatus("Start Coding".PadBoth(80, '-'));
+            // Run coding
+            _cancel_token_uut = new CancellationTokenSource();
+            _task_uut = new Task(() => coder.Code(_cancel_token_uut.Token), _cancel_token_uut.Token);
+            _task_uut.ContinueWith(coding_exception_handler, TaskContinuationOptions.OnlyOnFaulted);
+            _task_uut.ContinueWith(coding_done_handler, TaskContinuationOptions.OnlyOnRanToCompletion);
+            _task_uut.Start();
+
         }
 
         /// <summary>
@@ -2012,7 +2088,7 @@ namespace PowerCalibration
 
             // Turn power off if we are not calibrating after this or
             // there was a coding problem
-            if (!_running_all && _coding_error_msg != null)
+            if (!_running_all || _coding_error_msg != null)
             {
                 try
                 {
@@ -2080,22 +2156,6 @@ namespace PowerCalibration
         }
 
         /// <summary>
-        /// Activates the form
-        /// </summary>
-        void activate()
-        {
-            if (InvokeRequired)
-            {
-                activateCallback d = new activateCallback(activate);
-                this.Invoke(d);
-            }
-            else
-            {
-                Activate();
-            }
-        }
-
-        /// <summary>
         /// Clicks the calibrate button
         /// </summary>
         void clickCalibrate()
@@ -2149,6 +2209,7 @@ namespace PowerCalibration
 
         private void buttonRecode_Click(object sender, EventArgs e)
         {
+            _running_all = false;
             preTest(TaskTypes.Recode);
         }
 
@@ -2220,6 +2281,8 @@ namespace PowerCalibration
 
         private void buttonTest_Click(object sender, EventArgs e)
         {
+            _running_all = false;
+
             preTest(TaskTypes.Test);
         }
 

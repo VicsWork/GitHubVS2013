@@ -291,6 +291,7 @@
             // 
             // buttonRecode
             // 
+            this.buttonRecode.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
             this.buttonRecode.Location = new System.Drawing.Point(421, 35);
             this.buttonRecode.Name = "buttonRecode";
             this.buttonRecode.Size = new System.Drawing.Size(75, 23);
@@ -301,6 +302,7 @@
             // 
             // buttonTest
             // 
+            this.buttonTest.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
             this.buttonTest.Location = new System.Drawing.Point(664, 35);
             this.buttonTest.Name = "buttonTest";
             this.buttonTest.Size = new System.Drawing.Size(75, 23);

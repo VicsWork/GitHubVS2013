@@ -238,7 +238,7 @@ namespace PowerCalibration.Properties {
         
         [global::System.Configuration.UserScopedSettingAttribute()]
         [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
-        [global::System.Configuration.DefaultSettingValueAttribute("41463025")]
+        [global::System.Configuration.DefaultSettingValueAttribute("41461589")]
         public int HoneycombSensorID {
             get {
                 return ((int)(this["HoneycombSensorID"]));
