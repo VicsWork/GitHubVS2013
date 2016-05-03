@@ -1391,8 +1391,7 @@ namespace PowerCalibration
                         try
                         {
                             _relay_ctrl.OpenIfClosed();
-                            //code();
-                            coding_done();
+                            code();
                         }
                         catch (Exception ex)
                         {
