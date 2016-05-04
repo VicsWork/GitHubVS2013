@@ -1308,6 +1308,7 @@ namespace PowerCalibration
             {
                 _relay_ctrl.WriteLine(4, false);
             }
+            relaysShowSetttings();
 
             if (!Properties.Settings.Default.PrePost_Test_Enabled)
             {
@@ -1810,6 +1811,7 @@ namespace PowerCalibration
                         Thread.Sleep(1000);
                     }
                 }
+                relaysShowSetttings();
 
                 Tests_Honeycomb hct = new Tests_Honeycomb(_relay_ctrl, _meter, _telnet_connection);
                 hct.Status_Event += hct_Status_Event;
@@ -2042,6 +2044,8 @@ namespace PowerCalibration
 
             setRunStatus("Start Coding", Color.Black, Color.White);
             updateOutputStatus("Start Coding".PadBoth(80, '-'));
+            relaysShowSetttings();
+
             // Run coding
             _cancel_token_uut = new CancellationTokenSource();
             _task_uut = new Task(() => coder.Code(_cancel_token_uut.Token), _cancel_token_uut.Token);
