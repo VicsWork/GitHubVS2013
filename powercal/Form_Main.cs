@@ -1520,81 +1520,9 @@ namespace PowerCalibration
             setRunStatus("Start Calibration", Color.Black, Color.White);
             updateOutputStatus("Start Calibration".PadBoth(80, '-'));
 
-            // Get MFG String and set board type
-            if (_telnet_connection == null || !_telnet_connection.IsConnected)
-            {
-                createTelnet();
-            }
-            _relay_ctrl.OpenIfClosed();
-            _relay_ctrl.WriteLine(Relay_Lines.Power, true);
-            _relay_ctrl.WriteLine(Relay_Lines.Ember, true);
-            string mfg_str = null;
-            string msg = "";
-            for (int i = 0; i < 3; i++)
-            {
-                try
-                {
-
-                    mfg_str = TCLI.Get_MFGString(_telnet_connection);
-                    break;
-                }
-                catch (Exception ex)
-                {
-                    msg = string.Format("Unable to read MFG string: {0}", ex.Message);
-                }
-            }
-
-
-            bool autodetected = false;
-            if (mfg_str != null)
-            {
-                // Strip postfix
-                string pmfgstr = mfg_str;
-                int pos = mfg_str.IndexOf('-');
-                if (pos > 0)
-                    pmfgstr = mfg_str.Substring(0, pos);
-
-                switch (pmfgstr)
-                {
-                    case "3110":
-                        controlSetText(comboBoxBoardTypes, BoardTypes.Mudshark.ToString());
-                        autodetected = true;
-                        break;
-                    case "3200":
-                        controlSetText(comboBoxBoardTypes, BoardTypes.Humpback.ToString());
-                        autodetected = true;
-                        break;
-                    case "3210":
-                        controlSetText(comboBoxBoardTypes, BoardTypes.Zebrashark.ToString());
-                        autodetected = true;
-                        break;
-                    case "3115":
-                        controlSetText(comboBoxBoardTypes, BoardTypes.Hornshark.ToString());
-                        autodetected = true;
-                        break;
-                    case "3220":
-                        controlSetText(comboBoxBoardTypes, BoardTypes.Honeycomb.ToString());
-                        autodetected = true;
-                        break;
-                }
-            }
-            else
-            {
-                msg = string.Format("Unable to read MFG string");
-                updateOutputStatus(msg);
-            }
-
-            if (autodetected)
-            {
-                msg = string.Format("Board type {0} auto selected from MFG string {1}",
-                    getSelectedBoardType(), mfg_str);
-                updateOutputStatus(msg);
-            }
-
-
             // Connect the load
+            _relay_ctrl.OpenIfClosed();
             _relay_ctrl.WriteLine(Relay_Lines.Load, true);
-
             relaysShowSetttings();
 
             //for debug
@@ -1864,6 +1792,7 @@ namespace PowerCalibration
                 {
                     updateOutputStatus("Power off exception:" + ex.Message);
                 }
+                close_telnet();
             }
 
             // Check PASS or FAIL
@@ -1878,12 +1807,9 @@ namespace PowerCalibration
                 {
                     _meter.CloseSerialPort();
                 }
-
                 updateRunStatus("FAIL", Color.White, Color.Red);
                 updateOutputStatus(_test_error_msg);
             }
-
-            close_telnet();
 
             // Stop running watch and report time lapse
             _stopwatch_running.Stop();
@@ -2074,6 +2000,81 @@ namespace PowerCalibration
 
                 if (_coding_error_msg == null)
                 {
+                    // Get MFG String and set board type
+                    if (_telnet_connection == null || !_telnet_connection.IsConnected)
+                    {
+                        createTelnet();
+                    }
+
+                    _relay_ctrl.WriteLine(Relay_Lines.Power, false);
+                    Thread.Sleep(1000);
+                    _relay_ctrl.WriteLine(Relay_Lines.Power, true);
+                    Thread.Sleep(1000);
+                    _relay_ctrl.WriteLine(Relay_Lines.Ember, true);
+                    string mfg_str = null;
+                    string msg = "";
+                    for (int i = 0; i < 3; i++)
+                    {
+                        try
+                        {
+
+                            mfg_str = TCLI.Get_MFGString(_telnet_connection);
+                            break;
+                        }
+                        catch (Exception ex)
+                        {
+                            msg = string.Format("Unable to read MFG string: {0}", ex.Message);
+                        }
+                    }
+
+
+                    bool autodetected = false;
+                    if (mfg_str != null)
+                    {
+                        // Strip postfix
+                        string pmfgstr = mfg_str;
+                        int pos = mfg_str.IndexOf('-');
+                        if (pos > 0)
+                            pmfgstr = mfg_str.Substring(0, pos);
+
+                        switch (pmfgstr)
+                        {
+                            case "3110":
+                                controlSetText(comboBoxBoardTypes, BoardTypes.Mudshark.ToString());
+                                autodetected = true;
+                                break;
+                            case "3200":
+                                controlSetText(comboBoxBoardTypes, BoardTypes.Humpback.ToString());
+                                autodetected = true;
+                                break;
+                            case "3210":
+                                controlSetText(comboBoxBoardTypes, BoardTypes.Zebrashark.ToString());
+                                autodetected = true;
+                                break;
+                            case "3115":
+                                controlSetText(comboBoxBoardTypes, BoardTypes.Hornshark.ToString());
+                                autodetected = true;
+                                break;
+                            case "3220":
+                                controlSetText(comboBoxBoardTypes, BoardTypes.Honeycomb.ToString());
+                                autodetected = true;
+                                break;
+                        }
+                    }
+                    else
+                    {
+                        msg = string.Format("Unable to read MFG string");
+                        updateOutputStatus(msg);
+                    }
+
+                    if (autodetected)
+                    {
+                        msg = string.Format("Board type {0} auto selected from MFG string {1}",
+                            getSelectedBoardType(), mfg_str);
+                        updateOutputStatus(msg);
+                    }
+
+
                     updateRunStatus("PASS", Color.White, Color.Green);
                 }
                 else
