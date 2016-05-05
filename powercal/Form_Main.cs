@@ -1841,17 +1841,14 @@ namespace PowerCalibration
                 setRunStatus("Start Honeycomb Tests", Color.Black, Color.White);
                 updateOutputStatus("Start Honeycomb Tests".PadBoth(80, '-'));
 
-                // Start the telnet session
-                if (_telnet_connection == null)
-                {
-                    createTelnet();
-                }
 
 
                 for (int i = 0; i < 3; i++)
                 {
                     try
                     {
+                        if (_telnet_connection == null || !_telnet_connection.IsConnected)
+                            createTelnet();
                         TCLI.Wait_For_Prompt(_telnet_connection);
                         break;
                     }

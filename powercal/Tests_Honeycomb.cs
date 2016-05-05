@@ -76,6 +76,11 @@ namespace PowerCalibration
         {
             if (cancel.IsCancellationRequested) return;
 
+            _jig_relay_ctrl.WriteLine(_test_joinhoney_button_linenum, false);
+            _jig_relay_ctrl.WriteLine(_test_laser_relay_linenum, false);
+
+
+
             _init_meter = true;
             init_meter();
             _init_meter = false;
@@ -129,6 +134,10 @@ namespace PowerCalibration
                 msg = string.Format("LASER Test");
                 fire_run_status(msg);
                 VerifyLaser();
+
+                Set_UUT_Relay_State(Tests_Honeycomb.Relay.Continuity, false);
+                Set_UUT_Relay_State(Tests_Honeycomb.Relay.Capacitor, false);
+                Set_UUT_Relay_State(Tests_Honeycomb.Relay.Resistor, false);
 
                 if (cancel.IsCancellationRequested) return;
                 msg = "Door Relay Continuity Test";
@@ -472,15 +481,16 @@ namespace PowerCalibration
             {
                 // Note that the id is part of this
                 string data = "";
-
+                int toggle_delay = 2000;
                 for (int i = 0; i < 5; i++)
                 {
                     msg = string.Format("Toggle sensor join switch");
                     fire_status(msg);
 
                     _jig_relay_ctrl.WriteLine(_test_joinhoney_button_linenum, true);
-                    Thread.Sleep(2000);
+                    Thread.Sleep(toggle_delay);
                     _jig_relay_ctrl.WriteLine(_test_joinhoney_button_linenum, false);
+                    toggle_delay += 500;
 
                     data += TCLI.Read(_telnet_conn);
 

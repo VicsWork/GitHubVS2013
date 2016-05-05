@@ -160,7 +160,7 @@
             // 
             this.settingsToolStripMenuItem.Name = "settingsToolStripMenuItem";
             this.settingsToolStripMenuItem.Size = new System.Drawing.Size(61, 20);
-            this.settingsToolStripMenuItem.Text = "&Settings";
+            this.settingsToolStripMenuItem.Text = "Settings";
             this.settingsToolStripMenuItem.Click += new System.EventHandler(this.toolStripMenuItem_Settings);
             // 
             // testToolStripMenuItem
@@ -296,7 +296,7 @@
             this.buttonRecode.Name = "buttonRecode";
             this.buttonRecode.Size = new System.Drawing.Size(75, 23);
             this.buttonRecode.TabIndex = 14;
-            this.buttonRecode.Text = "R&ecode";
+            this.buttonRecode.Text = "Reco&de";
             this.buttonRecode.UseVisualStyleBackColor = true;
             this.buttonRecode.Click += new System.EventHandler(this.buttonRecode_Click);
             // 
@@ -307,7 +307,7 @@
             this.buttonTest.Name = "buttonTest";
             this.buttonTest.Size = new System.Drawing.Size(75, 23);
             this.buttonTest.TabIndex = 15;
-            this.buttonTest.Text = "Te&st";
+            this.buttonTest.Text = "T&est";
             this.buttonTest.UseVisualStyleBackColor = true;
             this.buttonTest.Visible = false;
             this.buttonTest.Click += new System.EventHandler(this.buttonTest_Click);
