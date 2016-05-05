@@ -93,7 +93,12 @@ namespace PowerCalibration
                 fire_run_status(msg);
                 clearSensorId();
                 int id = pairWithSensor();
-                if (id != 0 && id != _sensor_id)
+                if (id == 0)
+                {
+                    msg = string.Format("Unable to pair with sensor");
+                    throw new Exception(msg);
+                }
+                else if (id != _sensor_id)
                 {
                     if (cancel.IsCancellationRequested) return;
                     msg = string.Format("Pair with incorrect sensor 0x{0:X}.  Expected sensor id = 0x{1:X}. Retrying...",
@@ -248,12 +253,12 @@ namespace PowerCalibration
                     throw;
                 }
 
-                msg = string.Format("Continuity measurement with relay closed was {0:F8} ohms", r);
+                msg = string.Format("Continuity measurement with relay closed was {0:F4} ohms", r);
                 fire_status(msg);
 
                 if (r > max_short)
                 {
-                    msg += string.Format(" . Max set to {0:F8}", max_short);
+                    msg += string.Format(" . Max set to {0:F4}", max_short);
                     TraceLogger.Log(msg);
                     throw new Exception(msg);
 
@@ -265,12 +270,12 @@ namespace PowerCalibration
                 cont_str = _meter.Measure();
                 r = Convert.ToDouble(cont_str);
 
-                msg = string.Format("Continuity measurement with relay opened was {0:F8} ohms", r);
+                msg = string.Format("Continuity measurement with relay opened was {0:F4} ohms", r);
                 fire_status(msg);
 
                 if (r < max_open)
                 {
-                    msg += string.Format(" . Max set to {0:F8}", max_open);
+                    msg += string.Format(" . Max set to {0:F4}", max_open);
                     TraceLogger.Log(msg);
                     throw new Exception(msg);
                 }
@@ -300,7 +305,7 @@ namespace PowerCalibration
 
                 string cont_str = _meter.Measure();
                 double c = Convert.ToDouble(cont_str) / multiplier;
-                string msg = string.Format("Capacitance measurement relay close was {0:F8} uF", c);
+                string msg = string.Format("Capacitance measurement relay close was {0:F4} uF", c);
                 fire_status(msg);
 
 
@@ -310,7 +315,7 @@ namespace PowerCalibration
 
                 if (c > exp_max || c < exp_min)
                 {
-                    msg = string.Format("Capacitance measurement with relay closed was {0:F8} uF, limit high {0:F8} uF, limit low {0:F8} uF", c, exp_max, exp_min);
+                    msg = string.Format("Capacitance measurement with relay closed was {0:F4} uF, limit high {0:F4} uF, limit low {0:F4} uF", c, exp_max, exp_min);
                     throw new Exception(msg);
                 }
 
@@ -319,13 +324,13 @@ namespace PowerCalibration
 
                 cont_str = _meter.Measure();
                 c = Convert.ToDouble(cont_str) / multiplier;
-                msg = string.Format("Capacitance measurement relay open was {0:F8} uF", c);
+                msg = string.Format("Capacitance measurement relay open was {0:F4} uF", c);
                 fire_status(msg);
 
                 exp_max = 0.1;
                 if (c > 0.1)
                 {
-                    msg = string.Format("Capacitance measurement with relay opened was {0:F8} uF, limit high {0:F8} uF", c, exp_max);
+                    msg = string.Format("Capacitance measurement with relay opened was {0:F4} uF, limit high {0:F4} uF", c, exp_max);
                     throw new Exception(msg);
                 }
 
@@ -357,7 +362,7 @@ namespace PowerCalibration
 
                 string r_str = _meter.Measure();
                 double r = Convert.ToDouble(r_str) * 1000;
-                string msg = string.Format("Resistance measurement relay closed was {0:F8} Ohms", r);
+                string msg = string.Format("Resistance measurement relay closed was {0:F4} Ohms", r);
                 fire_status(msg);
                 double exp_val = 200.0;
                 double exp_max = exp_val + exp_val * 0.20;
@@ -365,7 +370,7 @@ namespace PowerCalibration
 
                 if (r > exp_max || r < exp_min)
                 {
-                    msg = string.Format("Resistance measurement with relay closed was {0:F8} Ohms, limit high {0:F8} Ohms, limit low {0:F8} Ohms", r, exp_max, exp_min);
+                    msg = string.Format("Resistance measurement with relay closed was {0:F4} Ohms, limit high {0:F4} Ohms, limit low {0:F4} Ohms", r, exp_max, exp_min);
                     throw new Exception(msg);
                 }
 
@@ -375,13 +380,13 @@ namespace PowerCalibration
 
                 r_str = _meter.Measure();
                 r = Convert.ToDouble(r_str) * 1000;
-                msg = string.Format("Resistance measurement relay open was {0:F8} Ohms", r);
+                msg = string.Format("Resistance measurement relay open was {0:F4} Ohms", r);
                 fire_status(msg);
 
                 exp_min = 999;
                 if (r < exp_min)
                 {
-                    msg = string.Format("Resistance measurement with relay opened was {0:F8} Ohms, limit high {0:F8} Ohms", r, exp_max);
+                    msg = string.Format("Resistance measurement with relay opened was {0:F4} Ohms, limit high {0:F4} Ohms", r, exp_max);
                     throw new Exception(msg);
                 }
 

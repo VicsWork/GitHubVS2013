@@ -46,6 +46,7 @@ namespace PowerCalibration
         string _coding_error_msg;  //  If set this will indicate the coding error
         string _pretest_error_msg;  //  If set this will indicate the pretest error
         string _test_error_msg;  //  If set this will indicate error for tests usually run after calibration
+        string _mfg_str;  // Holds the manufacturing string
 
 
         Task _task_uut;
@@ -167,7 +168,7 @@ namespace PowerCalibration
             if (isDBLogingEnabled())
             {
                 // get machine id
-                Task task_id = new Task<Tuple<int, int>>(GetSiteAndMachineIDs);
+                Task task_id = new Task<Tuple<int, int>>(getSiteAndMachineIDs);
                 task_id.ContinueWith(getDBMachineID_Error, TaskContinuationOptions.OnlyOnFaulted);
                 task_id.Start();
                 // Create the internal result data table
@@ -215,7 +216,7 @@ namespace PowerCalibration
         /// Helper to get db machine id
         /// </summary>
         /// <returns></returns>
-        Tuple<int, int> GetSiteAndMachineIDs()
+        Tuple<int, int> getSiteAndMachineIDs()
         {
             if (_site_machine_id.Item1 > 0 && _site_machine_id.Item2 > 0)
                 return _site_machine_id;
@@ -262,7 +263,7 @@ namespace PowerCalibration
             try
             {
                 // Update result table with 
-                Tuple<int, int> site_machine_id = GetSiteAndMachineIDs();
+                Tuple<int, int> site_machine_id = getSiteAndMachineIDs();
                 int machine_id = site_machine_id.Item2;
                 if (machine_id >= 0)
                 {
@@ -1112,6 +1113,119 @@ namespace PowerCalibration
         }
 
         /// <summary>
+        /// Returns the MFG string from UUT
+        /// </summary>
+        /// <returns></returns>
+        string getMfgString()
+        {
+            string msg = "";
+            string mfg_str = null;
+            for (int i = 0; i < 3; i++)
+            {
+                try
+                {
+                    mfg_str = TCLI.Get_MFGString(_telnet_connection);
+                    break;
+                }
+                catch (Exception ex)
+                {
+                    msg = string.Format("Unable to read MFG string: {0}", ex.Message);
+                }
+            }
+
+            if (mfg_str == null)
+            {
+                throw new Exception(msg);
+            }
+
+            return mfg_str;
+
+        }
+
+        /// <summary>
+        /// Selects the Board type by MFG string
+        /// </summary>
+        /// <param name="mfg_str"></param>
+        void selectBoardByMFGString(string mfg_str)
+        {
+
+            string msg = "";
+            bool autodetected = false;
+            // Strip postfix
+            string pmfgstr = mfg_str;
+            int pos = mfg_str.IndexOf('-');
+            if (pos > 0)
+                pmfgstr = mfg_str.Substring(0, pos);
+
+            switch (pmfgstr)
+            {
+                case "3110":
+                    controlSetText(comboBoxBoardTypes, BoardTypes.Mudshark.ToString());
+                    autodetected = true;
+                    break;
+                case "3200":
+                    controlSetText(comboBoxBoardTypes, BoardTypes.Humpback.ToString());
+                    autodetected = true;
+                    break;
+                case "3210":
+                    controlSetText(comboBoxBoardTypes, BoardTypes.Zebrashark.ToString());
+                    autodetected = true;
+                    break;
+                case "3115":
+                    controlSetText(comboBoxBoardTypes, BoardTypes.Hornshark.ToString());
+                    autodetected = true;
+                    break;
+                case "3220":
+                    controlSetText(comboBoxBoardTypes, BoardTypes.Honeycomb.ToString());
+                    autodetected = true;
+                    break;
+            }
+
+            if (autodetected)
+            {
+                msg = string.Format("Board type {0} auto selected from MFG string {1}",
+                    getSelectedBoardType(), mfg_str);
+                updateOutputStatus(msg);
+            }
+            else
+            {
+                msg = string.Format("Unable to auto selected Board from MFG string {0}",
+                    mfg_str);
+                updateOutputStatus(msg);
+            }
+
+
+        }
+
+        /// <summary>
+        /// Tries to select the Board type by using the UUT MFG string
+        /// </summary>
+        void autoSelectBoardByMfgString()
+        {
+            if (_mfg_str != null)  // This indicates already done
+                return;
+
+            // Get MFG String and set board type
+            _relay_ctrl.WriteLine(Relay_Lines.Ember, true);
+            if (_telnet_connection == null || !_telnet_connection.IsConnected)
+                createTelnet();
+
+            _relay_ctrl.WriteLine(Relay_Lines.Power, false);
+            Thread.Sleep(1000);
+            _relay_ctrl.WriteLine(Relay_Lines.Power, true);
+            Thread.Sleep(1000);
+
+            try
+            {
+                if (_mfg_str == null)
+                    _mfg_str = getMfgString();
+                selectBoardByMFGString(_mfg_str);
+            }
+            catch { };
+
+        }
+
+        /// <summary>
         /// Wait for VAC power to be off
         /// </summary>
         /// <returns></returns>
@@ -1504,6 +1618,7 @@ namespace PowerCalibration
         void buttonClick_Calibrate(object sender, EventArgs e)
         {
             _running_all = false;
+            _mfg_str = null;
 
             if (!this.buttonCalibrate.Enabled) return;
 
@@ -1528,6 +1643,10 @@ namespace PowerCalibration
             //for debug
             //calibration_done();
             //return;
+
+            autoSelectBoardByMfgString();
+            // Disable the app
+            setEnablement(false, false);
 
             // Run the calibration
             Calibrate calibrate = new Calibrate(); // Calibration object
@@ -1706,12 +1825,18 @@ namespace PowerCalibration
             updateRunStatus(status_txt);
         }
 
+        /// <summary>
+        /// Honeycomb 
+        /// </summary>
         void hct_Run_Tests()
         {
             try
             {
                 // Clear error message
                 _test_error_msg = null;
+
+                // Disable the app
+                setEnablement(false, false);
 
                 setRunStatus("Start Honeycomb Tests", Color.Black, Color.White);
                 updateOutputStatus("Start Honeycomb Tests".PadBoth(80, '-'));
@@ -1761,11 +1886,17 @@ namespace PowerCalibration
             }
         }
 
+        /// <summary>
+        /// Honeycomb 
+        /// </summary>
         void hct_Status_Event(object sender, string status_txt)
         {
             updateOutputStatus(status_txt);
         }
 
+        /// <summary>
+        /// Honeycomb 
+        /// </summary>
         void hct_exception_handler(Task task)
         {
             var exception = task.Exception;
@@ -1775,11 +1906,17 @@ namespace PowerCalibration
             hct_done();
         }
 
+        /// <summary>
+        /// Honeycomb 
+        /// </summary>
         void hct_done_handler(Task task)
         {
             hct_done();
         }
 
+        /// <summary>
+        /// Honeycomb 
+        /// </summary>
         void hct_done()
         {
             if (!_running_all || _test_error_msg != null)
@@ -1817,17 +1954,22 @@ namespace PowerCalibration
             updateOutputStatus(elapsedTime);
             _stopwatch_running.Reset();
 
-            setEnablement(true, false);
-
             updateOutputStatus("End Honeycomb tests".PadBoth(80, '-'));
 
             if (_running_all && _test_error_msg == null)
             {
                 calibrate();
             }
+            else
+            {
+                setEnablement(true, false);
+            }
 
         }
 
+        /// <summary>
+        /// Honeycomb 
+        /// </summary>
         void hct_Run_Status_Event(object sender, string status_txt)
         {
             updateRunStatus(status_txt);
@@ -1941,6 +2083,7 @@ namespace PowerCalibration
         void buttonClick_Code(object sender, EventArgs e)
         {
             _running_all = false;
+            _mfg_str = null;
 
             // Just in case
             if (!this.buttonCode.Enabled) return;
@@ -2000,80 +2143,8 @@ namespace PowerCalibration
 
                 if (_coding_error_msg == null)
                 {
-                    // Get MFG String and set board type
-                    if (_telnet_connection == null || !_telnet_connection.IsConnected)
-                    {
-                        createTelnet();
-                    }
-
-                    _relay_ctrl.WriteLine(Relay_Lines.Power, false);
-                    Thread.Sleep(1000);
-                    _relay_ctrl.WriteLine(Relay_Lines.Power, true);
-                    Thread.Sleep(1000);
-                    _relay_ctrl.WriteLine(Relay_Lines.Ember, true);
-                    string mfg_str = null;
-                    string msg = "";
-                    for (int i = 0; i < 3; i++)
-                    {
-                        try
-                        {
-
-                            mfg_str = TCLI.Get_MFGString(_telnet_connection);
-                            break;
-                        }
-                        catch (Exception ex)
-                        {
-                            msg = string.Format("Unable to read MFG string: {0}", ex.Message);
-                        }
-                    }
-
-
-                    bool autodetected = false;
-                    if (mfg_str != null)
-                    {
-                        // Strip postfix
-                        string pmfgstr = mfg_str;
-                        int pos = mfg_str.IndexOf('-');
-                        if (pos > 0)
-                            pmfgstr = mfg_str.Substring(0, pos);
-
-                        switch (pmfgstr)
-                        {
-                            case "3110":
-                                controlSetText(comboBoxBoardTypes, BoardTypes.Mudshark.ToString());
-                                autodetected = true;
-                                break;
-                            case "3200":
-                                controlSetText(comboBoxBoardTypes, BoardTypes.Humpback.ToString());
-                                autodetected = true;
-                                break;
-                            case "3210":
-                                controlSetText(comboBoxBoardTypes, BoardTypes.Zebrashark.ToString());
-                                autodetected = true;
-                                break;
-                            case "3115":
-                                controlSetText(comboBoxBoardTypes, BoardTypes.Hornshark.ToString());
-                                autodetected = true;
-                                break;
-                            case "3220":
-                                controlSetText(comboBoxBoardTypes, BoardTypes.Honeycomb.ToString());
-                                autodetected = true;
-                                break;
-                        }
-                    }
-                    else
-                    {
-                        msg = string.Format("Unable to read MFG string");
-                        updateOutputStatus(msg);
-                    }
-
-                    if (autodetected)
-                    {
-                        msg = string.Format("Board type {0} auto selected from MFG string {1}",
-                            getSelectedBoardType(), mfg_str);
-                        updateOutputStatus(msg);
-                    }
-
+                    if (_running_all)
+                        autoSelectBoardByMfgString();
 
                     updateRunStatus("PASS", Color.White, Color.Green);
                 }
@@ -2110,7 +2181,10 @@ namespace PowerCalibration
             updateOutputStatus(elapsedTime);
             _stopwatch_running.Reset();
 
-            setEnablement(true, true);
+            if (!_running_all)
+                setEnablement(true, true);
+            else
+                setEnablement(false, true);
 
             updateOutputStatus("End Coding".PadBoth(80, '-'));
 
@@ -2208,12 +2282,14 @@ namespace PowerCalibration
         void buttonClick_Run(object sender, EventArgs e)
         {
             _running_all = true;
+            _mfg_str = null;
             preTest(TaskTypes.Code);
         }
 
         private void buttonRecode_Click(object sender, EventArgs e)
         {
             _running_all = false;
+            _mfg_str = null;
             preTest(TaskTypes.Recode);
         }
 
@@ -2286,6 +2362,7 @@ namespace PowerCalibration
         private void buttonTest_Click(object sender, EventArgs e)
         {
             _running_all = false;
+            _mfg_str = null;
 
             preTest(TaskTypes.Test);
         }
