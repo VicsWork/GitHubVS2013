@@ -900,7 +900,7 @@ namespace PowerCalibration
 
                 Form_PowerMeter power_meter_dlg = new Form_PowerMeter(_telnet_connection);
                 power_meter_dlg.ShowDialog();
-                close_telnet();
+                closeTelnet();
                 _relay_ctrl.Close();
             }
             catch (Exception)
@@ -1067,7 +1067,7 @@ namespace PowerCalibration
         /// <summary>
         /// Creates telnet session using app settings
         /// </summary>
-        void createTelnet()
+        TelnetConnection createTelnet()
         {
             // Check to see if Ember is to be used as USB and open ISA channel if so
             // Also set the box address
@@ -1092,12 +1092,26 @@ namespace PowerCalibration
             if (_ember.Interface == Ember.Interfaces.IP)
                 telnet_address = _ember.Interface_Address;
             _telnet_connection = new TelnetConnection(telnet_address, 4900);
+
+            return _telnet_connection;
+        }
+
+        /// <summary>
+        /// Returns opened telnet
+        /// </summary>
+        /// <returns></returns>
+        TelnetConnection openTelnet()
+        {
+            if (_telnet_connection == null || !_telnet_connection.IsConnected)
+                createTelnet();
+
+            return _telnet_connection;
         }
 
         /// <summary>
         /// Closes telnet and ISA channels
         /// </summary>
-        void close_telnet()
+        void closeTelnet()
         {
             if (_telnet_connection != null)
             {
@@ -1124,7 +1138,7 @@ namespace PowerCalibration
             {
                 try
                 {
-                    mfg_str = TCLI.Get_MFGString(_telnet_connection);
+                    mfg_str = TCLI.Get_MFGString( openTelnet() );
                     break;
                 }
                 catch (Exception ex)
@@ -1206,14 +1220,11 @@ namespace PowerCalibration
                 return;
 
             // Get MFG String and set board type
-            _relay_ctrl.WriteLine(Relay_Lines.Ember, true);
-            if (_telnet_connection == null || !_telnet_connection.IsConnected)
-                createTelnet();
-
             _relay_ctrl.WriteLine(Relay_Lines.Power, false);
-            Thread.Sleep(1000);
+            Thread.Sleep(500);
+            openTelnet();
+            _relay_ctrl.WriteLine(Relay_Lines.Ember, true);
             _relay_ctrl.WriteLine(Relay_Lines.Power, true);
-            Thread.Sleep(1000);
 
             try
             {
@@ -1413,7 +1424,6 @@ namespace PowerCalibration
             else
                 _meter = new MultiMeter(Properties.Settings.Default.Meter_COM_Port_Name);
 
-
             _relay_ctrl.OpenIfClosed();
             _relay_ctrl.WriteLine(Relay_Lines.Ember, false);
             _relay_ctrl.WriteLine(Relay_Lines.Load, false);
@@ -1460,8 +1470,13 @@ namespace PowerCalibration
                 updateRunStatus("PASS", Color.White, Color.Green);
 
                 // Should be safe to connect Ember
+                _relay_ctrl.WriteLine(Relay_Lines.Power, false);
+                Thread.Sleep(500);
+
+                if (next_task == TaskTypes.Test)
+                    openTelnet();
                 _relay_ctrl.WriteLine(Relay_Lines.Ember, true);
-                Thread.Sleep(1000);
+                _relay_ctrl.WriteLine(Relay_Lines.Power, true);
             }
             else
             {
@@ -1541,7 +1556,7 @@ namespace PowerCalibration
                             {
                                 if (_telnet_connection == null || !_telnet_connection.IsConnected)
                                 {
-                                    createTelnet();
+                                    //createTelnet();
                                 }
                                 _relay_ctrl.OpenIfClosed();
                                 hct_Run_Tests();
@@ -1720,7 +1735,7 @@ namespace PowerCalibration
                 updateOutputStatus(_calibration_error_msg);
             }
 
-            close_telnet();
+            closeTelnet();
 
             // Stop running watch and report time lapse
             _stopwatch_running.Stop();
@@ -1841,15 +1856,11 @@ namespace PowerCalibration
                 setRunStatus("Start Honeycomb Tests", Color.Black, Color.White);
                 updateOutputStatus("Start Honeycomb Tests".PadBoth(80, '-'));
 
-
-
                 for (int i = 0; i < 3; i++)
                 {
                     try
                     {
-                        if (_telnet_connection == null || !_telnet_connection.IsConnected)
-                            createTelnet();
-                        TCLI.Wait_For_Prompt(_telnet_connection);
+                        TCLI.Wait_For_Prompt( openTelnet(), retry_count:10 );
                         break;
                     }
                     catch (Exception ex)
@@ -1926,7 +1937,7 @@ namespace PowerCalibration
                 {
                     updateOutputStatus("Power off exception:" + ex.Message);
                 }
-                close_telnet();
+                closeTelnet();
             }
 
             // Check PASS or FAIL
@@ -2158,8 +2169,8 @@ namespace PowerCalibration
                 }
             }
 
-            // Turn power off if we are not calibrating after this or
-            // there was a coding problem
+            // Turn power off if we are not running all or
+            // there was a coding error
             if (!_running_all || _coding_error_msg != null)
             {
                 try
@@ -2170,6 +2181,7 @@ namespace PowerCalibration
                 {
                     updateOutputStatus("Power off exception:" + ex.Message);
                 }
+                setEnablement(true, false);
             }
 
             // Stop running watch and report time lapse
@@ -2177,11 +2189,6 @@ namespace PowerCalibration
             string elapsedTime = String.Format("Elapsed time {0:00} seconds", _stopwatch_running.Elapsed.TotalSeconds);
             updateOutputStatus(elapsedTime);
             _stopwatch_running.Reset();
-
-            if (!_running_all)
-                setEnablement(true, true);
-            else
-                setEnablement(false, true);
 
             updateOutputStatus("End Coding".PadBoth(80, '-'));
 
