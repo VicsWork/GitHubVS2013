@@ -239,7 +239,8 @@ namespace PowerCalibration
             _relay_ctrl.WriteLine(Relay_Lines.Load, true);
 
             // Close the UUT relay
-            TCLI.Set_Relay_State(_telnet_connection, true);
+            // Jigs short-out the relay....
+            //TCLI.Set_Relay_State(_telnet_connection, true);
 
             Thread.Sleep(1000);
             verify_voltage_ac();

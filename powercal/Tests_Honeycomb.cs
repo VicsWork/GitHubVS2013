@@ -97,6 +97,7 @@ namespace PowerCalibration
                 msg = "Pairing with Sensor Test";
                 fire_run_status(msg);
                 clearSensorId();
+                Thread.Sleep(500);
                 int id = pairWithSensor();
                 if (id == 0)
                 {
@@ -119,14 +120,13 @@ namespace PowerCalibration
                     id = pairWithSensor();
                     if (id != _sensor_id)
                     {
-                        if(id != 0)
+                        if (id != 0)
                             clearSensorId();
                         msg = string.Format("Pair with incorrect sensor 0x{0:X}. Expected sensor id = 0x{1:X}",
                             id, _sensor_id);
                         throw new Exception(msg);
                     }
                 }
-                clearSensorId();
                 /******************************************************/
 
                 /******************************************************/
@@ -465,6 +465,17 @@ namespace PowerCalibration
 
         }
 
+        /// <summary>
+        /// Static version that justs sends the command to clear sensor id
+        /// </summary>
+        /// <param name="telnet_conn"></param>
+        /// <returns></returns>
+        static public void ClearSensorId(TelnetConnection telnet_conn)
+        {
+            string data = "";
+            //data = TCLI.Wait_For_String(_telnet_conn, "cu si4355 clearSensorId", "si4355 Sensor ID cleared");
+            TCLI.WriteLine(telnet_conn, "cu si4355 clearSensorId");
+        }
 
         /// <summary>
         /// Clears the any current id
@@ -476,47 +487,74 @@ namespace PowerCalibration
         {
             int id = 0;
             string msg = "";
+
+            for (int x = 0; x < 5; x++)
+            {
+                try
+                {
+                    TCLI.Wait_For_Prompt(_telnet_conn);
+                    break;
+                }
+                catch { };
+
+                _jig_relay_ctrl.WriteLine(Relay_Lines.Power, false);
+                Thread.Sleep(500);
+                _jig_relay_ctrl.WriteLine(Relay_Lines.Power, true);
+                Thread.Sleep(500);
+            }
             TCLI.Wait_For_Prompt(_telnet_conn);
+
             try
             {
                 // Note that the id is part of this
-                string data = "";
-                int toggle_delay = 2000;
+                string data_total = "";
                 for (int i = 0; i < 5; i++)
                 {
                     msg = string.Format("Toggle sensor join switch");
                     fire_status(msg);
-
                     _jig_relay_ctrl.WriteLine(_test_joinhoney_button_linenum, true);
-                    Thread.Sleep(toggle_delay);
-                    _jig_relay_ctrl.WriteLine(_test_joinhoney_button_linenum, false);
-                    toggle_delay += 500;
 
-                    data += TCLI.Read(_telnet_conn);
+                    for (int n = 0; n < 5; n++)
+                    {
+                        Thread.Sleep(1000);
 
-                    // Try to find a match
-                    Match m = Regex.Match(data, "New sensor paired, ([0-9,A-F]+)");
-                    if (m.Success)
-                    {
-                        id = Convert.ToInt32(m.Groups[1].Value, 16);
-                        msg = string.Format("Paired with Sensor id {0} (0x{0:X})", id);
-                        fire_status(msg);
-                        break;
-                    }
-                    else
-                    {
-                        // Just in case, query for the id
-                        id = getSensorId();
-                        if (id != 0)
+                        string data = TCLI.Read(_telnet_conn);
+                        data_total += data;
+
+                        // Try to find a match
+                        Match m = Regex.Match(data_total, "New sensor paired, ([0-9,A-F]+)");
+                        if (m.Success)
                         {
+                            id = Convert.ToInt32(m.Groups[1].Value, 16);
                             msg = string.Format("Paired with Sensor id {0} (0x{0:X})", id);
                             fire_status(msg);
                             break;
                         }
+                        else
+                        {
+                            // Query for the id
+                            id = getSensorId();
+                            if (id != 0)
+                            {
+                                msg = string.Format("Get Sensor id {0} (0x{0:X})", id);
+                                fire_status(msg);
+                                break;
+                            }
+                        }
+                    }
+
+                    if (id != 0)
+                    {
+                        break;
+                    }
+                    else
+                    {
+                        _jig_relay_ctrl.WriteLine(_test_joinhoney_button_linenum, false);
+                        Thread.Sleep(500);
                     }
                 }
 
-                TraceLogger.Log(data);
+                TraceLogger.Log(data_total);
             }
             finally
             {

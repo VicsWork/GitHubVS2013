@@ -1138,7 +1138,7 @@ namespace PowerCalibration
             {
                 try
                 {
-                    mfg_str = TCLI.Get_MFGString( openTelnet() );
+                    mfg_str = TCLI.Get_MFGString(openTelnet());
                     break;
                 }
                 catch (Exception ex)
@@ -1220,16 +1220,24 @@ namespace PowerCalibration
                 return;
 
             // Get MFG String and set board type
-            _relay_ctrl.WriteLine(Relay_Lines.Power, false);
-            Thread.Sleep(500);
             openTelnet();
             _relay_ctrl.WriteLine(Relay_Lines.Ember, true);
-            _relay_ctrl.WriteLine(Relay_Lines.Power, true);
-
+            for (int i = 0; i < 3; i++)
+            {
+                try
+                {
+                    TCLI.Wait_For_Prompt(_telnet_connection);
+                    break;
+                }
+                catch { }
+                _relay_ctrl.WriteLine(Relay_Lines.Power, false);
+                Thread.Sleep(1000);
+                _relay_ctrl.WriteLine(Relay_Lines.Power, true);
+                Thread.Sleep(1000);
+            }
             try
             {
-                if (_mfg_str == null)
-                    _mfg_str = getMfgString();
+                _mfg_str = getMfgString();
                 selectBoardByMFGString(_mfg_str);
             }
             catch { };
@@ -1358,9 +1366,7 @@ namespace PowerCalibration
             if (_relay_ctrl != null)
             {
                 _relay_ctrl.OpenIfClosed();
-                _relay_ctrl.WriteLine(PowerCalibration.Relay_Lines.Ember, false);
                 _relay_ctrl.WriteLine(PowerCalibration.Relay_Lines.Power, false);
-                _relay_ctrl.WriteLine(PowerCalibration.Relay_Lines.Load, false);
                 relaysShowSetttings();
             }
 
@@ -1369,6 +1375,13 @@ namespace PowerCalibration
             {
                 wait_for_power_off();
             }
+
+            if (_relay_ctrl != null)
+            {
+                _relay_ctrl.WriteLine(PowerCalibration.Relay_Lines.Load, false);
+                _relay_ctrl.WriteLine(PowerCalibration.Relay_Lines.Ember, false);
+            }
+
             _relay_ctrl.Close();
 
         }
@@ -1691,6 +1704,13 @@ namespace PowerCalibration
         void calibration_done()
         {
             // enable read protection only if enable and this is a complete run
+            if (_running_all && getSelectedBoardType() == BoardTypes.Honeycomb)
+            {
+                updateRunStatus("Clear Sensor Id");
+                Tests_Honeycomb.ClearSensorId(_telnet_connection);
+                Thread.Sleep(500);
+            }
+
             if (_running_all && Properties.Settings.Default.Ember_ReadProtect_Enabled)
             {
                 try
@@ -1860,7 +1880,7 @@ namespace PowerCalibration
                 {
                     try
                     {
-                        TCLI.Wait_For_Prompt( openTelnet(), retry_count:10 );
+                        TCLI.Wait_For_Prompt(openTelnet(), retry_count: 10);
                         break;
                     }
                     catch (Exception ex)
@@ -2197,17 +2217,22 @@ namespace PowerCalibration
                 !_cancel_token_uut.IsCancellationRequested)
             {
 
-                if (_telnet_connection == null || !_telnet_connection.IsConnected)
-                {
-                    createTelnet();
-                }
-
                 setRunStatus("Reset UUT");
                 TraceLogger.Log("Reset UUT");
 
                 _relay_ctrl.WriteLine(Relay_Lines.Ember, true);
                 for (int i = 0; i < 3; i++)
                 {
+                    try
+                    {
+                        TCLI.Wait_For_Prompt(openTelnet());
+                        break;
+                    }
+                    catch (Exception ex)
+                    {
+                        string msg = ex.Message;
+                    }
+
                     if (_relay_ctrl.Device_Type == RelayControler.Device_Types.Manual)
                         showDialogMsg("Reset UUT");
 
@@ -2215,15 +2240,6 @@ namespace PowerCalibration
                     Thread.Sleep(1000);
                     _relay_ctrl.WriteLine(Relay_Lines.Power, true);
                     Thread.Sleep(1000);
-                    try
-                    {
-                        TCLI.Wait_For_Prompt(_telnet_connection);
-                        break;
-                    }
-                    catch (Exception ex)
-                    {
-                        string msg = ex.Message;
-                    }
                 }
 
                 if (getSelectedBoardType() == BoardTypes.Honeycomb)
