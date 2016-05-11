@@ -1468,12 +1468,8 @@ namespace PowerCalibration
             pretest.Status_Event += _pretest_Status_Event;
             pretest.MultiMeter = _meter;
             pretest.RelayController = _relay_ctrl;
-            pretest.Voltage_DC_High_Limit = 3.3 + 0.33;
-            pretest.Voltage_DC_Low_Limit = 3.3 - 0.33;
 
-
-            _cancel_token_uut = new CancellationTokenSource();
-            _task_uut = new Task(() => pretest.Verify_Voltage(_cancel_token_uut.Token), _cancel_token_uut.Token);
+            _task_uut = new Task(() => pretest.Verify_Voltage(3.3 - 0.33, 3.3 + 0.33));
             _task_uut.ContinueWith((t) => pretest_done_handler(next_task), TaskContinuationOptions.OnlyOnRanToCompletion);
             _task_uut.ContinueWith((t) => pretest_exception_handler(t, next_task), TaskContinuationOptions.OnlyOnFaulted);
             _task_uut.Start();

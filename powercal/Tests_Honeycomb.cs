@@ -472,7 +472,7 @@ namespace PowerCalibration
         /// <returns></returns>
         static public void ClearSensorId(TelnetConnection telnet_conn)
         {
-            string data = "";
+            //string data = "";
             //data = TCLI.Wait_For_String(_telnet_conn, "cu si4355 clearSensorId", "si4355 Sensor ID cleared");
             TCLI.WriteLine(telnet_conn, "cu si4355 clearSensorId");
         }
