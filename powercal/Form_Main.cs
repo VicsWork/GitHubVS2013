@@ -885,8 +885,8 @@ namespace PowerCalibration
             try
             {
                 _relay_ctrl.OpenIfClosed();
-                _relay_ctrl.WriteLine(Relay_Lines.Power, true);
                 _relay_ctrl.WriteLine(Relay_Lines.Ember, true);
+                _relay_ctrl.WriteLine(Relay_Lines.Power, true);
                 _relay_ctrl.WriteLine(Relay_Lines.Load, true);
                 Thread.Sleep(1000);
 
@@ -944,7 +944,7 @@ namespace PowerCalibration
 
             try
             {
-                _relay_ctrl.Open();
+                _relay_ctrl.OpenIfClosed();
                 Form_FT232H_DIO_Test dlg = new Form_FT232H_DIO_Test(_relay_ctrl);
                 dlg.ShowDialog();
             }
@@ -1373,7 +1373,15 @@ namespace PowerCalibration
             // Wait for power off
             if (_meter != null)
             {
-                wait_for_power_off();
+                try
+                {
+                    wait_for_power_off();
+                }
+                catch (Exception ex)
+                {
+                    updateOutputStatus(ex.Message);
+                }
+
             }
 
             if (_relay_ctrl != null)
@@ -1441,6 +1449,7 @@ namespace PowerCalibration
             _relay_ctrl.WriteLine(Relay_Lines.Ember, false);
             _relay_ctrl.WriteLine(Relay_Lines.Load, false);
             _relay_ctrl.WriteLine(Relay_Lines.Power, true);
+            Thread.Sleep(1000);
             if (getSelectedBoardType() == BoardTypes.Honeycomb)
             {
                 _relay_ctrl.WriteLine(4, false);
@@ -1453,7 +1462,6 @@ namespace PowerCalibration
                 return;
             }
 
-            Thread.Sleep(1000);
 
 
             Tests pretest = new Tests();
@@ -1484,12 +1492,16 @@ namespace PowerCalibration
 
                 // Should be safe to connect Ember
                 _relay_ctrl.WriteLine(Relay_Lines.Power, false);
-                Thread.Sleep(500);
+                Thread.Sleep(1000);
 
-                if (next_task == TaskTypes.Test)
+                if (next_task == TaskTypes.Test || next_task == TaskTypes.Calibrate)
+                {
                     openTelnet();
+                }
+                _relay_ctrl.OpenIfClosed();
                 _relay_ctrl.WriteLine(Relay_Lines.Ember, true);
                 _relay_ctrl.WriteLine(Relay_Lines.Power, true);
+                Thread.Sleep(2000);
             }
             else
             {
@@ -1533,7 +1545,6 @@ namespace PowerCalibration
                         _coding_error_msg = null;
                         try
                         {
-                            _relay_ctrl.OpenIfClosed();
                             code();
                         }
                         catch (Exception ex)
@@ -1547,11 +1558,6 @@ namespace PowerCalibration
                         _calibration_error_msg = null;
                         try
                         {
-                            if (_telnet_connection == null || !_telnet_connection.IsConnected)
-                            {
-                                createTelnet();
-                            }
-                            _relay_ctrl.OpenIfClosed();
                             calibrate();
                         }
                         catch (Exception ex)
@@ -1567,11 +1573,6 @@ namespace PowerCalibration
                             _test_error_msg = null;
                             try
                             {
-                                if (_telnet_connection == null || !_telnet_connection.IsConnected)
-                                {
-                                    //createTelnet();
-                                }
-                                _relay_ctrl.OpenIfClosed();
                                 hct_Run_Tests();
                             }
                             catch (Exception ex)
@@ -1717,9 +1718,26 @@ namespace PowerCalibration
                 {
                     updateRunStatus("EnableRdProt");
                     // todo: may want to change to a task
-                    string output = _ember.EnableRdProt();
-                    TraceLogger.Log(output);
-                    //updateOutputStatus(output);
+                    string err_msg = "";
+                    for (int i = 0; i < 3; i++)
+                    {
+                        try
+                        {
+                            string output = _ember.EnableRdProt();
+                            err_msg = "";
+                            TraceLogger.Log(output);
+                            break;
+                        }
+                        catch (Exception ex)
+                        {
+                            err_msg = ex.Message;
+                        }
+
+                    }
+                    if (err_msg != "")
+                    {
+                        throw new Exception(err_msg);
+                    }
                 }
                 catch (Exception ex)
                 {
@@ -1889,7 +1907,7 @@ namespace PowerCalibration
                         _relay_ctrl.WriteLine(Relay_Lines.Power, false);
                         Thread.Sleep(1000);
                         _relay_ctrl.WriteLine(Relay_Lines.Power, true);
-                        Thread.Sleep(1000);
+                        Thread.Sleep(2000);
                     }
                 }
                 relaysShowSetttings();
@@ -2239,7 +2257,7 @@ namespace PowerCalibration
                     _relay_ctrl.WriteLine(Relay_Lines.Power, false);
                     Thread.Sleep(1000);
                     _relay_ctrl.WriteLine(Relay_Lines.Power, true);
-                    Thread.Sleep(1000);
+                    Thread.Sleep(2000);
                 }
 
                 if (getSelectedBoardType() == BoardTypes.Honeycomb)

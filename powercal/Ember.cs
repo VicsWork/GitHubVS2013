@@ -173,7 +173,7 @@ namespace PowerCalibration
                         output = p.StandardOutput.ReadToEnd();
                     if (p.StandardError.Peek() > -1)
                         error = p.StandardError.ReadToEnd();
-                    string msg = string.Format("Timeout running {0}.\r\n", _batch_file_patch);
+                    string msg = string.Format("Timeout running {0} {1}.\r\n", p.StartInfo.FileName, p.StartInfo.Arguments);
                     if (output != null && output.Length > 0)
                         msg += string.Format("Output: {0}\r\n", output);
                     if (error != null && error.Length > 0)
@@ -189,7 +189,7 @@ namespace PowerCalibration
             int rc = p.ExitCode;
             if (rc != 0)
             {
-                string msg = string.Format("Error running {0}.\r\n", _batch_file_patch);
+                string msg = string.Format("Timeout running {0} {1}.\r\n", p.StartInfo.FileName, p.StartInfo.Arguments);
                 msg += string.Format("RC: {0}\r\n", rc);
                 if (error != null && error.Length > 0)
                     msg += string.Format("Error: {0}\r\n", error);
