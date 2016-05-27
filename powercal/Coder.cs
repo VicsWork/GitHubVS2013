@@ -21,6 +21,12 @@ namespace PowerCalibration
 
         float _dpiX, _dpiY;
 
+        Ember _ember;
+        public Ember Ember { get { return _ember; } set { _ember = value; } }
+
+        public delegate void StatusHandler(object sender, string status_txt);
+        public event StatusHandler Status_Event;
+
         public Coder(TimeSpan timeout)
         {
             _timeout = timeout;
@@ -37,6 +43,36 @@ namespace PowerCalibration
         {
             if (cancel.IsCancellationRequested)
                 return;
+
+            try
+            {
+                // Disable read protection
+                fire_status("Disable read protection");
+                bool disable_rd_prot_success = false;
+                string disable_output = "";
+                for (int i = 0; i < 2; i++)
+                {
+                    disable_output = Ember.DisableRdProt();
+                    if (
+                        disable_output.Contains("Disable Read Protection") ||
+                        disable_output.Contains("Read Protection is already disabled"))
+                    {
+                        disable_rd_prot_success = true;
+                        break;
+                    }
+                }
+
+                if (!disable_rd_prot_success)
+                {
+                    throw new Exception("Unable to disable read protection: " + disable_output);
+                }
+            }
+            catch (Exception ex)
+            {
+                string error = ex.Message;
+                throw;
+            }
+
 
             IntPtr hwnd = activateMainWnd();
             moveToStatus();
@@ -302,6 +338,13 @@ namespace PowerCalibration
             return new Point(point.X + x, point.Y);
         }
 
+        void fire_status(string msg)
+        {
+            if (Status_Event != null)
+            {
+                Status_Event(this, msg);
+            }
+        }
 
     }
 }

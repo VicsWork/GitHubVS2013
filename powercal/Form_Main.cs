@@ -2151,6 +2151,9 @@ namespace PowerCalibration
         {
             // Init coder
             Coder coder = new Coder(new TimeSpan(0, 2, 0));
+            coder.Status_Event += coder_Status_Event;
+            openTelnet();
+            coder.Ember = _ember;
             _coding_error_msg = null;
 
             setRunStatus("Start Coding", Color.Black, Color.White);
@@ -2164,6 +2167,11 @@ namespace PowerCalibration
             _task_uut.ContinueWith(coding_done_handler, TaskContinuationOptions.OnlyOnRanToCompletion);
             _task_uut.Start();
 
+        }
+
+        void coder_Status_Event(object sender, string status_txt)
+        {
+            updateOutputStatus(status_txt);
         }
 
         /// <summary>

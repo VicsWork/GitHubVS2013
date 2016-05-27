@@ -136,6 +136,10 @@ namespace PowerCalibration
             }
         }
 
+        /// <summary>
+        /// Enables read protection
+        /// </summary>
+        /// <returns></returns>
         public string EnableRdProt()
         {
             Process p = new Process()
@@ -198,6 +202,74 @@ namespace PowerCalibration
             }
             return output;
         }
+
+        /// <summary>
+        /// Disable read protection
+        /// </summary>
+        /// <returns></returns>
+        public string DisableRdProt()
+        {
+            Process p = new Process()
+            {
+                StartInfo = new ProcessStartInfo()
+                {
+                    FileName = Path.Combine(Properties.Settings.Default.Ember_BinPath, "em3xx_load.exe"),
+
+                    Arguments = getInterfaceAddress() + " --disablerdprot",
+                    UseShellExecute = false,
+                    CreateNoWindow = true,
+                    RedirectStandardOutput = true,
+                    RedirectStandardError = true,
+                    RedirectStandardInput = false
+                }
+            };
+
+            p.Start();
+
+            int n = 0;
+            string error = "", output = "";
+            while (!p.HasExited)
+            {
+                Thread.Sleep(1000);
+                n++;
+                if (n > 10)
+                {
+                    p.Kill();
+                    Thread.Sleep(500);
+
+                    p.StandardInput.Flush();
+                    p.StandardInput.Close();
+
+                    if (p.StandardOutput.Peek() > -1)
+                        output = p.StandardOutput.ReadToEnd();
+                    if (p.StandardError.Peek() > -1)
+                        error = p.StandardError.ReadToEnd();
+                    string msg = string.Format("Timeout running {0} {1}.\r\n", p.StartInfo.FileName, p.StartInfo.Arguments);
+                    if (output != null && output.Length > 0)
+                        msg += string.Format("Output: {0}\r\n", output);
+                    if (error != null && error.Length > 0)
+                        msg += string.Format("Error: {0}\r\n", error);
+
+
+                    throw new Exception(msg);
+                }
+            }
+
+            error = p.StandardError.ReadToEnd();
+            output = p.StandardOutput.ReadToEnd();
+            int rc = p.ExitCode;
+            if (rc != 0)
+            {
+                string msg = string.Format("Timeout running {0} {1}.\r\n", p.StartInfo.FileName, p.StartInfo.Arguments);
+                msg += string.Format("RC: {0}\r\n", rc);
+                if (error != null && error.Length > 0)
+                    msg += string.Format("Error: {0}\r\n", error);
+
+                throw new Exception(msg);
+            }
+            return output;
+        }
+
 
 
         /// <summary>
