@@ -14,14 +14,11 @@ namespace PowerCalibration
 
         public RelayControler RelayController { get { return _relay_ctrl; } set { _relay_ctrl = value; } }
         public MultiMeter MultiMeter { get { return _meter; } set { _meter = value; } }
-        public double Voltage_DC_Low_Limit { get { return _voltage_dc_low_limit; } set { _voltage_dc_low_limit = value; } }
-        public double Voltage_DC_High_Limit { get { return _voltage_dc_high_limit; } set { _voltage_dc_high_limit = value; } }
 
         RelayControler _relay_ctrl;
         MultiMeter _meter;
-        double _voltage_dc_low_limit = 0.0, _voltage_dc_high_limit = 0.0;
 
-        public void Verify_Voltage(CancellationToken cancel)
+        public void Verify_Voltage(double voltage_dc_low_limit=0.0, double voltage_dc_high_limit=0.0)
         {
             if (_meter == null)
             {
@@ -30,7 +27,7 @@ namespace PowerCalibration
             }
 
             if (_relay_ctrl != null && _relay_ctrl.Device_Type != RelayControler.Device_Types.Manual)
-                _relay_ctrl.WriteLine(Relay_Lines.Voltmeter, true);  // DC
+                _relay_ctrl.WriteLine(Relay_Lines.Vac_Vdc, true);  // DC
 
             fire_status("Verify Voltage DC");
             _meter.Init();
@@ -58,10 +55,10 @@ namespace PowerCalibration
                 throw new Exception(msg);
             }
 
-            if (meter_voltage_dc < _voltage_dc_low_limit || meter_voltage_dc > _voltage_dc_high_limit)
+            if (meter_voltage_dc < voltage_dc_low_limit || meter_voltage_dc > voltage_dc_high_limit)
             {
                 msg = string.Format("Voltage DC is not within limits values: {0:F8} < {1:F8} < {2:F8}", 
-                    _voltage_dc_low_limit, meter_voltage_dc, _voltage_dc_high_limit);
+                    voltage_dc_low_limit, meter_voltage_dc, voltage_dc_high_limit);
                 TraceLogger.Log(msg);
                 throw new Exception(msg);
             }

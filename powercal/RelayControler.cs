@@ -41,6 +41,18 @@ namespace PowerCalibration
         public bool IsOpened { get { return _isOpened; } }
 
         /// <summary>
+        /// The device id is set when it is opened
+        /// </summary>
+        uint _id = 0;
+        public uint ID { get { return _id; } }
+
+        /// <summary>
+        /// The device serial is set when it is opened
+        /// </summary>
+        string _serial_number = "";
+        public string SerialNumber { get { return _serial_number; } }
+
+        /// <summary>
         /// Inits internal dictionary that holds line number and state info
         /// </summary>
         private void _initDicLines()
@@ -72,6 +84,15 @@ namespace PowerCalibration
         }
 
         /// <summary>
+        /// Clears all dictionaries
+        /// </summary>
+        public void ClearDictionaries()
+        {
+            _dic_lines.Clear();
+            _dic_values.Clear();
+        }
+
+        /// <summary>
         /// Read line settings from file
         /// </summary>
         /// <returns></returns>
@@ -100,6 +121,15 @@ namespace PowerCalibration
             reader.Close();
 
             return _dic_lines;
+        }
+
+        public void RecreateSettingsFile()
+        {
+            if (File.Exists(_diclines_settings_file))
+            {
+                File.Delete(_diclines_settings_file);
+            }
+            DicLines_SaveSettings();
         }
 
         /// <summary>
@@ -185,9 +215,14 @@ namespace PowerCalibration
         /// </summary>
         public void Open()
         {
+
             if (_dev_type == Device_Types.FT232H)
             {
                 _ft232hdio.Open((uint)_ftdi_dev_index);
+                _id = _ft232hdio.GetDeviceID();
+                _serial_number = _ft232hdio.GetSerialNumber();
+
+
                 // Open functions resets device
                 // Re-set line state
                 foreach (string key in _dic_lines.Keys)
@@ -198,6 +233,7 @@ namespace PowerCalibration
                 }
             }
             _isOpened = true;
+
         }
 
         /// <summary>
@@ -295,7 +331,12 @@ namespace PowerCalibration
             }
             else if (_dev_type == Device_Types.FT232H)
             {
-                _ft232hdio.SetPin(_ftdi_bus, linenum, value);
+                FTD2XX_NET.FTDI.FT_STATUS status = _ft232hdio.SetPin(_ftdi_bus, linenum, value);
+                if (status != FTD2XX_NET.FTDI.FT_STATUS.FT_OK)
+                {
+                    throw new Exception( 
+                        string.Format("Error setting pin {0} to state {1}. Error = {2}", linenum, value, status.ToString() ) );
+                }
                 return;
             }
         }
@@ -335,6 +376,12 @@ namespace PowerCalibration
                     name = key;
                     break;
                 }
+            }
+
+            if (name == null)
+            {
+                name = string.Format("C{0}", linenum);
+                _dic_lines.Add(name, linenum);
             }
 
             return name;

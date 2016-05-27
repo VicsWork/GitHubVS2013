@@ -15,7 +15,7 @@ namespace PowerCalibration
     /// </summary>
     class Ember
     {
-        public string BatchFilePath { get { return _batch_file; } set { _batch_file = value; } }
+        public string BatchFilePatchPath { get { return _batch_file_patch; } set { _batch_file_patch = value; } }
         public string EmberBinPath { get { return _ember_bin_path; } set { _ember_bin_path = value; } }
         public string EmberExe { get { return _ember_exe; } set { _ember_exe = value; } }
 
@@ -27,8 +27,9 @@ namespace PowerCalibration
         public int VoltageRefereceValue { get { return _voltageRefValue; } set { _voltageRefValue = value; } }
         public int CurrentRefereceValue { get { return _currentRefValue; } set { _currentRefValue = value; } }
 
-        string _batch_file = "C:\\patchit.bat";
-        string _ember_exe = "em3xx_load";
+        string _batch_file_patch = "C:\\patchit.bat";
+
+        string _ember_exe = "em3xx_load.exe";
         string _ember_bin_path = "C:\\Program Files (x86)\\Ember\\ISA3 Utilities\\bin";
         static string _ember_work_path;
         public string Work_Path { get { return _ember_work_path; } set { _ember_work_path = value; } }
@@ -108,6 +109,7 @@ namespace PowerCalibration
             {
                 try
                 {
+                    TraceLogger.Log("Close Ember isachan");
                     _process_ember_isachan.CancelErrorRead();
                     _process_ember_isachan.CancelOutputRead();
                     if (!_process_ember_isachan.HasExited)
@@ -135,6 +137,144 @@ namespace PowerCalibration
         }
 
         /// <summary>
+        /// Enables read protection
+        /// </summary>
+        /// <returns></returns>
+        public string EnableRdProt()
+        {
+            Process p = new Process()
+            {
+                StartInfo = new ProcessStartInfo()
+                {
+                    FileName = Path.Combine(Properties.Settings.Default.Ember_BinPath, "em3xx_load.exe"),
+
+                    Arguments = getInterfaceAddress() + " --enablerdprot",
+                    UseShellExecute = false,
+                    CreateNoWindow = true,
+                    RedirectStandardOutput = true,
+                    RedirectStandardError = true,
+                    RedirectStandardInput = false
+                }
+            };
+
+            p.Start();
+
+            int n = 0;
+            string error = "", output = "";
+            while (!p.HasExited)
+            {
+                Thread.Sleep(1000);
+                n++;
+                if (n > 10)
+                {
+                    p.Kill();
+                    Thread.Sleep(500);
+
+                    p.StandardInput.Flush();
+                    p.StandardInput.Close();
+
+                    if (p.StandardOutput.Peek() > -1)
+                        output = p.StandardOutput.ReadToEnd();
+                    if (p.StandardError.Peek() > -1)
+                        error = p.StandardError.ReadToEnd();
+                    string msg = string.Format("Timeout running {0} {1}.\r\n", p.StartInfo.FileName, p.StartInfo.Arguments);
+                    if (output != null && output.Length > 0)
+                        msg += string.Format("Output: {0}\r\n", output);
+                    if (error != null && error.Length > 0)
+                        msg += string.Format("Error: {0}\r\n", error);
+
+
+                    throw new Exception(msg);
+                }
+            }
+
+            error = p.StandardError.ReadToEnd();
+            output = p.StandardOutput.ReadToEnd();
+            int rc = p.ExitCode;
+            if (rc != 0)
+            {
+                string msg = string.Format("Timeout running {0} {1}.\r\n", p.StartInfo.FileName, p.StartInfo.Arguments);
+                msg += string.Format("RC: {0}\r\n", rc);
+                if (error != null && error.Length > 0)
+                    msg += string.Format("Error: {0}\r\n", error);
+
+                throw new Exception(msg);
+            }
+            return output;
+        }
+
+        /// <summary>
+        /// Disable read protection
+        /// </summary>
+        /// <returns></returns>
+        public string DisableRdProt()
+        {
+            Process p = new Process()
+            {
+                StartInfo = new ProcessStartInfo()
+                {
+                    FileName = Path.Combine(Properties.Settings.Default.Ember_BinPath, "em3xx_load.exe"),
+
+                    Arguments = getInterfaceAddress() + " --disablerdprot",
+                    UseShellExecute = false,
+                    CreateNoWindow = true,
+                    RedirectStandardOutput = true,
+                    RedirectStandardError = true,
+                    RedirectStandardInput = false
+                }
+            };
+
+            p.Start();
+
+            int n = 0;
+            string error = "", output = "";
+            while (!p.HasExited)
+            {
+                Thread.Sleep(1000);
+                n++;
+                if (n > 10)
+                {
+                    p.Kill();
+                    Thread.Sleep(500);
+
+                    p.StandardInput.Flush();
+                    p.StandardInput.Close();
+
+                    if (p.StandardOutput.Peek() > -1)
+                        output = p.StandardOutput.ReadToEnd();
+                    if (p.StandardError.Peek() > -1)
+                        error = p.StandardError.ReadToEnd();
+                    string msg = string.Format("Error executing: {0} {1}.\r\n", p.StartInfo.FileName, p.StartInfo.Arguments);
+                    if (output != null && output.Length > 0)
+                        msg += string.Format("Output: {0}\r\n", output);
+                    if (error != null && error.Length > 0)
+                        msg += string.Format("Error: {0}\r\n", error);
+
+
+                    throw new Exception(msg);
+                }
+            }
+
+            error = p.StandardError.ReadToEnd();
+            output = p.StandardOutput.ReadToEnd();
+            int rc = p.ExitCode;
+            if (rc != 0)
+            {
+                string msg = string.Format("Error executing: {0} {1}.\r\n", p.StartInfo.FileName, p.StartInfo.Arguments);
+                msg += string.Format("RC: {0}\r\n", rc);
+                if (error != null && error.Length > 0)
+                    msg += string.Format("Error: {0}\r\n", error);
+                if (output != null && output.Length > 0)
+                    msg += string.Format("Output: {0}\r\n", output);
+
+                throw new Exception(msg);
+            }
+            return output;
+        }
+
+
+
+        /// <summary>
         /// Runs a calibration batch file
         /// </summary>
         /// <returns>batch file run output</returns>
@@ -146,7 +286,7 @@ namespace PowerCalibration
             p.StartInfo.RedirectStandardInput = true;
             p.StartInfo.RedirectStandardOutput = true;
             p.StartInfo.RedirectStandardError = true;
-            p.StartInfo.FileName = _batch_file;
+            p.StartInfo.FileName = _batch_file_patch;
             p.Start();
 
             int n = 0;
@@ -167,7 +307,7 @@ namespace PowerCalibration
                         output = p.StandardOutput.ReadToEnd();
                     if(p.StandardError.Peek() > -1)
                         error = p.StandardError.ReadToEnd();
-                    string msg = string.Format("Timeout running {0}.\r\n", _batch_file);
+                    string msg = string.Format("Timeout running {0}.\r\n", _batch_file_patch);
                     if (output != null && output.Length > 0)
                         msg += string.Format("Output: {0}\r\n", output);
                     if (error != null && error.Length > 0)
@@ -183,7 +323,7 @@ namespace PowerCalibration
             int rc = p.ExitCode;
             if (rc != 0)
             {
-                string msg = string.Format("Error running {0}.\r\n", _batch_file);
+                string msg = string.Format("Error running {0}.\r\n", _batch_file_patch);
                 msg += string.Format("RC: {0}\r\n", rc);
                 if (error != null && error.Length > 0)
                     msg += string.Format("Error: {0}\r\n", error);
@@ -191,6 +331,22 @@ namespace PowerCalibration
                 throw new Exception(msg);
             }
             return output;
+        }
+
+        /// <summary>
+        /// Returns the adapter address portion
+        /// </summary>
+        /// <returns></returns>
+        string getInterfaceAddress()
+        {
+            string txt = "";
+            if (_interface == Interfaces.USB)
+                txt = string.Format("--usb {0}", _interface_address);
+            else if (_interface == Interfaces.IP)
+                txt = string.Format("--ip {0}", _interface_address);
+
+            return txt;
+
         }
 
         /// <summary>
@@ -202,7 +358,7 @@ namespace PowerCalibration
         public string CreateCalibrationPatchBath(int vgain, int igain)
         {
             string cmd_str = "";
-            using (StreamWriter writer = File.CreateText(_batch_file))
+            using (StreamWriter writer = File.CreateText(_batch_file_patch))
             {
                 string txt;
                 if (Directory.Exists(_ember_work_path))
@@ -211,11 +367,8 @@ namespace PowerCalibration
                     txt = string.Format("pushd \"{0}\"", AppDomain.CurrentDomain.BaseDirectory);
                 writer.WriteLine(txt);
 
-                txt = string.Format("\"{0}\"", Path.Combine(_ember_bin_path, _ember_exe));
-                if (_interface == Interfaces.USB)
-                    txt += string.Format(" --usb {0}", _interface_address);
-                else if (_interface == Interfaces.IP)
-                    txt += string.Format(" --ip {0}", _interface_address);
+                txt = string.Format("\"{0}\" ", Path.Combine(_ember_bin_path, _ember_exe));
+                txt += getInterfaceAddress();
                 txt += " --patch ";
 
                 // vrms

@@ -14,10 +14,13 @@ namespace DIO
         FTDI _ftdi = new FTDI();
 
         /// <summary>
-        /// Track the state of the output pins
+        /// Track the state and direction of the output pins.  0 = input, 1 = output
         /// </summary>
         byte _cha_state = 0x00;
+        byte _cha_direction = 0x00;  // Defaults to all input
+
         byte _chb_state = 0x00;
+        byte _chb_direction = 0x00; // Defaults to all input
 
         /// <summary>
         /// AD_BUS = D[0:7], AC_BUS = C[0:7]
@@ -67,6 +70,7 @@ namespace DIO
             status = _ftdi.SetBitMode(0xFF, FTDI.FT_BIT_MODES.FT_BIT_MODE_MPSSE);
             if (status != FTDI.FT_STATUS.FT_OK)
                 throw new Exception(string.Format("Unable to set bit mode MPSEE to device at index {0}", index));
+
         }
 
         /// <summary>
@@ -100,13 +104,40 @@ namespace DIO
         }
 
         /// <summary>
+        /// Get the device id
+        /// </summary>
+        /// <returns></returns>
+        public uint GetDeviceID()
+        {
+            uint id = 0;
+            FTDI.FT_STATUS status = _ftdi.GetDeviceID(ref id);
+            if (status != FTDI.FT_STATUS.FT_OK)
+                throw new Exception("Unable to get device id");
+            return id;
+        }
+
+        /// <summary>
+        /// Gets the device serial number
+        /// </summary>
+        /// <returns></returns>
+        public string GetSerialNumber()
+        {
+            string serialNumber;
+            FTDI.FT_STATUS status = _ftdi.GetSerialNumber(out serialNumber);
+            if (status != FTDI.FT_STATUS.FT_OK)
+                throw new Exception("Unable to get device id");
+            return serialNumber;
+            
+        }
+
+        /// <summary>
         /// Gets the address for each "write" data bus
         /// </summary>
         /// <param name="bus"></param>
         /// <returns></returns>
         byte get_bus_write_address(DIO_BUS bus)
         {
-            byte addr = 0x80;
+            byte addr = 0x80;  // DIO_BUS.AD_BUS
             if (bus == DIO_BUS.AC_BUS)
                 addr = 0x82;
             return addr;
@@ -146,13 +177,22 @@ namespace DIO
         /// <returns></returns>
         FTDI.FT_STATUS set_state(DIO_BUS bus, byte state)
         {
+            byte direction = 0xFF;
             if (bus == DIO_BUS.AD_BUS)
+            {
                 _cha_state = state;
+                direction = _cha_direction;
+            }
             else if (bus == DIO_BUS.AC_BUS)
+            {
                 _chb_state = state;
+                direction = _chb_direction;
+            }
 
             byte addr = get_bus_write_address(bus);
-            byte[] buffer = new byte[] { addr, state, 0xFF };
+
+            byte[] buffer = new byte[] { addr, state, direction };  // the last byte sets direction (0 = input, 1 = output)
+
             uint n = 0;
             FTDI.FT_STATUS status = _ftdi.Write(buffer, buffer.Length, ref n);
 
@@ -192,6 +232,17 @@ namespace DIO
                 state_new &= (byte)(~(1 << pin_num) & 0xFF);
             }
 
+            // Set the pin to output
+            if (bus == DIO_BUS.AD_BUS)
+            {
+                _cha_direction |= (byte)(1 << pin_num);
+            }
+            else if (bus == DIO_BUS.AC_BUS)
+            {
+                _chb_direction |= (byte)(1 << pin_num);
+            }
+
+
             FTDI.FT_STATUS status = set_state(bus, state_new);
 
             return status;
@@ -220,6 +271,19 @@ namespace DIO
         /// <param name="bus"></param>
         /// <param name="pin"></param>
         /// <returns></returns>
+        public bool ReadPin(DIO_BUS bus, PIN pin)
+        {
+            byte pin_num = Convert.ToByte(pin);
+            bool value = ReadPin(bus, pin_num);
+            return value;
+        }
+
+        /// <summary>
+        /// Reads the state of the pin
+        /// </summary>
+        /// <param name="bus"></param>
+        /// <param name="pin"></param>
+        /// <returns></returns>
         public bool ReadPin(DIO_BUS bus, uint pin)
         {
             byte data = ReadBus(bus);
@@ -240,10 +304,13 @@ namespace DIO
             byte addr = get_bus_read_address(bus);
             byte[] data = new byte[] { addr };
             uint n = 0;
+
+            // Read command
             FTDI.FT_STATUS status = _ftdi.Write(data, data.Length, ref n);
             if (status != FTDI.FT_STATUS.FT_OK)
                 throw new Exception(string.Format("Problem writing read command to bus {0}", bus.ToString()));
 
+            // Get data
             status = _ftdi.Read(data, (uint)data.Length, ref n);
             if (status != FTDI.FT_STATUS.FT_OK)
                 throw new Exception(string.Format("Problem writing read command to bus {0}", bus.ToString()));

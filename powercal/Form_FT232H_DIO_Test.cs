@@ -46,9 +46,30 @@ namespace PowerCalibration
             NumericUpDown_Ember.Tag = linenum;
             NumericUpDown_Ember.Value = Convert.ToDecimal(_relayCtrl.ReadLine(linenum));
 
-            linenum = lines[PowerCalibration.Relay_Lines.Voltmeter];
-            labelVoltmeter.Text += string.Format("({0})", linenum);
-            numericUpDown_Voltmeter.Tag = linenum;
+            linenum = lines[PowerCalibration.Relay_Lines.Vac_Vdc];
+            labelVacVdc.Text += string.Format("({0})", linenum);
+            numericUpDown_VacVdc.Tag = linenum;
+            numericUpDown_VacVdc.Value = Convert.ToDecimal(_relayCtrl.ReadLine(linenum));
+
+            Dictionary<string, uint> relay_lines = _relayCtrl.Dictionary_Lines;
+            linenum = 4;
+            //if(_relayCtrl.Dictionary_Lines.Count > linenum){
+
+            //    labelTest_VacVdc.Text = relay_lines.ElementAt((int)linenum).Key;
+            //}
+            labelTest_VacVdc.Text += string.Format("({0})", linenum);
+            numericUpDown_Test_VacVdc.Tag = linenum;
+            numericUpDown_Test_VacVdc.Value = Convert.ToDecimal(_relayCtrl.ReadLine(linenum));
+
+            linenum = 5;
+            labelTestC5.Text += string.Format("({0})", linenum);
+            numericUpDown_TestC5.Tag = linenum;
+            numericUpDown_TestC5.Value = Convert.ToDecimal(_relayCtrl.ReadLine(linenum));
+
+            linenum = 6;
+            labelTestC6.Text += string.Format("({0})", linenum);
+            numericUpDown_TestC6.Tag = linenum;
+            numericUpDown_TestC6.Value = Convert.ToDecimal(_relayCtrl.ReadLine(linenum));
 
             updateLineValues();
         }
@@ -74,7 +95,13 @@ namespace PowerCalibration
         {
             var ctrls = groupBoxDIOLines.Controls.OfType<NumericUpDown>();
             foreach (NumericUpDown ctrl in ctrls)
-                ctrl.Value = Convert.ToDecimal(_relayCtrl.ReadLine((uint)ctrl.Tag));
+            {
+                try
+                {
+                    ctrl.Value = Convert.ToDecimal(_relayCtrl.ReadLine((uint)ctrl.Tag));
+                }
+                catch { }
+            }
         }
     }
 }

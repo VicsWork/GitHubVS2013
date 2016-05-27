@@ -11,6 +11,10 @@ using MinimalisticTelnet;
 
 namespace PowerCalibration
 {
+    /// <summary>
+    /// Class was created for the purpose of coding devices that had already been calibrated
+    /// and to preserve the calibration tokens already programmed in them.
+    /// </summary>
     class Recode
     {
         public delegate void StatusHandler(object sender, string status_txt);
@@ -37,6 +41,7 @@ namespace PowerCalibration
 
         /// <summary>
         /// The main re-coding function
+        /// Reads the calibration tokens, codes and reprograms the same tokens
         /// </summary>
         /// <param name="cancel"></param>
         public void Run(CancellationToken cancel)
@@ -149,8 +154,9 @@ namespace PowerCalibration
                 _ember.CurrentRefereceValue = caltokens.CurrentFactor;
                 string cmd_str = _ember.CreateCalibrationPatchBath(vgain: caltokens.VoltageGainToken, igain: caltokens.CurrentGainToken);
                 if (File.Exists(log_file))
+                {
                     File.AppendAllText(log_file, cmd_str);
-
+                }
 
                 while (true)
                 {

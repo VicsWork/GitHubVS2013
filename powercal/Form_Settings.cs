@@ -12,11 +12,39 @@ namespace PowerCalibration
 {
     public partial class Form_Settings : Form
     {
+        TabPage _superTab;
         public Form_Settings()
         {
             InitializeComponent();
             this.Icon = Properties.Resources.IconPowerCalibration;
+
+            // Remove the supre tab
+            _superTab = tabPageSuper;
+            TabControl.TabPages.Remove(tabPageSuper);
+
         }
+
+        protected override bool ProcessCmdKey(ref Message msg, Keys keyData)
+        {
+            if (keyData ==  (Keys.Control | Keys.D))
+            {
+                labelDBConnectStr.Visible = !labelDBConnectStr.Visible;
+
+                if (_superTab != null)
+                {
+                    TabControl.TabPages.Add(_superTab);
+                    _superTab = null;
+                }
+                else
+                {
+                    _superTab = tabPageSuper;
+                    TabControl.TabPages.Remove(tabPageSuper);
+                }
+            }
+
+            return base.ProcessCmdKey(ref msg, keyData);
+        }
+
 
         private void buttonOK_Click(object sender, EventArgs e)
         {
@@ -51,14 +79,14 @@ namespace PowerCalibration
             TextBoxMeterCOM.Text = Properties.Settings.Default.Meter_COM_Port_Name;
             checkBoxPreProTest.Checked = Properties.Settings.Default.PrePost_Test_Enabled;
 
-            // Shortcuts
-            comboBoxShortcutActions.Text = Properties.Settings.Default.Shortcut_Spacebar_Action;
-
             // DB
             this.checkBox_EnableDBReporting.Checked = Properties.Settings.Default.DB_Loging_Enabled;
 
             // Coding
             this.checkBoxCodeMinOnPass.Checked = Properties.Settings.Default.CodeMinimizedOnPASS;
+
+            // Super
+            this.checkBoxEnableRdProt.Checked = Properties.Settings.Default.Ember_ReadProtect_Enabled;
 
         }
 
@@ -78,10 +106,11 @@ namespace PowerCalibration
                     RelayControler relay_ctrl = new RelayControler(device);
 
                     Dictionary<string, uint> relay_lines = relay_ctrl.DicLines_ReadSettings();
+
                     NumericUpDown_ACPower.Value = relay_lines[PowerCalibration.Relay_Lines.Power];
                     NumericUpDown_Load.Value = relay_lines[PowerCalibration.Relay_Lines.Load];
                     NumericUpDown_Ember.Value = relay_lines[PowerCalibration.Relay_Lines.Ember];
-                    numericUpDown_Voltmeter.Value = relay_lines[PowerCalibration.Relay_Lines.Voltmeter];
+                    numericUpDown_VacVdc.Value = relay_lines[PowerCalibration.Relay_Lines.Vac_Vdc];
 
                     setLineEnablement(true);
                 }
@@ -110,7 +139,7 @@ namespace PowerCalibration
             relay_lines[PowerCalibration.Relay_Lines.Power] = (uint)NumericUpDown_ACPower.Value;
             relay_lines[PowerCalibration.Relay_Lines.Load] = (uint)NumericUpDown_Load.Value;
             relay_lines[PowerCalibration.Relay_Lines.Ember] = (uint)NumericUpDown_Ember.Value;
-            relay_lines[PowerCalibration.Relay_Lines.Voltmeter] = (uint)numericUpDown_Voltmeter.Value;
+            relay_lines[PowerCalibration.Relay_Lines.Vac_Vdc] = (uint)numericUpDown_VacVdc.Value;
 
             relay_ctrl.Dictionary_Lines = relay_lines;
             relay_ctrl.DicLines_SaveSettings();
@@ -151,11 +180,6 @@ namespace PowerCalibration
         private void checkBoxPreProTest_CheckedChanged(object sender, EventArgs e)
         {
             Properties.Settings.Default.PrePost_Test_Enabled = this.checkBoxPreProTest.Checked;
-        }
-
-        private void comboBoxShortcutActions_SelectedIndexChanged(object sender, EventArgs e)
-        {
-            Properties.Settings.Default.Shortcut_Spacebar_Action = comboBoxShortcutActions.Text;
         }
 
         private void TextBoxMeterCOM_TextChanged(object sender, EventArgs e)
@@ -255,11 +279,6 @@ namespace PowerCalibration
 
         }
 
-        private void comboBoxShortcutActions_SelectedIndexChanged_1(object sender, EventArgs e)
-        {
-            Properties.Settings.Default.Shortcut_Spacebar_Action = comboBoxShortcutActions.Text;
-        }
-
         private void checkBox_EnableDBReporting_CheckedChanged(object sender, EventArgs e)
         {
             Properties.Settings.Default.DB_Loging_Enabled = this.checkBox_EnableDBReporting.Checked;
@@ -271,12 +290,9 @@ namespace PowerCalibration
             Properties.Settings.Default.CodeMinimizedOnPASS = this.checkBoxCodeMinOnPass.Checked;
         }
 
-        private void TabControl_KeyUp(object sender, KeyEventArgs e)
+        private void checkBoxEnableRdProt_CheckedChanged(object sender, EventArgs e)
         {
-            if (e.Modifiers == Keys.Control && e.KeyCode == Keys.D)
-            {
-                this.labelDBConnectStr.Visible = true;
-            }
+            Properties.Settings.Default.Ember_ReadProtect_Enabled = this.checkBoxEnableRdProt.Checked;
         }
 
     }

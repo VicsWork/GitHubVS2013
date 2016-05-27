@@ -82,7 +82,7 @@ namespace PowerCalibration
         /// <summary>
         /// Path to where the Ember programming batch file is created
         /// </summary>
-        string _ember_batchfile_path = Path.Combine(_app_data_dir, "patchit.bat");
+        string _ember_batchfile_patch_path = Path.Combine(_app_data_dir, "patchit.bat");
 
         public BoardTypes BoardType
         {
@@ -144,15 +144,26 @@ namespace PowerCalibration
                     _current_gain_adress = 0x08080984;
                     _referece_adress = 0x08080988;
                     _ac_offset_adress = 0x080809CC;
-
                     break;
+
+                case BoardTypes.Honeycomb:
+                    _voltage_gain_adress = 0x080409CC;
+                    _current_gain_adress = 0x080409D0;
+                    _referece_adress = 0x080409D4;
+                    _ac_offset_adress = 0x080409D8;
+
+                    _current_ac_reference = 10;
+                    break;
+
                 case BoardTypes.Zebrashark:
                     //_cmd_prefix = "cs5480";  // SPI interface
                     break;
+
                 case BoardTypes.Milkshark:
                 case BoardTypes.Mudshark:
                     _current_ac_reference = 10;
                     break;
+
             }
 
             _load_voltage_ac_high_limit = voltage_ac_load + voltage_ac_delta;
@@ -228,7 +239,8 @@ namespace PowerCalibration
             _relay_ctrl.WriteLine(Relay_Lines.Load, true);
 
             // Close the UUT relay
-            TCLI.Set_Relay_State(_telnet_connection, true);
+            // Jigs short-out the relay....
+            //TCLI.Set_Relay_State(_telnet_connection, true);
 
             Thread.Sleep(1000);
             verify_voltage_ac();
@@ -476,7 +488,7 @@ namespace PowerCalibration
                 return;
 
             if (_relay_ctrl != null && _relay_ctrl.Device_Type != RelayControler.Device_Types.Manual)
-                _relay_ctrl.WriteLine(Relay_Lines.Voltmeter, false);  // AC
+                _relay_ctrl.WriteLine(Relay_Lines.Vac_Vdc, false);  // AC
 
             fire_run_status("Verify Voltage AC");
             _meter.Init();
@@ -512,13 +524,14 @@ namespace PowerCalibration
         string patch(int voltage_gain, int current_gain)
         {
             _ember.EmberBinPath = Properties.Settings.Default.Ember_BinPath;
-            _ember.BatchFilePath = _ember_batchfile_path;
+            _ember.BatchFilePatchPath = _ember_batchfile_patch_path;
             _ember.VoltageRefereceValue = _voltage_ac_reference;
             _ember.CurrentRefereceValue = _current_ac_reference;
             _ember.VoltageAdress = _voltage_gain_adress;
             _ember.CurrentAdress = _current_gain_adress;
             _ember.RefereceAdress = _referece_adress;
             _ember.ACOffsetAdress = _ac_offset_adress;
+
             _ember.CreateCalibrationPatchBath(voltage_gain, current_gain);
 
             bool patchit_fail = false;

@@ -247,7 +247,7 @@ namespace PowerCalibration
             string msg = "";
             if (!data.Contains("pload"))
             {
-                msg = string.Format("Unable to get custom command output list from Ember.  Output was: {0}", data);
+                msg = string.Format("Unable to find pload command from custom command output list from Ember.  Output was: {0}", data);
                 throw new Exception(msg);
             }
 
@@ -308,6 +308,42 @@ namespace PowerCalibration
         }
 
         /// <summary>
+        /// Gets the MFG string
+        /// </summary>
+        /// <param name="telnet_connection"></param>
+        /// <returns></returns>
+        public static string Get_MFGString(TelnetConnection telnet_connection)
+        {
+            string mfgstr = null;
+            string datain = "";
+            string pattern = "MFG String: (\\S+)";
+
+            TCLI.Wait_For_Prompt(telnet_connection);
+            telnet_connection.WriteLine("info");
+            Thread.Sleep(500);
+            datain = telnet_connection.Read();
+
+
+            if (datain != null && datain.Length > 0)
+            {
+                Match match = Regex.Match(datain, pattern);
+                if (match.Groups.Count != 2)
+                {
+                    string msg = string.Format("Unable to parse info MFG String.  Output was:{0}", datain);
+                    throw new Exception(msg);
+                }
+                mfgstr = match.Groups[1].Value;
+            }
+            else
+            {
+                string msg = string.Format("No data received after \"Info\" command");
+                throw new Exception(msg);
+            }
+
+            return mfgstr;
+        }
+
+        /// <summary>
         /// Sets the state of the relay
         /// </summary>
         /// <param name="telnet_connection"></param>
@@ -327,19 +363,159 @@ namespace PowerCalibration
             }
         }
 
-        public static void Wait_For_Prompt(TelnetConnection telnet_connection)
+        /// <summary>
+        /// Just a wrapper that reads and returns the telnet data
+        /// </summary>
+        /// <param name="telnet_connection"></param>
+        /// <returns></returns>
+        public static string Read(TelnetConnection telnet_connection)
+        {
+            return telnet_connection.Read();
+        }
+
+        /// <summary>
+        /// Wrapper for writeline
+        /// </summary>
+        /// <param name="telnet_connection"></param>
+        /// <param name="text"></param>
+        public static void WriteLine(TelnetConnection telnet_connection, string text)
+        {
+            telnet_connection.WriteLine(text);
+        }
+
+        /// <summary>
+        /// Inputs a blank line and waits for the prompt
+        /// </summary>
+        /// <param name="telnet_connection"></param>
+        /// <param name="prompt">The expected prompt.  Default '>'</param>
+        /// <param name="sendEnter">Whether to send CR before waiting</param>
+        /// <param name="retry_count">The max number of times that we read the session looking for the prompt</param>
+        public static void Wait_For_Prompt(TelnetConnection telnet_connection, string prompt = ">", bool sendEnter = true, int retry_count = 5)
         {
             telnet_connection.Read();
             int n = 0;
-            while (n < 3)
+            string data = "";
+            while (n < retry_count)
             {
-                telnet_connection.WriteLine("");
-                string data = telnet_connection.Read();
-                if (data.Contains('>'))
+                if (sendEnter)
+                {
+                    telnet_connection.WriteLine("");
+                    Thread.Sleep(250);
+                }
+
+                data = telnet_connection.Read();
+                if (data.Contains(prompt))
                     break;
                 n++;
             }
+
+            if (n >= retry_count)
+            {
+                throw new Exception("Telnet session prompt not detected");
+            }
         }
+
+        /// <summary>
+        /// Waits for output
+        /// </summary>
+        /// <param name="telnet_connection"></param>
+        /// <param name="expected_data"></param>
+        /// <param name="timeout_ms"></param>
+        /// <param name="sample_ms"></param>
+        /// <returns></returns>
+        public static string Wait_For_String(TelnetConnection telnet_connection, string expected_data, int timeout_ms, int sample_ms = 250)
+        {
+            int total_wait = 0;
+            string data = "";
+            while (total_wait < timeout_ms)
+            {
+                data += telnet_connection.Read();
+                if (data.Contains(expected_data))
+                    break;
+                Thread.Sleep(sample_ms);
+                total_wait += sample_ms;
+            }
+
+            if (!data.Contains(expected_data))
+            {
+                string msg = string.Format("Telnet session timeout after {0} ms waiting for data \"{1}\". Data was: \"{2}\"",
+                    total_wait, expected_data, data);
+                throw new Exception(msg);
+            }
+
+            return data;
+        }
+
+        /// <summary>
+        /// Sends a command and waits for specific message to be returned
+        /// </summary>
+        /// <param name="telnet_connection"></param>
+        /// <param name="command"></param>
+        /// <param name="expected_data"></param>
+        /// <param name="retry_count"></param>
+        /// <param name="delay_ms"></param>
+        public static string Wait_For_String(TelnetConnection telnet_connection, string command, string expected_data, int retry_count = 3, int delay_ms = 100)
+        {
+            Wait_For_Prompt(telnet_connection);
+            int n = 0;
+            string data = "";
+            while (n < retry_count)
+            {
+                telnet_connection.WriteLine(command);
+                Thread.Sleep(delay_ms);
+                data = telnet_connection.Read();
+                if (data != null)
+                {
+                    if (data.Contains(expected_data))
+                    {
+                        break;
+                    }
+                }
+                n++;
+            }
+
+            if (!data.Contains(expected_data))
+            {
+                string msg = string.Format("Telnet session data not detected after command \"{0}\".  Expected: \"{1}\". Received: \"{2}\"",
+                    command, expected_data, data);
+                throw new Exception(msg);
+            }
+
+            return data;
+        }
+
+        public static Match Wait_For_Match(TelnetConnection telnet_connection, string command, string pattern, int retry_count = 3, int delay_ms = 100)
+        {
+            Wait_For_Prompt(telnet_connection);
+            int n = 0;
+            string data = "";
+
+            Match match;
+
+            while (n < retry_count)
+            {
+                telnet_connection.WriteLine(command);
+
+                Thread.Sleep(delay_ms);
+                data = telnet_connection.Read();
+                if (data != null)
+                {
+                    match = Regex.Match(data, pattern);
+
+                    if (match.Success)
+                    {
+                        return match;
+                    }
+                }
+
+                n++;
+            }
+
+            string msg = string.Format("Telnet session data not match found after command \"{0}\".  Expected: \"{1}\". Received: \"{2}\"",
+                command, pattern, data);
+            throw new Exception(msg);
+        }
+
 
     }
 }

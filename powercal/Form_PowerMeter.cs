@@ -17,9 +17,8 @@ namespace PowerCalibration
     public partial class Form_PowerMeter : Form
     {
         string _isachan_error;
-        TelnetConnection _telnet_connection = null;
+        TelnetConnection _telnet_connection;
         string _cmd_prefix;
-        Ember _ember;
         bool _static_values_read = false;
 
         public class CLIPowerArgsEventArgrs : EventArgs
@@ -52,42 +51,12 @@ namespace PowerCalibration
         double _uut_voltage_reference = 240;
         double _uut_current_reference = 15;
 
-        public Form_PowerMeter(string interface_type, string interface_address)
+        public Form_PowerMeter(TelnetConnection telnet_connection)
         {
             InitializeComponent();
             this.Icon = Properties.Resources.IconPowerCalibration;
 
-            _ember = new Ember();
-            _ember.Process_ISAChan_Error_Event += ember_Process_ISAChan_Error_Event;
-
-            _ember.Interface = (Ember.Interfaces)Enum.Parse(typeof(Ember.Interfaces), interface_type);
-            _ember.Interface_Address = interface_address;
-
-            if (_ember.Interface == Ember.Interfaces.USB)
-            {
-                TraceLogger.Log("Open ISA Channels");
-                _ember.CloseISAChannels();
-                _ember.OpenISAChannels();
-            }
-
-            string telnet_address = "localhost";
-            if (_ember.Interface == Ember.Interfaces.IP)
-                telnet_address = _ember.Interface_Address;
-            _telnet_connection = new TelnetConnection(telnet_address, 4900);
-
-            //_cmd_prefix = TCLI.Get_Custom_Command_Prefix(_telnet_connection);
-
-            //TCLI.Tokens calibration_tokens = TCLI.Parse_Pinfo_Tokens(_telnet_connection, _cmd_prefix);
-            //this.labelVFactor.Text = string.Format("Voltage Factor: {0}", calibration_tokens.VoltageFactor);
-            //this.labelIFactor.Text = string.Format("Current Factor: {0}", calibration_tokens.CurrentFactor);
-            //this.labelVGain.Text = string.Format("VGain Token: 0x{0:X08}", calibration_tokens.VoltageGainToken);
-            //this.labelIGain.Text = string.Format("VGain Token: 0x{0:X08}", calibration_tokens.CurrentGainToken);
-
-            //_uut_voltage_reference = Convert.ToDouble(calibration_tokens.VoltageFactor);
-            //_uut_current_reference = Convert.ToDouble(calibration_tokens.CurrentFactor);
-
-            //string eui = TCLI.Get_EUI(_telnet_connection);
-            //this.labelEUI.Text = string.Format("EUI: {0}", eui);
+            _telnet_connection = telnet_connection;
 
             this.CLIValue_Event += Form_PowerMeter_CLIValue_Event;
             this.CLIError_Event += Form_PowerMeter_CLIError_Event;
@@ -176,7 +145,7 @@ namespace PowerCalibration
                 this.labelVFactor.Text = string.Format("Voltage Factor: {0}", calibration_tokens.VoltageFactor);
                 this.labelIFactor.Text = string.Format("Current Factor: {0}", calibration_tokens.CurrentFactor);
                 this.labelVGain.Text = string.Format("VGain Token: 0x{0:X08}", calibration_tokens.VoltageGainToken);
-                this.labelIGain.Text = string.Format("VGain Token: 0x{0:X08}", calibration_tokens.CurrentGainToken);
+                this.labelIGain.Text = string.Format("IGain Token: 0x{0:X08}", calibration_tokens.CurrentGainToken);
 
                 string eui = TCLI.Get_EUI(_telnet_connection);
                 this.labelEUI.Text = string.Format("EUI: {0}", eui);
@@ -266,8 +235,6 @@ namespace PowerCalibration
             if (_telnet_connection != null)
                 _telnet_connection.Close();
 
-            if (_ember != null)
-                _ember.CloseISAChannels();
         }
 
     }

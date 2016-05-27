@@ -39,7 +39,7 @@
             this.label7 = new System.Windows.Forms.Label();
             this.TextBoxEmberBinPath = new System.Windows.Forms.TextBox();
             this.tabPageDIO = new System.Windows.Forms.TabPage();
-            this.numericUpDown_Voltmeter = new System.Windows.Forms.NumericUpDown();
+            this.numericUpDown_VacVdc = new System.Windows.Forms.NumericUpDown();
             this.label5 = new System.Windows.Forms.Label();
             this.label1 = new System.Windows.Forms.Label();
             this.comboBoxDIOCtrollerTypes = new System.Windows.Forms.ComboBox();
@@ -68,19 +68,19 @@
             this.tabPageMisc = new System.Windows.Forms.TabPage();
             this.groupBox3 = new System.Windows.Forms.GroupBox();
             this.checkBoxCodeMinOnPass = new System.Windows.Forms.CheckBox();
-            this.groupBox2 = new System.Windows.Forms.GroupBox();
-            this.checkBox_EnableDBReporting = new System.Windows.Forms.CheckBox();
+            this.tabPageSuper = new System.Windows.Forms.TabPage();
             this.groupBox1 = new System.Windows.Forms.GroupBox();
-            this.comboBoxShortcutActions = new System.Windows.Forms.ComboBox();
-            this.label12 = new System.Windows.Forms.Label();
+            this.checkBoxEnableRdProt = new System.Windows.Forms.CheckBox();
             this.buttonCancel = new System.Windows.Forms.Button();
             this.buttonOK = new System.Windows.Forms.Button();
             this.toolTip1 = new System.Windows.Forms.ToolTip(this.components);
+            this.groupBox2 = new System.Windows.Forms.GroupBox();
             this.labelDBConnectStr = new System.Windows.Forms.Label();
+            this.checkBox_EnableDBReporting = new System.Windows.Forms.CheckBox();
             this.TabControl.SuspendLayout();
             this.tabPageEmber.SuspendLayout();
             this.tabPageDIO.SuspendLayout();
-            ((System.ComponentModel.ISupportInitialize)(this.numericUpDown_Voltmeter)).BeginInit();
+            ((System.ComponentModel.ISupportInitialize)(this.numericUpDown_VacVdc)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.NumericUpDown_Ember)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.NumericUpDown_Load)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.NumericUpDown_ACPower)).BeginInit();
@@ -89,8 +89,9 @@
             this.tagPageMeasurement.SuspendLayout();
             this.tabPageMisc.SuspendLayout();
             this.groupBox3.SuspendLayout();
-            this.groupBox2.SuspendLayout();
+            this.tabPageSuper.SuspendLayout();
             this.groupBox1.SuspendLayout();
+            this.groupBox2.SuspendLayout();
             this.SuspendLayout();
             // 
             // TabControl
@@ -103,13 +104,13 @@
             this.TabControl.Controls.Add(this.tabPageCalibration);
             this.TabControl.Controls.Add(this.tagPageMeasurement);
             this.TabControl.Controls.Add(this.tabPageMisc);
+            this.TabControl.Controls.Add(this.tabPageSuper);
             this.TabControl.Location = new System.Drawing.Point(9, 12);
             this.TabControl.Multiline = true;
             this.TabControl.Name = "TabControl";
             this.TabControl.SelectedIndex = 0;
             this.TabControl.Size = new System.Drawing.Size(372, 217);
             this.TabControl.TabIndex = 0;
-            this.TabControl.KeyUp += new System.Windows.Forms.KeyEventHandler(this.TabControl_KeyUp);
             // 
             // tabPageEmber
             // 
@@ -198,7 +199,7 @@
             // 
             // tabPageDIO
             // 
-            this.tabPageDIO.Controls.Add(this.numericUpDown_Voltmeter);
+            this.tabPageDIO.Controls.Add(this.numericUpDown_VacVdc);
             this.tabPageDIO.Controls.Add(this.label5);
             this.tabPageDIO.Controls.Add(this.label1);
             this.tabPageDIO.Controls.Add(this.comboBoxDIOCtrollerTypes);
@@ -215,27 +216,27 @@
             this.tabPageDIO.Text = "DIO";
             this.tabPageDIO.UseVisualStyleBackColor = true;
             // 
-            // numericUpDown_Voltmeter
+            // numericUpDown_VacVdc
             // 
-            this.numericUpDown_Voltmeter.Location = new System.Drawing.Point(188, 126);
-            this.numericUpDown_Voltmeter.Maximum = new decimal(new int[] {
+            this.numericUpDown_VacVdc.Location = new System.Drawing.Point(188, 126);
+            this.numericUpDown_VacVdc.Maximum = new decimal(new int[] {
             7,
             0,
             0,
             0});
-            this.numericUpDown_Voltmeter.Name = "numericUpDown_Voltmeter";
-            this.numericUpDown_Voltmeter.Size = new System.Drawing.Size(31, 20);
-            this.numericUpDown_Voltmeter.TabIndex = 4;
-            this.numericUpDown_Voltmeter.ValueChanged += new System.EventHandler(this.NumericUpDown_DIOLine_ValueChanged);
+            this.numericUpDown_VacVdc.Name = "numericUpDown_VacVdc";
+            this.numericUpDown_VacVdc.Size = new System.Drawing.Size(31, 20);
+            this.numericUpDown_VacVdc.TabIndex = 4;
+            this.numericUpDown_VacVdc.ValueChanged += new System.EventHandler(this.NumericUpDown_DIOLine_ValueChanged);
             // 
             // label5
             // 
             this.label5.AutoSize = true;
             this.label5.Location = new System.Drawing.Point(101, 127);
             this.label5.Name = "label5";
-            this.label5.Size = new System.Drawing.Size(51, 13);
+            this.label5.Size = new System.Drawing.Size(50, 13);
             this.label5.TabIndex = 20;
-            this.label5.Text = "Voltmeter";
+            this.label5.Text = "Vac/Vdc";
             // 
             // label1
             // 
@@ -499,8 +500,6 @@
             // tabPageMisc
             // 
             this.tabPageMisc.Controls.Add(this.groupBox3);
-            this.tabPageMisc.Controls.Add(this.groupBox2);
-            this.tabPageMisc.Controls.Add(this.groupBox1);
             this.tabPageMisc.Location = new System.Drawing.Point(4, 22);
             this.tabPageMisc.Name = "tabPageMisc";
             this.tabPageMisc.Size = new System.Drawing.Size(364, 191);
@@ -513,7 +512,7 @@
             this.groupBox3.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
             | System.Windows.Forms.AnchorStyles.Right)));
             this.groupBox3.Controls.Add(this.checkBoxCodeMinOnPass);
-            this.groupBox3.Location = new System.Drawing.Point(3, 133);
+            this.groupBox3.Location = new System.Drawing.Point(3, 3);
             this.groupBox3.Name = "groupBox3";
             this.groupBox3.Size = new System.Drawing.Size(358, 55);
             this.groupBox3.TabIndex = 9;
@@ -532,67 +531,39 @@
             this.checkBoxCodeMinOnPass.UseVisualStyleBackColor = true;
             this.checkBoxCodeMinOnPass.CheckedChanged += new System.EventHandler(this.checkBoxCodeMinOnPass_CheckedChanged);
             // 
-            // groupBox2
+            // tabPageSuper
             // 
-            this.groupBox2.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
-            | System.Windows.Forms.AnchorStyles.Right)));
-            this.groupBox2.Controls.Add(this.labelDBConnectStr);
-            this.groupBox2.Controls.Add(this.checkBox_EnableDBReporting);
-            this.groupBox2.Location = new System.Drawing.Point(3, 65);
-            this.groupBox2.Name = "groupBox2";
-            this.groupBox2.Size = new System.Drawing.Size(358, 62);
-            this.groupBox2.TabIndex = 8;
-            this.groupBox2.TabStop = false;
-            this.groupBox2.Text = "Database";
-            // 
-            // checkBox_EnableDBReporting
-            // 
-            this.checkBox_EnableDBReporting.AutoSize = true;
-            this.checkBox_EnableDBReporting.Location = new System.Drawing.Point(6, 22);
-            this.checkBox_EnableDBReporting.Name = "checkBox_EnableDBReporting";
-            this.checkBox_EnableDBReporting.Size = new System.Drawing.Size(108, 17);
-            this.checkBox_EnableDBReporting.TabIndex = 6;
-            this.checkBox_EnableDBReporting.Text = "Enable Reporting";
-            this.toolTip1.SetToolTip(this.checkBox_EnableDBReporting, "Enables reporting to the database");
-            this.checkBox_EnableDBReporting.UseVisualStyleBackColor = true;
-            this.checkBox_EnableDBReporting.CheckedChanged += new System.EventHandler(this.checkBox_EnableDBReporting_CheckedChanged);
+            this.tabPageSuper.Controls.Add(this.groupBox2);
+            this.tabPageSuper.Controls.Add(this.groupBox1);
+            this.tabPageSuper.Location = new System.Drawing.Point(4, 22);
+            this.tabPageSuper.Name = "tabPageSuper";
+            this.tabPageSuper.Size = new System.Drawing.Size(364, 191);
+            this.tabPageSuper.TabIndex = 7;
+            this.tabPageSuper.Text = "Super";
+            this.tabPageSuper.UseVisualStyleBackColor = true;
             // 
             // groupBox1
             // 
             this.groupBox1.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
             | System.Windows.Forms.AnchorStyles.Right)));
-            this.groupBox1.Controls.Add(this.comboBoxShortcutActions);
-            this.groupBox1.Controls.Add(this.label12);
-            this.groupBox1.Location = new System.Drawing.Point(3, 10);
+            this.groupBox1.Controls.Add(this.checkBoxEnableRdProt);
+            this.groupBox1.Location = new System.Drawing.Point(3, 3);
             this.groupBox1.Name = "groupBox1";
-            this.groupBox1.Size = new System.Drawing.Size(358, 49);
-            this.groupBox1.TabIndex = 7;
+            this.groupBox1.Size = new System.Drawing.Size(358, 55);
+            this.groupBox1.TabIndex = 10;
             this.groupBox1.TabStop = false;
-            this.groupBox1.Text = "Keyboard Shortcuts";
+            this.groupBox1.Text = "Post Process";
             // 
-            // comboBoxShortcutActions
+            // checkBoxEnableRdProt
             // 
-            this.comboBoxShortcutActions.FormattingEnabled = true;
-            this.comboBoxShortcutActions.Items.AddRange(new object[] {
-            "All",
-            "Calibrate",
-            "Code",
-            "ReCode"});
-            this.comboBoxShortcutActions.Location = new System.Drawing.Point(54, 16);
-            this.comboBoxShortcutActions.Name = "comboBoxShortcutActions";
-            this.comboBoxShortcutActions.Size = new System.Drawing.Size(121, 21);
-            this.comboBoxShortcutActions.TabIndex = 5;
-            this.comboBoxShortcutActions.SelectedIndexChanged += new System.EventHandler(this.comboBoxShortcutActions_SelectedIndexChanged_1);
-            // 
-            // label12
-            // 
-            this.label12.AutoSize = true;
-            this.label12.Location = new System.Drawing.Point(6, 19);
-            this.label12.Name = "label12";
-            this.label12.Size = new System.Drawing.Size(42, 13);
-            this.label12.TabIndex = 4;
-            this.label12.Text = "SPACE";
-            this.toolTip1.SetToolTip(this.label12, "Selects the action for the SPACE key");
+            this.checkBoxEnableRdProt.AutoSize = true;
+            this.checkBoxEnableRdProt.Location = new System.Drawing.Point(6, 17);
+            this.checkBoxEnableRdProt.Name = "checkBoxEnableRdProt";
+            this.checkBoxEnableRdProt.Size = new System.Drawing.Size(92, 17);
+            this.checkBoxEnableRdProt.TabIndex = 7;
+            this.checkBoxEnableRdProt.Text = "EnableRdProt";
+            this.checkBoxEnableRdProt.UseVisualStyleBackColor = true;
+            this.checkBoxEnableRdProt.CheckedChanged += new System.EventHandler(this.checkBoxEnableRdProt_CheckedChanged);
             // 
             // buttonCancel
             // 
@@ -615,6 +586,19 @@
             this.buttonOK.Text = "&OK";
             this.buttonOK.Click += new System.EventHandler(this.buttonOK_Click);
             // 
+            // groupBox2
+            // 
+            this.groupBox2.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
+            | System.Windows.Forms.AnchorStyles.Right)));
+            this.groupBox2.Controls.Add(this.labelDBConnectStr);
+            this.groupBox2.Controls.Add(this.checkBox_EnableDBReporting);
+            this.groupBox2.Location = new System.Drawing.Point(3, 64);
+            this.groupBox2.Name = "groupBox2";
+            this.groupBox2.Size = new System.Drawing.Size(358, 62);
+            this.groupBox2.TabIndex = 11;
+            this.groupBox2.TabStop = false;
+            this.groupBox2.Text = "Database";
+            // 
             // labelDBConnectStr
             // 
             this.labelDBConnectStr.AutoSize = true;
@@ -622,6 +606,17 @@
             this.labelDBConnectStr.Name = "labelDBConnectStr";
             this.labelDBConnectStr.Size = new System.Drawing.Size(0, 13);
             this.labelDBConnectStr.TabIndex = 7;
+            // 
+            // checkBox_EnableDBReporting
+            // 
+            this.checkBox_EnableDBReporting.AutoSize = true;
+            this.checkBox_EnableDBReporting.Location = new System.Drawing.Point(6, 22);
+            this.checkBox_EnableDBReporting.Name = "checkBox_EnableDBReporting";
+            this.checkBox_EnableDBReporting.Size = new System.Drawing.Size(108, 17);
+            this.checkBox_EnableDBReporting.TabIndex = 6;
+            this.checkBox_EnableDBReporting.Text = "Enable Reporting";
+            this.toolTip1.SetToolTip(this.checkBox_EnableDBReporting, "Enables reporting to the database");
+            this.checkBox_EnableDBReporting.UseVisualStyleBackColor = true;
             // 
             // Form_Settings
             // 
@@ -640,7 +635,7 @@
             this.tabPageEmber.PerformLayout();
             this.tabPageDIO.ResumeLayout(false);
             this.tabPageDIO.PerformLayout();
-            ((System.ComponentModel.ISupportInitialize)(this.numericUpDown_Voltmeter)).EndInit();
+            ((System.ComponentModel.ISupportInitialize)(this.numericUpDown_VacVdc)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this.NumericUpDown_Ember)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this.NumericUpDown_Load)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this.NumericUpDown_ACPower)).EndInit();
@@ -652,10 +647,11 @@
             this.tabPageMisc.ResumeLayout(false);
             this.groupBox3.ResumeLayout(false);
             this.groupBox3.PerformLayout();
-            this.groupBox2.ResumeLayout(false);
-            this.groupBox2.PerformLayout();
+            this.tabPageSuper.ResumeLayout(false);
             this.groupBox1.ResumeLayout(false);
             this.groupBox1.PerformLayout();
+            this.groupBox2.ResumeLayout(false);
+            this.groupBox2.PerformLayout();
             this.ResumeLayout(false);
 
         }
@@ -671,7 +667,7 @@
         private System.Windows.Forms.Label label7;
         public System.Windows.Forms.TextBox TextBoxEmberBinPath;
         private System.Windows.Forms.TabPage tabPageDIO;
-        public System.Windows.Forms.NumericUpDown numericUpDown_Voltmeter;
+        public System.Windows.Forms.NumericUpDown numericUpDown_VacVdc;
         private System.Windows.Forms.Label label5;
         private System.Windows.Forms.Label label1;
         public System.Windows.Forms.ComboBox comboBoxDIOCtrollerTypes;
@@ -701,14 +697,14 @@
         private System.Windows.Forms.Label label16;
         private System.Windows.Forms.TextBox textBoxLoadPower;
         private System.Windows.Forms.TabPage tabPageMisc;
-        private System.Windows.Forms.CheckBox checkBox_EnableDBReporting;
-        private System.Windows.Forms.ComboBox comboBoxShortcutActions;
-        private System.Windows.Forms.Label label12;
-        private System.Windows.Forms.GroupBox groupBox1;
         private System.Windows.Forms.GroupBox groupBox3;
         private System.Windows.Forms.CheckBox checkBoxCodeMinOnPass;
-        private System.Windows.Forms.GroupBox groupBox2;
         private System.Windows.Forms.ToolTip toolTip1;
+        private System.Windows.Forms.TabPage tabPageSuper;
+        private System.Windows.Forms.GroupBox groupBox1;
+        private System.Windows.Forms.CheckBox checkBoxEnableRdProt;
+        private System.Windows.Forms.GroupBox groupBox2;
         private System.Windows.Forms.Label labelDBConnectStr;
+        private System.Windows.Forms.CheckBox checkBox_EnableDBReporting;
     }
 }
