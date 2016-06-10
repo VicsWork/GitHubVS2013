@@ -1501,6 +1501,7 @@ namespace PowerCalibration
             }
             else
             {
+                closeTelnet();
                 try
                 {
                     power_off();
@@ -1517,6 +1518,8 @@ namespace PowerCalibration
 
                 updateRunStatus("FAIL", Color.White, Color.Red);
                 updateOutputStatus(_pretest_error_msg);
+
+                setEnablement(true, false);
             }
 
             _stopwatch_running.Stop();
@@ -2152,7 +2155,9 @@ namespace PowerCalibration
             // Init coder
             Coder coder = new Coder(new TimeSpan(0, 2, 0));
             coder.Status_Event += coder_Status_Event;
+
             openTelnet();
+
             coder.Ember = _ember;
             _coding_error_msg = null;
 
@@ -2202,6 +2207,8 @@ namespace PowerCalibration
                 {
                     updateRunStatus("FAIL", Color.White, Color.Red);
                     updateOutputStatus(_coding_error_msg);
+
+                    closeTelnet();
 
                     if (_meter != null)
                     {
@@ -2276,22 +2283,6 @@ namespace PowerCalibration
         }
 
         /// <summary>
-        /// Clicks the calibrate button
-        /// </summary>
-        void clickCalibrate()
-        {
-            if (buttonCalibrate.InvokeRequired)
-            {
-                clickCalibrateCallback d = new clickCalibrateCallback(clickCalibrate);
-                this.Invoke(d);
-            }
-            else
-            {
-                buttonCalibrate.PerformClick();
-            }
-        }
-
-        /// <summary>
         /// Coding done handler
         /// </summary>
         /// <param name="task"></param>
@@ -2314,6 +2305,22 @@ namespace PowerCalibration
             _coding_error_msg = errmsg;
 
             coding_done();
+        }
+
+        /// <summary>
+        /// Clicks the calibrate button
+        /// </summary>
+        void clickCalibrate()
+        {
+            if (buttonCalibrate.InvokeRequired)
+            {
+                clickCalibrateCallback d = new clickCalibrateCallback(clickCalibrate);
+                this.Invoke(d);
+            }
+            else
+            {
+                buttonCalibrate.PerformClick();
+            }
         }
 
         /// <summary>

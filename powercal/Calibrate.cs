@@ -160,6 +160,8 @@ namespace PowerCalibration
                     break;
 
                 case BoardTypes.Milkshark:
+                    _current_ac_reference = 10;  // Adel says this should be 3
+                    break;
                 case BoardTypes.Mudshark:
                     _current_ac_reference = 10;
                     break;
@@ -175,7 +177,7 @@ namespace PowerCalibration
             _uut_voltage_ac_high_limit = voltage_ac_load * 3;
             _uut_voltage_ac_low_limit = voltage_ac_load / 3;
 
-            _uut_current_ac_high_limit = current_ac_load * 3;
+            _uut_current_ac_high_limit = current_ac_load * 4;
             _uut_current_ac_low_limit = current_ac_load / 3;
 
             _voltage_dc_high_limit = voltage_dc + voltage_dc_delta;
