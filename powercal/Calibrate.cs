@@ -134,7 +134,11 @@ namespace PowerCalibration
             _ac_offset_adress = 0x080409CC;
 
             _voltage_ac_reference = 240;
-            _current_ac_reference = 15;
+            _current_ac_reference = 15;  // R = 0.002
+            // The current reference is calculated by diving 30x10-3/R.  
+            // Where R is the current sensor value
+            // For R=0.002 => 30*10e-3/2*10e-3 => 30/2 = 15
+
             //_cmd_prefix = "cs5490"; // UART interface
 
             switch (_board_type)
@@ -152,17 +156,19 @@ namespace PowerCalibration
                     _referece_adress = 0x080409D4;
                     _ac_offset_adress = 0x080409D8;
 
+                    // R = 0.003 => 30/3
                     _current_ac_reference = 10;
                     break;
 
                 case BoardTypes.Zebrashark:
-                    //_cmd_prefix = "cs5480";  // SPI interface
                     break;
 
                 case BoardTypes.Milkshark:
-                    _current_ac_reference = 10;  // Adel says this should be 3
+                    // R8 = 0.01 => 30/10
+                    _current_ac_reference = 3;  
                     break;
                 case BoardTypes.Mudshark:
+                    // R = 0.003 => 30/3
                     _current_ac_reference = 10;
                     break;
 
