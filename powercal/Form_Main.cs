@@ -1102,7 +1102,9 @@ namespace PowerCalibration
         /// <returns></returns>
         TelnetConnection openTelnet()
         {
-            if (_telnet_connection == null || !_telnet_connection.IsConnected)
+            if (_telnet_connection == null)
+                createTelnet();
+            else if(!_telnet_connection.IsConnected)
                 createTelnet();
 
             return _telnet_connection;
@@ -1117,9 +1119,10 @@ namespace PowerCalibration
             {
                 TraceLogger.Log("Close telnet");
                 _telnet_connection.Close();
+                _telnet_connection = null;
             }
 
-            if (_ember.Interface == Ember.Interfaces.USB)
+            if (_ember != null && _ember.Interface == Ember.Interfaces.USB)
             {
                 _ember.CloseISAChannels();
             }
@@ -1240,7 +1243,9 @@ namespace PowerCalibration
                 _mfg_str = getMfgString();
                 selectBoardByMFGString(_mfg_str);
             }
-            catch { };
+            catch(Exception ex) {
+                updateOutputStatus(ex.Message);
+            };
 
         }
 
@@ -1548,7 +1553,7 @@ namespace PowerCalibration
                         }
                         catch (Exception ex)
                         {
-                            _coding_error_msg = ex.Message;
+                            _coding_error_msg = ex.Message + "\r\n" + ex.StackTrace;
                             coding_done();
                         }
                         break;
@@ -2188,7 +2193,7 @@ namespace PowerCalibration
             activate();
 
             // Check whether PASS, Cancelled or FAIL
-            if (_cancel_token_uut.IsCancellationRequested)
+            if (_cancel_token_uut != null && _cancel_token_uut.IsCancellationRequested)
             {
                 _cancel_token_uut = new CancellationTokenSource();
                 updateRunStatus("Cancelled", Color.Black, Color.Yellow);
