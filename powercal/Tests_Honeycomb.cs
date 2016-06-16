@@ -40,6 +40,7 @@ namespace PowerCalibration
 
         int _sensor_id = Properties.Settings.Default.HoneycombSensorID;
 
+        bool _test_laser_enable = true;
 
         /// <summary>
         /// Constructor
@@ -131,9 +132,17 @@ namespace PowerCalibration
 
                 /******************************************************/
                 if (cancel.IsCancellationRequested) return;
-                msg = string.Format("LASER Test");
-                fire_run_status(msg);
-                VerifyLaser();
+
+                if (_test_laser_enable)
+                {
+                    msg = string.Format("LASER Test");
+                    fire_run_status(msg);
+                    VerifyLaser();
+                }
+                else {
+                    msg = string.Format("LASER Test SKIPPED");
+                    fire_run_status(msg);
+                }
 
                 Set_UUT_Relay_State(Tests_Honeycomb.Relay.Continuity, false);
                 Set_UUT_Relay_State(Tests_Honeycomb.Relay.Capacitor, false);

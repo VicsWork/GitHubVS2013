@@ -50,9 +50,16 @@ namespace PowerCalibration
                 fire_status("Disable read protection");
                 bool disable_rd_prot_success = false;
                 string disable_output = "";
-                for (int i = 0; i < 2; i++)
+                for (int i = 0; i < 5; i++)
                 {
-                    disable_output = Ember.DisableRdProt();
+                    try
+                    {
+                        disable_output = Ember.DisableRdProt();
+                    }
+                    catch (Exception ex)
+                    {
+                        disable_output = ex.Message;
+                    }
                     if (
                         disable_output.Contains("Disable Read Protection") ||
                         disable_output.Contains("Read Protection is already disabled"))
@@ -64,13 +71,16 @@ namespace PowerCalibration
 
                 if (!disable_rd_prot_success)
                 {
+                    //fire_status("Unable to disable read protection: " + disable_output);
                     throw new Exception("Unable to disable read protection: " + disable_output);
                 }
             }
             catch (Exception ex)
             {
                 string error = ex.Message;
-                throw;
+                //throw;
+                fire_status("Unable to disable read protection: " + ex.Message);
+
             }
 
 

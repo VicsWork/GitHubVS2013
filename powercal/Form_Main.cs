@@ -1223,6 +1223,7 @@ namespace PowerCalibration
                 return;
 
             // Get MFG String and set board type
+            closeTelnet();
             openTelnet();
             _relay_ctrl.WriteLine(Relay_Lines.Ember, true);
             for (int i = 0; i < 3; i++)

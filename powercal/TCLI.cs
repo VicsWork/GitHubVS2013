@@ -476,7 +476,7 @@ namespace PowerCalibration
 
             if (!data.Contains(expected_data))
             {
-                string msg = string.Format("Telnet session data not detected after command \"{0}\".  Expected: \"{1}\". Received: \"{2}\"",
+                string msg = string.Format("Telnet session incorrect data after command \"{0}\".  Expected: \"{1}\". Received: \"{2}\"",
                     command, expected_data, data);
                 throw new Exception(msg);
             }
