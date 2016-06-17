@@ -1790,6 +1790,8 @@ namespace PowerCalibration
 
             updateOutputStatus("End Calibration".PadBoth(80, '-'));
 
+           Task.Factory.StartNew( () => playsound(5, 500));
+
         }
 
         /// <summary>
@@ -2340,6 +2342,19 @@ namespace PowerCalibration
             _mfg_str = null;
             preTest(TaskTypes.Code);
         }
+
+
+        void playsound(int times=5, int delay_ms = 500)
+        {
+            for (int i = 0; i < times; i++)
+            {
+                System.Media.SystemSounds.Asterisk.Play();
+                Thread.Sleep(delay_ms);
+
+            }
+
+        }
+
 
         private void buttonRecode_Click(object sender, EventArgs e)
         {
