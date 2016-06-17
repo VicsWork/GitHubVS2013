@@ -672,6 +672,12 @@ namespace PowerCalibration
                 this.textBoxRunStatus.ForeColor = forecolor;
                 this.textBoxRunStatus.BackColor = backcolor;
                 this.textBoxRunStatus.Update();
+
+                if (text == "FAIL")
+                {
+                    Task.Factory.StartNew(() => playsound(5, 500, 1));
+                }
+
             }
         }
 
@@ -1104,7 +1110,7 @@ namespace PowerCalibration
         {
             if (_telnet_connection == null)
                 createTelnet();
-            else if(!_telnet_connection.IsConnected)
+            else if (!_telnet_connection.IsConnected)
                 createTelnet();
 
             return _telnet_connection;
@@ -1244,7 +1250,8 @@ namespace PowerCalibration
                 _mfg_str = getMfgString();
                 selectBoardByMFGString(_mfg_str);
             }
-            catch(Exception ex) {
+            catch (Exception ex)
+            {
                 updateOutputStatus(ex.Message);
             };
 
@@ -1765,6 +1772,7 @@ namespace PowerCalibration
             if (_calibration_error_msg == null)
             {
                 updateRunStatus("PASS", Color.White, Color.Green);
+                Task.Factory.StartNew(() => playsound(5, 500, 0));
 
             }
             else
@@ -1789,8 +1797,6 @@ namespace PowerCalibration
             setEnablement(true, false);
 
             updateOutputStatus("End Calibration".PadBoth(80, '-'));
-
-           Task.Factory.StartNew( () => playsound(5, 500));
 
         }
 
@@ -2344,11 +2350,15 @@ namespace PowerCalibration
         }
 
 
-        void playsound(int times=5, int delay_ms = 500)
+        void playsound(int times = 5, int delay_ms = 500, int id = 0)
         {
+            System.Media.SystemSound sound = System.Media.SystemSounds.Asterisk;
+            if (id == 1)
+                sound = System.Media.SystemSounds.Beep;
+
             for (int i = 0; i < times; i++)
             {
-                System.Media.SystemSounds.Asterisk.Play();
+                sound.Play();
                 Thread.Sleep(delay_ms);
 
             }
