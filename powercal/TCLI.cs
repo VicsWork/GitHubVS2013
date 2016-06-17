@@ -16,6 +16,9 @@ namespace PowerCalibration
     /// </summary>
     class TCLI
     {
+
+        public const int ISA3_ADMIN_PORT_NUM = 4902;
+
         /// <summary>
         /// Simple structure used to return voltage/current value pair
         /// </summary>
@@ -405,7 +408,21 @@ namespace PowerCalibration
 
                 data = telnet_connection.Read();
                 if (data.Contains(prompt))
+                {
                     break;
+                }
+                else if (telnet_connection.Port != TCLI.ISA3_ADMIN_PORT_NUM)
+                {
+                    try
+                    {
+                        ResetISAANode(telnet_connection.HostName);
+                    }
+                    catch (Exception ex)
+                    {
+                        string msg = ex.Message;
+                    }
+                }
+
                 n++;
             }
 
@@ -413,6 +430,20 @@ namespace PowerCalibration
             {
                 throw new Exception("Telnet session prompt not detected");
             }
+        }
+
+        /// <summary>
+        /// Sends reset command to 4902 port
+        /// </summary>
+        /// <param name="Hostname"></param>
+        /// <returns></returns>
+        public static bool ResetISAANode(string Hostname)
+        {
+            TelnetConnection reset_telnet = new TelnetConnection(Hostname, ISA3_ADMIN_PORT_NUM);
+            Match match = TCLI.Wait_For_Match(reset_telnet, "reset", "Success: Node reset");
+            reset_telnet.Close();
+
+            return match.Success;
         }
 
         /// <summary>

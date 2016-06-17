@@ -26,20 +26,29 @@ namespace MinimalisticTelnet
         SGA = 3
     }
 
+
     public class TelnetConnection : IDisposable
     {
         TcpClient _tcpSocket;
         int _timeOutMs = 100;
 
+        string _hostname;
+        public string HostName { get { return _hostname; } }
+
+        int _port;
+        public int Port { get { return _port; } }
+
         /// <summary>
         /// Initializes a new instance of the System.Net.Sockets.TcpClient class and 
         /// connects to the specified port on the specified host.
         /// </summary>
-        /// <param name="Hostname"></param>
-        /// <param name="Port"></param>
-        public TelnetConnection(string Hostname, int Port)
+        /// <param name="hostname"></param>
+        /// <param name="port"></param>
+        public TelnetConnection(string hostname, int port)
         {
-            _tcpSocket = new TcpClient(Hostname, Port);
+            _hostname = hostname;
+            _port = port;
+            _tcpSocket = new TcpClient(hostname, port);
         }
 
         public void Dispose()
@@ -53,19 +62,19 @@ namespace MinimalisticTelnet
             _tcpSocket.Close();
         }
 
-        public string Login(string Username, string Password, int LoginTimeOutMs)
+        public string Login(string username, string password, int loginTimeOutMs)
         {
             int oldTimeOutMs = _timeOutMs;
-            _timeOutMs = LoginTimeOutMs;
+            _timeOutMs = loginTimeOutMs;
             string s = Read();
             if (!s.TrimEnd().EndsWith(":"))
                 throw new Exception("Failed to connect : no login prompt");
-            WriteLine(Username);
+            WriteLine(username);
 
             s += Read();
             if (!s.TrimEnd().EndsWith(":"))
                 throw new Exception("Failed to connect : no password prompt");
-            WriteLine(Password);
+            WriteLine(password);
 
             s += Read();
             _timeOutMs = oldTimeOutMs;
