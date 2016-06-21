@@ -19,7 +19,7 @@ namespace PowerCalibration
 
         const uint _test_x4a_vacdc_relay_linenum = 4;
         const uint _test_laser_relay_linenum = 5;
-        const uint _test_joinhoney_button_linenum = 6;
+        const uint _test_joinhoney_button_linenum = 6;  // Controls power to the sensor
 
         public bool _init_testx4a_relay = true;  // Indicates to set relay that controls meter to VAC_VDC relay or to Test X4A port
         public bool _init_meter = true;  // Indicates whether the meter needs to be initialize
@@ -80,7 +80,7 @@ namespace PowerCalibration
             _jig_relay_ctrl.WriteLine(_test_joinhoney_button_linenum, false);
             _jig_relay_ctrl.WriteLine(_test_laser_relay_linenum, false);
 
-
+            waitForPrompt();
 
             _init_meter = true;
             init_meter();
@@ -93,12 +93,23 @@ namespace PowerCalibration
 
             try
             {
+
+                // Let's make some noise
+                // Test buzzer/LED
+                msg = "Indicators Test";
+                fire_run_status(msg);
+                TCLI.WriteLine(_telnet_conn, "cu finaltest indicators");
+                //Thread.Sleep(3000);
+
                 /******************************************************/
                 if (cancel.IsCancellationRequested) return;
                 msg = "Pairing with Sensor Test";
                 fire_run_status(msg);
+
+                // This now controls power to the sensor
+                // Make sure sensor is not powered
+                _jig_relay_ctrl.WriteLine(_test_joinhoney_button_linenum, false);
                 clearSensorId();
-                Thread.Sleep(500);
                 int id = pairWithSensor();
                 if (id == 0)
                 {
@@ -108,16 +119,13 @@ namespace PowerCalibration
                 else if (id != _sensor_id)
                 {
                     if (cancel.IsCancellationRequested) return;
-                    msg = string.Format("Pair with incorrect sensor 0x{0:X}.  Expected sensor id = 0x{1:X}. Retrying...",
+
+                    msg = string.Format("Paired with incorrect sensor 0x{0:X}.  Expected sensor id = 0x{1:X}. Retrying...",
                             id, _sensor_id);
                     fire_run_status(msg);
 
+                    _jig_relay_ctrl.WriteLine(_test_joinhoney_button_linenum, false);
                     clearSensorId();
-                    _jig_relay_ctrl.WriteLine(Relay_Lines.Power, false);
-                    Thread.Sleep(1000);
-                    _jig_relay_ctrl.WriteLine(Relay_Lines.Power, true);
-                    Thread.Sleep(1000);
-
                     id = pairWithSensor();
                     if (id != _sensor_id)
                     {
@@ -486,6 +494,31 @@ namespace PowerCalibration
             TCLI.WriteLine(telnet_conn, "cu si4355 clearSensorId");
         }
 
+        void waitForPrompt()
+        {
+            bool success = false;
+            for (int x = 0; x < 5; x++)
+            {
+                try
+                {
+                    TCLI.Wait_For_Prompt(_telnet_conn);
+                    success = true;
+                    break;
+                }
+                catch { };
+
+                _jig_relay_ctrl.WriteLine(Relay_Lines.Power, false);
+                Thread.Sleep(500);
+                _jig_relay_ctrl.WriteLine(Relay_Lines.Power, true);
+                Thread.Sleep(500);
+            }
+
+            if(!success)
+            {
+                throw new Exception("Unable to detect telnet prompt");
+            }
+
+        }
         /// <summary>
         /// Clears the any current id
         /// Turns jig relay on to press pairing switch on sensor
@@ -496,22 +529,6 @@ namespace PowerCalibration
         {
             int id = 0;
             string msg = "";
-
-            for (int x = 0; x < 5; x++)
-            {
-                try
-                {
-                    TCLI.Wait_For_Prompt(_telnet_conn);
-                    break;
-                }
-                catch { };
-
-                _jig_relay_ctrl.WriteLine(Relay_Lines.Power, false);
-                Thread.Sleep(500);
-                _jig_relay_ctrl.WriteLine(Relay_Lines.Power, true);
-                Thread.Sleep(500);
-            }
-            TCLI.Wait_For_Prompt(_telnet_conn);
 
             try
             {
