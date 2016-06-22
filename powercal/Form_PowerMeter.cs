@@ -54,7 +54,7 @@ namespace PowerCalibration
         public Form_PowerMeter(TelnetConnection telnet_connection)
         {
             InitializeComponent();
-            this.Icon = Properties.Resources.IconPowerCalibration;
+            this.Icon = Properties.Resources.Icon_PowerCalibration;
 
             _telnet_connection = telnet_connection;
 

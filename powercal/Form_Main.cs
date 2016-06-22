@@ -28,6 +28,8 @@ using MinimalisticTelnet;
 using System.Data.SqlClient;
 using System.Data.SqlTypes;
 
+using System.Media;
+
 namespace PowerCalibration
 {
     enum BoardTypes { Humpback, Honeycomb, Hornshark, Mudshark, Hooktooth, Milkshark, Zebrashark };
@@ -52,7 +54,7 @@ namespace PowerCalibration
         Task _task_uut;
         CancellationTokenSource _cancel_token_uut = new CancellationTokenSource();  // Used to cancel coding
 
-        //bool _calibrate_after_code = false;  // Indicates whether to calibrate after coding completes
+        enum Sounds { PASS, FAIL };
 
         static string _app_data_dir = Path.Combine(
             Environment.GetFolderPath(Environment.SpecialFolder.UserProfile), ".calibration"); //The app folder where we save most logs, etc
@@ -101,7 +103,7 @@ namespace PowerCalibration
             }
 
             InitializeComponent();
-            Icon = Properties.Resources.IconPowerCalibration;
+            Icon = Properties.Resources.Icon_PowerCalibration;
 
             // Init the stop watches
             _stopwatch_running.Reset();
@@ -639,18 +641,6 @@ namespace PowerCalibration
         void setRunStatus(string text)
         {
             controlSetText(textBoxRunStatus, text);
-            /*            
-                        if (this.textBoxRunStatus.InvokeRequired)
-                        {
-                            setTextCallback d = new setTextCallback(setRunStatus);
-                            this.Invoke(d, new object[] { text });
-                        }
-                        else
-                        {
-                            this.textBoxRunStatus.Text = text;
-                            this.textBoxRunStatus.Update();
-                        }
-             */
         }
 
         /// <summary>
@@ -673,12 +663,18 @@ namespace PowerCalibration
                 this.textBoxRunStatus.BackColor = backcolor;
                 this.textBoxRunStatus.Update();
 
-                if (text == "FAIL")
-                {
-                    Task.Factory.StartNew(() => playsound(5, 500, 1));
-                }
-
+                if (text.StartsWith("FAIL"))
+                    playSound(Sounds.FAIL);
             }
+        }
+
+        /// <summary>
+        /// Plays a program sound
+        /// </summary>
+        /// <param name="sound"></param>
+        void playSound(Sounds sound)
+        {
+            Task.Factory.StartNew(() => playsound(sound));
         }
 
         /// <summary>
@@ -1500,17 +1496,17 @@ namespace PowerCalibration
                 updateRunStatus("PASS", Color.White, Color.Green);
 
                 // Should be safe to connect Ember
+                _relay_ctrl.OpenIfClosed();
                 _relay_ctrl.WriteLine(Relay_Lines.Power, false);
-                Thread.Sleep(1000);
+                Thread.Sleep(500);
 
                 if (next_task == TaskTypes.Test || next_task == TaskTypes.Calibrate)
                 {
                     openTelnet();
                 }
-                _relay_ctrl.OpenIfClosed();
                 _relay_ctrl.WriteLine(Relay_Lines.Ember, true);
                 _relay_ctrl.WriteLine(Relay_Lines.Power, true);
-                Thread.Sleep(2000);
+                Thread.Sleep(1000);
             }
             else
             {
@@ -1772,8 +1768,7 @@ namespace PowerCalibration
             if (_calibration_error_msg == null)
             {
                 updateRunStatus("PASS", Color.White, Color.Green);
-                Task.Factory.StartNew(() => playsound(5, 500, 0));
-
+                playSound(Sounds.PASS);
             }
             else
             {
@@ -2349,19 +2344,27 @@ namespace PowerCalibration
             preTest(TaskTypes.Code);
         }
 
-
-        void playsound(int times = 5, int delay_ms = 500, int id = 0)
+        /// <summary>
+        /// Plays a sounds
+        /// </summary>
+        /// <param name="sound"></param>
+        /// <param name="delay_before_ms"></param>
+        void playsound(Sounds sound)
         {
-            System.Media.SystemSound sound = System.Media.SystemSounds.Asterisk;
-            if (id == 1)
-                sound = System.Media.SystemSounds.Beep;
+            if (!Properties.Settings.Default.Play_Sounds)
+                return;
 
-            for (int i = 0; i < times; i++)
-            {
-                sound.Play();
-                Thread.Sleep(delay_ms);
+            Stream str = null;
+            if (sound == Sounds.FAIL)
+                str = Properties.Resources.Sound_Glass_Break1;
+            else if (sound == Sounds.PASS)
+                str = Properties.Resources.Sound_Yeah1;
 
-            }
+            if (str == null)
+                return;
+
+            SoundPlayer snd = new SoundPlayer(str);
+            snd.Play();
 
         }
 

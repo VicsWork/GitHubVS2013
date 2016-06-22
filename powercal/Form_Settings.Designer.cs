@@ -69,14 +69,16 @@
             this.groupBox3 = new System.Windows.Forms.GroupBox();
             this.checkBoxCodeMinOnPass = new System.Windows.Forms.CheckBox();
             this.tabPageSuper = new System.Windows.Forms.TabPage();
+            this.groupBox2 = new System.Windows.Forms.GroupBox();
+            this.labelDBConnectStr = new System.Windows.Forms.Label();
+            this.checkBox_EnableDBReporting = new System.Windows.Forms.CheckBox();
             this.groupBox1 = new System.Windows.Forms.GroupBox();
             this.checkBoxEnableRdProt = new System.Windows.Forms.CheckBox();
             this.buttonCancel = new System.Windows.Forms.Button();
             this.buttonOK = new System.Windows.Forms.Button();
             this.toolTip1 = new System.Windows.Forms.ToolTip(this.components);
-            this.groupBox2 = new System.Windows.Forms.GroupBox();
-            this.labelDBConnectStr = new System.Windows.Forms.Label();
-            this.checkBox_EnableDBReporting = new System.Windows.Forms.CheckBox();
+            this.groupBox4 = new System.Windows.Forms.GroupBox();
+            this.checkBoxPlaySounds = new System.Windows.Forms.CheckBox();
             this.TabControl.SuspendLayout();
             this.tabPageEmber.SuspendLayout();
             this.tabPageDIO.SuspendLayout();
@@ -90,8 +92,9 @@
             this.tabPageMisc.SuspendLayout();
             this.groupBox3.SuspendLayout();
             this.tabPageSuper.SuspendLayout();
-            this.groupBox1.SuspendLayout();
             this.groupBox2.SuspendLayout();
+            this.groupBox1.SuspendLayout();
+            this.groupBox4.SuspendLayout();
             this.SuspendLayout();
             // 
             // TabControl
@@ -499,6 +502,7 @@
             // 
             // tabPageMisc
             // 
+            this.tabPageMisc.Controls.Add(this.groupBox4);
             this.tabPageMisc.Controls.Add(this.groupBox3);
             this.tabPageMisc.Location = new System.Drawing.Point(4, 22);
             this.tabPageMisc.Name = "tabPageMisc";
@@ -541,6 +545,38 @@
             this.tabPageSuper.TabIndex = 7;
             this.tabPageSuper.Text = "Super";
             this.tabPageSuper.UseVisualStyleBackColor = true;
+            // 
+            // groupBox2
+            // 
+            this.groupBox2.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
+            | System.Windows.Forms.AnchorStyles.Right)));
+            this.groupBox2.Controls.Add(this.labelDBConnectStr);
+            this.groupBox2.Controls.Add(this.checkBox_EnableDBReporting);
+            this.groupBox2.Location = new System.Drawing.Point(3, 64);
+            this.groupBox2.Name = "groupBox2";
+            this.groupBox2.Size = new System.Drawing.Size(358, 62);
+            this.groupBox2.TabIndex = 11;
+            this.groupBox2.TabStop = false;
+            this.groupBox2.Text = "Database";
+            // 
+            // labelDBConnectStr
+            // 
+            this.labelDBConnectStr.AutoSize = true;
+            this.labelDBConnectStr.Location = new System.Drawing.Point(7, 43);
+            this.labelDBConnectStr.Name = "labelDBConnectStr";
+            this.labelDBConnectStr.Size = new System.Drawing.Size(0, 13);
+            this.labelDBConnectStr.TabIndex = 7;
+            // 
+            // checkBox_EnableDBReporting
+            // 
+            this.checkBox_EnableDBReporting.AutoSize = true;
+            this.checkBox_EnableDBReporting.Location = new System.Drawing.Point(6, 22);
+            this.checkBox_EnableDBReporting.Name = "checkBox_EnableDBReporting";
+            this.checkBox_EnableDBReporting.Size = new System.Drawing.Size(108, 17);
+            this.checkBox_EnableDBReporting.TabIndex = 6;
+            this.checkBox_EnableDBReporting.Text = "Enable Reporting";
+            this.toolTip1.SetToolTip(this.checkBox_EnableDBReporting, "Enables reporting to the database");
+            this.checkBox_EnableDBReporting.UseVisualStyleBackColor = true;
             // 
             // groupBox1
             // 
@@ -586,37 +622,28 @@
             this.buttonOK.Text = "&OK";
             this.buttonOK.Click += new System.EventHandler(this.buttonOK_Click);
             // 
-            // groupBox2
+            // groupBox4
             // 
-            this.groupBox2.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
+            this.groupBox4.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
             | System.Windows.Forms.AnchorStyles.Right)));
-            this.groupBox2.Controls.Add(this.labelDBConnectStr);
-            this.groupBox2.Controls.Add(this.checkBox_EnableDBReporting);
-            this.groupBox2.Location = new System.Drawing.Point(3, 64);
-            this.groupBox2.Name = "groupBox2";
-            this.groupBox2.Size = new System.Drawing.Size(358, 62);
-            this.groupBox2.TabIndex = 11;
-            this.groupBox2.TabStop = false;
-            this.groupBox2.Text = "Database";
+            this.groupBox4.Controls.Add(this.checkBoxPlaySounds);
+            this.groupBox4.Location = new System.Drawing.Point(3, 65);
+            this.groupBox4.Name = "groupBox4";
+            this.groupBox4.Size = new System.Drawing.Size(358, 51);
+            this.groupBox4.TabIndex = 10;
+            this.groupBox4.TabStop = false;
+            this.groupBox4.Text = "Sounds";
             // 
-            // labelDBConnectStr
+            // checkBoxPlaySounds
             // 
-            this.labelDBConnectStr.AutoSize = true;
-            this.labelDBConnectStr.Location = new System.Drawing.Point(7, 43);
-            this.labelDBConnectStr.Name = "labelDBConnectStr";
-            this.labelDBConnectStr.Size = new System.Drawing.Size(0, 13);
-            this.labelDBConnectStr.TabIndex = 7;
-            // 
-            // checkBox_EnableDBReporting
-            // 
-            this.checkBox_EnableDBReporting.AutoSize = true;
-            this.checkBox_EnableDBReporting.Location = new System.Drawing.Point(6, 22);
-            this.checkBox_EnableDBReporting.Name = "checkBox_EnableDBReporting";
-            this.checkBox_EnableDBReporting.Size = new System.Drawing.Size(108, 17);
-            this.checkBox_EnableDBReporting.TabIndex = 6;
-            this.checkBox_EnableDBReporting.Text = "Enable Reporting";
-            this.toolTip1.SetToolTip(this.checkBox_EnableDBReporting, "Enables reporting to the database");
-            this.checkBox_EnableDBReporting.UseVisualStyleBackColor = true;
+            this.checkBoxPlaySounds.AutoSize = true;
+            this.checkBoxPlaySounds.Location = new System.Drawing.Point(7, 20);
+            this.checkBoxPlaySounds.Name = "checkBoxPlaySounds";
+            this.checkBoxPlaySounds.Size = new System.Drawing.Size(85, 17);
+            this.checkBoxPlaySounds.TabIndex = 0;
+            this.checkBoxPlaySounds.Text = "Play Sounds";
+            this.checkBoxPlaySounds.UseVisualStyleBackColor = true;
+            this.checkBoxPlaySounds.CheckedChanged += new System.EventHandler(this.checkBoxPlaySounds_CheckedChanged);
             // 
             // Form_Settings
             // 
@@ -648,10 +675,12 @@
             this.groupBox3.ResumeLayout(false);
             this.groupBox3.PerformLayout();
             this.tabPageSuper.ResumeLayout(false);
-            this.groupBox1.ResumeLayout(false);
-            this.groupBox1.PerformLayout();
             this.groupBox2.ResumeLayout(false);
             this.groupBox2.PerformLayout();
+            this.groupBox1.ResumeLayout(false);
+            this.groupBox1.PerformLayout();
+            this.groupBox4.ResumeLayout(false);
+            this.groupBox4.PerformLayout();
             this.ResumeLayout(false);
 
         }
@@ -706,5 +735,7 @@
         private System.Windows.Forms.GroupBox groupBox2;
         private System.Windows.Forms.Label labelDBConnectStr;
         private System.Windows.Forms.CheckBox checkBox_EnableDBReporting;
+        private System.Windows.Forms.GroupBox groupBox4;
+        private System.Windows.Forms.CheckBox checkBoxPlaySounds;
     }
 }

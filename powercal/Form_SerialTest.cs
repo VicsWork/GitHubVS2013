@@ -21,7 +21,7 @@ namespace PowerCalibration
         public Form_SerialTest()
         {
             InitializeComponent();
-            this.Icon = Properties.Resources.IconPowerCalibration;
+            this.Icon = Properties.Resources.Icon_PowerCalibration;
 
             string[] ports = SerialPort.GetPortNames();
             foreach (string port in ports)

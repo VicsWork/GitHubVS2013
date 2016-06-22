@@ -280,6 +280,8 @@
     </Content>
     <Content Include="powercal.ico" />
     <None Include="Resources\IconMain.ico" />
+    <None Include="Resources\Glass_Break1.wav" />
+    <None Include="Resources\Yeah1.wav" />
     <Content Include="Tools\x64\devcon.exe">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>

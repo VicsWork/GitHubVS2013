@@ -16,7 +16,7 @@ namespace PowerCalibration
         public Form_Settings()
         {
             InitializeComponent();
-            this.Icon = Properties.Resources.IconPowerCalibration;
+            this.Icon = Properties.Resources.Icon_PowerCalibration;
 
             // Remove the supre tab
             _superTab = tabPageSuper;
@@ -26,7 +26,7 @@ namespace PowerCalibration
 
         protected override bool ProcessCmdKey(ref Message msg, Keys keyData)
         {
-            if (keyData ==  (Keys.Control | Keys.D))
+            if (keyData == (Keys.Control | Keys.D))
             {
                 labelDBConnectStr.Visible = !labelDBConnectStr.Visible;
 
@@ -87,6 +87,9 @@ namespace PowerCalibration
 
             // Super
             this.checkBoxEnableRdProt.Checked = Properties.Settings.Default.Ember_ReadProtect_Enabled;
+
+            // Play Sounds
+            this.checkBoxPlaySounds.Checked = Properties.Settings.Default.Play_Sounds;
 
         }
 
@@ -293,6 +296,11 @@ namespace PowerCalibration
         private void checkBoxEnableRdProt_CheckedChanged(object sender, EventArgs e)
         {
             Properties.Settings.Default.Ember_ReadProtect_Enabled = this.checkBoxEnableRdProt.Checked;
+        }
+
+        private void checkBoxPlaySounds_CheckedChanged(object sender, EventArgs e)
+        {
+            Properties.Settings.Default.Play_Sounds = this.checkBoxPlaySounds.Checked;
         }
 
     }

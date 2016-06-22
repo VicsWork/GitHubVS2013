@@ -18,7 +18,7 @@ namespace PowerCalibration
         public Form_FT232H_DIO_Test(RelayControler relayCtrl)
         {
             InitializeComponent();
-            Icon = Properties.Resources.IconPowerCalibration;
+            Icon = Properties.Resources.Icon_PowerCalibration;
 
             if (relayCtrl.Device_Type != RelayControler.Device_Types.FT232H)
                 throw new Exception("Incorrect relay controller");

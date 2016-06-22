@@ -259,5 +259,17 @@ namespace PowerCalibration.Properties {
                 this["Ember_ReadProtect_Enabled"] = value;
             }
         }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("True")]
+        public bool Play_Sounds {
+            get {
+                return ((bool)(this["Play_Sounds"]));
+            }
+            set {
+                this["Play_Sounds"] = value;
+            }
+        }
     }
 }

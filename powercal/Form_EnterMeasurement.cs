@@ -21,7 +21,7 @@ namespace PowerCalibration
         public Form_EnterMeasurement()
         {
             InitializeComponent();
-            this.Icon = Properties.Resources.IconPowerCalibration;
+            this.Icon = Properties.Resources.Icon_PowerCalibration;
         }
 
         /// <summary>

@@ -18,7 +18,7 @@ namespace PowerCalibration
         {
             InitializeComponent();
 
-            Icon = Properties.Resources.IconPowerCalibration;
+            Icon = Properties.Resources.Icon_PowerCalibration;
             Text = title;
             textBoxMessage.Text = message;
             textBoxDetail.Text = detail;

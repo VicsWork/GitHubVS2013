@@ -15,7 +15,7 @@ namespace PowerCalibration
         public Form_Calculator()
         {
             InitializeComponent();
-            this.Icon = Properties.Resources.IconPowerCalibration;
+            this.Icon = Properties.Resources.Icon_PowerCalibration;
         }
 
         private void buttonCalculate_Click(object sender, EventArgs e)
