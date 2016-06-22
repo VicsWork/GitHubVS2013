@@ -66,6 +66,8 @@
             this.TextBoxMeterCOM = new System.Windows.Forms.TextBox();
             this.label2 = new System.Windows.Forms.Label();
             this.tabPageMisc = new System.Windows.Forms.TabPage();
+            this.groupBox4 = new System.Windows.Forms.GroupBox();
+            this.checkBoxPlaySounds = new System.Windows.Forms.CheckBox();
             this.groupBox3 = new System.Windows.Forms.GroupBox();
             this.checkBoxCodeMinOnPass = new System.Windows.Forms.CheckBox();
             this.tabPageSuper = new System.Windows.Forms.TabPage();
@@ -77,8 +79,6 @@
             this.buttonCancel = new System.Windows.Forms.Button();
             this.buttonOK = new System.Windows.Forms.Button();
             this.toolTip1 = new System.Windows.Forms.ToolTip(this.components);
-            this.groupBox4 = new System.Windows.Forms.GroupBox();
-            this.checkBoxPlaySounds = new System.Windows.Forms.CheckBox();
             this.TabControl.SuspendLayout();
             this.tabPageEmber.SuspendLayout();
             this.tabPageDIO.SuspendLayout();
@@ -90,11 +90,11 @@
             this.tableLayoutPanel1.SuspendLayout();
             this.tagPageMeasurement.SuspendLayout();
             this.tabPageMisc.SuspendLayout();
+            this.groupBox4.SuspendLayout();
             this.groupBox3.SuspendLayout();
             this.tabPageSuper.SuspendLayout();
             this.groupBox2.SuspendLayout();
             this.groupBox1.SuspendLayout();
-            this.groupBox4.SuspendLayout();
             this.SuspendLayout();
             // 
             // TabControl
@@ -511,6 +511,29 @@
             this.tabPageMisc.Text = "Misc";
             this.tabPageMisc.UseVisualStyleBackColor = true;
             // 
+            // groupBox4
+            // 
+            this.groupBox4.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
+            | System.Windows.Forms.AnchorStyles.Right)));
+            this.groupBox4.Controls.Add(this.checkBoxPlaySounds);
+            this.groupBox4.Location = new System.Drawing.Point(3, 65);
+            this.groupBox4.Name = "groupBox4";
+            this.groupBox4.Size = new System.Drawing.Size(358, 51);
+            this.groupBox4.TabIndex = 10;
+            this.groupBox4.TabStop = false;
+            this.groupBox4.Text = "Sounds";
+            // 
+            // checkBoxPlaySounds
+            // 
+            this.checkBoxPlaySounds.AutoSize = true;
+            this.checkBoxPlaySounds.Location = new System.Drawing.Point(7, 20);
+            this.checkBoxPlaySounds.Name = "checkBoxPlaySounds";
+            this.checkBoxPlaySounds.Size = new System.Drawing.Size(85, 17);
+            this.checkBoxPlaySounds.TabIndex = 0;
+            this.checkBoxPlaySounds.Text = "Play Sounds";
+            this.checkBoxPlaySounds.UseVisualStyleBackColor = true;
+            this.checkBoxPlaySounds.CheckedChanged += new System.EventHandler(this.checkBoxPlaySounds_CheckedChanged);
+            // 
             // groupBox3
             // 
             this.groupBox3.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
@@ -622,33 +645,12 @@
             this.buttonOK.Text = "&OK";
             this.buttonOK.Click += new System.EventHandler(this.buttonOK_Click);
             // 
-            // groupBox4
-            // 
-            this.groupBox4.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
-            | System.Windows.Forms.AnchorStyles.Right)));
-            this.groupBox4.Controls.Add(this.checkBoxPlaySounds);
-            this.groupBox4.Location = new System.Drawing.Point(3, 65);
-            this.groupBox4.Name = "groupBox4";
-            this.groupBox4.Size = new System.Drawing.Size(358, 51);
-            this.groupBox4.TabIndex = 10;
-            this.groupBox4.TabStop = false;
-            this.groupBox4.Text = "Sounds";
-            // 
-            // checkBoxPlaySounds
-            // 
-            this.checkBoxPlaySounds.AutoSize = true;
-            this.checkBoxPlaySounds.Location = new System.Drawing.Point(7, 20);
-            this.checkBoxPlaySounds.Name = "checkBoxPlaySounds";
-            this.checkBoxPlaySounds.Size = new System.Drawing.Size(85, 17);
-            this.checkBoxPlaySounds.TabIndex = 0;
-            this.checkBoxPlaySounds.Text = "Play Sounds";
-            this.checkBoxPlaySounds.UseVisualStyleBackColor = true;
-            this.checkBoxPlaySounds.CheckedChanged += new System.EventHandler(this.checkBoxPlaySounds_CheckedChanged);
-            // 
             // Form_Settings
             // 
+            this.AcceptButton = this.buttonOK;
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
+            this.CancelButton = this.buttonCancel;
             this.ClientSize = new System.Drawing.Size(390, 284);
             this.Controls.Add(this.buttonCancel);
             this.Controls.Add(this.buttonOK);
@@ -672,6 +674,8 @@
             this.tagPageMeasurement.ResumeLayout(false);
             this.tagPageMeasurement.PerformLayout();
             this.tabPageMisc.ResumeLayout(false);
+            this.groupBox4.ResumeLayout(false);
+            this.groupBox4.PerformLayout();
             this.groupBox3.ResumeLayout(false);
             this.groupBox3.PerformLayout();
             this.tabPageSuper.ResumeLayout(false);
@@ -679,8 +683,6 @@
             this.groupBox2.PerformLayout();
             this.groupBox1.ResumeLayout(false);
             this.groupBox1.PerformLayout();
-            this.groupBox4.ResumeLayout(false);
-            this.groupBox4.PerformLayout();
             this.ResumeLayout(false);
 
         }

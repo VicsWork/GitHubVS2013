@@ -54,7 +54,7 @@ namespace PowerCalibration
                 {
                     try
                     {
-                        disable_output = Ember.DisableRdProt();
+                        disable_output = Ember.EnableRdProt(false);
                     }
                     catch (Exception ex)
                     {

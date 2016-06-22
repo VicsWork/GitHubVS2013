@@ -1521,9 +1521,7 @@ namespace PowerCalibration
                 }
 
                 if (_meter != null)
-                {
                     _meter.CloseSerialPort();
-                }
 
                 updateRunStatus("FAIL", Color.White, Color.Red);
                 updateOutputStatus(_pretest_error_msg);
@@ -1725,13 +1723,13 @@ namespace PowerCalibration
                 try
                 {
                     updateRunStatus("EnableRdProt");
-                    // todo: may want to change to a task
+
                     string err_msg = "";
                     for (int i = 0; i < 3; i++)
                     {
                         try
                         {
-                            string output = _ember.EnableRdProt();
+                            string output = _ember.EnableRdProt(true);
                             err_msg = "";
                             TraceLogger.Log(output);
                             break;
@@ -1753,7 +1751,26 @@ namespace PowerCalibration
                 }
             }
 
-            _running_all = false;  // Reset
+            // If we fail lets disable read protection to force flash erase
+            if (_calibration_error_msg != null && 
+                _running_all && 
+                Properties.Settings.Default.Ember_ReadProtect_Enabled)
+            {
+                updateRunStatus("DisableRdProt");
+                try
+                {
+                    string output = _ember.EnableRdProt(false);
+                    TraceLogger.Log(output);
+                    if (!output.Contains("Disable Read Protection"))
+                        updateOutputStatus("Unable to disable read protection: " + output);
+
+                }
+                catch (Exception ex)
+                {
+                    updateOutputStatus(ex.Message);
+                }
+            }
+
 
             try
             {
@@ -1772,15 +1789,14 @@ namespace PowerCalibration
             }
             else
             {
-                if (_meter != null)
-                {
-                    _meter.CloseSerialPort();
-                }
-
                 updateRunStatus("FAIL", Color.White, Color.Red);
                 updateOutputStatus(_calibration_error_msg);
             }
 
+            _running_all = false;  // Reset
+
+            if (_meter != null)
+                _meter.CloseSerialPort();
             closeTelnet();
 
             // Stop running watch and report time lapse
@@ -1995,9 +2011,7 @@ namespace PowerCalibration
             else
             {
                 if (_meter != null)
-                {
                     _meter.CloseSerialPort();
-                }
                 updateRunStatus("FAIL", Color.White, Color.Red);
                 updateOutputStatus(_test_error_msg);
             }
@@ -2220,10 +2234,7 @@ namespace PowerCalibration
                     closeTelnet();
 
                     if (_meter != null)
-                    {
                         _meter.CloseSerialPort();
-                    }
-
                 }
             }
 
