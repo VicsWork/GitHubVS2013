@@ -248,7 +248,8 @@ namespace PowerCalibration
 
             // Close the UUT relay
             // Jigs short-out the relay....
-            //TCLI.Set_Relay_State(_telnet_connection, true);
+            if(_board_type == BoardTypes.Humpback)
+                TCLI.Set_Relay_State(_telnet_connection, true);
 
             Thread.Sleep(1000);
             verify_voltage_ac();

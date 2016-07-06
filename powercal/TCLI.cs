@@ -353,17 +353,17 @@ namespace PowerCalibration
         /// <param name="value"></param>
         public static void Set_Relay_State(TelnetConnection telnet_connection, bool value)
         {
+            Wait_For_Prompt(telnet_connection);
             if (value)
             {
-                Wait_For_Prompt(telnet_connection);
                 telnet_connection.WriteLine("write 1 6 0 1 0x10 {01}");
-                Wait_For_Prompt(telnet_connection);
 
             }
             else
             {
                 telnet_connection.WriteLine("write 1 6 0 1 0x10 {00}");
             }
+            Wait_For_Prompt(telnet_connection);
         }
 
         /// <summary>
