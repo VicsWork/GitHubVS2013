@@ -123,10 +123,10 @@ namespace PowerCalibration
 
             // Default values (USA)
             double voltage_ac_load = Properties.Settings.Default.CalibrationLoadVoltageValue;
-            double voltage_ac_delta = voltage_ac_load * (Properties.Settings.Default.CalibrationLoadVoltageTolarance/100);
+            double voltage_ac_delta = voltage_ac_load * (Properties.Settings.Default.CalibrationLoadVoltageTolarance / 100);
 
             double current_ac_load = voltage_ac_load / Properties.Settings.Default.CalibrationLoadResistorValue;
-            double current_ac_delta = current_ac_load * (Properties.Settings.Default.CalibrationLoadResistorTolarance/100);
+            double current_ac_delta = current_ac_load * (Properties.Settings.Default.CalibrationLoadResistorTolarance / 100);
 
             _voltage_gain_adress = 0x08040980;
             _current_gain_adress = 0x08040984;
@@ -165,7 +165,7 @@ namespace PowerCalibration
 
                 case BoardTypes.Milkshark:
                     // R8 = 0.01 => 30/10
-                    _current_ac_reference = 3;  
+                    _current_ac_reference = 3;
                     break;
                 case BoardTypes.Mudshark:
                     // R = 0.003 => 30/3
@@ -246,11 +246,6 @@ namespace PowerCalibration
             // Connect the load and verify ac
             _relay_ctrl.WriteLine(Relay_Lines.Load, true);
 
-            // Close the UUT relay
-            // Jigs short-out the relay....
-            if(_board_type == BoardTypes.Humpback)
-                TCLI.Set_Relay_State(_telnet_connection, true);
-
             Thread.Sleep(1000);
             verify_voltage_ac();
 
@@ -268,6 +263,15 @@ namespace PowerCalibration
             int max_try_count = 5;
             for (int i = 0; i < max_try_count; i++)
             {
+                // Close the UUT relay
+                // Jigs short-out the relay....
+                if (_board_type == BoardTypes.Humpback)
+                {
+                    // With Shuko we could not short relay
+                    TraceLogger.Log("Set_Relay_State ON");
+                    TCLI.Set_Relay_State(_telnet_connection, true);
+                }
+
                 bool error_reading = false;
                 try
                 {
@@ -376,12 +380,12 @@ namespace PowerCalibration
                     _load_voltage_ac_low_limit, voltage_meter, _load_voltage_ac_high_limit);
                 throw new Exception(msg);
             }
-            
+
             if (current_meter < _load_current_ac_low_limit || current_meter > _load_current_ac_high_limit)
             //if (current_meter < 0.01 || current_meter > 1)
             {
                 msg = string.Format(
-                    "Meter current before calibration not within limit values: {0:F8} < {1:F8} < {2:F8}", 
+                    "Meter current before calibration not within limit values: {0:F8} < {1:F8} < {2:F8}",
                     _load_current_ac_low_limit, current_meter, _load_current_ac_high_limit);
                 //msg = string.Format("Meter current before calibration not within limit values: {0:F8} < {1:F8} < {2:F8}", 0.01, current_meter, 1);
                 throw new Exception(msg);
