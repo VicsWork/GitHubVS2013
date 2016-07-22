@@ -332,6 +332,20 @@ namespace PowerCalibration
             else if (_dev_type == Device_Types.FT232H)
             {
                 FTD2XX_NET.FTDI.FT_STATUS status = _ft232hdio.SetPin(_ftdi_bus, linenum, value);
+                // ERROR if device is disconnected and then reconnected
+                // Try to recover
+                if (status != FTD2XX_NET.FTDI.FT_STATUS.FT_OK)
+                {
+                    try
+                    {
+                        Close();
+                        initFT232H();
+                        Open();
+                        status = _ft232hdio.SetPin(_ftdi_bus, linenum, value);
+                    }
+                    catch { }
+                }
+
                 if (status != FTD2XX_NET.FTDI.FT_STATUS.FT_OK)
                 {
                     throw new Exception( 
