@@ -1665,43 +1665,51 @@ namespace PowerCalibration
         /// </summary>
         void calibrate()
         {
-            _calibration_error_msg = null;
+            try
+            {
+                _calibration_error_msg = null;
 
-            setRunStatus("Start Calibration", Color.Black, Color.White);
-            updateOutputStatus("Start Calibration".PadBoth(80, '-'));
+                setRunStatus("Start Calibration", Color.Black, Color.White);
+                updateOutputStatus("Start Calibration".PadBoth(80, '-'));
 
-            // Connect the load
-            _relay_ctrl.OpenIfClosed();
-            _relay_ctrl.WriteLine(Relay_Lines.Load, true);
-            relaysShowSetttings();
+                // Connect the load
+                _relay_ctrl.OpenIfClosed();
+                _relay_ctrl.WriteLine(Relay_Lines.Load, true);
+                relaysShowSetttings();
 
-            //for debug
-            //calibration_done();
-            //return;
+                //for debug
+                //calibration_done();
+                //return;
 
-            autoSelectBoardByMfgString();
-            // Disable the app
-            setEnablement(false, false);
+                autoSelectBoardByMfgString();
+                // Disable the app
+                setEnablement(false, false);
 
-            // Run the calibration
-            Calibrate calibrate = new Calibrate(); // Calibration object
-            calibrate.Status_Event += calibration_Status_event;
-            calibrate.Run_Status_Event += calibration_Run_Status_Event;
-            calibrate.Relay_Event += calibration_Relay_Event;
-            calibrate.CalibrationResults_Event += calibration_Results_Event;
-            calibrate.BoardType = getSelectedBoardType();
-            calibrate.Ember = _ember;
-            calibrate.MultiMeter = _meter;
-            calibrate.RelayController = _relay_ctrl;
-            calibrate.TelnetConnection = _telnet_connection;
+                // Run the calibration
+                Calibrate calibrate = new Calibrate(); // Calibration object
+                calibrate.Status_Event += calibration_Status_event;
+                calibrate.Run_Status_Event += calibration_Run_Status_Event;
+                calibrate.Relay_Event += calibration_Relay_Event;
+                calibrate.CalibrationResults_Event += calibration_Results_Event;
+                calibrate.BoardType = getSelectedBoardType();
+                calibrate.Ember = _ember;
+                calibrate.MultiMeter = _meter;
+                calibrate.RelayController = _relay_ctrl;
+                calibrate.TelnetConnection = _telnet_connection;
 
-            _cancel_token_uut = new CancellationTokenSource();
-            _task_uut = new Task(() => calibrate.Run(_cancel_token_uut.Token), _cancel_token_uut.Token);
-            _task_uut.ContinueWith(
-                calibration_exception_handler, TaskContinuationOptions.OnlyOnFaulted);
-            _task_uut.ContinueWith(
-                calibration_done_handler, TaskContinuationOptions.OnlyOnRanToCompletion);
-            _task_uut.Start();
+                _cancel_token_uut = new CancellationTokenSource();
+                _task_uut = new Task(() => calibrate.Run(_cancel_token_uut.Token), _cancel_token_uut.Token);
+                _task_uut.ContinueWith(
+                    calibration_exception_handler, TaskContinuationOptions.OnlyOnFaulted);
+                _task_uut.ContinueWith(
+                    calibration_done_handler, TaskContinuationOptions.OnlyOnRanToCompletion);
+                _task_uut.Start();
+            }
+            catch (Exception ex)
+            {
+                _calibration_error_msg = ex.Message;
+                calibration_done();
+            }
 
         }
 
