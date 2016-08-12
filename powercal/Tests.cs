@@ -41,7 +41,7 @@ namespace PowerCalibration
             meter_voltage_str = _meter.Measure();
             double meter_voltage_ac = Double.Parse(meter_voltage_str);
 
-            string msg = string.Format("Meter DC Voltage at {0:F8} V.  AC {1:F8}", 
+            string msg = string.Format("Meter DC Voltage at {0:F8} V. AC {1:F8}", 
                 meter_voltage_dc, meter_voltage_ac);
             fire_status(msg);
 
@@ -57,7 +57,7 @@ namespace PowerCalibration
 
             if (meter_voltage_dc < voltage_dc_low_limit || meter_voltage_dc > voltage_dc_high_limit)
             {
-                msg = string.Format("Voltage DC is not within limits values: {0:F8} < {1:F8} < {2:F8}", 
+                msg = string.Format("Voltage DC not within limits values: Min({0:F8}) <-> {1:F8} <-> Max({2:F8})", 
                     voltage_dc_low_limit, meter_voltage_dc, voltage_dc_high_limit);
                 TraceLogger.Log(msg);
                 throw new Exception(msg);
