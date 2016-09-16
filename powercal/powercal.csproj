@@ -109,6 +109,7 @@
     </Reference>
     <Reference Include="System" />
     <Reference Include="System.Core" />
+    <Reference Include="System.Data.Linq" />
     <Reference Include="System.DirectoryServices" />
     <Reference Include="System.Runtime.Serialization" />
     <Reference Include="System.Data.DataSetExtensions" />
@@ -189,6 +190,11 @@
       <DependentUpon>Form_Settings.cs</DependentUpon>
     </Compile>
     <Compile Include="ft232hdio.cs" />
+    <Compile Include="ManufacturingStore_Data.designer.cs">
+      <AutoGen>True</AutoGen>
+      <DesignTime>True</DesignTime>
+      <DependentUpon>ManufacturingStore_Data.dbml</DependentUpon>
+    </Compile>
     <Compile Include="MouseHook.cs" />
     <Compile Include="MultiMeter.cs" />
     <Compile Include="Properties\Settings.Designer.cs">
@@ -236,6 +242,9 @@
     <EmbeddedResource Include="Form_Settings.resx">
       <DependentUpon>Form_Settings.cs</DependentUpon>
     </EmbeddedResource>
+    <None Include="ManufacturingStore_Data.dbml.layout">
+      <DependentUpon>ManufacturingStore_Data.dbml</DependentUpon>
+    </None>
     <EmbeddedResource Include="Properties\Resources.resx">
       <Generator>ResXFileCodeGenerator</Generator>
       <LastGenOutput>Resources.Designer.cs</LastGenOutput>
@@ -246,6 +255,11 @@
       <DependentUpon>Resources.resx</DependentUpon>
       <DesignTime>True</DesignTime>
     </Compile>
+    <None Include="ManufacturingStore_Data.dbml">
+      <Generator>MSLinqToSQLGenerator</Generator>
+      <LastGenOutput>ManufacturingStore_Data.designer.cs</LastGenOutput>
+      <SubType>Designer</SubType>
+    </None>
     <None Include="Properties\DataSources\Form1.datasource" />
     <None Include="Properties\Settings.settings">
       <Generator>SettingsSingleFileGenerator</Generator>
@@ -300,6 +314,9 @@
       <IncludeHash>True</IncludeHash>
       <FileType>File</FileType>
     </PublishFile>
+  </ItemGroup>
+  <ItemGroup>
+    <Service Include="{3259AA49-8AA1-44D3-9025-A0B520596A8C}" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <Target Name="BeforeBuild">

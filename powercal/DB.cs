@@ -16,9 +16,77 @@ namespace PowerCalibration
 {
     class DB
     {
+        // The connection string
         static SqlConnectionStringBuilder _constr;
-
         public static SqlConnectionStringBuilder ConnectionSB { get { return _constr; } set { _constr = value; } }
+
+        // The site id is cached
+        static int _site_id = -1;
+        static public int Site_ID
+        {
+            get
+            {
+                if (_site_id < 0)
+                {
+                    try
+                    {
+                        string macaddr_str = GetMacAndIpAddress().Item1;
+                        ManufacturingStore_DataDataContext dc = new ManufacturingStore_DataDataContext(ConnectionSB.ConnectionString);
+                        _site_id = dc.StationSites.Where(d => d.StationMac == macaddr_str).Select(s => s.ProductionSiteId).Single<int>();
+                    }
+                    catch { };
+                }
+                return _site_id;
+            }
+        }
+
+        // The machine id is cached
+        static int _machine_id = -1;
+        static public int Machine_ID
+        {
+            get
+            {
+                if (_machine_id < 0)
+                {
+                    try
+                    {
+                        ManufacturingStore_DataDataContext dc = new ManufacturingStore_DataDataContext(ConnectionSB.ConnectionString);
+                        try
+                        {
+
+                            // Set machine id
+                            // This is commented out because we are updating data below
+                            //_machine_id = dc.TestStationMachines.Where(m => m.Name == Environment.MachineName).Select(s => s.Id).Single<int>();
+
+                            // Machine guid column was added after data had already been inserted
+                            // Update data
+                            TestStationMachine machine = dc.TestStationMachines.Single<TestStationMachine>(m => m.Name == Environment.MachineName);
+                            _machine_id = machine.Id;
+                            try
+                            {
+                                // Update machine GUI if null
+                                if (machine.MachineGuid == null)
+                                {
+                                    machine.MachineGuid = GetMachineGuid();
+                                    dc.SubmitChanges();
+                                }
+                            }
+                            catch (Exception ex) { string m = ex.Message; };
+                        }
+                        catch { };
+
+                        if (_machine_id < 0)
+                        {
+                            _machine_id = insertMachine();
+                        }
+                    }
+                    catch (Exception ex) { string msg = ex.Message; };
+                }
+
+                return _machine_id;
+            }
+        }
+
 
 
         /// <summary>
@@ -43,12 +111,10 @@ namespace PowerCalibration
 
                     if (ret_obj == null)
                     {
-                        Tuple<int, int> site_machine_id = GetSiteAndMachineIDs();
-
                         // Insert into database
                         cmd.CommandText = string.Format(
                             "insert into {0} (EUI, ProductionSiteId) values ('{1}', '{2}')",
-                            table_name, eui, site_machine_id.Item1);
+                            table_name, eui, Site_ID);
 
                         int n = cmd.ExecuteNonQuery();
 
@@ -71,89 +137,150 @@ namespace PowerCalibration
         /// It creates an entry if not found
         /// </summary>
         /// <returns></returns>
-        public static Tuple<int, int> GetSiteAndMachineIDs()
+        public static int insertMachine()
         {
-            int id_site = -1;
-            int id_machine = -1;
-            using (SqlConnection con = new SqlConnection(ConnectionSB.ConnectionString))
+            var mac_ip = GetMacAndIpAddress();
+            string macaddr_str = mac_ip.Item1;
+            string ip_str = mac_ip.Item2;
+
+            ManufacturingStore_DataDataContext dc = new ManufacturingStore_DataDataContext(ConnectionSB.ConnectionString);
+
+            string description = null;
+            try { description = GetComputerDescription(); }
+            catch (Exception) { };
+            // Set a computer description based on domain and nic if one was not found
+            if (description == null || description == "")
             {
-                con.Open();
-
-                object ret_obj = null;
-                using (SqlCommand cmd = new SqlCommand())
+                string production_site_name = null;
+                try
                 {
-                    cmd.Connection = con;
-                    string table_name = "[ProductionSite]";
-                    cmd.CommandText = string.Format("select id from {0} where name='{1}'", table_name, Properties.Settings.Default.ProductionSiteName);
-                    ret_obj = cmd.ExecuteScalar();
+                    var ss = dc.StationSites.Where(d => d.StationMac == macaddr_str).Single();
+                    production_site_name = ss.ProductionSite.Name;
                 }
-                if (ret_obj != null)
-                    id_site = (int)ret_obj;
+                catch (Exception) { };
 
-                ret_obj = null;
-                using (SqlCommand cmd = new SqlCommand())
-                {
-                    cmd.Connection = con;
-
-                    string table_name = "TestStationMachines";
-                    string machine_name = Environment.MachineName;
-
-                    cmd.CommandText = string.Format("select id from {0} where name='{1}'", table_name, machine_name);
-                    ret_obj = cmd.ExecuteScalar();
-                    if (ret_obj == null)
-                    {
-                        // Machine name not found in database
-                        // Create entry
-                        string description = null;
-                        try { description = GetComputerDescription(); }
-                        catch (Exception) { };
-
-                        // Get the first network interface
-                        NetworkInterface nic = null;
-                        try { nic = GetFirstNic(); }
-                        catch (Exception) { };
-
-                        // Get mac address and ip address
-                        string macaddr_str = "000000000000";
-                        string ip_str = "0.0.0.0";
-                        if (nic != null)
-                        {
-                            try
-                            {
-                                macaddr_str = nic.GetPhysicalAddress().ToString();
-                                foreach (var ua in nic.GetIPProperties().UnicastAddresses)
-                                {
-                                    if (ua.Address.AddressFamily == System.Net.Sockets.AddressFamily.InterNetwork)
-                                    {
-                                        ip_str = ua.Address.ToString();
-                                        break;
-                                    }
-                                }
-                            }
-                            catch (Exception) { };
-                        }
-
-                        // Set a computer description based on domain and nic if one was not found
-                        if (description == null || description == "")
-                        { description = string.Format("{0}, {1}", Environment.UserDomainName, nic.Description); }
-
-                        // Insert into database
-                        cmd.CommandText = string.Format(
-                            "insert into {0} (Name, Description, MacAddress, IpAddress) values ('{1}', '{2}', '{3}', '{4}')",
-                            table_name, machine_name, description, macaddr_str, ip_str);
-
-                        int n = cmd.ExecuteNonQuery();
-
-                        // Get the id
-                        cmd.CommandText = string.Format("select id from machines where name='{0}'", machine_name);
-                        ret_obj = cmd.ExecuteScalar();
-                    }
-                }
-                if (ret_obj != null)
-                    id_machine = (int)ret_obj;
+                NetworkInterface nic = GetFirstNic();
+                if (production_site_name != null)
+                    description = string.Format("{0}, {1}", production_site_name, nic.Description);
+                else
+                    description = string.Format("{0}, {1}", Environment.UserDomainName, nic.Description);
             }
 
-            return Tuple.Create(id_site, id_machine);
+
+            TestStationMachine machine = new TestStationMachine();
+            machine.Name = Environment.MachineName;
+            machine.IpAddress = ip_str;
+            machine.MacAddress = macaddr_str;
+            machine.Description = description;
+            try
+            {
+                string machineguid = GetMachineGuid();
+                // Database should default to "00000000-0000-0000-0000-000000000000"
+                // Just check to make sure we got the same length
+                if (machineguid.Length <= 36)
+                    machine.MachineGuid = machineguid;
+            }
+            catch { };
+
+            dc.TestStationMachines.InsertOnSubmit(machine);
+            dc.SubmitChanges();
+
+            return machine.Id;
+
+        }
+
+        /// <summary>
+        /// Gets the specified Nics mac and ip address
+        /// </summary>
+        /// <param name="nic"></param>
+        /// <returns></returns>
+        public static Tuple<string, string> GetMacAndIpAddress()
+        {
+            string macaddr_str = "000000000000";
+            string ip_str = "0.0.0.0";
+
+            // Get the first network interface
+            NetworkInterface nic = null;
+            try { nic = GetFirstNic(); }
+            catch (Exception) { };
+            if (nic != null)
+            {
+                try
+                {
+                    macaddr_str = nic.GetPhysicalAddress().ToString();
+                    foreach (var ua in nic.GetIPProperties().UnicastAddresses)
+                    {
+                        if (ua.Address.AddressFamily == System.Net.Sockets.AddressFamily.InterNetwork)
+                        {
+                            ip_str = ua.Address.ToString();
+                            break;
+                        }
+                    }
+                }
+                catch (Exception) { };
+            }
+
+            return Tuple.Create(macaddr_str, ip_str);
+        }
+
+        /// <summary>
+        /// Gets the first Network Interface of the system
+        /// </summary>
+        /// <returns>First Network Interface of the system</returns>
+        public static NetworkInterface GetFirstNic()
+        {
+            //var myInterfaceAddress = NetworkInterface.GetAllNetworkInterfaces()
+            //    .Where(n => n.OperationalStatus == OperationalStatus.Up && n.NetworkInterfaceType != NetworkInterfaceType.Loopback)
+            //    .OrderByDescending(n => n.NetworkInterfaceType == NetworkInterfaceType.Ethernet)
+            //    .Select(n => n.GetPhysicalAddress())
+            //    .FirstOrDefault();
+
+            NetworkInterface myInterfaceAddress = NetworkInterface.GetAllNetworkInterfaces()
+                .Where(n => n.OperationalStatus == OperationalStatus.Up && n.NetworkInterfaceType != NetworkInterfaceType.Loopback)
+                .OrderByDescending(n => n.NetworkInterfaceType == NetworkInterfaceType.Ethernet)
+                .FirstOrDefault();
+
+            return myInterfaceAddress;
+        }
+
+        /// <summary>
+        /// Gets the machine gui id stored in the registry
+        /// </summary>
+        /// <returns></returns>
+        public static string GetMachineGuid()
+        {
+            string location = @"SOFTWARE\Microsoft\Cryptography";
+            string name = "MachineGuid";
+
+            using (RegistryKey localMachineX64View =
+                RegistryKey.OpenBaseKey(RegistryHive.LocalMachine, RegistryView.Registry64))
+            {
+                using (RegistryKey rk = localMachineX64View.OpenSubKey(location))
+                {
+                    if (rk == null)
+                        throw new KeyNotFoundException(
+                            string.Format("Key Not Found: {0}", location));
+
+                    object machineGuid = rk.GetValue(name);
+                    if (machineGuid == null)
+                        throw new IndexOutOfRangeException(
+                            string.Format("Index Not Found: {0}", name));
+
+                    return machineGuid.ToString();
+                }
+            }
+        }
+
+        /// <summary>
+        /// Returns the computer description
+        /// </summary>
+        /// <returns>the computer description</returns>
+        public static string GetComputerDescription()
+        {
+            string key = @"HKEY_LOCAL_MACHINE\SYSTEM\CurrentControlSet\Services\lanmanserver\parameters";
+            string computerDescription = (string)Registry.GetValue(key, "srvcomment", null);
+
+            return computerDescription;
         }
 
         public static string[] GetISAAdapterIPsFromLikeLocation(string location)
@@ -178,27 +305,6 @@ namespace PowerCalibration
             }
         }
 
-
-        /// <summary>
-        /// Gets the first Network Interface of the system
-        /// </summary>
-        /// <returns>First Network Interface of the system</returns>
-        public static NetworkInterface GetFirstNic()
-        {
-            //var myInterfaceAddress = NetworkInterface.GetAllNetworkInterfaces()
-            //    .Where(n => n.OperationalStatus == OperationalStatus.Up && n.NetworkInterfaceType != NetworkInterfaceType.Loopback)
-            //    .OrderByDescending(n => n.NetworkInterfaceType == NetworkInterfaceType.Ethernet)
-            //    .Select(n => n.GetPhysicalAddress())
-            //    .FirstOrDefault();
-
-            NetworkInterface myInterfaceAddress = NetworkInterface.GetAllNetworkInterfaces()
-                .Where(n => n.OperationalStatus == OperationalStatus.Up && n.NetworkInterfaceType != NetworkInterfaceType.Loopback)
-                .OrderByDescending(n => n.NetworkInterfaceType == NetworkInterfaceType.Ethernet)
-                .FirstOrDefault();
-
-            return myInterfaceAddress;
-        }
-
         public static IPAddress GetFiratGatewayAddress()
         {
             NetworkInterface nic = GetFirstNic();
@@ -211,16 +317,5 @@ namespace PowerCalibration
 
         }
 
-        /// <summary>
-        /// Returns the computer description
-        /// </summary>
-        /// <returns>the computer description</returns>
-        public static string GetComputerDescription()
-        {
-            string key = @"HKEY_LOCAL_MACHINE\SYSTEM\CurrentControlSet\Services\lanmanserver\parameters";
-            string computerDescription = (string)Registry.GetValue(key, "srvcomment", null);
-
-            return computerDescription;
-        }
     }
 }

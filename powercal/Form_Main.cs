@@ -74,7 +74,6 @@ namespace PowerCalibration
         Task _task_updatedb;
         DataTable _datatable_calibrate;
         uint _db_total_written = 0;
-        Tuple<int, int> _site_machine_id;
 
         bool _supervisor_mode = false;  // Use to enable/hide features
 
@@ -86,7 +85,6 @@ namespace PowerCalibration
         public Form_Main()
         {
             string msg = "";
-            _site_machine_id = Tuple.Create(-1, -1);
 
             // Init the trace listener
             try
@@ -169,10 +167,6 @@ namespace PowerCalibration
             _db_Loging = Properties.Settings.Default.DB_Loging_Enabled;
             if (isDBLogingEnabled())
             {
-                // get machine id
-                Task task_id = new Task<Tuple<int, int>>(getSiteAndMachineIDs);
-                task_id.ContinueWith(getDBMachineID_Error, TaskContinuationOptions.OnlyOnFaulted);
-                task_id.Start();
                 // Create the internal result data table
                 createResultTable();
                 updateOutputStatus("DB logging enabled");
@@ -215,26 +209,6 @@ namespace PowerCalibration
         }
 
         /// <summary>
-        /// Helper to get db machine id
-        /// </summary>
-        /// <returns></returns>
-        Tuple<int, int> getSiteAndMachineIDs()
-        {
-            if (_site_machine_id.Item1 > 0 && _site_machine_id.Item2 > 0)
-                return _site_machine_id;
-
-            DB.ConnectionSB = _db_connect_str;
-            _site_machine_id = DB.GetSiteAndMachineIDs();
-
-            return _site_machine_id;
-        }
-
-        void getDBMachineID_Error(Task task)
-        {
-            Exception e = task.Exception.InnerException;
-        }
-
-        /// <summary>
         /// Creates the internal data table to store results
         /// </summary>
         void createResultTable()
@@ -265,8 +239,7 @@ namespace PowerCalibration
             try
             {
                 // Update result table with 
-                Tuple<int, int> site_machine_id = getSiteAndMachineIDs();
-                int machine_id = site_machine_id.Item2;
+                int machine_id = DB.Machine_ID;
                 if (machine_id >= 0)
                 {
                     DB.ConnectionSB = _db_connect_str;

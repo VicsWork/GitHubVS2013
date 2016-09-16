@@ -271,5 +271,17 @@ namespace PowerCalibration.Properties {
                 this["Play_Sounds"] = value;
             }
         }
+        
+        [global::System.Configuration.ApplicationScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.SpecialSettingAttribute(global::System.Configuration.SpecialSetting.ConnectionString)]
+        [global::System.Configuration.DefaultSettingValueAttribute("Data Source=rs01;Initial Catalog=ManufacturingStore_v2;Integrated Security=True;M" +
+            "ultipleActiveResultSets=False;Packet Size=4096;Application Name=\"Microsoft SQL S" +
+            "erver Data Tools, SQL Server Object Explorer\"")]
+        public string ManufacturingStore_v2ConnectionString {
+            get {
+                return ((string)(this["ManufacturingStore_v2ConnectionString"]));
+            }
+        }
     }
 }
