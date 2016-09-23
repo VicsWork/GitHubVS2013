@@ -23,7 +23,7 @@ namespace PowerCalibration
 	
 	
 	[global::System.Data.Linq.Mapping.DatabaseAttribute(Name="ManufacturingStore_v2")]
-	public partial class ManufacturingStore_DataDataContext : System.Data.Linq.DataContext
+	public partial class ManufacturingStore_DataContext : System.Data.Linq.DataContext
 	{
 		
 		private static System.Data.Linq.Mapping.MappingSource mappingSource = new AttributeMappingSource();
@@ -41,31 +41,31 @@ namespace PowerCalibration
     partial void DeleteProductionSite(ProductionSite instance);
     #endregion
 		
-		public ManufacturingStore_DataDataContext() : 
+		public ManufacturingStore_DataContext() : 
 				base(global::PowerCalibration.Properties.Settings.Default.ManufacturingStore_v2ConnectionString, mappingSource)
 		{
 			OnCreated();
 		}
 		
-		public ManufacturingStore_DataDataContext(string connection) : 
+		public ManufacturingStore_DataContext(string connection) : 
 				base(connection, mappingSource)
 		{
 			OnCreated();
 		}
 		
-		public ManufacturingStore_DataDataContext(System.Data.IDbConnection connection) : 
+		public ManufacturingStore_DataContext(System.Data.IDbConnection connection) : 
 				base(connection, mappingSource)
 		{
 			OnCreated();
 		}
 		
-		public ManufacturingStore_DataDataContext(string connection, System.Data.Linq.Mapping.MappingSource mappingSource) : 
+		public ManufacturingStore_DataContext(string connection, System.Data.Linq.Mapping.MappingSource mappingSource) : 
 				base(connection, mappingSource)
 		{
 			OnCreated();
 		}
 		
-		public ManufacturingStore_DataDataContext(System.Data.IDbConnection connection, System.Data.Linq.Mapping.MappingSource mappingSource) : 
+		public ManufacturingStore_DataContext(System.Data.IDbConnection connection, System.Data.Linq.Mapping.MappingSource mappingSource) : 
 				base(connection, mappingSource)
 		{
 			OnCreated();

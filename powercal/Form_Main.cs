@@ -239,14 +239,14 @@ namespace PowerCalibration
             try
             {
                 // Update result table with 
-                int machine_id = DB.Machine_ID;
+                //Utils.ConnectionSB = _db_connect_str;
+                int machine_id = Utils.Machine_ID;
                 if (machine_id >= 0)
                 {
-                    DB.ConnectionSB = _db_connect_str;
                     foreach (DataRow r in _datatable_calibrate.Rows)
                     {
                         string eui = (string)r["Eui"];
-                        int eui_id = DB.GetEUIID(eui);
+                        int eui_id = Utils.GetEUIID(eui);
 
                         using (SqlConnection con = new SqlConnection(_db_connect_str.ConnectionString))
                         {
@@ -265,14 +265,14 @@ namespace PowerCalibration
                             }
                         }
                     }
+
+                    _db_total_written += (uint)_datatable_calibrate.Rows.Count;
+
+                    msg = string.Format("{0}W/{1}T {2:H:mm:ss}",
+                        _datatable_calibrate.Rows.Count, _db_total_written, DateTime.Now);
+
+                    _datatable_calibrate.Rows.Clear();
                 }
-
-                _db_total_written += (uint)_datatable_calibrate.Rows.Count;
-
-                msg = string.Format("{0}W/{1}T {2:H:mm:ss}",
-                    _datatable_calibrate.Rows.Count, _db_total_written, DateTime.Now);
-
-                _datatable_calibrate.Rows.Clear();
 
             }
             catch (Exception ex)
@@ -2028,14 +2028,14 @@ namespace PowerCalibration
             {
                 try
                 {
-                    DB.ConnectionSB = new SqlConnectionStringBuilder(Properties.Settings.Default.DBConnectionString);
+                    Utils.ConnectionSB = new SqlConnectionStringBuilder(Properties.Settings.Default.DBConnectionString);
 
                     // First try using relay controller id
                     string[] ips = new string[] { };
                     if (_relay_ctrl.ID != 0)
-                        ips = DB.GetISAAdapterIPsFromLikeLocation(string.Format("%FT232H:{0}%", _relay_ctrl.SerialNumber));
+                        ips = Utils.GetISAAdapterIPsFromLikeLocation(string.Format("%FT232H:{0}%", _relay_ctrl.SerialNumber));
                     if (ips.Length == 0)
-                        ips = DB.GetISAAdapterIPsFromLikeLocation(string.Format("%{0}%", getSelectedBoardType()));
+                        ips = Utils.GetISAAdapterIPsFromLikeLocation(string.Format("%{0}%", getSelectedBoardType()));
 
                     if (ips.Length >= 1)
                     {

@@ -14,10 +14,10 @@ using Microsoft.Win32;
 
 namespace PowerCalibration
 {
-    class DB
+    class Utils
     {
         // The connection string
-        static SqlConnectionStringBuilder _constr;
+        static SqlConnectionStringBuilder _constr = new SqlConnectionStringBuilder(Properties.Settings.Default.DBConnectionString);
         public static SqlConnectionStringBuilder ConnectionSB { get { return _constr; } set { _constr = value; } }
 
         // The site id is cached
@@ -31,7 +31,7 @@ namespace PowerCalibration
                     try
                     {
                         string macaddr_str = GetMacAndIpAddress().Item1;
-                        ManufacturingStore_DataDataContext dc = new ManufacturingStore_DataDataContext(ConnectionSB.ConnectionString);
+                        ManufacturingStore_DataContext dc = new ManufacturingStore_DataContext(ConnectionSB.ConnectionString);
                         _site_id = dc.StationSites.Where(d => d.StationMac == macaddr_str).Select(s => s.ProductionSiteId).Single<int>();
                     }
                     catch { };
@@ -50,7 +50,7 @@ namespace PowerCalibration
                 {
                     try
                     {
-                        ManufacturingStore_DataDataContext dc = new ManufacturingStore_DataDataContext(ConnectionSB.ConnectionString);
+                        ManufacturingStore_DataContext dc = new ManufacturingStore_DataContext(ConnectionSB.ConnectionString);
                         try
                         {
 
@@ -86,8 +86,6 @@ namespace PowerCalibration
                 return _machine_id;
             }
         }
-
-
 
         /// <summary>
         /// Gets the EUI Id
@@ -131,7 +129,6 @@ namespace PowerCalibration
             return id;
         }
 
-
         /// <summary>
         /// Gets the machine id from database
         /// It creates an entry if not found
@@ -143,7 +140,7 @@ namespace PowerCalibration
             string macaddr_str = mac_ip.Item1;
             string ip_str = mac_ip.Item2;
 
-            ManufacturingStore_DataDataContext dc = new ManufacturingStore_DataDataContext(ConnectionSB.ConnectionString);
+            ManufacturingStore_DataContext dc = new ManufacturingStore_DataContext(ConnectionSB.ConnectionString);
 
             string description = null;
             try { description = GetComputerDescription(); }
@@ -283,6 +280,11 @@ namespace PowerCalibration
             return computerDescription;
         }
 
+        /// <summary>
+        /// Used to find ISA adapter ip address providing location
+        /// </summary>
+        /// <param name="location"></param>
+        /// <returns></returns>
         public static string[] GetISAAdapterIPsFromLikeLocation(string location)
         {
             using (SqlConnection con = new SqlConnection(ConnectionSB.ConnectionString))
@@ -305,7 +307,7 @@ namespace PowerCalibration
             }
         }
 
-        public static IPAddress GetFiratGatewayAddress()
+        public static IPAddress GetFirstGatewayAddress()
         {
             NetworkInterface nic = GetFirstNic();
 
