@@ -44,43 +44,19 @@ namespace PowerCalibration
             if (cancel.IsCancellationRequested)
                 return;
 
-            try
+            if (Properties.Settings.Default.Disable_ReadProtection_BeforeCoding)
             {
-                // Disable read protection
-                fire_status("Disable read protection");
-                bool disable_rd_prot_success = false;
-                string disable_output = "";
-                for (int i = 0; i < 5; i++)
+                try
                 {
-                    try
-                    {
-                        disable_output = Ember.EnableRdProt(false);
-                    }
-                    catch (Exception ex)
-                    {
-                        disable_output = ex.Message;
-                    }
-                    if (
-                        disable_output.Contains("Disable Read Protection") ||
-                        disable_output.Contains("Read Protection is already disabled"))
-                    {
-                        disable_rd_prot_success = true;
-                        break;
-                    }
+                    // Disable read protection
+                    disable_read_pritection();
                 }
-
-                if (!disable_rd_prot_success)
+                catch (Exception ex)
                 {
-                    //fire_status("Unable to disable read protection: " + disable_output);
-                    throw new Exception("Unable to disable read protection: " + disable_output);
+                    string error = ex.Message;
+                    //throw;
+                    fire_status("Unable to disable read protection: " + ex.Message);
                 }
-            }
-            catch (Exception ex)
-            {
-                string error = ex.Message;
-                //throw;
-                fire_status("Unable to disable read protection: " + ex.Message);
-
             }
 
 
@@ -156,6 +132,38 @@ namespace PowerCalibration
                 AutoItX.WinSetState(hwnd, AutoItX.SW_SHOWMINIMIZED);
             }
 
+        }
+
+        void disable_read_pritection()
+        {
+            // Disable read protection
+            fire_status("Disable read protection");
+            bool disable_rd_prot_success = false;
+            string disable_output = "";
+            for (int i = 0; i < 5; i++)
+            {
+                try
+                {
+                    disable_output = Ember.EnableRdProt(false);
+                }
+                catch (Exception ex)
+                {
+                    disable_output = ex.Message;
+                }
+                if (
+                    disable_output.Contains("Disable Read Protection") ||
+                    disable_output.Contains("Read Protection is already disabled"))
+                {
+                    disable_rd_prot_success = true;
+                    break;
+                }
+            }
+
+            if (!disable_rd_prot_success)
+            {
+                //fire_status("Unable to disable read protection: " + disable_output);
+                throw new Exception("Unable to disable read protection: " + disable_output);
+            }
         }
 
         IntPtr getWin(string win_desc)

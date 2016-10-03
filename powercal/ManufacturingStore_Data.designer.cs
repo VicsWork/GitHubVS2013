@@ -42,7 +42,7 @@ namespace PowerCalibration
     #endregion
 		
 		public ManufacturingStore_DataContext() : 
-				base(global::PowerCalibration.Properties.Settings.Default.ManufacturingStore_v2ConnectionString, mappingSource)
+				base(global::PowerCalibration.Properties.Settings.Default.DBConnectionString, mappingSource)
 		{
 			OnCreated();
 		}

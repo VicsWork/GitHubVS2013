@@ -45,8 +45,7 @@ namespace PowerCalibration
             return base.ProcessCmdKey(ref msg, keyData);
         }
 
-
-        private void buttonOK_Click(object sender, EventArgs e)
+        private void button_OK_Click(object sender, EventArgs e)
         {
             Properties.Settings.Default.Save();
             Close();
@@ -57,45 +56,48 @@ namespace PowerCalibration
             this.labelDBConnectStr.Visible = false;
 
             // Ember
-            comboBoxEmberInterface.Text = Properties.Settings.Default.Ember_Interface;
-            TextBoxEmberBinPath.Text = Properties.Settings.Default.Ember_BinPath;
+            comboBox_EmberInterface.Text = Properties.Settings.Default.Ember_Interface;
+            textBox_EmberBinPath.Text = Properties.Settings.Default.Ember_BinPath;
 
             // Populate DIO controller types
-            comboBoxDIOCtrollerTypes.Items.Clear();
+            comboBox_DIOCtrollerTypes.Items.Clear();
             Array relay_types = Enum.GetValues(typeof(RelayControler.Device_Types));
             foreach (RelayControler.Device_Types relay_type in relay_types)
-                comboBoxDIOCtrollerTypes.Items.Add(relay_type.ToString());
-            comboBoxDIOCtrollerTypes.Text = Properties.Settings.Default.Relay_Controller_Type;
+                comboBox_DIOCtrollerTypes.Items.Add(relay_type.ToString());
+            comboBox_DIOCtrollerTypes.Text = Properties.Settings.Default.Relay_Controller_Type;
 
             // Calibration
             double v = Properties.Settings.Default.CalibrationLoadVoltageValue;
             double r = Properties.Settings.Default.CalibrationLoadResistorValue;
 
-            textBoxLoadVoltageValue.Text = string.Format("{0:F2}", v);
-            textBoxLoadResitorValue.Text = string.Format("{0:F2}", r);
+            textBox_LoadVoltageValue.Text = string.Format("{0:F2}", v);
+            textBox_LoadResitorValue.Text = string.Format("{0:F2}", r);
 
             // Multimeter (Measurement)
-            CheckBoxManualMultiMeter.Checked = Properties.Settings.Default.Meter_Manual_Measurement;
-            TextBoxMeterCOM.Text = Properties.Settings.Default.Meter_COM_Port_Name;
-            checkBoxPreProTest.Checked = Properties.Settings.Default.PrePost_Test_Enabled;
+            checkBox_ManualMultiMeter.Checked = Properties.Settings.Default.Meter_Manual_Measurement;
+            TextBox_MeterCOM.Text = Properties.Settings.Default.Meter_COM_Port_Name;
+            checkBox_PreProTest.Checked = Properties.Settings.Default.PrePost_Test_Enabled;
 
             // DB
-            this.checkBox_EnableDBReporting.Checked = Properties.Settings.Default.DB_Loging_Enabled;
+            checkBox_EnableDBReporting.Checked = Properties.Settings.Default.DB_Loging_Enabled;
 
             // Coding
-            this.checkBoxCodeMinOnPass.Checked = Properties.Settings.Default.CodeMinimizedOnPASS;
+            checkBoxCode_MinOnPass.Checked = Properties.Settings.Default.CodeMinimizedOnPASS;
 
             // Super
-            this.checkBoxEnableRdProt.Checked = Properties.Settings.Default.Ember_ReadProtect_Enabled;
+            checkBox_enableRdProt.Checked = Properties.Settings.Default.Ember_ReadProtect_Enabled;
 
             // Play Sounds
-            this.checkBoxPlaySounds.Checked = Properties.Settings.Default.Play_Sounds;
+            checkBox_PlaySounds.Checked = Properties.Settings.Default.Play_Sounds;
+
+            // Super Disable Rd Protect before coding
+            checkBox_disableRdProtectionBeforeCode.Checked = Properties.Settings.Default.Disable_ReadProtection_BeforeCoding;
 
         }
 
-        private void comboBoxDIOCtrollerTypes_SelectedIndexChanged(object sender, EventArgs e)
+        private void comboBox_DIOCtrollerTypes_SelectedIndexChanged(object sender, EventArgs e)
         {
-            if (comboBoxDIOCtrollerTypes.Text == "Manual")
+            if (comboBox_DIOCtrollerTypes.Text == "Manual")
             {
                 setLineEnablement(false);
             }
@@ -104,7 +106,7 @@ namespace PowerCalibration
                 try
                 {
                     RelayControler.Device_Types device = (RelayControler.Device_Types)Enum.Parse(
-                        typeof(RelayControler.Device_Types), comboBoxDIOCtrollerTypes.Text);
+                        typeof(RelayControler.Device_Types), comboBox_DIOCtrollerTypes.Text);
 
                     RelayControler relay_ctrl = new RelayControler(device);
 
@@ -121,20 +123,19 @@ namespace PowerCalibration
                 {
                     string msg = string.Format("{0}\r\nTry unplugging and re-plugging the USB device ", ex.Message);
                     MessageBox.Show(msg);
-                    comboBoxDIOCtrollerTypes.Text = "Manual";
+                    comboBox_DIOCtrollerTypes.Text = "Manual";
                     setLineEnablement(false);
                 }
             }
 
-            Properties.Settings.Default.Relay_Controller_Type = comboBoxDIOCtrollerTypes.Text;
+            Properties.Settings.Default.Relay_Controller_Type = comboBox_DIOCtrollerTypes.Text;
 
         }
-
 
         private void NumericUpDown_DIOLine_ValueChanged(object sender, EventArgs e)
         {
             RelayControler.Device_Types device = (RelayControler.Device_Types)Enum.Parse(
-                typeof(RelayControler.Device_Types), comboBoxDIOCtrollerTypes.Text);
+                typeof(RelayControler.Device_Types), comboBox_DIOCtrollerTypes.Text);
 
             RelayControler relay_ctrl = new RelayControler(device);
 
@@ -149,7 +150,6 @@ namespace PowerCalibration
 
         }
 
-
         private void setLineEnablement(bool enable)
         {
             foreach (Control ctrl in this.tabPageDIO.Controls)
@@ -161,69 +161,69 @@ namespace PowerCalibration
             }
         }
 
-        private void CheckBoxManualMultiMeter_CheckedChanged(object sender, EventArgs e)
+        private void checkBox_manualMultiMeter_CheckedChanged(object sender, EventArgs e)
         {
-            if (CheckBoxManualMultiMeter.Checked)
+            if (checkBox_ManualMultiMeter.Checked)
             {
-                TextBoxMeterCOM.Enabled = false;
-                this.checkBoxPreProTest.Checked = false;
-                this.checkBoxPreProTest.Enabled = false;
+                TextBox_MeterCOM.Enabled = false;
+                this.checkBox_PreProTest.Checked = false;
+                this.checkBox_PreProTest.Enabled = false;
             }
             else
             {
-                TextBoxMeterCOM.Enabled = true;
-                this.checkBoxPreProTest.Enabled = true;
-                this.checkBoxPreProTest.Checked = Properties.Settings.Default.PrePost_Test_Enabled;
+                TextBox_MeterCOM.Enabled = true;
+                this.checkBox_PreProTest.Enabled = true;
+                this.checkBox_PreProTest.Checked = Properties.Settings.Default.PrePost_Test_Enabled;
             }
 
-            Properties.Settings.Default.Meter_Manual_Measurement = CheckBoxManualMultiMeter.Checked;
+            Properties.Settings.Default.Meter_Manual_Measurement = checkBox_ManualMultiMeter.Checked;
 
         }
 
         private void checkBoxPreProTest_CheckedChanged(object sender, EventArgs e)
         {
-            Properties.Settings.Default.PrePost_Test_Enabled = this.checkBoxPreProTest.Checked;
+            Properties.Settings.Default.PrePost_Test_Enabled = this.checkBox_PreProTest.Checked;
         }
 
         private void TextBoxMeterCOM_TextChanged(object sender, EventArgs e)
         {
-            Properties.Settings.Default.Meter_COM_Port_Name = TextBoxMeterCOM.Text;
+            Properties.Settings.Default.Meter_COM_Port_Name = TextBox_MeterCOM.Text;
         }
 
-        private void comboBoxEmberInterface_SelectedIndexChanged(object sender, EventArgs e)
+        private void comboBox_EmberInterface_SelectedIndexChanged(object sender, EventArgs e)
         {
-            Properties.Settings.Default.Ember_Interface = comboBoxEmberInterface.Text;
+            Properties.Settings.Default.Ember_Interface = comboBox_EmberInterface.Text;
 
-            if (comboBoxEmberInterface.Text == "IP")
-                textBoxEmberInterfaceAddress.Text = Properties.Settings.Default.Ember_Interface_IP_Address;
+            if (comboBox_EmberInterface.Text == "IP")
+                textBox_EmberInterfaceAddress.Text = Properties.Settings.Default.Ember_Interface_IP_Address;
             else
-                textBoxEmberInterfaceAddress.Text = Properties.Settings.Default.Ember_Interface_USB_Address;
+                textBox_EmberInterfaceAddress.Text = Properties.Settings.Default.Ember_Interface_USB_Address;
         }
 
-        private void textBoxEmberInterfaceAddress_TextChanged(object sender, EventArgs e)
+        private void textBox_EmberInterfaceAddress_TextChanged(object sender, EventArgs e)
         {
-            if (comboBoxEmberInterface.Text == "IP")
-                Properties.Settings.Default.Ember_Interface_IP_Address = textBoxEmberInterfaceAddress.Text;
+            if (comboBox_EmberInterface.Text == "IP")
+                Properties.Settings.Default.Ember_Interface_IP_Address = textBox_EmberInterfaceAddress.Text;
             else
-                Properties.Settings.Default.Ember_Interface_USB_Address = textBoxEmberInterfaceAddress.Text;
+                Properties.Settings.Default.Ember_Interface_USB_Address = textBox_EmberInterfaceAddress.Text;
         }
 
-        private void TextBoxEmberBinPath_TextChanged(object sender, EventArgs e)
+        private void TextBox_EmberBinPath_TextChanged(object sender, EventArgs e)
         {
-            Properties.Settings.Default.Ember_BinPath = TextBoxEmberBinPath.Text;
+            Properties.Settings.Default.Ember_BinPath = textBox_EmberBinPath.Text;
         }
 
-        private void buttonEmberBinPathBrowse_Click(object sender, EventArgs e)
+        private void button_EmberBinPathBrowse_Click(object sender, EventArgs e)
         {
             FolderBrowserDialog dlg = new FolderBrowserDialog();
-            dlg.SelectedPath = TextBoxEmberBinPath.Text;
+            dlg.SelectedPath = textBox_EmberBinPath.Text;
             if (dlg.ShowDialog() == System.Windows.Forms.DialogResult.OK)
             {
-                TextBoxEmberBinPath.Text = dlg.SelectedPath;
+                textBox_EmberBinPath.Text = dlg.SelectedPath;
             }
         }
 
-        private void textBoxLoadValues_TextChanged(object sender, EventArgs e)
+        private void textBox_loadValues_TextChanged(object sender, EventArgs e)
         {
             try
             {
@@ -236,17 +236,17 @@ namespace PowerCalibration
                 string tag = (string)textbox.Tag;
                 if (tag == "voltage")
                 {
-                    v = Convert.ToDouble(textBoxLoadVoltageValue.Text);
+                    v = Convert.ToDouble(textBox_LoadVoltageValue.Text);
                     i = v / r;
                 }
                 else if (tag == "resistance")
                 {
-                    r = Convert.ToDouble(textBoxLoadResitorValue.Text);
+                    r = Convert.ToDouble(textBox_LoadResitorValue.Text);
                     i = v / r;
                 }
                 else if (tag == "power")
                 {
-                    double p = Convert.ToDouble(textBoxLoadPower.Text);
+                    double p = Convert.ToDouble(textBox_LoadPower.Text);
                     i = p / v;
                     r = v / i;
                 }
@@ -257,23 +257,23 @@ namespace PowerCalibration
 
                 if (tag == "voltage" || tag == "resistance")
                 {
-                    textBoxLoadPower.TextChanged -= textBoxLoadValues_TextChanged;
+                    textBox_LoadPower.TextChanged -= textBox_loadValues_TextChanged;
 
-                    textBoxLoadPower.Text = string.Format("{0:F2}", v * i);
+                    textBox_LoadPower.Text = string.Format("{0:F2}", v * i);
 
-                    textBoxLoadPower.TextChanged += textBoxLoadValues_TextChanged;
+                    textBox_LoadPower.TextChanged += textBox_loadValues_TextChanged;
 
                 }
                 else if (tag == "power")
                 {
-                    textBoxLoadResitorValue.TextChanged -= textBoxLoadValues_TextChanged;
+                    textBox_LoadResitorValue.TextChanged -= textBox_loadValues_TextChanged;
 
-                    textBoxLoadResitorValue.Text = string.Format("{0:F2}", r);
+                    textBox_LoadResitorValue.Text = string.Format("{0:F2}", r);
 
-                    textBoxLoadResitorValue.TextChanged -= textBoxLoadValues_TextChanged;
+                    textBox_LoadResitorValue.TextChanged -= textBox_loadValues_TextChanged;
                 }
 
-                textBoxLoadCurrent.Text = string.Format("{0:F2}", i);
+                textBox_LoadCurrent.Text = string.Format("{0:F2}", i);
             }
             catch (FormatException ex)
             {
@@ -282,26 +282,36 @@ namespace PowerCalibration
 
         }
 
-        private void checkBox_EnableDBReporting_CheckedChanged(object sender, EventArgs e)
+        private void checkBox_enableDBReporting_CheckedChanged(object sender, EventArgs e)
         {
             Properties.Settings.Default.DB_Loging_Enabled = this.checkBox_EnableDBReporting.Checked;
-            this.labelDBConnectStr.Text = Properties.Settings.Default.DBConnectionString;
+            if (this.checkBox_EnableDBReporting.Checked)
+                this.labelDBConnectStr.Text = Properties.Settings.Default.DBConnectionString;
+            else
+                this.labelDBConnectStr.Text = "";
         }
 
-        private void checkBoxCodeMinOnPass_CheckedChanged(object sender, EventArgs e)
+        private void checkBox_codeMinOnPass_CheckedChanged(object sender, EventArgs e)
         {
-            Properties.Settings.Default.CodeMinimizedOnPASS = this.checkBoxCodeMinOnPass.Checked;
+            Properties.Settings.Default.CodeMinimizedOnPASS = checkBoxCode_MinOnPass.Checked;
         }
 
-        private void checkBoxEnableRdProt_CheckedChanged(object sender, EventArgs e)
+        private void checkBox_enableRdProt_CheckedChanged(object sender, EventArgs e)
         {
-            Properties.Settings.Default.Ember_ReadProtect_Enabled = this.checkBoxEnableRdProt.Checked;
+            Properties.Settings.Default.Ember_ReadProtect_Enabled = checkBox_enableRdProt.Checked;
         }
 
-        private void checkBoxPlaySounds_CheckedChanged(object sender, EventArgs e)
+        private void checkBox_playSounds_CheckedChanged(object sender, EventArgs e)
         {
-            Properties.Settings.Default.Play_Sounds = this.checkBoxPlaySounds.Checked;
+            Properties.Settings.Default.Play_Sounds = checkBox_PlaySounds.Checked;
         }
+
+        private void checkBox_disableRdProtectionBeforeCode_CheckedChanged(object sender, EventArgs e)
+        {
+            Properties.Settings.Default.Disable_ReadProtection_BeforeCoding = 
+                checkBox_disableRdProtectionBeforeCode.Checked;
+        }
+
 
     }
 }

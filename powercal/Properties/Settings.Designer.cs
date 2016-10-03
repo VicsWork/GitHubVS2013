@@ -165,17 +165,6 @@ namespace PowerCalibration.Properties {
             }
         }
         
-        [global::System.Configuration.ApplicationScopedSettingAttribute()]
-        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
-        [global::System.Configuration.SpecialSettingAttribute(global::System.Configuration.SpecialSetting.ConnectionString)]
-        [global::System.Configuration.DefaultSettingValueAttribute("Data Source=a1040.centralite.com;Initial Catalog=PowerCalibration;Integrated Secu" +
-            "rity=True")]
-        public string DBConnectionString_Debug {
-            get {
-                return ((string)(this["DBConnectionString_Debug"]));
-            }
-        }
-        
         [global::System.Configuration.UserScopedSettingAttribute()]
         [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
         [global::System.Configuration.DefaultSettingValueAttribute("120")]
@@ -272,15 +261,15 @@ namespace PowerCalibration.Properties {
             }
         }
         
-        [global::System.Configuration.ApplicationScopedSettingAttribute()]
+        [global::System.Configuration.UserScopedSettingAttribute()]
         [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
-        [global::System.Configuration.SpecialSettingAttribute(global::System.Configuration.SpecialSetting.ConnectionString)]
-        [global::System.Configuration.DefaultSettingValueAttribute("Data Source=rs01;Initial Catalog=ManufacturingStore_v2;Integrated Security=True;M" +
-            "ultipleActiveResultSets=False;Packet Size=4096;Application Name=\"Microsoft SQL S" +
-            "erver Data Tools, SQL Server Object Explorer\"")]
-        public string ManufacturingStore_v2ConnectionString {
+        [global::System.Configuration.DefaultSettingValueAttribute("True")]
+        public bool Disable_ReadProtection_BeforeCoding {
             get {
-                return ((string)(this["ManufacturingStore_v2ConnectionString"]));
+                return ((bool)(this["Disable_ReadProtection_BeforeCoding"]));
+            }
+            set {
+                this["Disable_ReadProtection_BeforeCoding"] = value;
             }
         }
     }

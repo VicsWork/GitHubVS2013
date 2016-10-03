@@ -84,8 +84,6 @@ namespace PowerCalibration
         /// </summary>
         public Form_Main()
         {
-            string msg = "";
-
             // Init the trace listener
             try
             {
@@ -101,11 +99,7 @@ namespace PowerCalibration
             }
 
             InitializeComponent();
-            Icon = Properties.Resources.Icon_PowerCalibration;
 
-            // Init the stop watches
-            _stopwatch_running.Reset();
-            _stopwatch_idel.Start();
 
             // Create the app data folder
             if (!Directory.Exists(_app_data_dir))
@@ -115,8 +109,26 @@ namespace PowerCalibration
             // Init the log file
             initLogFile();
 
+        }
+
+
+        private void Form_Main_Load(object sender, EventArgs e)
+        {
+
+            // Load the app icon
+            Icon = Properties.Resources.Icon_PowerCalibration;
+
             // Set the title to match assembly info from About dlg
             this.Text = this.assemblyTitle;
+
+            // Init the stop watches
+            _stopwatch_running.Reset();
+            _stopwatch_idel.Start();
+
+
+            // Always reset this setting as it is important to forget leaving it off
+            Properties.Settings.Default.Ember_ReadProtect_Enabled = true;
+            Properties.Settings.Default.Save();
 
             // Init the status text box
             runStatus_Init();
@@ -129,6 +141,7 @@ namespace PowerCalibration
             if (comboBoxBoardTypes.Items.Count > 0)
                 comboBoxBoardTypes.SelectedIndex = index;
 
+            string msg = "";
             // Report COM ports found in system
             string[] ports = SerialPort.GetPortNames();
             foreach (string portname in ports)
@@ -159,8 +172,6 @@ namespace PowerCalibration
             _ember.Process_ISAChan_Error_Event += p_ember_isachan_ErrorDataReceived;
             _ember.Process_ISAChan_Output_Event += p_ember_isachan_OutputDataReceived;
 
-            // Enable the app
-            setEnablement(true, false);
 
             // Init the db connection string
             _db_connect_str = new SqlConnectionStringBuilder(Properties.Settings.Default.DBConnectionString);
@@ -181,6 +192,9 @@ namespace PowerCalibration
             //e.Voltage_gain = 2;
             //e.timestamp = DateTime.Now;
             //calibrationResults_Event(this, e);
+
+            // Enable the app
+            setEnablement(true, false);
 
         }
 
@@ -331,7 +345,7 @@ namespace PowerCalibration
                 if (rc == DialogResult.OK)
                 {
                     // DIO controller type
-                    Properties.Settings.Default.Relay_Controller_Type = dlg.comboBoxDIOCtrollerTypes.Text;
+                    Properties.Settings.Default.Relay_Controller_Type = dlg.comboBox_DIOCtrollerTypes.Text;
                     rdevtype = (RelayControler.Device_Types)Enum.Parse(typeof(RelayControler.Device_Types),
                         Properties.Settings.Default.Relay_Controller_Type);
                     _relay_ctrl = new RelayControler(rdevtype);
@@ -827,7 +841,7 @@ namespace PowerCalibration
             if (rc == DialogResult.OK)
             {
                 // DIO controller type
-                Properties.Settings.Default.Relay_Controller_Type = dlg.comboBoxDIOCtrollerTypes.Text;
+                Properties.Settings.Default.Relay_Controller_Type = dlg.comboBox_DIOCtrollerTypes.Text;
                 RelayControler.Device_Types rdevtype = (RelayControler.Device_Types)Enum.Parse(typeof(RelayControler.Device_Types),
                     Properties.Settings.Default.Relay_Controller_Type);
                 _relay_ctrl = new RelayControler(rdevtype);
@@ -2394,6 +2408,7 @@ namespace PowerCalibration
 
             preTest(TaskTypes.Test);
         }
+
 
     }
 
