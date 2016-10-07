@@ -126,8 +126,9 @@ namespace PowerCalibration
             _stopwatch_idel.Start();
 
 
-            // Always reset this setting as it is important to forget leaving it off
+            // Always reset this settings as they are important to forget leaving them in a different state
             Properties.Settings.Default.Ember_ReadProtect_Enabled = true;
+            Properties.Settings.Default.PrePost_Test_Enabled = true;
             Properties.Settings.Default.Save();
 
             // Init the status text box
