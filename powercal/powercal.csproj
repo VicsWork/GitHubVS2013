@@ -95,17 +95,17 @@
   </PropertyGroup>
   <ItemGroup>
     <Reference Include="AutoItX3.Assembly">
-      <HintPath>..\..\..\..\..\..\..\Program Files (x86)\AutoIt3\AutoItX\AutoItX3.Assembly.dll</HintPath>
+      <HintPath>ReferenceFiles\AutoItX3.Assembly.dll</HintPath>
     </Reference>
     <Reference Include="FTD2XX_NET">
-      <HintPath>..\..\FTD2XX_NET_v1.0.14\FTD2XX_NET.dll</HintPath>
+      <HintPath>ReferenceFiles\FTD2XX_NET.dll</HintPath>
     </Reference>
     <Reference Include="NationalInstruments.Common, Version=13.0.40.190, Culture=neutral, PublicKeyToken=dc6ad606294fc298, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
-      <HintPath>bin\Debug\NationalInstruments.Common.dll</HintPath>
+      <HintPath>ReferenceFiles\NationalInstruments.Common.dll</HintPath>
     </Reference>
     <Reference Include="NationalInstruments.DAQmx">
-      <HintPath>ReferencesFiles\NationalInstruments.DAQmx.dll</HintPath>
+      <HintPath>ReferenceFiles\NationalInstruments.DAQmx.dll</HintPath>
     </Reference>
     <Reference Include="System" />
     <Reference Include="System.Core" />
