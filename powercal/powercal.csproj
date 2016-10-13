@@ -9,7 +9,7 @@
     <AppDesignerFolder>Properties</AppDesignerFolder>
     <RootNamespace>PowerCalibration</RootNamespace>
     <AssemblyName>powercal</AssemblyName>
-    <TargetFrameworkVersion>v4.5</TargetFrameworkVersion>
+    <TargetFrameworkVersion>v4.5.2</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
     <IsWebBootstrapper>false</IsWebBootstrapper>
     <TargetFrameworkProfile />
@@ -133,7 +133,6 @@
     <Compile Include="Calibrate.cs" />
     <Compile Include="CalibrationService.cs" />
     <Compile Include="Coder.cs" />
-    <Compile Include="Utils.cs" />
     <Compile Include="Ember.cs" />
     <Compile Include="Form_Calculator.cs">
       <SubType>Form</SubType>
@@ -190,11 +189,6 @@
       <DependentUpon>Form_Settings.cs</DependentUpon>
     </Compile>
     <Compile Include="ft232hdio.cs" />
-    <Compile Include="ManufacturingStore_Data.designer.cs">
-      <AutoGen>True</AutoGen>
-      <DesignTime>True</DesignTime>
-      <DependentUpon>ManufacturingStore_Data.dbml</DependentUpon>
-    </Compile>
     <Compile Include="MouseHook.cs" />
     <Compile Include="MultiMeter.cs" />
     <Compile Include="Properties\Settings.Designer.cs">
@@ -242,9 +236,6 @@
     <EmbeddedResource Include="Form_Settings.resx">
       <DependentUpon>Form_Settings.cs</DependentUpon>
     </EmbeddedResource>
-    <None Include="ManufacturingStore_Data.dbml.layout">
-      <DependentUpon>ManufacturingStore_Data.dbml</DependentUpon>
-    </None>
     <EmbeddedResource Include="Properties\Resources.resx">
       <Generator>ResXFileCodeGenerator</Generator>
       <LastGenOutput>Resources.Designer.cs</LastGenOutput>
@@ -255,11 +246,6 @@
       <DependentUpon>Resources.resx</DependentUpon>
       <DesignTime>True</DesignTime>
     </Compile>
-    <None Include="ManufacturingStore_Data.dbml">
-      <Generator>MSLinqToSQLGenerator</Generator>
-      <LastGenOutput>ManufacturingStore_Data.designer.cs</LastGenOutput>
-      <SubType>Designer</SubType>
-    </None>
     <None Include="Properties\DataSources\Form1.datasource" />
     <None Include="Properties\Settings.settings">
       <Generator>SettingsSingleFileGenerator</Generator>
@@ -317,6 +303,12 @@
   </ItemGroup>
   <ItemGroup>
     <Service Include="{3259AA49-8AA1-44D3-9025-A0B520596A8C}" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\..\..\..\Visual Studio 2015\Projects\CentraliteDataUtils\CentralitedataUtils\CentraliteDataUtils.csproj">
+      <Project>{923234e3-7869-406d-b6c5-dba2eebc8624}</Project>
+      <Name>CentraliteDataUtils</Name>
+    </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <Target Name="BeforeBuild">
