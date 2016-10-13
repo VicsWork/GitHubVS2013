@@ -30,6 +30,8 @@ using System.Data.SqlTypes;
 
 using System.Media;
 
+using CentraliteDataUtils;
+
 namespace PowerCalibration
 {
     enum BoardTypes { Humpback, Honeycomb, Hornshark, Mudshark, Hooktooth, Milkshark, Zebrashark };
@@ -255,13 +257,13 @@ namespace PowerCalibration
             {
                 // Update result table with 
                 //Utils.ConnectionSB = _db_connect_str;
-                int machine_id = Utils.Machine_ID;
+                int machine_id = DataUtils.Machine_ID;
                 if (machine_id >= 0)
                 {
                     foreach (DataRow r in _datatable_calibrate.Rows)
                     {
                         string eui = (string)r["Eui"];
-                        int eui_id = Utils.GetEUIID(eui);
+                        int eui_id = DataUtils.GetEUIID(eui);
 
                         using (SqlConnection con = new SqlConnection(_db_connect_str.ConnectionString))
                         {
@@ -2043,14 +2045,12 @@ namespace PowerCalibration
             {
                 try
                 {
-                    Utils.ConnectionSB = new SqlConnectionStringBuilder(Properties.Settings.Default.DBConnectionString);
-
                     // First try using relay controller id
                     string[] ips = new string[] { };
                     if (_relay_ctrl.ID != 0)
-                        ips = Utils.GetISAAdapterIPsFromLikeLocation(string.Format("%FT232H:{0}%", _relay_ctrl.SerialNumber));
+                        ips = DataUtils.GetISAAdapterIPsFromLikeLocation(string.Format("FT232H:{0}", _relay_ctrl.SerialNumber));
                     if (ips.Length == 0)
-                        ips = Utils.GetISAAdapterIPsFromLikeLocation(string.Format("%{0}%", getSelectedBoardType()));
+                        ips = DataUtils.GetISAAdapterIPsFromLikeLocation(string.Format("{0}", getSelectedBoardType()));
 
                     if (ips.Length >= 1)
                     {
