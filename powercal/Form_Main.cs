@@ -102,6 +102,7 @@ namespace PowerCalibration
 
             InitializeComponent();
 
+            CentraliteDataUtils.DataUtils.DBConnStr = Properties.Settings.Default.DBConnectionString;
 
             // Create the app data folder
             if (!Directory.Exists(_app_data_dir))
