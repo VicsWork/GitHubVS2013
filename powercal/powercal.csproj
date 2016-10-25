@@ -305,7 +305,7 @@
     <Service Include="{3259AA49-8AA1-44D3-9025-A0B520596A8C}" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\..\..\..\Visual Studio 2015\Projects\CentraliteDataUtils\CentralitedataUtils\CentraliteDataUtils.csproj">
+    <ProjectReference Include="..\CentraliteDataUtils\CentraliteDataUtils\CentraliteDataUtils.csproj">
       <Project>{923234e3-7869-406d-b6c5-dba2eebc8624}</Project>
       <Name>CentraliteDataUtils</Name>
     </ProjectReference>
