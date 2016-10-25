@@ -3,7 +3,7 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio 2012
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "powercal", "powercal\powercal.csproj", "{AE9124E4-5C6B-4339-8596-C4A6F21E3526}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CentraliteDataUtils", "..\..\..\Visual Studio 2015\Projects\CentraliteDataUtils\CentralitedataUtils\CentraliteDataUtils.csproj", "{923234E3-7869-406D-B6C5-DBA2EEBC8624}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CentraliteDataUtils", "CentraliteDataUtils\CentraliteDataUtils\CentraliteDataUtils.csproj", "{923234E3-7869-406D-B6C5-DBA2EEBC8624}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
