@@ -38,9 +38,9 @@
     <Setting Name="DBConnectionString" Type="(Connection string)" Scope="Application">
       <DesignTimeValue Profile="(Default)">&lt;?xml version="1.0" encoding="utf-16"?&gt;
 &lt;SerializableConnectionString xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema"&gt;
-  &lt;ConnectionString&gt;Data Source=rs01;Initial Catalog=ManufacturingStore_v2;Integrated Security=True&lt;/ConnectionString&gt;
+  &lt;ConnectionString&gt;Data Source=rs01.centralite.com;Initial Catalog=ManufacturingStore_v2;Integrated Security=True&lt;/ConnectionString&gt;
 &lt;/SerializableConnectionString&gt;</DesignTimeValue>
-      <Value Profile="(Default)">Data Source=rs01;Initial Catalog=ManufacturingStore_v2;Integrated Security=True</Value>
+      <Value Profile="(Default)">Data Source=rs01.centralite.com;Initial Catalog=ManufacturingStore_v2;Integrated Security=True</Value>
     </Setting>
     <Setting Name="CalibrationLoadVoltageValue" Type="System.Double" Scope="User">
       <Value Profile="(Default)">120</Value>
