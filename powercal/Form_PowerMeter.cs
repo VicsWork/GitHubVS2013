@@ -144,8 +144,14 @@ namespace PowerCalibration
             {
                 this.labelVFactor.Text = string.Format("Voltage Factor: {0}", calibration_tokens.VoltageFactor);
                 this.labelIFactor.Text = string.Format("Current Factor: {0}", calibration_tokens.CurrentFactor);
-                this.labelVGain.Text = string.Format("VGain Token: 0x{0:X08}", calibration_tokens.VoltageGainToken);
-                this.labelIGain.Text = string.Format("IGain Token: 0x{0:X08}", calibration_tokens.CurrentGainToken);
+
+                float voltage_gain = (float)calibration_tokens.VoltageGainToken / 0x400000;
+                float current_gain = (float)calibration_tokens.CurrentGainToken / 0x400000;
+
+                this.labelVGain.Text = string.Format("VGain Token: {0:F4} (0x{1:X06})", 
+                    voltage_gain, calibration_tokens.VoltageGainToken);
+                this.labelIGain.Text = string.Format("IGain Token: {0:F4} (0x{1:X06})",
+                    current_gain, calibration_tokens.CurrentGainToken);
 
                 string eui = TCLI.Get_EUI(_telnet_connection);
                 this.labelEUI.Text = string.Format("EUI: {0}", eui);
@@ -234,6 +240,11 @@ namespace PowerCalibration
 
             if (_telnet_connection != null)
                 _telnet_connection.Close();
+
+        }
+
+        private void labelPowerUUT_Click(object sender, EventArgs e)
+        {
 
         }
 

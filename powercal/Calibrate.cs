@@ -398,11 +398,27 @@ namespace PowerCalibration
             int current_gain_int = (int)(current_gain * 0x400000);
             msg = string.Format("Current Gain = {0:F8} (0x{1:X})", current_gain, current_gain_int);
             fire_status(msg);
+            if (current_gain < Properties.Settings.Default.Gain_Current_Min ||
+                current_gain > Properties.Settings.Default.Gain_Current_Max)
+            {
+                msg = string.Format(
+                    "Current gain outside valid range: {0:F8} < {1:F8} < {2:F8}",
+                    Properties.Settings.Default.Gain_Current_Min, current_gain, Properties.Settings.Default.Gain_Current_Max);
+                throw new Exception(msg);
+            }
 
             double voltage_gain = voltage_meter / cv.Voltage;
             int voltage_gain_int = (int)(voltage_gain * 0x400000);
             msg = string.Format("Voltage Gain = {0:F8} (0x{1:X})", voltage_gain, voltage_gain_int);
             fire_status(msg);
+            if (voltage_gain < Properties.Settings.Default.Gain_Voltage_Min ||
+                voltage_gain > Properties.Settings.Default.Gain_Voltage_Max)
+            {
+                msg = string.Format(
+                    "Voltage gain outside valid range: {0:F8} < {1:F8} < {2:F8}",
+                    Properties.Settings.Default.Gain_Voltage_Min, voltage_gain, Properties.Settings.Default.Gain_Voltage_Max);
+                throw new Exception(msg);
+            }
 
             CalibrationResultsEventArgs args_results = new CalibrationResultsEventArgs();
             args_results.Timestamp = DateTime.Now;

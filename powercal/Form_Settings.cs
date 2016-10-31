@@ -7,6 +7,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms;
+using System.Text.RegularExpressions;
 
 namespace PowerCalibration
 {
@@ -92,6 +93,12 @@ namespace PowerCalibration
 
             // Super Disable Rd Protect before coding
             checkBox_disableRdProtectionBeforeCode.Checked = Properties.Settings.Default.Disable_ReadProtection_BeforeCoding;
+
+            // Gain values
+            textBox_GainCurrentMax.Text = Properties.Settings.Default.Gain_Current_Max.ToString();
+            textBox_GainCurrentMin.Text = Properties.Settings.Default.Gain_Current_Min.ToString();
+            textBox_GainVoltageMax.Text = Properties.Settings.Default.Gain_Voltage_Max.ToString();
+            textBox_GainVoltageMin.Text = Properties.Settings.Default.Gain_Voltage_Min.ToString();
 
         }
 
@@ -310,6 +317,57 @@ namespace PowerCalibration
         {
             Properties.Settings.Default.Disable_ReadProtection_BeforeCoding = 
                 checkBox_disableRdProtectionBeforeCode.Checked;
+        }
+
+        private void textBox_GainCurrentMax_TextChanged(object sender, EventArgs e)
+        {
+            try
+            {
+                Properties.Settings.Default.Gain_Current_Max = Convert.ToDouble(textBox_GainCurrentMax.Text);
+            }
+            catch (FormatException ex)
+            {
+                string msg = ex.Message;
+            }
+        }
+
+        private void textBox_GainCurrentMin_TextChanged(object sender, EventArgs e)
+        {
+            try
+            {
+                Properties.Settings.Default.Gain_Current_Min = Convert.ToDouble(textBox_GainCurrentMin.Text);
+            }
+            catch (FormatException ex)
+            {
+                string msg = ex.Message;
+            }
+
+        }
+
+        private void textBox_GainVolatgeMax_TextChanged(object sender, EventArgs e)
+        {
+            try
+            {
+                Properties.Settings.Default.Gain_Voltage_Max = Convert.ToDouble(textBox_GainVoltageMax.Text);
+            }
+            catch (FormatException ex)
+            {
+                string msg = ex.Message;
+            }
+
+        }
+
+        private void textBox_GainVolatgeMin_TextChanged(object sender, EventArgs e)
+        {
+            try
+            {
+                Properties.Settings.Default.Gain_Voltage_Min = Convert.ToDouble(textBox_GainVoltageMin.Text);
+            }
+            catch (FormatException ex)
+            {
+                string msg = ex.Message;
+            }
+
         }
 
 

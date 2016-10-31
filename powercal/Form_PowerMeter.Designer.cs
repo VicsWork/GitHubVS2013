@@ -43,16 +43,16 @@
             this.labelPowerUUT = new System.Windows.Forms.Label();
             this.timerISAChan = new System.Windows.Forms.Timer(this.components);
             this.groupBox1 = new System.Windows.Forms.GroupBox();
+            this.labelEUI = new System.Windows.Forms.Label();
             this.labelIGain = new System.Windows.Forms.Label();
             this.labelVGain = new System.Windows.Forms.Label();
             this.labelIFactor = new System.Windows.Forms.Label();
             this.labelVFactor = new System.Windows.Forms.Label();
-            this.textBoxUUTError = new System.Windows.Forms.TextBox();
             this.labelCurrentUUT = new System.Windows.Forms.Label();
             this.label2 = new System.Windows.Forms.Label();
             this.labelVoltageUUT = new System.Windows.Forms.Label();
             this.label1 = new System.Windows.Forms.Label();
-            this.labelEUI = new System.Windows.Forms.Label();
+            this.textBoxUUTError = new System.Windows.Forms.TextBox();
             this.groupBox1.SuspendLayout();
             this.SuspendLayout();
             // 
@@ -65,6 +65,7 @@
             this.labelPowerUUT.Size = new System.Drawing.Size(118, 55);
             this.labelPowerUUT.TabIndex = 0;
             this.labelPowerUUT.Text = "0.00";
+            this.labelPowerUUT.Click += new System.EventHandler(this.labelPowerUUT_Click);
             // 
             // timerISAChan
             // 
@@ -90,6 +91,15 @@
             this.groupBox1.TabIndex = 0;
             this.groupBox1.TabStop = false;
             this.groupBox1.Text = "UUT Power";
+            // 
+            // labelEUI
+            // 
+            this.labelEUI.AutoSize = true;
+            this.labelEUI.Location = new System.Drawing.Point(13, 243);
+            this.labelEUI.Name = "labelEUI";
+            this.labelEUI.Size = new System.Drawing.Size(28, 13);
+            this.labelEUI.TabIndex = 9;
+            this.labelEUI.Text = "EUI:";
             // 
             // labelIGain
             // 
@@ -126,18 +136,6 @@
             this.labelVFactor.Size = new System.Drawing.Size(79, 13);
             this.labelVFactor.TabIndex = 6;
             this.labelVFactor.Text = "Voltage Factor:";
-            // 
-            // textBoxUUTError
-            // 
-            this.textBoxUUTError.BorderStyle = System.Windows.Forms.BorderStyle.None;
-            this.textBoxUUTError.Enabled = false;
-            this.textBoxUUTError.ForeColor = System.Drawing.Color.Red;
-            this.textBoxUUTError.Location = new System.Drawing.Point(18, 293);
-            this.textBoxUUTError.Multiline = true;
-            this.textBoxUUTError.Name = "textBoxUUTError";
-            this.textBoxUUTError.ReadOnly = true;
-            this.textBoxUUTError.Size = new System.Drawing.Size(188, 48);
-            this.textBoxUUTError.TabIndex = 5;
             // 
             // labelCurrentUUT
             // 
@@ -179,14 +177,17 @@
             this.label1.TabIndex = 1;
             this.label1.Text = "Voltage: ";
             // 
-            // labelEUI
+            // textBoxUUTError
             // 
-            this.labelEUI.AutoSize = true;
-            this.labelEUI.Location = new System.Drawing.Point(13, 243);
-            this.labelEUI.Name = "labelEUI";
-            this.labelEUI.Size = new System.Drawing.Size(28, 13);
-            this.labelEUI.TabIndex = 9;
-            this.labelEUI.Text = "EUI:";
+            this.textBoxUUTError.BorderStyle = System.Windows.Forms.BorderStyle.None;
+            this.textBoxUUTError.Enabled = false;
+            this.textBoxUUTError.ForeColor = System.Drawing.Color.Red;
+            this.textBoxUUTError.Location = new System.Drawing.Point(18, 293);
+            this.textBoxUUTError.Multiline = true;
+            this.textBoxUUTError.Name = "textBoxUUTError";
+            this.textBoxUUTError.ReadOnly = true;
+            this.textBoxUUTError.Size = new System.Drawing.Size(188, 48);
+            this.textBoxUUTError.TabIndex = 5;
             // 
             // Form_PowerMeter
             // 
