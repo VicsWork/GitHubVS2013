@@ -394,7 +394,11 @@ namespace PowerCalibration
                 {
                     meter.WaitForDsrHolding = false;
                     meter.OpenComPort();
-                    string idn = meter.IDN();
+
+                    Task<string> idntask = Task<string>.Factory.StartNew(() => { return meter.IDN(); });
+                    string idn = "";
+                    if (idntask.Wait(1000))
+                        idn = idntask.Result;
                     meter.CloseSerialPort();
 
                     if (
