@@ -258,6 +258,7 @@ namespace PowerCalibration
             {
                 // Update result table with 
                 //Utils.ConnectionSB = _db_connect_str;
+                DataUtils.DBConnStr = Properties.Settings.Default.DBConnectionString;
                 int machine_id = DataUtils.Machine_ID;
                 if (machine_id >= 0)
                 {
