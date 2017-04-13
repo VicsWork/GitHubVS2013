@@ -1,9 +1,11 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
-# Visual Studio 2012
+# Visual Studio 14
+VisualStudioVersion = 14.0.25420.1
+MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "powercal", "powercal\powercal.csproj", "{AE9124E4-5C6B-4339-8596-C4A6F21E3526}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CentraliteDataUtils", "CentraliteDataUtils\CentraliteDataUtils\CentraliteDataUtils.csproj", "{923234E3-7869-406D-B6C5-DBA2EEBC8624}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CentralitedataUtils", "CentraliteDataUtils\CentralitedataUtils\CentralitedataUtils.csproj", "{923234E3-7869-406D-B6C5-DBA2EEBC8624}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -24,9 +26,11 @@ Global
 		{923234E3-7869-406D-B6C5-DBA2EEBC8624}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{923234E3-7869-406D-B6C5-DBA2EEBC8624}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{923234E3-7869-406D-B6C5-DBA2EEBC8624}.Debug|x86.ActiveCfg = Debug|Any CPU
+		{923234E3-7869-406D-B6C5-DBA2EEBC8624}.Debug|x86.Build.0 = Debug|Any CPU
 		{923234E3-7869-406D-B6C5-DBA2EEBC8624}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{923234E3-7869-406D-B6C5-DBA2EEBC8624}.Release|Any CPU.Build.0 = Release|Any CPU
 		{923234E3-7869-406D-B6C5-DBA2EEBC8624}.Release|x86.ActiveCfg = Release|Any CPU
+		{923234E3-7869-406D-B6C5-DBA2EEBC8624}.Release|x86.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
