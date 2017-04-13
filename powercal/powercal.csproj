@@ -27,7 +27,7 @@
     <PublisherName>Centralite</PublisherName>
     <CreateWebPageOnPublish>true</CreateWebPageOnPublish>
     <WebPage>publish.htm</WebPage>
-    <ApplicationRevision>21</ApplicationRevision>
+    <ApplicationRevision>24</ApplicationRevision>
     <ApplicationVersion>1.0.1.%2a</ApplicationVersion>
     <UseApplicationTrust>true</UseApplicationTrust>
     <CreateDesktopShortcut>true</CreateDesktopShortcut>
@@ -247,6 +247,7 @@
       <DependentUpon>Resources.resx</DependentUpon>
       <DesignTime>True</DesignTime>
     </Compile>
+    <None Include="powercal_TemporaryKey.pfx" />
     <None Include="Properties\DataSources\Form1.datasource" />
     <None Include="Properties\Settings.settings">
       <Generator>SettingsSingleFileGenerator</Generator>
@@ -306,7 +307,7 @@
     <Service Include="{3259AA49-8AA1-44D3-9025-A0B520596A8C}" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\..\..\..\Visual Studio 2015\Projects\CentraliteDataUtils\CentralitedataUtils\CentraliteDataUtils.csproj">
+    <ProjectReference Include="..\CentraliteDataUtils\CentraliteDataUtils\CentraliteDataUtils.csproj">
       <Project>{923234e3-7869-406d-b6c5-dba2eebc8624}</Project>
       <Name>CentraliteDataUtils</Name>
     </ProjectReference>

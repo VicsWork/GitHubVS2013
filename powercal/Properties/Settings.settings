@@ -38,9 +38,9 @@
     <Setting Name="DBConnectionString" Type="(Connection string)" Scope="Application">
       <DesignTimeValue Profile="(Default)">&lt;?xml version="1.0" encoding="utf-16"?&gt;
 &lt;SerializableConnectionString xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema"&gt;
-  &lt;ConnectionString&gt;Data Source=rs01;Initial Catalog=ManufacturingStore_v2;Integrated Security=True&lt;/ConnectionString&gt;
+  &lt;ConnectionString&gt;Data Source=rs01.centralite.com;Initial Catalog=ManufacturingStore_v2;Integrated Security=True&lt;/ConnectionString&gt;
 &lt;/SerializableConnectionString&gt;</DesignTimeValue>
-      <Value Profile="(Default)">Data Source=rs01;Initial Catalog=ManufacturingStore_v2;Integrated Security=True</Value>
+      <Value Profile="(Default)">Data Source=rs01.centralite.com;Initial Catalog=ManufacturingStore_v2;Integrated Security=True</Value>
     </Setting>
     <Setting Name="CalibrationLoadVoltageValue" Type="System.Double" Scope="User">
       <Value Profile="(Default)">120</Value>
@@ -68,6 +68,21 @@
     </Setting>
     <Setting Name="Disable_ReadProtection_BeforeCoding" Type="System.Boolean" Scope="User">
       <Value Profile="(Default)">True</Value>
+    </Setting>
+    <Setting Name="Gain_Current_Max" Type="System.Double" Scope="User">
+      <Value Profile="(Default)">1</Value>
+    </Setting>
+    <Setting Name="Gain_Current_Min" Type="System.Double" Scope="User">
+      <Value Profile="(Default)">0.6</Value>
+    </Setting>
+    <Setting Name="Gain_Voltage_Max" Type="System.Double" Scope="User">
+      <Value Profile="(Default)">1.1</Value>
+    </Setting>
+    <Setting Name="Gain_Voltage_Min" Type="System.Double" Scope="User">
+      <Value Profile="(Default)">0.8</Value>
+    </Setting>
+    <Setting Name="Setting" Type="System.Double" Scope="User">
+      <Value Profile="(Default)">0</Value>
     </Setting>
   </Settings>
 </SettingsFile>

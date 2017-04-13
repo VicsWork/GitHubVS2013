@@ -60,6 +60,14 @@
             this.label16 = new System.Windows.Forms.Label();
             this.textBox_LoadPower = new System.Windows.Forms.TextBox();
             this.textBox_LoadCurrent = new System.Windows.Forms.TextBox();
+            this.label11 = new System.Windows.Forms.Label();
+            this.label12 = new System.Windows.Forms.Label();
+            this.label17 = new System.Windows.Forms.Label();
+            this.label18 = new System.Windows.Forms.Label();
+            this.textBox_GainCurrentMax = new System.Windows.Forms.TextBox();
+            this.textBox_GainCurrentMin = new System.Windows.Forms.TextBox();
+            this.textBox_GainVoltageMax = new System.Windows.Forms.TextBox();
+            this.textBox_GainVoltageMin = new System.Windows.Forms.TextBox();
             this.tagPageMeasurement = new System.Windows.Forms.TabPage();
             this.checkBox_PreProTest = new System.Windows.Forms.CheckBox();
             this.checkBox_ManualMultiMeter = new System.Windows.Forms.CheckBox();
@@ -193,12 +201,12 @@
             this.label7.TabIndex = 22;
             this.label7.Text = "Path:";
             // 
-            // TextBox_EmberBinPath
+            // textBox_EmberBinPath
             // 
             this.textBox_EmberBinPath.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
             | System.Windows.Forms.AnchorStyles.Right)));
             this.textBox_EmberBinPath.Location = new System.Drawing.Point(41, 53);
-            this.textBox_EmberBinPath.Name = "TextBox_EmberBinPath";
+            this.textBox_EmberBinPath.Name = "textBox_EmberBinPath";
             this.textBox_EmberBinPath.Size = new System.Drawing.Size(236, 20);
             this.textBox_EmberBinPath.TabIndex = 2;
             this.textBox_EmberBinPath.TextChanged += new System.EventHandler(this.TextBox_EmberBinPath_TextChanged);
@@ -352,16 +360,28 @@
             this.tableLayoutPanel1.Controls.Add(this.label16, 0, 3);
             this.tableLayoutPanel1.Controls.Add(this.textBox_LoadPower, 1, 3);
             this.tableLayoutPanel1.Controls.Add(this.textBox_LoadCurrent, 1, 4);
+            this.tableLayoutPanel1.Controls.Add(this.label11, 0, 5);
+            this.tableLayoutPanel1.Controls.Add(this.label12, 0, 6);
+            this.tableLayoutPanel1.Controls.Add(this.label17, 0, 7);
+            this.tableLayoutPanel1.Controls.Add(this.label18, 0, 8);
+            this.tableLayoutPanel1.Controls.Add(this.textBox_GainCurrentMax, 1, 5);
+            this.tableLayoutPanel1.Controls.Add(this.textBox_GainCurrentMin, 1, 6);
+            this.tableLayoutPanel1.Controls.Add(this.textBox_GainVoltageMax, 1, 7);
+            this.tableLayoutPanel1.Controls.Add(this.textBox_GainVoltageMin, 1, 8);
             this.tableLayoutPanel1.Location = new System.Drawing.Point(6, 3);
             this.tableLayoutPanel1.Name = "tableLayoutPanel1";
-            this.tableLayoutPanel1.RowCount = 6;
+            this.tableLayoutPanel1.RowCount = 10;
             this.tableLayoutPanel1.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 20F));
             this.tableLayoutPanel1.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 20F));
             this.tableLayoutPanel1.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 20F));
             this.tableLayoutPanel1.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 20F));
             this.tableLayoutPanel1.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 20F));
             this.tableLayoutPanel1.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 20F));
-            this.tableLayoutPanel1.Size = new System.Drawing.Size(358, 122);
+            this.tableLayoutPanel1.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 20F));
+            this.tableLayoutPanel1.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 20F));
+            this.tableLayoutPanel1.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 20F));
+            this.tableLayoutPanel1.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 20F));
+            this.tableLayoutPanel1.Size = new System.Drawing.Size(358, 188);
             this.tableLayoutPanel1.TabIndex = 1;
             // 
             // label10
@@ -448,6 +468,74 @@
             this.textBox_LoadCurrent.TabIndex = 3;
             this.textBox_LoadCurrent.Tag = "current";
             // 
+            // label11
+            // 
+            this.label11.AutoSize = true;
+            this.label11.Location = new System.Drawing.Point(3, 100);
+            this.label11.Name = "label11";
+            this.label11.Size = new System.Drawing.Size(89, 13);
+            this.label11.TabIndex = 11;
+            this.label11.Text = "Current Gain Max";
+            // 
+            // label12
+            // 
+            this.label12.AutoSize = true;
+            this.label12.Location = new System.Drawing.Point(3, 120);
+            this.label12.Name = "label12";
+            this.label12.Size = new System.Drawing.Size(86, 13);
+            this.label12.TabIndex = 12;
+            this.label12.Text = "Current Gain Min";
+            // 
+            // label17
+            // 
+            this.label17.AutoSize = true;
+            this.label17.Location = new System.Drawing.Point(3, 140);
+            this.label17.Name = "label17";
+            this.label17.Size = new System.Drawing.Size(91, 13);
+            this.label17.TabIndex = 13;
+            this.label17.Text = "Voltage Gain Max";
+            // 
+            // label18
+            // 
+            this.label18.AutoSize = true;
+            this.label18.Location = new System.Drawing.Point(3, 160);
+            this.label18.Name = "label18";
+            this.label18.Size = new System.Drawing.Size(88, 13);
+            this.label18.TabIndex = 14;
+            this.label18.Text = "Voltage Gain Min";
+            // 
+            // textBox_GainCurrentMax
+            // 
+            this.textBox_GainCurrentMax.Location = new System.Drawing.Point(109, 103);
+            this.textBox_GainCurrentMax.Name = "textBox_GainCurrentMax";
+            this.textBox_GainCurrentMax.Size = new System.Drawing.Size(100, 20);
+            this.textBox_GainCurrentMax.TabIndex = 15;
+            this.textBox_GainCurrentMax.TextChanged += new System.EventHandler(this.textBox_GainCurrentMax_TextChanged);
+            // 
+            // textBox_GainCurrentMin
+            // 
+            this.textBox_GainCurrentMin.Location = new System.Drawing.Point(109, 123);
+            this.textBox_GainCurrentMin.Name = "textBox_GainCurrentMin";
+            this.textBox_GainCurrentMin.Size = new System.Drawing.Size(100, 20);
+            this.textBox_GainCurrentMin.TabIndex = 16;
+            this.textBox_GainCurrentMin.TextChanged += new System.EventHandler(this.textBox_GainCurrentMin_TextChanged);
+            // 
+            // textBox_GainVoltageMax
+            // 
+            this.textBox_GainVoltageMax.Location = new System.Drawing.Point(109, 143);
+            this.textBox_GainVoltageMax.Name = "textBox_GainVoltageMax";
+            this.textBox_GainVoltageMax.Size = new System.Drawing.Size(100, 20);
+            this.textBox_GainVoltageMax.TabIndex = 17;
+            this.textBox_GainVoltageMax.TextChanged += new System.EventHandler(this.textBox_GainVolatgeMax_TextChanged);
+            // 
+            // textBox_GainVolatgeMin
+            // 
+            this.textBox_GainVoltageMin.Location = new System.Drawing.Point(109, 163);
+            this.textBox_GainVoltageMin.Name = "textBox_GainVolatgeMin";
+            this.textBox_GainVoltageMin.Size = new System.Drawing.Size(100, 20);
+            this.textBox_GainVoltageMin.TabIndex = 18;
+            this.textBox_GainVoltageMin.TextChanged += new System.EventHandler(this.textBox_GainVolatgeMin_TextChanged);
+            // 
             // tagPageMeasurement
             // 
             this.tagPageMeasurement.Controls.Add(this.checkBox_PreProTest);
@@ -474,11 +562,11 @@
             this.checkBox_PreProTest.UseVisualStyleBackColor = true;
             this.checkBox_PreProTest.CheckedChanged += new System.EventHandler(this.checkBoxPreProTest_CheckedChanged);
             // 
-            // CheckBox_ManualMultiMeter
+            // checkBox_ManualMultiMeter
             // 
             this.checkBox_ManualMultiMeter.AutoSize = true;
             this.checkBox_ManualMultiMeter.Location = new System.Drawing.Point(153, 14);
-            this.checkBox_ManualMultiMeter.Name = "CheckBox_ManualMultiMeter";
+            this.checkBox_ManualMultiMeter.Name = "checkBox_ManualMultiMeter";
             this.checkBox_ManualMultiMeter.Size = new System.Drawing.Size(61, 17);
             this.checkBox_ManualMultiMeter.TabIndex = 10;
             this.checkBox_ManualMultiMeter.Text = "Manual";
@@ -771,5 +859,13 @@
         private System.Windows.Forms.CheckBox checkBox_PlaySounds;
         private System.Windows.Forms.GroupBox groupBox5;
         private System.Windows.Forms.CheckBox checkBox_disableRdProtectionBeforeCode;
+        private System.Windows.Forms.Label label11;
+        private System.Windows.Forms.Label label12;
+        private System.Windows.Forms.Label label17;
+        private System.Windows.Forms.Label label18;
+        private System.Windows.Forms.TextBox textBox_GainCurrentMax;
+        private System.Windows.Forms.TextBox textBox_GainCurrentMin;
+        private System.Windows.Forms.TextBox textBox_GainVoltageMax;
+        private System.Windows.Forms.TextBox textBox_GainVoltageMin;
     }
 }

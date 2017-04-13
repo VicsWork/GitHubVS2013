@@ -158,7 +158,8 @@ namespace PowerCalibration.Properties {
         [global::System.Configuration.ApplicationScopedSettingAttribute()]
         [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
         [global::System.Configuration.SpecialSettingAttribute(global::System.Configuration.SpecialSetting.ConnectionString)]
-        [global::System.Configuration.DefaultSettingValueAttribute("Data Source=rs01;Initial Catalog=ManufacturingStore_v2;Integrated Security=True")]
+        [global::System.Configuration.DefaultSettingValueAttribute("Data Source=rs01.centralite.com;Initial Catalog=ManufacturingStore_v2;Integrated " +
+            "Security=True")]
         public string DBConnectionString {
             get {
                 return ((string)(this["DBConnectionString"]));
@@ -270,6 +271,66 @@ namespace PowerCalibration.Properties {
             }
             set {
                 this["Disable_ReadProtection_BeforeCoding"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("1")]
+        public double Gain_Current_Max {
+            get {
+                return ((double)(this["Gain_Current_Max"]));
+            }
+            set {
+                this["Gain_Current_Max"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("0.6")]
+        public double Gain_Current_Min {
+            get {
+                return ((double)(this["Gain_Current_Min"]));
+            }
+            set {
+                this["Gain_Current_Min"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("1.1")]
+        public double Gain_Voltage_Max {
+            get {
+                return ((double)(this["Gain_Voltage_Max"]));
+            }
+            set {
+                this["Gain_Voltage_Max"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("0.8")]
+        public double Gain_Voltage_Min {
+            get {
+                return ((double)(this["Gain_Voltage_Min"]));
+            }
+            set {
+                this["Gain_Voltage_Min"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("0")]
+        public double Setting {
+            get {
+                return ((double)(this["Setting"]));
+            }
+            set {
+                this["Setting"] = value;
             }
         }
     }

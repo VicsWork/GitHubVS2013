@@ -1,0 +1,3 @@
+[submodule "CentraliteDataUtils"]
+	path = CentraliteDataUtils
+	url = https://github.com/vicmatmar/CentraliteDataUtils
