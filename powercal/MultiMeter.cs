@@ -192,9 +192,19 @@ namespace PowerCalibration
         /// <returns>meter id string</returns>
         public string IDN()
         {
+
             clearData();
             writeLine("*IDN?");
-            string data = waitForData();
+            Thread.Sleep(250);
+            string data = "";
+            try
+            {
+                data = waitForData();
+            }
+            catch(InvalidOperationException ex)
+            {
+                string msg = ex.Message;
+            }
 
             if (data.StartsWith("HEWLETT-PACKARD,34401A"))
                 _model = Models.HP34401A;
