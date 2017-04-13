@@ -79,10 +79,11 @@
     <ApplicationIcon>powercal.ico</ApplicationIcon>
   </PropertyGroup>
   <PropertyGroup>
-    <ManifestCertificateThumbprint>003EB07D2F3E06356E325A2436B3C77312DD5F2B</ManifestCertificateThumbprint>
+    <ManifestCertificateThumbprint>6B7620B74BB03F2291B2C05B80D38ADA29529F63</ManifestCertificateThumbprint>
   </PropertyGroup>
   <PropertyGroup>
-    <ManifestKeyFile>powercal_TemporaryKey.pfx</ManifestKeyFile>
+    <ManifestKeyFile>
+    </ManifestKeyFile>
   </PropertyGroup>
   <PropertyGroup>
     <GenerateManifests>true</GenerateManifests>
