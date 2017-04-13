@@ -396,11 +396,14 @@ namespace PowerCalibration
                     meter.WaitForDsrHolding = false;
                     meter.OpenComPort();
 
-                    Task<string> idntask = Task<string>.Factory.StartNew(() => { return meter.IDN(); });
+                    Task<string> idntask = new Task<string>(()=>{ return meter.IDN(); });
+                    idntask.Start();
                     string idn = "";
                     if (idntask.Wait(1000))
+                    {
                         idn = idntask.Result;
-                    meter.CloseSerialPort();
+                        meter.CloseSerialPort();
+                    }
 
                     if (
                         idn.StartsWith("HEWLETT-PACKARD,34401A") ||
@@ -425,7 +428,9 @@ namespace PowerCalibration
                 {
                     string msgx = ex.Message;
                 }
-                meter.CloseSerialPort();
+
+                Task closeport = new Task(()=> meter.CloseSerialPort());
+                closeport.Start();
             }
             if (!detected)
             {
@@ -441,6 +446,7 @@ namespace PowerCalibration
             return detected;
 
         }
+
 
         /// <summary>
         /// Inits the log file.  
