@@ -135,7 +135,7 @@ namespace PowerCalibration
 
             _voltage_ac_reference = 240;
             _current_ac_reference = 15;  // R = 0.002
-            // The current reference is calculated by diving 30x10-3/R.  
+            // The current reference is calculated by dividing 30x10-3/R.  
             // Where R is the current sensor value
             // For R=0.002 => 30*10e-3/2*10e-3 => 30/2 = 15
 
@@ -144,6 +144,7 @@ namespace PowerCalibration
             switch (_board_type)
             {
                 case BoardTypes.Humpback:
+                case BoardTypes.Mahi:
                     _voltage_gain_adress = 0x08080980;
                     _current_gain_adress = 0x08080984;
                     _referece_adress = 0x08080988;
@@ -221,6 +222,51 @@ namespace PowerCalibration
         }
 
         /// <summary>
+        /// Closes the board relay using custom command
+        /// </summary>
+        void set_board_relay(bool value)
+        {
+            TCLI.Wait_For_Prompt(_telnet_connection);
+
+            switch (_board_type)
+            {
+
+                // These boards have relays
+                case BoardTypes.Halibut:
+                case BoardTypes.Hooktooth:
+                case BoardTypes.Hornshark:
+                case BoardTypes.Humpback:
+                case BoardTypes.Zebrashark:
+                    if (value)
+                    {
+                        TraceLogger.Log("Set relay On");
+                        _telnet_connection.WriteLine("write 1 6 0 1 0x10 {01}");
+                    }
+                    else
+                    {
+                        TraceLogger.Log("Set relay Off");
+                        _telnet_connection.WriteLine("write 1 6 0 1 0x10 {00}");
+                    }
+                    break;
+                case BoardTypes.Mahi:
+                    if (value)
+                    {
+                        TraceLogger.Log("Set load on");
+                        _telnet_connection.WriteLine("cu load_on");
+                    }
+                    else
+                    {
+                        TraceLogger.Log("Set load off");
+                        _telnet_connection.WriteLine("cu load_off");
+                    }
+                    break;
+            }
+
+            TCLI.Wait_For_Prompt(_telnet_connection);
+
+        }
+
+        /// <summary>
         /// Calibrates using just the Ember
         /// Voltage and Current register values are gathered using custom commands
         /// </summary>
@@ -265,12 +311,7 @@ namespace PowerCalibration
             {
                 // Close the UUT relay
                 // Jigs short-out the relay....
-                if (_board_type == BoardTypes.Humpback)
-                {
-                    // With Shuko we could not short relay
-                    TraceLogger.Log("Set_Relay_State ON");
-                    TCLI.Set_Relay_State(_telnet_connection, true);
-                }
+                set_board_relay(true);
 
                 bool error_reading = false;
                 try

@@ -34,7 +34,7 @@ using CentraliteDataUtils;
 
 namespace PowerCalibration
 {
-    enum BoardTypes { Humpback, Honeycomb, Hornshark, Mudshark, Hooktooth, Milkshark, Zebrashark };
+    enum BoardTypes { Mahi, Halibut, Humpback, Honeycomb, Hornshark, Mudshark, Hooktooth, Milkshark, Zebrashark };
 
     public partial class Form_Main : Form, ICalibrationService
     {
@@ -718,30 +718,6 @@ namespace PowerCalibration
         }
 
         /// <summary>
-        /// Closes the board relay using custom command
-        /// </summary>
-        /// <param name="board_type"></param>
-        /// <param name="telnet_connection"></param>
-        void set_board_relay(BoardTypes board_type, TelnetConnection telnet_connection, bool value)
-        {
-            switch (board_type)
-            {
-                // These boards have relays
-                case BoardTypes.Hooktooth:
-                case BoardTypes.Hornshark:
-                case BoardTypes.Humpback:
-                case BoardTypes.Zebrashark:
-                    updateRunStatus(string.Format("Set UUT Relay {0}", value.ToString()));
-                    if (value)
-                        telnet_connection.WriteLine("write 1 6 0 1 0x10 {01}");
-                    else
-                        telnet_connection.WriteLine("write 1 6 0 1 0x10 {00}");
-                    break;
-            }
-
-        }
-
-        /// <summary>
         /// Shows dialog with relays sates defined in the RelayControler when in manual mode
         /// </summary>
         /// <param name="relay_ctrl"></param>
@@ -1194,6 +1170,14 @@ namespace PowerCalibration
                     break;
                 case "3115":
                     controlSetText(comboBoxBoardTypes, BoardTypes.Hornshark.ToString());
+                    autodetected = true;
+                    break;
+                case "3141":
+                    controlSetText(comboBoxBoardTypes, BoardTypes.Mahi.ToString());
+                    autodetected = true;
+                    break;
+                case "3146":
+                    controlSetText(comboBoxBoardTypes, BoardTypes.Halibut.ToString());
                     autodetected = true;
                     break;
                 case "3220":
