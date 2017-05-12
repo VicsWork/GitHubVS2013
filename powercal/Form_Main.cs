@@ -38,7 +38,8 @@ namespace PowerCalibration
 
     public partial class Form_Main : Form, ICalibrationService
     {
-        enum TaskTypes { Pretest, Code, Test, Calibrate, Recode };
+        enum TaskTypes { Pretest, Code, Test, Calibrate, Recode, None };
+        enum Coding_Method { EBL, ISA_UTIL };
 
         MultiMeter _meter = null; // The multimeter controller
         RelayControler _relay_ctrl; // The relay controller
@@ -51,6 +52,7 @@ namespace PowerCalibration
         string _pretest_error_msg;  //  If set this will indicate the pretest error
         string _test_error_msg;  //  If set this will indicate error for tests usually run after calibration
         string _mfg_str;  // Holds the manufacturing string
+        Coding_Method _coding_method = Coding_Method.EBL;
 
 
         Task _task_uut;
@@ -197,6 +199,14 @@ namespace PowerCalibration
             //e.timestamp = DateTime.Now;
             //calibrationResults_Event(this, e);
 
+            // Set the coding method to use;
+            _coding_method = (Coding_Method)Enum.Parse(typeof(Coding_Method), 
+                Properties.Settings.Default.Coding_Method);
+            updateOutputStatus("Coding method set to " + _coding_method.ToString());
+            if(_coding_method == Coding_Method.ISA_UTIL)
+                updateOutputStatus("Coding file set to " + Properties.Settings.Default.Coding_File);
+
+
             // Enable the app
             setEnablement(true, false);
 
@@ -211,10 +221,12 @@ namespace PowerCalibration
 
             if (_supervisor_mode)
             {
+                this.buttonPreTest.Visible = true;
                 this.buttonCode.Visible = true;
                 this.buttonCalibrate.Visible = true;
                 this.buttonTest.Visible = true;
                 this.buttonRecode.Visible = true;
+                this.buttonPreTest.Visible = true;
 
             }
             else
@@ -223,6 +235,7 @@ namespace PowerCalibration
                 this.buttonCalibrate.Visible = false;
                 this.buttonTest.Visible = false;
                 this.buttonRecode.Visible = false;
+                this.buttonPreTest.Visible = false;
             }
         }
 
@@ -496,6 +509,7 @@ namespace PowerCalibration
                 buttonRun.Enabled = enable;
                 buttonCalibrate.Enabled = enable;
                 buttonRecode.Enabled = enable;
+                buttonPreTest.Enabled = enable;
 
                 comboBoxBoardTypes.Enabled = enable;
                 menuStripMain.Enabled = enable;
@@ -1044,10 +1058,7 @@ namespace PowerCalibration
             Trace.Close();
         }
 
-        /// <summary>
-        /// Creates telnet session using app settings
-        /// </summary>
-        TelnetConnection createTelnet()
+        void initEmberIF()
         {
             // Check to see if Ember is to be used as USB and open ISA channel if so
             // Also set the box address
@@ -1064,6 +1075,15 @@ namespace PowerCalibration
             {
                 _ember.Interface_Address = Properties.Settings.Default.Ember_Interface_IP_Address;
             }
+
+        }
+
+        /// <summary>
+        /// Creates telnet session using app settings
+        /// </summary>
+        TelnetConnection createTelnet()
+        {
+            initEmberIF();
 
             // Create a new telnet connection
             TraceLogger.Log("Start telnet");
@@ -1529,6 +1549,10 @@ namespace PowerCalibration
                         break;
                     case TaskTypes.Recode:
                         recode();
+                        break;
+                    case TaskTypes.None:
+                        setEnablement(true, false);
+                        _stopwatch_running.Stop();
                         break;
                 }
 
@@ -2120,26 +2144,57 @@ namespace PowerCalibration
         /// </summary>
         void code()
         {
-            // Init coder
-            Coder coder = new Coder(new TimeSpan(0, 2, 0));
-            coder.Status_Event += coder_Status_Event;
-
-            openTelnet();
-
-            coder.Ember = _ember;
             _coding_error_msg = null;
-
-            setRunStatus("Start Coding", Color.Black, Color.White);
-            updateOutputStatus("Start Coding".PadBoth(80, '-'));
-            relaysShowSetttings();
 
             // Run coding
             _cancel_token_uut = new CancellationTokenSource();
-            _task_uut = new Task(() => coder.Code(_cancel_token_uut.Token), _cancel_token_uut.Token);
-            _task_uut.ContinueWith(coding_exception_handler, TaskContinuationOptions.OnlyOnFaulted);
-            _task_uut.ContinueWith(coding_done_handler, TaskContinuationOptions.OnlyOnRanToCompletion);
-            _task_uut.Start();
+            _task_uut = null;
+            switch (_coding_method)
+            {
+                case Coding_Method.EBL:
 
+                    // Init coder
+                    Coder coder = new Coder(new TimeSpan(0, 2, 0));
+                    coder.Status_Event += coder_Status_Event;
+
+                    // This may only be needed fwhen using USB?  Otherwise using initEmberIF(); may be all we need here
+                    openTelnet();
+
+                    coder.Ember = _ember;
+
+                    _task_uut = new Task(() => coder.Code(_cancel_token_uut.Token), _cancel_token_uut.Token);
+                    _task_uut.ContinueWith(coding_exception_handler, TaskContinuationOptions.OnlyOnFaulted);
+                    _task_uut.ContinueWith(coding_done_handler, TaskContinuationOptions.OnlyOnRanToCompletion);
+                    break;
+                case Coding_Method.ISA_UTIL:
+
+                    initEmberIF();
+
+                    _ember.Process_Output_Event += _ember_Process_Output_Event;
+                    _task_uut = new Task<string>(() => _ember.Load(Properties.Settings.Default.Coding_File) );
+                    _task_uut.ContinueWith(coding_exception_handler, TaskContinuationOptions.OnlyOnFaulted);
+                    _task_uut.ContinueWith(isa_load_done_handler, TaskContinuationOptions.OnlyOnRanToCompletion);
+
+
+                    //string output = _ember.Load(@"C:\Users\victormartin\Downloads\mahi.hex");
+                    break;
+            }
+
+
+            if (_task_uut != null)
+            {
+                setRunStatus("Start Coding", Color.Black, Color.White);
+                updateOutputStatus("Start Coding".PadBoth(80, '-'));
+                relaysShowSetttings();
+
+                _task_uut.Start();
+            }
+
+        }
+
+        private void _ember_Process_Output_Event(object sender, string line)
+        {
+            updateOutputStatus(line);
         }
 
         void coder_Status_Event(object sender, string status_txt)
@@ -2255,6 +2310,13 @@ namespace PowerCalibration
         {
             bool canceled = task.IsCanceled;
             var exception = task.Exception;
+
+            coding_done();
+        }
+
+        void isa_load_done_handler(Task task)
+        {
+            _ember.Process_Output_Event -= _ember_Process_Output_Event;
 
             coding_done();
         }
@@ -2406,7 +2468,10 @@ namespace PowerCalibration
             preTest(TaskTypes.Test);
         }
 
-
+        private void buttonPreTest_Click(object sender, EventArgs e)
+        {
+            preTest(TaskTypes.None);
+        }
     }
 
 

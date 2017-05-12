@@ -81,8 +81,11 @@
     <Setting Name="Gain_Voltage_Min" Type="System.Double" Scope="User">
       <Value Profile="(Default)">0.8</Value>
     </Setting>
-    <Setting Name="Setting" Type="System.Double" Scope="User">
-      <Value Profile="(Default)">0</Value>
+    <Setting Name="Coding_Method" Type="System.String" Scope="User">
+      <Value Profile="(Default)">ISA_UTIL</Value>
+    </Setting>
+    <Setting Name="Coding_File" Type="System.String" Scope="User">
+      <Value Profile="(Default)">C:\Users\victormartin\Downloads\mahi.hex</Value>
     </Setting>
   </Settings>
 </SettingsFile>
