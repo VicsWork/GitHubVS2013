@@ -278,7 +278,6 @@ namespace PowerCalibration
             }
         }
 
-
         /// <summary>
         /// Sets up the meter for I AC measurement
         /// </summary>

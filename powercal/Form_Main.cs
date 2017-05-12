@@ -1028,6 +1028,19 @@ namespace PowerCalibration
                     if (buttonRun.Enabled)
                         buttonRun.PerformClick();
                     break;
+                case (Keys.Control | Keys.P):
+                    _relay_ctrl.WriteLine(Relay_Lines.Power, true);
+                    _relay_ctrl.WriteLine(Relay_Lines.Vac_Vdc, true);
+
+                    if (_meter == null)
+                    {
+                        _meter = new MultiMeter(Properties.Settings.Default.Meter_COM_Port_Name);
+                    }
+                    _meter.Init();
+                    _meter.SetupForVDC();
+                    _meter.writeLine("TRIG:SOUR INT");
+                    break;
+
             }
 
             return base.ProcessCmdKey(ref msg, keyData);
@@ -1413,7 +1426,11 @@ namespace PowerCalibration
             if (Properties.Settings.Default.Meter_Manual_Measurement)
                 _meter = null;
             else
+            {
+                if (_meter != null && _meter.IsSerialPortOpen)
+                    _meter.CloseSerialPort();
                 _meter = new MultiMeter(Properties.Settings.Default.Meter_COM_Port_Name);
+            }
 
             _relay_ctrl.OpenIfClosed();
             _relay_ctrl.WriteLine(Relay_Lines.Ember, false);
@@ -2172,7 +2189,7 @@ namespace PowerCalibration
 
                     _ember.Process_Output_Event += _ember_Process_Output_Event;
                     _task_uut = new Task<string>(() => _ember.Load(Properties.Settings.Default.Coding_File) );
-                    _task_uut.ContinueWith(coding_exception_handler, TaskContinuationOptions.OnlyOnFaulted);
+                    _task_uut.ContinueWith(isa_load_exception_handler, TaskContinuationOptions.OnlyOnFaulted);
                     _task_uut.ContinueWith(isa_load_done_handler, TaskContinuationOptions.OnlyOnRanToCompletion);
 
 
@@ -2317,6 +2334,17 @@ namespace PowerCalibration
         void isa_load_done_handler(Task task)
         {
             _ember.Process_Output_Event -= _ember_Process_Output_Event;
+
+            coding_done();
+        }
+
+        void isa_load_exception_handler(Task task)
+        {
+            _ember.Process_Output_Event -= _ember_Process_Output_Event;
+
+            var exception = task.Exception;
+            string errmsg = exception.InnerException.Message;
+            _coding_error_msg = errmsg;
 
             coding_done();
         }
