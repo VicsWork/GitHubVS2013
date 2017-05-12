@@ -60,6 +60,9 @@ namespace PowerCalibration
         public delegate void Process_ISAChan_Output_Handler(object sender, DataReceivedEventArgs e);
         public event Process_ISAChan_Output_Handler Process_ISAChan_Output_Event;
 
+        public delegate void Process_Output_Handler(object sender, string line);
+        public event Process_Output_Handler Process_Output_Event;
+
         /// <summary>
         /// Starts the process responsible to open the Ember box isa channels
         /// </summary>
@@ -208,6 +211,57 @@ namespace PowerCalibration
             if (rc != 0)
             {
                 string msg = string.Format("Timeout running {0} {1}.\r\n", p.StartInfo.FileName, p.StartInfo.Arguments);
+                msg += string.Format("RC: {0}\r\n", rc);
+                if (error != null && error.Length > 0)
+                    msg += string.Format("Error: {0}\r\n", error);
+
+                throw new Exception(msg);
+            }
+            return output;
+        }
+
+
+        public string Load(string fileloc)
+        {
+
+            EnableRdProt(false);
+
+            Process p = new Process()
+            {
+                StartInfo = new ProcessStartInfo()
+                {
+                    FileName = Path.Combine(Properties.Settings.Default.Ember_BinPath, "em3xx_load.exe"),
+
+                    Arguments = getInterfaceAddress() + " \"" + fileloc + "\"",
+                    UseShellExecute = false,
+                    CreateNoWindow = true,
+                    RedirectStandardOutput = true,
+                    RedirectStandardError = true,
+                    RedirectStandardInput = false
+                }
+            };
+
+            p.Start();
+
+            while(!p.StandardOutput.EndOfStream)
+            {
+                string line = p.StandardOutput.ReadLine();
+                if(Process_Output_Event != null)
+                {
+                    Process_Output_Event(this, line);
+                }
+            }
+
+            string error = "", output = "";
+            if (!p.WaitForExit(2000))
+                p.Kill();
+
+            error = p.StandardError.ReadToEnd();
+            output = p.StandardOutput.ReadToEnd();
+            int rc = p.ExitCode;
+            if (rc != 0)
+            {
+                string msg = string.Format("Error running {0} {1}.\r\n", p.StartInfo.FileName, p.StartInfo.Arguments);
                 msg += string.Format("RC: {0}\r\n", rc);
                 if (error != null && error.Length > 0)
                     msg += string.Format("Error: {0}\r\n", error);

@@ -49,7 +49,7 @@ namespace PowerCalibration
                 try
                 {
                     // Disable read protection
-                    disable_read_pritection();
+                    disable_read_protection();
                 }
                 catch (Exception ex)
                 {
@@ -134,7 +134,7 @@ namespace PowerCalibration
 
         }
 
-        void disable_read_pritection()
+        void disable_read_protection()
         {
             // Disable read protection
             fire_status("Disable read protection");

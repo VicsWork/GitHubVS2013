@@ -12,7 +12,7 @@ namespace PowerCalibration.Properties {
     
     
     [global::System.Runtime.CompilerServices.CompilerGeneratedAttribute()]
-    [global::System.CodeDom.Compiler.GeneratedCodeAttribute("Microsoft.VisualStudio.Editors.SettingsDesigner.SettingsSingleFileGenerator", "11.0.0.0")]
+    [global::System.CodeDom.Compiler.GeneratedCodeAttribute("Microsoft.VisualStudio.Editors.SettingsDesigner.SettingsSingleFileGenerator", "14.0.0.0")]
     internal sealed partial class Settings : global::System.Configuration.ApplicationSettingsBase {
         
         private static Settings defaultInstance = ((Settings)(global::System.Configuration.ApplicationSettingsBase.Synchronized(new Settings())));
@@ -324,13 +324,25 @@ namespace PowerCalibration.Properties {
         
         [global::System.Configuration.UserScopedSettingAttribute()]
         [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
-        [global::System.Configuration.DefaultSettingValueAttribute("0")]
-        public double Setting {
+        [global::System.Configuration.DefaultSettingValueAttribute("ISA_UTIL")]
+        public string Coding_Method {
             get {
-                return ((double)(this["Setting"]));
+                return ((string)(this["Coding_Method"]));
             }
             set {
-                this["Setting"] = value;
+                this["Coding_Method"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("C:\\Users\\victormartin\\Downloads\\mahi.hex")]
+        public string Coding_File {
+            get {
+                return ((string)(this["Coding_File"]));
+            }
+            set {
+                this["Coding_File"] = value;
             }
         }
     }

@@ -68,6 +68,7 @@
             this.buttonRun = new System.Windows.Forms.Button();
             this.buttonRecode = new System.Windows.Forms.Button();
             this.buttonTest = new System.Windows.Forms.Button();
+            this.buttonPreTest = new System.Windows.Forms.Button();
             this.contextMenuStatusTextBox.SuspendLayout();
             this.menuStripMain.SuspendLayout();
             this.statusStrip.SuspendLayout();
@@ -298,6 +299,7 @@
             this.buttonRecode.TabIndex = 14;
             this.buttonRecode.Text = "Reco&de";
             this.buttonRecode.UseVisualStyleBackColor = true;
+            this.buttonRecode.Visible = false;
             this.buttonRecode.Click += new System.EventHandler(this.buttonRecode_Click);
             // 
             // buttonTest
@@ -312,11 +314,23 @@
             this.buttonTest.Visible = false;
             this.buttonTest.Click += new System.EventHandler(this.buttonTest_Click);
             // 
+            // buttonPreTest
+            // 
+            this.buttonPreTest.Location = new System.Drawing.Point(340, 33);
+            this.buttonPreTest.Name = "buttonPreTest";
+            this.buttonPreTest.Size = new System.Drawing.Size(75, 23);
+            this.buttonPreTest.TabIndex = 16;
+            this.buttonPreTest.Text = "&PreTest";
+            this.buttonPreTest.UseVisualStyleBackColor = true;
+            this.buttonPreTest.Visible = false;
+            this.buttonPreTest.Click += new System.EventHandler(this.buttonPreTest_Click);
+            // 
             // Form_Main
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(96F, 96F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Dpi;
             this.ClientSize = new System.Drawing.Size(832, 557);
+            this.Controls.Add(this.buttonPreTest);
             this.Controls.Add(this.buttonTest);
             this.Controls.Add(this.buttonRun);
             this.Controls.Add(this.buttonCode);
@@ -373,6 +387,7 @@
         private System.Windows.Forms.ToolStripMenuItem calculatorToolStripMenuItem;
         private System.Windows.Forms.ToolStripMenuItem toolStripMenuItemPowerMeter;
         private System.Windows.Forms.Button buttonTest;
+        private System.Windows.Forms.Button buttonPreTest;
     }
 }
 
