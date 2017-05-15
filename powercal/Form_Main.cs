@@ -1028,17 +1028,46 @@ namespace PowerCalibration
                     if (buttonRun.Enabled)
                         buttonRun.PerformClick();
                     break;
-                case (Keys.Control | Keys.P):
-                    _relay_ctrl.WriteLine(Relay_Lines.Power, true);
-                    _relay_ctrl.WriteLine(Relay_Lines.Vac_Vdc, true);
 
-                    if (_meter == null)
-                    {
-                        _meter = new MultiMeter(Properties.Settings.Default.Meter_COM_Port_Name);
-                    }
-                    _meter.Init();
-                    _meter.SetupForVDC();
-                    _meter.writeLine("TRIG:SOUR INT");
+                // Power ON and DC meter
+                case (Keys.Control | Keys.P):
+
+                    Task task = new Task(() =>
+                   {
+
+                       updateOutputStatus("Turn power and DC measurement ON");
+                       _relay_ctrl.WriteLine(Relay_Lines.Power, true);
+                       _relay_ctrl.WriteLine(Relay_Lines.Vac_Vdc, true);
+
+                       updateOutputStatus("Setting meter");
+                       if (_meter == null)
+                       {
+                           _meter = new MultiMeter(Properties.Settings.Default.Meter_COM_Port_Name);
+                       }
+                       else
+                       {
+                           _meter.CloseSerialPort();
+                       }
+                       _meter.Init();
+                       _meter.SetupForVDC();
+                       _meter.writeLine("TRIG:SOUR INT");
+                       updateOutputStatus("Meter set");
+                   }
+                    );
+
+                    task.Start();
+                    break;
+
+                // All off
+                case (Keys.Control | Keys.O):
+                    _relay_ctrl.WriteAll(false);
+                    break;
+
+                case (Keys.Control | Keys.E):
+                    _relay_ctrl.WriteLine(Relay_Lines.Ember, true);
+                    break;
+                case (Keys.Control | Keys.W):
+                    _relay_ctrl.WriteLine(Relay_Lines.Ember, false);
                     break;
 
             }
