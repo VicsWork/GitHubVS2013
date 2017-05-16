@@ -30,7 +30,7 @@ namespace MinimalisticTelnet
     public class TelnetConnection : IDisposable
     {
         TcpClient _tcpSocket;
-        int _timeOutMs = 100;
+        int _timeOutMs = 200;
 
         string _hostname;
         public string HostName { get { return _hostname; } }
@@ -49,6 +49,11 @@ namespace MinimalisticTelnet
             _hostname = hostname;
             _port = port;
             _tcpSocket = new TcpClient(hostname, port);
+        }
+
+        public int Available
+        {
+             get{ return _tcpSocket.Available; }
         }
 
         public void Dispose()
