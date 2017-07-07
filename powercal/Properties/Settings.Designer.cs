@@ -336,7 +336,7 @@ namespace PowerCalibration.Properties {
         
         [global::System.Configuration.UserScopedSettingAttribute()]
         [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
-        [global::System.Configuration.DefaultSettingValueAttribute("C:\\Users\\victormartin\\Downloads\\mahi.hex")]
+        [global::System.Configuration.DefaultSettingValueAttribute("C:\\Users\\victormartin\\Documents\\Jigs\\Mahi_HALIBUT\\mahi3.hex")]
         public string Coding_File {
             get {
                 return ((string)(this["Coding_File"]));

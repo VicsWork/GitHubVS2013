@@ -224,7 +224,7 @@ namespace PowerCalibration
         public string Load(string fileloc)
         {
 
-            EnableRdProt(false);
+            //EnableRdProt(false);
 
             Process p = new Process()
             {

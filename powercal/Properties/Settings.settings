@@ -85,7 +85,7 @@
       <Value Profile="(Default)">ISA_UTIL</Value>
     </Setting>
     <Setting Name="Coding_File" Type="System.String" Scope="User">
-      <Value Profile="(Default)">C:\Users\victormartin\Downloads\mahi.hex</Value>
+      <Value Profile="(Default)">C:\Users\victormartin\Documents\Jigs\Mahi_HALIBUT\mahi3.hex</Value>
     </Setting>
   </Settings>
 </SettingsFile>
