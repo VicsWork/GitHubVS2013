@@ -1681,6 +1681,9 @@ namespace PowerCalibration
                 setRunStatus("Start Calibration", Color.Black, Color.White);
                 updateOutputStatus("Start Calibration".PadBoth(80, '-'));
 
+                while (this.textBoxRunStatus.BackColor != Color.White)
+                    Thread.Sleep(200);
+
                 // Connect the load
                 _relay_ctrl.OpenIfClosed();
                 _relay_ctrl.WriteLine(Relay_Lines.Load, true);
@@ -2203,7 +2206,7 @@ namespace PowerCalibration
                     Coder coder = new Coder(new TimeSpan(0, 2, 0));
                     coder.Status_Event += coder_Status_Event;
 
-                    // This may only be needed fwhen using USB?  Otherwise using initEmberIF(); may be all we need here
+                    // This may only be needed when using USB?  Otherwise using initEmberIF(); may be all we need here
                     openTelnet();
 
                     coder.Ember = _ember;
@@ -2312,7 +2315,7 @@ namespace PowerCalibration
                 !_cancel_token_uut.IsCancellationRequested)
             {
 
-                setRunStatus("Reset UUT");
+                updateRunStatus("Reset UUT", Color.Black, Color.White);
                 TraceLogger.Log("Reset UUT");
 
                 _relay_ctrl.WriteLine(Relay_Lines.Ember, true);

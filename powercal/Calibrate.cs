@@ -145,6 +145,7 @@ namespace PowerCalibration
             {
                 case BoardTypes.Humpback:
                 case BoardTypes.Mahi:
+                case BoardTypes.Halibut:
                     _voltage_gain_adress = 0x08080980;
                     _current_gain_adress = 0x08080984;
                     _referece_adress = 0x08080988;
@@ -292,6 +293,10 @@ namespace PowerCalibration
             // Connect the load and verify ac
             _relay_ctrl.WriteLine(Relay_Lines.Load, true);
 
+            // Close the UUT relay
+            // Jigs short-out the relay....
+            set_board_relay(true);
+
             Thread.Sleep(1000);
             verify_voltage_ac();
 
@@ -309,10 +314,6 @@ namespace PowerCalibration
             int max_try_count = 5;
             for (int i = 0; i < max_try_count; i++)
             {
-                // Close the UUT relay
-                // Jigs short-out the relay....
-                set_board_relay(true);
-
                 bool error_reading = false;
                 try
                 {
