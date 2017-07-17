@@ -132,7 +132,7 @@ namespace PowerCalibration
 
 
             // Always reset this settings as they are important to forget leaving them in a different state
-            Properties.Settings.Default.Ember_ReadProtect_Enabled = true;
+            Properties.Settings.Default.Ember_ReadProtect_Enabled = false;
             Properties.Settings.Default.PrePost_Test_Enabled = true;
             Properties.Settings.Default.Save();
 
@@ -882,6 +882,7 @@ namespace PowerCalibration
                 _relay_ctrl.WriteLine(Relay_Lines.Ember, true);
                 _relay_ctrl.WriteLine(Relay_Lines.Power, true);
                 _relay_ctrl.WriteLine(Relay_Lines.Load, true);
+                _relay_ctrl.WriteLine(Relay_Lines.Vac_Vdc, false);
                 Thread.Sleep(1000);
 
                 Calibrate calibrate = new Calibrate();
@@ -1234,10 +1235,12 @@ namespace PowerCalibration
                     controlSetText(comboBoxBoardTypes, BoardTypes.Hornshark.ToString());
                     autodetected = true;
                     break;
+                case "3140":
                 case "3141":
                     controlSetText(comboBoxBoardTypes, BoardTypes.Mahi.ToString());
                     autodetected = true;
                     break;
+                case "3145":
                 case "3146":
                     controlSetText(comboBoxBoardTypes, BoardTypes.Halibut.ToString());
                     autodetected = true;

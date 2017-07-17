@@ -233,7 +233,6 @@ namespace PowerCalibration
             {
 
                 // These boards have relays
-                case BoardTypes.Halibut:
                 case BoardTypes.Hooktooth:
                 case BoardTypes.Hornshark:
                 case BoardTypes.Humpback:
@@ -249,6 +248,7 @@ namespace PowerCalibration
                         _telnet_connection.WriteLine("write 1 6 0 1 0x10 {00}");
                     }
                     break;
+                case BoardTypes.Halibut:
                 case BoardTypes.Mahi:
                     if (value)
                     {
@@ -290,15 +290,31 @@ namespace PowerCalibration
             datain = _telnet_connection.Read();
             TraceLogger.Log(datain);
 
-            // Connect the load and verify ac
-            _relay_ctrl.WriteLine(Relay_Lines.Load, true);
+            fire_run_status("Verify Voltage AC");
+            int trycount = 0;
+            while(true)
+            {
+                // Connect the load and verify ac
+                _relay_ctrl.WriteLine(Relay_Lines.Load, true);
 
-            // Close the UUT relay
-            // Jigs short-out the relay....
-            set_board_relay(true);
+                // Close the UUT relay
+                // Jigs short-out the relay....
+                set_board_relay(true);
+                Thread.Sleep(1000);
 
-            Thread.Sleep(1000);
-            verify_voltage_ac();
+                try
+                {
+
+                    verify_voltage_ac();
+                    break;
+                }
+                catch
+                {
+                    trycount++;
+                    if (trycount > 3)
+                        throw;
+                }
+            }
 
             string cmd_prefix = TCLI.Get_Custom_Command_Prefix(_telnet_connection);
             TraceLogger.Log("cmd_prefix = " + cmd_prefix);
@@ -558,10 +574,9 @@ namespace PowerCalibration
             if (_meter == null)
                 return;
 
-            if (_relay_ctrl != null && _relay_ctrl.Device_Type != RelayControler.Device_Types.Manual)
+            if (_relay_ctrl?.Device_Type != RelayControler.Device_Types.Manual)
                 _relay_ctrl.WriteLine(Relay_Lines.Vac_Vdc, false);  // AC
 
-            fire_run_status("Verify Voltage AC");
             _meter.Init();
             _meter.SetToRemote();
             _meter.ClearError();
