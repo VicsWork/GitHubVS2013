@@ -1071,6 +1071,15 @@ namespace PowerCalibration
                     _relay_ctrl.WriteLine(Relay_Lines.Ember, false);
                     break;
 
+                case (Keys.Control | Keys.L):
+                    _relay_ctrl.WriteLine(Relay_Lines.Load, true);
+                    _relay_ctrl.WriteLine(Relay_Lines.Vac_Vdc, false);
+                    break;
+                case (Keys.Control | Keys.K):
+                    _relay_ctrl.WriteLine(Relay_Lines.Load, false);
+                    _relay_ctrl.WriteLine(Relay_Lines.Vac_Vdc, true);
+                    break;
+
             }
 
             return base.ProcessCmdKey(ref msg, keyData);
