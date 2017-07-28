@@ -1074,6 +1074,13 @@ namespace PowerCalibration
                 case (Keys.Control | Keys.L):
                     _relay_ctrl.WriteLine(Relay_Lines.Load, true);
                     _relay_ctrl.WriteLine(Relay_Lines.Vac_Vdc, false);
+                    if (_meter == null)
+                        _meter = new MultiMeter(Properties.Settings.Default.Meter_COM_Port_Name);
+                    else
+                        _meter.CloseSerialPort();
+                    _meter.Init();
+                    _meter.SetupForVAC();
+                    _meter.writeLine("TRIG:SOUR INT");
                     break;
                 case (Keys.Control | Keys.K):
                     _relay_ctrl.WriteLine(Relay_Lines.Load, false);
