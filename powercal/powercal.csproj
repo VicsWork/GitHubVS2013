@@ -96,10 +96,11 @@
   </PropertyGroup>
   <ItemGroup>
     <Reference Include="AutoItX3.Assembly">
-      <HintPath>ReferenceFiles\AutoItX3.Assembly.dll</HintPath>
+      <HintPath>..\ReferenceFiles\AutoItX3.Assembly.dll</HintPath>
     </Reference>
-    <Reference Include="FTD2XX_NET">
-      <HintPath>ReferenceFiles\FTD2XX_NET.dll</HintPath>
+    <Reference Include="FTD2XX_NET, Version=1.0.14.0, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\packages\FTD2XX.Net.1.0.14\lib\FTD2XX_NET.dll</HintPath>
+      <Private>True</Private>
     </Reference>
     <Reference Include="NationalInstruments.Common, Version=13.0.40.190, Culture=neutral, PublicKeyToken=dc6ad606294fc298, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
@@ -248,6 +249,7 @@
       <DependentUpon>Resources.resx</DependentUpon>
       <DesignTime>True</DesignTime>
     </Compile>
+    <None Include="packages.config" />
     <None Include="powercal_TemporaryKey.pfx" />
     <None Include="Properties\DataSources\Form1.datasource" />
     <None Include="Properties\Settings.settings">
@@ -281,6 +283,7 @@
     <Content Include="AutoItX3.dll">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
+    <Content Include="FTD2XX_NET.XML" />
     <Content Include="powercal.ico" />
     <None Include="Resources\IconMain.ico" />
     <None Include="Resources\Glass_Break1.wav" />
