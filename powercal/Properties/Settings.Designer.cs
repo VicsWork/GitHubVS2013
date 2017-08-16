@@ -324,7 +324,7 @@ namespace PowerCalibration.Properties {
         
         [global::System.Configuration.UserScopedSettingAttribute()]
         [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
-        [global::System.Configuration.DefaultSettingValueAttribute("ISA_UTIL")]
+        [global::System.Configuration.DefaultSettingValueAttribute("BATCH_FILE")]
         public string Coding_Method {
             get {
                 return ((string)(this["Coding_Method"]));
