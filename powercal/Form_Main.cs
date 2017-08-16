@@ -39,7 +39,7 @@ namespace PowerCalibration
     public partial class Form_Main : Form, ICalibrationService
     {
         enum TaskTypes { Pretest, Code, Test, Calibrate, Recode, None };
-        enum Coding_Method { EBL, ISA_UTIL };
+        enum Coding_Method { EBL, ISA_UTIL, BATCH_FILE };
 
         MultiMeter _meter = null; // The multimeter controller
         RelayControler _relay_ctrl; // The relay controller
@@ -52,8 +52,8 @@ namespace PowerCalibration
         string _pretest_error_msg;  //  If set this will indicate the pretest error
         string _test_error_msg;  //  If set this will indicate error for tests usually run after calibration
         string _mfg_str;  // Holds the manufacturing string
-        Coding_Method _coding_method = Coding_Method.EBL;
 
+        Coding_Method _coding_method = Coding_Method.EBL;
 
         Task _task_uut;
         CancellationTokenSource _cancel_token_uut = new CancellationTokenSource();  // Used to cancel coding
@@ -205,6 +205,8 @@ namespace PowerCalibration
             updateOutputStatus("Coding method set to " + _coding_method.ToString());
             if(_coding_method == Coding_Method.ISA_UTIL)
                 updateOutputStatus("Coding file set to " + Properties.Settings.Default.Coding_File);
+            else if (_coding_method == Coding_Method.BATCH_FILE)
+                updateOutputStatus("Coding file set to " + "need to set");
 
 
             // Enable the app
@@ -641,10 +643,14 @@ namespace PowerCalibration
         void updateOutputStatus(string text)
         {
             string line = TraceLogger.Log(text);
-            using (StreamWriter sw = File.AppendText(_log_file))
+            try
             {
-                sw.WriteLine(line);
+                using (StreamWriter sw = File.AppendText(_log_file))
+                {
+                    sw.WriteLine(line);
+                }
             }
+            catch { }
 
             line = string.Format("{0}\r\n", line);
             setOutputStatusText(line);
@@ -2246,6 +2252,35 @@ namespace PowerCalibration
 
                     //string output = _ember.Load(@"C:\Users\victormartin\Downloads\mahi.hex");
                     break;
+
+                case Coding_Method.BATCH_FILE:
+
+                    Process p = new Process()
+                    {
+                        StartInfo = new ProcessStartInfo()
+                        {
+                            FileName = Path.Combine(Properties.Settings.Default.Ember_BinPath,
+                            @"C:\Users\victormartin\Google Drive\Setup\Villa\VillaCoder.bat"),
+                            WorkingDirectory = @"C:\Users\victormartin\Google Drive\Setup\Villa",
+                            Arguments = "3145",
+                            UseShellExecute = false,
+                            CreateNoWindow = true,
+                            RedirectStandardOutput = true,
+                            RedirectStandardError = true,
+                            RedirectStandardInput = false
+                        },
+                        EnableRaisingEvents = true
+                       
+                    };
+                    p.OutputDataReceived += CodingBatch_OutputDataReceived;
+                    p.ErrorDataReceived += CodingBatch_OutputDataReceived;
+                    p.Exited += CofingBatch_Exited;
+
+                    p.Start();
+                    p.BeginOutputReadLine();
+                    p.BeginErrorReadLine();
+
+                    break;
             }
 
 
@@ -2258,6 +2293,20 @@ namespace PowerCalibration
                 _task_uut.Start();
             }
 
+        }
+
+        private void CofingBatch_Exited(object sender, EventArgs e)
+        {
+            Process p = (Process)sender;
+            if (p.ExitCode != 0)
+                _coding_error_msg = "Coding batch file failed";
+            coding_done();
+        }
+
+        private void CodingBatch_OutputDataReceived(object sender, DataReceivedEventArgs e)
+        {
+            if(e?.Data != null)
+                updateOutputStatus(e.Data);
         }
 
         private void _ember_Process_Output_Event(object sender, string line)
