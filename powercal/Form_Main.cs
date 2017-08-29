@@ -132,7 +132,7 @@ namespace PowerCalibration
 
 
             // Always reset this settings as they are important to forget leaving them in a different state
-            Properties.Settings.Default.Ember_ReadProtect_Enabled = false;
+            Properties.Settings.Default.Ember_ReadProtect_Enabled = true;
             Properties.Settings.Default.PrePost_Test_Enabled = true;
             Properties.Settings.Default.Save();
 

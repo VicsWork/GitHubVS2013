@@ -27,8 +27,8 @@
     <PublisherName>Centralite</PublisherName>
     <CreateWebPageOnPublish>true</CreateWebPageOnPublish>
     <WebPage>publish.htm</WebPage>
-    <ApplicationRevision>24</ApplicationRevision>
-    <ApplicationVersion>1.0.1.%2a</ApplicationVersion>
+    <ApplicationRevision>2</ApplicationRevision>
+    <ApplicationVersion>1.0.2.%2a</ApplicationVersion>
     <UseApplicationTrust>true</UseApplicationTrust>
     <CreateDesktopShortcut>true</CreateDesktopShortcut>
     <PublishWizardCompleted>true</PublishWizardCompleted>
@@ -102,12 +102,13 @@
       <HintPath>..\packages\FTD2XX.Net.1.0.14\lib\FTD2XX_NET.dll</HintPath>
       <Private>True</Private>
     </Reference>
-    <Reference Include="NationalInstruments.Common, Version=13.0.40.190, Culture=neutral, PublicKeyToken=dc6ad606294fc298, processorArchitecture=MSIL">
+    <Reference Include="NationalInstruments.Common, Version=15.1.40.49152, Culture=neutral, PublicKeyToken=dc6ad606294fc298, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
-      <HintPath>ReferenceFiles\NationalInstruments.Common.dll</HintPath>
+      <HintPath>..\ReferenceFiles\NationalInstruments.Common.dll</HintPath>
     </Reference>
-    <Reference Include="NationalInstruments.DAQmx">
-      <HintPath>ReferenceFiles\NationalInstruments.DAQmx.dll</HintPath>
+    <Reference Include="NationalInstruments.DAQmx, Version=15.5.45.109, Culture=neutral, PublicKeyToken=4febd62461bf11a4, processorArchitecture=x86">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\ReferenceFiles\NationalInstruments.DAQmx.dll</HintPath>
     </Reference>
     <Reference Include="System" />
     <Reference Include="System.Core" />
