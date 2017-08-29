@@ -291,30 +291,7 @@ namespace PowerCalibration
             TraceLogger.Log(datain);
 
             fire_run_status("Verify Voltage AC");
-            int trycount = 0;
-            while(true)
-            {
-                // Connect the load and verify ac
-                _relay_ctrl.WriteLine(Relay_Lines.Load, true);
-
-                // Close the UUT relay
-                // Jigs short-out the relay....
-                set_board_relay(true);
-                Thread.Sleep(1000);
-
-                try
-                {
-
-                    verify_voltage_ac();
-                    break;
-                }
-                catch
-                {
-                    trycount++;
-                    if (trycount > 3)
-                        throw;
-                }
-            }
+            load_on();
 
             string cmd_prefix = TCLI.Get_Custom_Command_Prefix(_telnet_connection);
             TraceLogger.Log("cmd_prefix = " + cmd_prefix);
@@ -494,6 +471,10 @@ namespace PowerCalibration
             // Note there is a problem with Hornshark/Mudshark not resetting after a patch
             reset_workaround();
 
+            // villa dimmer not coming on after patch
+            fire_run_status("Verify Voltage AC");
+            load_on();
+
             Thread.Sleep(3000);
             datain = _telnet_connection.Read();
             TraceLogger.Log(datain);
@@ -566,6 +547,37 @@ namespace PowerCalibration
                     low_limit, cv.Current, high_limit);
                 TraceLogger.Log(msg);
                 throw new Exception(msg);
+            }
+        }
+
+        /// <summary>
+        /// Truns on Load and measure Vac on the load
+        /// </summary>
+        void load_on()
+        {
+            int trycount = 0;
+            while (true)
+            {
+                // Connect the load and verify ac
+                _relay_ctrl.WriteLine(Relay_Lines.Load, true);
+
+                // Close the UUT relay
+                // Some jigs short-out the relay....
+                set_board_relay(true);
+
+                Thread.Sleep(1000);
+
+                try
+                {
+                    verify_voltage_ac();
+                    break;
+                }
+                catch
+                {
+                    trycount++;
+                    if (trycount > 3)
+                        throw;
+                }
             }
         }
 
