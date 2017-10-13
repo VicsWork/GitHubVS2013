@@ -200,10 +200,10 @@ namespace PowerCalibration
             //calibrationResults_Event(this, e);
 
             // Set the coding method to use;
-            _coding_method = (Coding_Method)Enum.Parse(typeof(Coding_Method), 
+            _coding_method = (Coding_Method)Enum.Parse(typeof(Coding_Method),
                 Properties.Settings.Default.Coding_Method);
             updateOutputStatus("Coding method set to " + _coding_method.ToString());
-            if(_coding_method == Coding_Method.ISA_UTIL)
+            if (_coding_method == Coding_Method.ISA_UTIL)
                 updateOutputStatus("Coding file set to " + Properties.Settings.Default.Coding_File);
             else if (_coding_method == Coding_Method.BATCH_FILE)
                 updateOutputStatus("Coding file set to " + "need to set");
@@ -411,7 +411,7 @@ namespace PowerCalibration
                     meter.WaitForDsrHolding = false;
                     meter.OpenComPort();
 
-                    Task<string> idntask = new Task<string>(()=>{ return meter.IDN(); });
+                    Task<string> idntask = new Task<string>(() => { return meter.IDN(); });
                     idntask.Start();
                     string idn = "";
                     if (idntask.Wait(1000))
@@ -444,7 +444,7 @@ namespace PowerCalibration
                     string msgx = ex.Message;
                 }
 
-                Task closeport = new Task(()=> meter.CloseSerialPort());
+                Task closeport = new Task(() => meter.CloseSerialPort());
                 closeport.Start();
             }
             if (!detected)
@@ -898,6 +898,8 @@ namespace PowerCalibration
                 {
                     createTelnet();
                 }
+                calibrate.TelnetConnection = _telnet_connection;
+                calibrate.Set_board_relay(true);
 
                 Form_PowerMeter power_meter_dlg = new Form_PowerMeter(_telnet_connection);
                 power_meter_dlg.ShowDialog();
@@ -1294,6 +1296,10 @@ namespace PowerCalibration
         /// </summary>
         void autoSelectBoardByMfgString()
         {
+            // Check if disable
+            if (!Properties.Settings.Default.AutoSelectBoardByMfgString) // Need to add to settings dlg
+                return;
+
             if (_mfg_str != null)  // This indicates already done
                 return;
 
@@ -1797,8 +1803,8 @@ namespace PowerCalibration
             }
 
             // If we fail lets disable read protection to force flash erase
-            if (_calibration_error_msg != null && 
-                _running_all && 
+            if (_calibration_error_msg != null &&
+                _running_all &&
                 Properties.Settings.Default.Ember_ReadProtect_Enabled)
             {
                 updateRunStatus("DisableRdProt");
@@ -2245,7 +2251,7 @@ namespace PowerCalibration
                     initEmberIF();
 
                     _ember.Process_Output_Event += _ember_Process_Output_Event;
-                    _task_uut = new Task<string>(() => _ember.Load(Properties.Settings.Default.Coding_File) );
+                    _task_uut = new Task<string>(() => _ember.Load(Properties.Settings.Default.Coding_File));
                     _task_uut.ContinueWith(isa_load_exception_handler, TaskContinuationOptions.OnlyOnFaulted);
                     _task_uut.ContinueWith(isa_load_done_handler, TaskContinuationOptions.OnlyOnRanToCompletion);
 
@@ -2270,7 +2276,7 @@ namespace PowerCalibration
                             RedirectStandardInput = false
                         },
                         EnableRaisingEvents = true
-                       
+
                     };
                     p.OutputDataReceived += CodingBatch_OutputDataReceived;
                     p.ErrorDataReceived += CodingBatch_OutputDataReceived;
@@ -2305,7 +2311,7 @@ namespace PowerCalibration
 
         private void CodingBatch_OutputDataReceived(object sender, DataReceivedEventArgs e)
         {
-            if(e?.Data != null)
+            if (e?.Data != null)
                 updateOutputStatus(e.Data);
         }
 
@@ -2408,15 +2414,65 @@ namespace PowerCalibration
                     Thread.Sleep(2000);
                 }
 
-                if (getSelectedBoardType() == BoardTypes.Honeycomb)
+                switch (getSelectedBoardType())
                 {
-                    hct_Run_Tests();
-                }
-                else
-                {
-                    calibrate();
+                    case BoardTypes.Honeycomb:
+                        hct_Run_Tests();
+                        break;
+                    case BoardTypes.Zebrashark:
+
+                        string err_msg = "";
+                        _stopwatch_running.Start();
+                        updateOutputStatus("Zwave Test".PadBoth(80, '-'));
+
+                        try
+                        {
+                            openTelnet();
+                            TCLI.Wait_For_Prompt(_telnet_connection);
+                            Match m = TCLI.Wait_For_Match(_telnet_connection, "cu zm test_node_id",
+                                @"zwaveReadcomplete = TRUE.*zwave receiving status = success.*zwaveReadComplete = \d+ and bytesReadFromZwave = \d+",
+                                regxoption: RegexOptions.Singleline);
+                        }
+                        catch (Exception ex)
+                        {
+                            err_msg = ex.Message;
+                        }
+
+                        if(err_msg == "")
+                        {
+                            updateRunStatus("PASS", Color.White, Color.Green);
+                        }
+                        else
+                        {
+                            updateRunStatus("FAIL", Color.White, Color.Red);
+                            updateOutputStatus(err_msg);
+
+                            closeTelnet();
+
+                            if (_meter != null)
+                                _meter.CloseSerialPort();
+
+                            power_off();
+
+                        }
+
+                        elapsedTime = String.Format("Elapsed time {0:00} seconds", _stopwatch_running.Elapsed.TotalSeconds);
+                        updateOutputStatus(elapsedTime);
+                        updateOutputStatus("End Zwave Test".PadBoth(80, '-'));
+
+                        _stopwatch_running.Stop();
+                        _stopwatch_running.Reset();
+
+                        if (err_msg == "")
+                            calibrate();
+
+                        break;
+                    default:
+                        calibrate();
+                        break;
                 }
             }
+
         }
 
         /// <summary>

@@ -225,7 +225,7 @@ namespace PowerCalibration
         /// <summary>
         /// Closes the board relay using custom command
         /// </summary>
-        void set_board_relay(bool value)
+        public void Set_board_relay(bool value)
         {
             TCLI.Wait_For_Prompt(_telnet_connection);
 
@@ -563,7 +563,7 @@ namespace PowerCalibration
 
                 // Close the UUT relay
                 // Some jigs short-out the relay....
-                set_board_relay(true);
+                Set_board_relay(true);
 
                 Thread.Sleep(1000);
 

@@ -264,7 +264,7 @@ namespace PowerCalibration.Properties {
         
         [global::System.Configuration.UserScopedSettingAttribute()]
         [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
-        [global::System.Configuration.DefaultSettingValueAttribute("True")]
+        [global::System.Configuration.DefaultSettingValueAttribute("False")]
         public bool Disable_ReadProtection_BeforeCoding {
             get {
                 return ((bool)(this["Disable_ReadProtection_BeforeCoding"]));
@@ -343,6 +343,18 @@ namespace PowerCalibration.Properties {
             }
             set {
                 this["Coding_File"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("True")]
+        public bool AutoSelectBoardByMfgString {
+            get {
+                return ((bool)(this["AutoSelectBoardByMfgString"]));
+            }
+            set {
+                this["AutoSelectBoardByMfgString"] = value;
             }
         }
     }

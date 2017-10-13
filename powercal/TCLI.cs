@@ -523,7 +523,7 @@ namespace PowerCalibration
             return data;
         }
 
-        public static Match Wait_For_Match(TelnetConnection telnet_connection, string command, string pattern, int retry_count = 3, int delay_ms = 100)
+        public static Match Wait_For_Match(TelnetConnection telnet_connection, string command, string pattern, int retry_count = 3, int delay_ms = 100, RegexOptions regxoption = RegexOptions.None)
         {
             Wait_For_Prompt(telnet_connection);
             int n = 0;
@@ -539,7 +539,7 @@ namespace PowerCalibration
                 data = telnet_connection.Read();
                 if (data != null)
                 {
-                    match = Regex.Match(data, pattern);
+                    match = Regex.Match(data, pattern, regxoption);
 
                     if (match.Success)
                     {

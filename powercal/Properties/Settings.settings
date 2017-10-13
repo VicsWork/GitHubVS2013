@@ -67,7 +67,7 @@
       <Value Profile="(Default)">True</Value>
     </Setting>
     <Setting Name="Disable_ReadProtection_BeforeCoding" Type="System.Boolean" Scope="User">
-      <Value Profile="(Default)">True</Value>
+      <Value Profile="(Default)">False</Value>
     </Setting>
     <Setting Name="Gain_Current_Max" Type="System.Double" Scope="User">
       <Value Profile="(Default)">1</Value>
@@ -86,6 +86,9 @@
     </Setting>
     <Setting Name="Coding_File" Type="System.String" Scope="User">
       <Value Profile="(Default)">C:\Users\victormartin\Documents\Jigs\Mahi_HALIBUT\mahi3.hex</Value>
+    </Setting>
+    <Setting Name="AutoSelectBoardByMfgString" Type="System.Boolean" Scope="User">
+      <Value Profile="(Default)">True</Value>
     </Setting>
   </Settings>
 </SettingsFile>
