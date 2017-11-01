@@ -39,7 +39,7 @@ namespace PowerCalibration
     public partial class Form_Main : Form, ICalibrationService
     {
         enum TaskTypes { Pretest, Code, Test, Calibrate, Recode, None };
-        enum Coding_Method { EBL, ISA_UTIL, BATCH_FILE };
+        public enum Coding_Method { EBL, ISA_UTIL, BATCH_FILE };
 
         MultiMeter _meter = null; // The multimeter controller
         RelayControler _relay_ctrl; // The relay controller
@@ -132,7 +132,7 @@ namespace PowerCalibration
 
 
             // Always reset this settings as they are important to forget leaving them in a different state
-            Properties.Settings.Default.Ember_ReadProtect_Enabled = true;
+            //Properties.Settings.Default.Ember_ReadProtect_Enabled = true;
             Properties.Settings.Default.PrePost_Test_Enabled = true;
             Properties.Settings.Default.Save();
 
@@ -2266,9 +2266,9 @@ namespace PowerCalibration
                         StartInfo = new ProcessStartInfo()
                         {
                             FileName = Path.Combine(Properties.Settings.Default.Ember_BinPath,
-                            @"C:\Users\victormartin\Google Drive\Setup\Villa\VillaCoder.bat"),
-                            WorkingDirectory = @"C:\Users\victormartin\Google Drive\Setup\Villa",
-                            Arguments = "3145",
+                            Properties.Settings.Default.Coding_File),
+                            WorkingDirectory = Path.GetDirectoryName(Properties.Settings.Default.Coding_File),
+                            Arguments = getSelectedBoardType().ToString(),
                             UseShellExecute = false,
                             CreateNoWindow = true,
                             RedirectStandardOutput = true,
