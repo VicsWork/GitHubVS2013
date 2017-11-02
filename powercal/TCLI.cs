@@ -406,7 +406,6 @@ namespace PowerCalibration
                     Thread.Sleep(500);
                 }
 
-
                 // Try to read all data available
                 while (telnet_connection.Available > 0)
                 {
@@ -419,17 +418,17 @@ namespace PowerCalibration
                 {
                     break;
                 }
-                else if (telnet_connection.Port != TCLI.ISA3_ADMIN_PORT_NUM)
-                {
-                    try
-                    {
-                        ResetISAANode(telnet_connection.HostName);
-                    }
-                    catch (Exception ex)
-                    {
-                        string msg = ex.Message;
-                    }
-                }
+                //else if (telnet_connection.Port != TCLI.ISA3_ADMIN_PORT_NUM)
+                //{
+                //    try
+                //    {
+                //        ResetISAANode(telnet_connection.HostName);
+                //    }
+                //    catch (Exception ex)
+                //    {
+                //        string msg = ex.Message;
+                //    }
+                //}
 
                 n++;
             }

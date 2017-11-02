@@ -1311,14 +1311,14 @@ namespace PowerCalibration
             {
                 try
                 {
-                    TCLI.Wait_For_Prompt(_telnet_connection);
+                    TCLI.Wait_For_Prompt(_telnet_connection, retry_count:20);
                     break;
                 }
                 catch { }
                 _relay_ctrl.WriteLine(Relay_Lines.Power, false);
-                Thread.Sleep(1000);
+                Thread.Sleep(500);
                 _relay_ctrl.WriteLine(Relay_Lines.Power, true);
-                Thread.Sleep(1000);
+                Thread.Sleep(2000);
             }
             try
             {

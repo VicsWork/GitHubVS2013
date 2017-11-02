@@ -207,12 +207,12 @@ namespace PowerCalibration
                     break;
                 else
                 {
-                    TraceLogger.Log("Reset UUT");
+                    TraceLogger.Log("Hard Reset UUT");
                     _relay_ctrl.WriteLine(Relay_Lines.Ember, true);
                     _relay_ctrl.WriteLine(Relay_Lines.Power, false);
-                    Thread.Sleep(1000);
+                    Thread.Sleep(500);
                     _relay_ctrl.WriteLine(Relay_Lines.Power, true);
-                    Thread.Sleep(1000);
+                    Thread.Sleep(3000);
                     _telnet_connection.Read();
                 }
                 try_count++;
