@@ -79,7 +79,7 @@
     <ApplicationIcon>powercal.ico</ApplicationIcon>
   </PropertyGroup>
   <PropertyGroup>
-    <ManifestCertificateThumbprint>6B7620B74BB03F2291B2C05B80D38ADA29529F63</ManifestCertificateThumbprint>
+    <ManifestCertificateThumbprint>24BC3B5D17BA2CA8FDC1FB914036402C3DA605DB</ManifestCertificateThumbprint>
   </PropertyGroup>
   <PropertyGroup>
     <ManifestKeyFile>
@@ -299,12 +299,12 @@
   <ItemGroup>
     <PublishFile Include="powercal.pdb">
       <Visible>False</Visible>
-      <PublishState>Include</PublishState>
-      <IncludeHash>True</IncludeHash>
       <Group>
       </Group>
       <TargetPath>
       </TargetPath>
+      <PublishState>Include</PublishState>
+      <IncludeHash>True</IncludeHash>
       <FileType>File</FileType>
     </PublishFile>
   </ItemGroup>
