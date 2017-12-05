@@ -30,7 +30,7 @@
       <Value Profile="(Default)">True</Value>
     </Setting>
     <Setting Name="DB_Loging_Enabled" Type="System.Boolean" Scope="User">
-      <Value Profile="(Default)">False</Value>
+      <Value Profile="(Default)">True</Value>
     </Setting>
     <Setting Name="ProductionSiteName" Type="System.String" Scope="User">
       <Value Profile="(Default)">Centralite</Value>
@@ -61,7 +61,7 @@
       <Value Profile="(Default)">41461589</Value>
     </Setting>
     <Setting Name="Ember_ReadProtect_Enabled" Type="System.Boolean" Scope="User">
-      <Value Profile="(Default)">False</Value>
+      <Value Profile="(Default)">True</Value>
     </Setting>
     <Setting Name="Play_Sounds" Type="System.Boolean" Scope="User">
       <Value Profile="(Default)">True</Value>
@@ -82,10 +82,10 @@
       <Value Profile="(Default)">0.8</Value>
     </Setting>
     <Setting Name="Coding_Method" Type="System.String" Scope="User">
-      <Value Profile="(Default)">BATCH_FILE</Value>
+      <Value Profile="(Default)">EBL</Value>
     </Setting>
     <Setting Name="Coding_File" Type="System.String" Scope="User">
-      <Value Profile="(Default)">C:\Users\victormartin\Google Drive\ForGigaTek\Centralite\Code.bat</Value>
+      <Value Profile="(Default)" />
     </Setting>
     <Setting Name="AutoSelectBoardByMfgString" Type="System.Boolean" Scope="User">
       <Value Profile="(Default)">True</Value>

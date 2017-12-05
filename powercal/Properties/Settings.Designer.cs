@@ -133,7 +133,7 @@ namespace PowerCalibration.Properties {
         
         [global::System.Configuration.UserScopedSettingAttribute()]
         [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
-        [global::System.Configuration.DefaultSettingValueAttribute("False")]
+        [global::System.Configuration.DefaultSettingValueAttribute("True")]
         public bool DB_Loging_Enabled {
             get {
                 return ((bool)(this["DB_Loging_Enabled"]));
@@ -240,7 +240,7 @@ namespace PowerCalibration.Properties {
         
         [global::System.Configuration.UserScopedSettingAttribute()]
         [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
-        [global::System.Configuration.DefaultSettingValueAttribute("False")]
+        [global::System.Configuration.DefaultSettingValueAttribute("True")]
         public bool Ember_ReadProtect_Enabled {
             get {
                 return ((bool)(this["Ember_ReadProtect_Enabled"]));
@@ -324,7 +324,7 @@ namespace PowerCalibration.Properties {
         
         [global::System.Configuration.UserScopedSettingAttribute()]
         [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
-        [global::System.Configuration.DefaultSettingValueAttribute("BATCH_FILE")]
+        [global::System.Configuration.DefaultSettingValueAttribute("EBL")]
         public string Coding_Method {
             get {
                 return ((string)(this["Coding_Method"]));
@@ -336,7 +336,7 @@ namespace PowerCalibration.Properties {
         
         [global::System.Configuration.UserScopedSettingAttribute()]
         [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
-        [global::System.Configuration.DefaultSettingValueAttribute("C:\\Users\\victormartin\\Google Drive\\ForGigaTek\\Centralite\\Code.bat")]
+        [global::System.Configuration.DefaultSettingValueAttribute("")]
         public string Coding_File {
             get {
                 return ((string)(this["Coding_File"]));
