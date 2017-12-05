@@ -31,6 +31,11 @@
             this.components = new System.ComponentModel.Container();
             this.TabControl = new System.Windows.Forms.TabControl();
             this.tabPageEmber = new System.Windows.Forms.TabPage();
+            this.groupBox6 = new System.Windows.Forms.GroupBox();
+            this.label20 = new System.Windows.Forms.Label();
+            this.CodingMethodPath_label = new System.Windows.Forms.Label();
+            this.CodingMethodPath_textBox = new System.Windows.Forms.TextBox();
+            this.CodingMethod_domainUpDown = new System.Windows.Forms.DomainUpDown();
             this.textBox_EmberInterfaceAddress = new System.Windows.Forms.TextBox();
             this.label9 = new System.Windows.Forms.Label();
             this.comboBox_EmberInterface = new System.Windows.Forms.ComboBox();
@@ -83,14 +88,15 @@
             this.labelDBConnectStr = new System.Windows.Forms.Label();
             this.checkBox_EnableDBReporting = new System.Windows.Forms.CheckBox();
             this.groupBox5 = new System.Windows.Forms.GroupBox();
-            this.checkBox_disableRdProtectionBeforeCode = new System.Windows.Forms.CheckBox();
+            this.DisableRdProtectionBeforeCode_checkBox = new System.Windows.Forms.CheckBox();
             this.groupBox1 = new System.Windows.Forms.GroupBox();
-            this.checkBox_enableRdProt = new System.Windows.Forms.CheckBox();
+            this.EnableRDProt_checkBox = new System.Windows.Forms.CheckBox();
             this.buttonCancel = new System.Windows.Forms.Button();
             this.buttonOK = new System.Windows.Forms.Button();
             this.toolTip1 = new System.Windows.Forms.ToolTip(this.components);
             this.TabControl.SuspendLayout();
             this.tabPageEmber.SuspendLayout();
+            this.groupBox6.SuspendLayout();
             this.tabPageDIO.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.numericUpDown_VacVdc)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.NumericUpDown_Ember)).BeginInit();
@@ -128,6 +134,7 @@
             // 
             // tabPageEmber
             // 
+            this.tabPageEmber.Controls.Add(this.groupBox6);
             this.tabPageEmber.Controls.Add(this.textBox_EmberInterfaceAddress);
             this.tabPageEmber.Controls.Add(this.label9);
             this.tabPageEmber.Controls.Add(this.comboBox_EmberInterface);
@@ -142,6 +149,57 @@
             this.tabPageEmber.TabIndex = 0;
             this.tabPageEmber.Text = "Ember";
             this.tabPageEmber.UseVisualStyleBackColor = true;
+            // 
+            // groupBox6
+            // 
+            this.groupBox6.Controls.Add(this.label20);
+            this.groupBox6.Controls.Add(this.CodingMethodPath_label);
+            this.groupBox6.Controls.Add(this.CodingMethodPath_textBox);
+            this.groupBox6.Controls.Add(this.CodingMethod_domainUpDown);
+            this.groupBox6.Location = new System.Drawing.Point(9, 100);
+            this.groupBox6.Name = "groupBox6";
+            this.groupBox6.Size = new System.Drawing.Size(345, 75);
+            this.groupBox6.TabIndex = 27;
+            this.groupBox6.TabStop = false;
+            this.groupBox6.Text = "Coding";
+            // 
+            // label20
+            // 
+            this.label20.AutoSize = true;
+            this.label20.Location = new System.Drawing.Point(3, 21);
+            this.label20.Name = "label20";
+            this.label20.Size = new System.Drawing.Size(46, 13);
+            this.label20.TabIndex = 25;
+            this.label20.Text = "Method:";
+            // 
+            // CodingMethodPath_label
+            // 
+            this.CodingMethodPath_label.AutoSize = true;
+            this.CodingMethodPath_label.Location = new System.Drawing.Point(3, 48);
+            this.CodingMethodPath_label.Name = "CodingMethodPath_label";
+            this.CodingMethodPath_label.Size = new System.Drawing.Size(32, 13);
+            this.CodingMethodPath_label.TabIndex = 24;
+            this.CodingMethodPath_label.Text = "Path:";
+            // 
+            // CodingMethodPath_textBox
+            // 
+            this.CodingMethodPath_textBox.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
+            | System.Windows.Forms.AnchorStyles.Right)));
+            this.CodingMethodPath_textBox.Location = new System.Drawing.Point(41, 45);
+            this.CodingMethodPath_textBox.Name = "CodingMethodPath_textBox";
+            this.CodingMethodPath_textBox.Size = new System.Drawing.Size(236, 20);
+            this.CodingMethodPath_textBox.TabIndex = 23;
+            this.CodingMethodPath_textBox.TextChanged += new System.EventHandler(this.CondingMethodPath_textBox_TextChanged);
+            // 
+            // CodingMethod_domainUpDown
+            // 
+            this.CodingMethod_domainUpDown.Location = new System.Drawing.Point(55, 19);
+            this.CodingMethod_domainUpDown.Name = "CodingMethod_domainUpDown";
+            this.CodingMethod_domainUpDown.Size = new System.Drawing.Size(120, 20);
+            this.CodingMethod_domainUpDown.TabIndex = 0;
+            this.CodingMethod_domainUpDown.Text = "EBL";
+            this.CodingMethod_domainUpDown.Wrap = true;
+            this.CodingMethod_domainUpDown.SelectedItemChanged += new System.EventHandler(this.CodingMethod_domainUpDown_SelectedItemChanged);
             // 
             // textBox_EmberInterfaceAddress
             // 
@@ -528,10 +586,10 @@
             this.textBox_GainVoltageMax.TabIndex = 17;
             this.textBox_GainVoltageMax.TextChanged += new System.EventHandler(this.textBox_GainVolatgeMax_TextChanged);
             // 
-            // textBox_GainVolatgeMin
+            // textBox_GainVoltageMin
             // 
             this.textBox_GainVoltageMin.Location = new System.Drawing.Point(109, 163);
-            this.textBox_GainVoltageMin.Name = "textBox_GainVolatgeMin";
+            this.textBox_GainVoltageMin.Name = "textBox_GainVoltageMin";
             this.textBox_GainVoltageMin.Size = new System.Drawing.Size(100, 20);
             this.textBox_GainVoltageMin.TabIndex = 18;
             this.textBox_GainVoltageMin.TextChanged += new System.EventHandler(this.textBox_GainVolatgeMin_TextChanged);
@@ -698,7 +756,7 @@
             // 
             this.groupBox5.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
             | System.Windows.Forms.AnchorStyles.Right)));
-            this.groupBox5.Controls.Add(this.checkBox_disableRdProtectionBeforeCode);
+            this.groupBox5.Controls.Add(this.DisableRdProtectionBeforeCode_checkBox);
             this.groupBox5.Location = new System.Drawing.Point(3, 3);
             this.groupBox5.Name = "groupBox5";
             this.groupBox5.Size = new System.Drawing.Size(358, 55);
@@ -708,20 +766,20 @@
             // 
             // checkBox_disableRdProtectionBeforeCode
             // 
-            this.checkBox_disableRdProtectionBeforeCode.AutoSize = true;
-            this.checkBox_disableRdProtectionBeforeCode.Location = new System.Drawing.Point(6, 17);
-            this.checkBox_disableRdProtectionBeforeCode.Name = "checkBox_disableRdProtectionBeforeCode";
-            this.checkBox_disableRdProtectionBeforeCode.Size = new System.Drawing.Size(203, 17);
-            this.checkBox_disableRdProtectionBeforeCode.TabIndex = 7;
-            this.checkBox_disableRdProtectionBeforeCode.Text = "Disable read protection before coding";
-            this.checkBox_disableRdProtectionBeforeCode.UseVisualStyleBackColor = true;
-            this.checkBox_disableRdProtectionBeforeCode.CheckedChanged += new System.EventHandler(this.checkBox_disableRdProtectionBeforeCode_CheckedChanged);
+            this.DisableRdProtectionBeforeCode_checkBox.AutoSize = true;
+            this.DisableRdProtectionBeforeCode_checkBox.Location = new System.Drawing.Point(6, 17);
+            this.DisableRdProtectionBeforeCode_checkBox.Name = "checkBox_disableRdProtectionBeforeCode";
+            this.DisableRdProtectionBeforeCode_checkBox.Size = new System.Drawing.Size(203, 17);
+            this.DisableRdProtectionBeforeCode_checkBox.TabIndex = 7;
+            this.DisableRdProtectionBeforeCode_checkBox.Text = "Disable read protection before coding";
+            this.DisableRdProtectionBeforeCode_checkBox.UseVisualStyleBackColor = true;
+            this.DisableRdProtectionBeforeCode_checkBox.CheckedChanged += new System.EventHandler(this.checkBox_disableRdProtectionBeforeCode_CheckedChanged);
             // 
             // groupBox1
             // 
             this.groupBox1.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
             | System.Windows.Forms.AnchorStyles.Right)));
-            this.groupBox1.Controls.Add(this.checkBox_enableRdProt);
+            this.groupBox1.Controls.Add(this.EnableRDProt_checkBox);
             this.groupBox1.Location = new System.Drawing.Point(3, 64);
             this.groupBox1.Name = "groupBox1";
             this.groupBox1.Size = new System.Drawing.Size(358, 55);
@@ -729,16 +787,16 @@
             this.groupBox1.TabStop = false;
             this.groupBox1.Text = "Post Process";
             // 
-            // checkBox_enableRdProt
+            // EnableRDProt_checkBox
             // 
-            this.checkBox_enableRdProt.AutoSize = true;
-            this.checkBox_enableRdProt.Location = new System.Drawing.Point(6, 17);
-            this.checkBox_enableRdProt.Name = "checkBox_enableRdProt";
-            this.checkBox_enableRdProt.Size = new System.Drawing.Size(211, 17);
-            this.checkBox_enableRdProt.TabIndex = 7;
-            this.checkBox_enableRdProt.Text = "Enable read protection after completion";
-            this.checkBox_enableRdProt.UseVisualStyleBackColor = true;
-            this.checkBox_enableRdProt.CheckedChanged += new System.EventHandler(this.checkBox_enableRdProt_CheckedChanged);
+            this.EnableRDProt_checkBox.AutoSize = true;
+            this.EnableRDProt_checkBox.Location = new System.Drawing.Point(6, 17);
+            this.EnableRDProt_checkBox.Name = "EnableRDProt_checkBox";
+            this.EnableRDProt_checkBox.Size = new System.Drawing.Size(211, 17);
+            this.EnableRDProt_checkBox.TabIndex = 7;
+            this.EnableRDProt_checkBox.Text = "Enable read protection after completion";
+            this.EnableRDProt_checkBox.UseVisualStyleBackColor = true;
+            this.EnableRDProt_checkBox.CheckedChanged += new System.EventHandler(this.checkBox_enableRdProt_CheckedChanged);
             // 
             // buttonCancel
             // 
@@ -778,6 +836,8 @@
             this.TabControl.ResumeLayout(false);
             this.tabPageEmber.ResumeLayout(false);
             this.tabPageEmber.PerformLayout();
+            this.groupBox6.ResumeLayout(false);
+            this.groupBox6.PerformLayout();
             this.tabPageDIO.ResumeLayout(false);
             this.tabPageDIO.PerformLayout();
             ((System.ComponentModel.ISupportInitialize)(this.numericUpDown_VacVdc)).EndInit();
@@ -851,14 +911,14 @@
         private System.Windows.Forms.ToolTip toolTip1;
         private System.Windows.Forms.TabPage tabPageSuper;
         private System.Windows.Forms.GroupBox groupBox1;
-        private System.Windows.Forms.CheckBox checkBox_enableRdProt;
+        private System.Windows.Forms.CheckBox EnableRDProt_checkBox;
         private System.Windows.Forms.GroupBox groupBox2;
         private System.Windows.Forms.Label labelDBConnectStr;
         private System.Windows.Forms.CheckBox checkBox_EnableDBReporting;
         private System.Windows.Forms.GroupBox groupBox4;
         private System.Windows.Forms.CheckBox checkBox_PlaySounds;
         private System.Windows.Forms.GroupBox groupBox5;
-        private System.Windows.Forms.CheckBox checkBox_disableRdProtectionBeforeCode;
+        private System.Windows.Forms.CheckBox DisableRdProtectionBeforeCode_checkBox;
         private System.Windows.Forms.Label label11;
         private System.Windows.Forms.Label label12;
         private System.Windows.Forms.Label label17;
@@ -867,5 +927,10 @@
         private System.Windows.Forms.TextBox textBox_GainCurrentMin;
         private System.Windows.Forms.TextBox textBox_GainVoltageMax;
         private System.Windows.Forms.TextBox textBox_GainVoltageMin;
+        private System.Windows.Forms.GroupBox groupBox6;
+        private System.Windows.Forms.Label label20;
+        private System.Windows.Forms.Label CodingMethodPath_label;
+        public System.Windows.Forms.TextBox CodingMethodPath_textBox;
+        private System.Windows.Forms.DomainUpDown CodingMethod_domainUpDown;
     }
 }

@@ -86,19 +86,27 @@ namespace PowerCalibration
             checkBoxCode_MinOnPass.Checked = Properties.Settings.Default.CodeMinimizedOnPASS;
 
             // Super
-            checkBox_enableRdProt.Checked = Properties.Settings.Default.Ember_ReadProtect_Enabled;
+            EnableRDProt_checkBox.Checked = Properties.Settings.Default.Ember_ReadProtect_Enabled;
 
             // Play Sounds
             checkBox_PlaySounds.Checked = Properties.Settings.Default.Play_Sounds;
 
             // Super Disable Rd Protect before coding
-            checkBox_disableRdProtectionBeforeCode.Checked = Properties.Settings.Default.Disable_ReadProtection_BeforeCoding;
+            DisableRdProtectionBeforeCode_checkBox.Checked = Properties.Settings.Default.Disable_ReadProtection_BeforeCoding;
+            EnableRDProt_checkBox.Checked = Properties.Settings.Default.Ember_ReadProtect_Enabled;
 
             // Gain values
             textBox_GainCurrentMax.Text = Properties.Settings.Default.Gain_Current_Max.ToString();
             textBox_GainCurrentMin.Text = Properties.Settings.Default.Gain_Current_Min.ToString();
             textBox_GainVoltageMax.Text = Properties.Settings.Default.Gain_Voltage_Max.ToString();
             textBox_GainVoltageMin.Text = Properties.Settings.Default.Gain_Voltage_Min.ToString();
+
+            CodingMethod_domainUpDown.Items.AddRange(Enum.GetNames(typeof(Form_Main.Coding_Method)));
+            CodingMethod_domainUpDown.SelectedIndex =
+                CodingMethod_domainUpDown.Items.IndexOf(Properties.Settings.Default.Coding_Method);
+            CodingMethod_domainUpDown_SelectedItemChanged(this, EventArgs.Empty);
+
+            CodingMethodPath_textBox.Text = Properties.Settings.Default.Coding_File;
 
         }
 
@@ -305,7 +313,7 @@ namespace PowerCalibration
 
         private void checkBox_enableRdProt_CheckedChanged(object sender, EventArgs e)
         {
-            Properties.Settings.Default.Ember_ReadProtect_Enabled = checkBox_enableRdProt.Checked;
+            Properties.Settings.Default.Ember_ReadProtect_Enabled = EnableRDProt_checkBox.Checked;
         }
 
         private void checkBox_playSounds_CheckedChanged(object sender, EventArgs e)
@@ -315,8 +323,8 @@ namespace PowerCalibration
 
         private void checkBox_disableRdProtectionBeforeCode_CheckedChanged(object sender, EventArgs e)
         {
-            Properties.Settings.Default.Disable_ReadProtection_BeforeCoding = 
-                checkBox_disableRdProtectionBeforeCode.Checked;
+            Properties.Settings.Default.Disable_ReadProtection_BeforeCoding =
+                DisableRdProtectionBeforeCode_checkBox.Checked;
         }
 
         private void textBox_GainCurrentMax_TextChanged(object sender, EventArgs e)
@@ -370,6 +378,27 @@ namespace PowerCalibration
 
         }
 
+        private void CodingMethod_domainUpDown_SelectedItemChanged(object sender, EventArgs e)
+        {
+            Properties.Settings.Default.Coding_Method = CodingMethod_domainUpDown.Text;
+            Properties.Settings.Default.Save();
+            if (CodingMethod_domainUpDown.Text == Form_Main.Coding_Method.BATCH_FILE.ToString())
+            {
+                CodingMethodPath_label.Visible = true;
+                CodingMethodPath_textBox.Visible = true;
+            }
+            else
+            {
+                CodingMethodPath_label.Visible = false;
+                CodingMethodPath_textBox.Visible = false;
+            }
 
+        }
+
+        private void CondingMethodPath_textBox_TextChanged(object sender, EventArgs e)
+        {
+            Properties.Settings.Default.Coding_File = CodingMethodPath_textBox.Text;
+            Properties.Settings.Default.Save();
+        }
     }
 }

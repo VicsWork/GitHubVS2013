@@ -133,7 +133,7 @@ namespace PowerCalibration.Properties {
         
         [global::System.Configuration.UserScopedSettingAttribute()]
         [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
-        [global::System.Configuration.DefaultSettingValueAttribute("True")]
+        [global::System.Configuration.DefaultSettingValueAttribute("False")]
         public bool DB_Loging_Enabled {
             get {
                 return ((bool)(this["DB_Loging_Enabled"]));
@@ -240,7 +240,7 @@ namespace PowerCalibration.Properties {
         
         [global::System.Configuration.UserScopedSettingAttribute()]
         [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
-        [global::System.Configuration.DefaultSettingValueAttribute("True")]
+        [global::System.Configuration.DefaultSettingValueAttribute("False")]
         public bool Ember_ReadProtect_Enabled {
             get {
                 return ((bool)(this["Ember_ReadProtect_Enabled"]));
@@ -276,7 +276,7 @@ namespace PowerCalibration.Properties {
         
         [global::System.Configuration.UserScopedSettingAttribute()]
         [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
-        [global::System.Configuration.DefaultSettingValueAttribute("1")]
+        [global::System.Configuration.DefaultSettingValueAttribute("1.1")]
         public double Gain_Current_Max {
             get {
                 return ((double)(this["Gain_Current_Max"]));
@@ -324,7 +324,7 @@ namespace PowerCalibration.Properties {
         
         [global::System.Configuration.UserScopedSettingAttribute()]
         [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
-        [global::System.Configuration.DefaultSettingValueAttribute("EBL")]
+        [global::System.Configuration.DefaultSettingValueAttribute("BATCH_FILE")]
         public string Coding_Method {
             get {
                 return ((string)(this["Coding_Method"]));
@@ -336,7 +336,7 @@ namespace PowerCalibration.Properties {
         
         [global::System.Configuration.UserScopedSettingAttribute()]
         [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
-        [global::System.Configuration.DefaultSettingValueAttribute("C:\\Users\\victormartin\\Documents\\Jigs\\Mahi_HALIBUT\\mahi3.hex")]
+        [global::System.Configuration.DefaultSettingValueAttribute("C:\\Users\\victormartin\\Google Drive\\ForGigaTek\\Centralite\\Code.bat")]
         public string Coding_File {
             get {
                 return ((string)(this["Coding_File"]));
