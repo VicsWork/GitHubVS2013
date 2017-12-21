@@ -526,14 +526,17 @@ namespace PowerCalibration
 
         void setTestButtonEnablement(bool enable)
         {
+            BoardTypes board_type = getSelectedBoardType();
 
-            if (getSelectedBoardType() == BoardTypes.Honeycomb)
+            switch(board_type)
             {
-                this.buttonTest.Enabled = enable;
-            }
-            else
-            {
-                this.buttonTest.Enabled = false;
+                case BoardTypes.Honeycomb:
+                case BoardTypes.Zebrashark:
+                    buttonTest.Enabled = enable;
+                    break;
+                default:
+                    buttonTest.Enabled = false;
+                    break;
             }
         }
 
