@@ -1240,9 +1240,15 @@ namespace PowerCalibration
             bool autodetected = false;
             // Strip postfix
             string pmfgstr = mfg_str;
-            int pos = mfg_str.IndexOf('-');
-            if (pos > 0)
-                pmfgstr = mfg_str.Substring(0, pos);
+            if (!pmfgstr.StartsWith("4257050"))
+            {
+                // There is a 4257050-RZHAC (relay)
+                // and a 4257050-ZHAC (Dimmer)
+                // For all other models we can drop what's after the - to make it more generic
+                int pos = mfg_str.IndexOf('-');
+                if (pos > 0)
+                    pmfgstr = mfg_str.Substring(0, pos);
+            }
 
             switch (pmfgstr)
             {
