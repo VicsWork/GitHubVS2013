@@ -90,5 +90,8 @@
     <Setting Name="AutoSelectBoardByMfgString" Type="System.Boolean" Scope="User">
       <Value Profile="(Default)">True</Value>
     </Setting>
+    <Setting Name="Calibration_Tokens_Backup_Folder" Type="System.String" Scope="User">
+      <Value Profile="(Default)">\\rs01\Data_Shares\Logs\EBLCalTokens</Value>
+    </Setting>
   </Settings>
 </SettingsFile>

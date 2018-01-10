@@ -223,16 +223,38 @@ namespace PowerCalibration
 
         public string Load(string fileloc)
         {
+            Process p = getProcess("\"" + fileloc + "\"");
+            string output = runProcess(p);
+            return output;
+        }
 
-            //EnableRdProt(false);
+        public string SaveCalibrationTokens(int start_addr, string dest_file_name)
+        {
+            // Save tokens to temp file
+            string tmp_file = "caltokens.hex";
 
+            // For calibration tokens we have 12 countinuos bytes
+            // 4 for Vgain, 4 for IGain, 2 for Vref, 2 for IRef
+            string read_args = string.Format("--read @{0:X}-{1:X} \"{2}\"", start_addr, start_addr+11, tmp_file);
+
+            Process p = getProcess(read_args);
+            string output = runProcess(p);
+
+            File.Copy(tmp_file, dest_file_name, true);
+
+            return output;
+        }
+
+
+        Process getProcess(string args)
+        {
             Process p = new Process()
             {
                 StartInfo = new ProcessStartInfo()
                 {
                     FileName = Path.Combine(Properties.Settings.Default.Ember_BinPath, "em3xx_load.exe"),
 
-                    Arguments = getInterfaceAddress() + " \"" + fileloc + "\"",
+                    Arguments = getInterfaceAddress() + " " + args,
                     UseShellExecute = false,
                     CreateNoWindow = true,
                     RedirectStandardOutput = true,
@@ -241,15 +263,16 @@ namespace PowerCalibration
                 }
             };
 
+            return p;
+        }
+        string runProcess(Process p)
+        {
             p.Start();
 
-            while(!p.StandardOutput.EndOfStream)
+            while (!p.StandardOutput.EndOfStream)
             {
                 string line = p.StandardOutput.ReadLine();
-                if(Process_Output_Event != null)
-                {
-                    Process_Output_Event(this, line);
-                }
+                Process_Output_Event?.Invoke(this, line);
             }
 
             string error = "", output = "";
@@ -268,9 +291,10 @@ namespace PowerCalibration
 
                 throw new Exception(msg);
             }
-            return output;
-        }
 
+            return output;
+
+        }
 
         /// <summary>
         /// Runs a calibration batch file
@@ -301,9 +325,9 @@ namespace PowerCalibration
                     p.StandardInput.Flush();
                     p.StandardInput.Close();
 
-                    if(p.StandardOutput.Peek() > -1)
+                    if (p.StandardOutput.Peek() > -1)
                         output = p.StandardOutput.ReadToEnd();
-                    if(p.StandardError.Peek() > -1)
+                    if (p.StandardError.Peek() > -1)
                         error = p.StandardError.ReadToEnd();
                     string msg = string.Format("Timeout running {0}.\r\n", _batch_file_patch);
                     if (output != null && output.Length > 0)
@@ -453,7 +477,7 @@ namespace PowerCalibration
             removed_list.AddRange(removeFilesFromFolder(path, file_find_name).ToArray());
 
             path = Environment.GetEnvironmentVariable("LOCALAPPDATA");
-            path = Path.Combine(path, @"VirtualStore\Program Files (x86)\Ember\ISA3 Utilities\bin"); 
+            path = Path.Combine(path, @"VirtualStore\Program Files (x86)\Ember\ISA3 Utilities\bin");
             removed_list.AddRange(removeFilesFromFolder(path, file_find_name).ToArray());
 
             path = Environment.GetEnvironmentVariable("USERPROFILE");
@@ -508,9 +532,9 @@ namespace PowerCalibration
         {
             // Converts a 24bit value to a 3 byte array
             // Ordered by LSB to MSB
-            byte[] vBytes = new byte[3] { 
-                (byte)(value & 0xFF), 
-                (byte)( (value >> 8) & 0xFF), 
+            byte[] vBytes = new byte[3] {
+                (byte)(value & 0xFF),
+                (byte)( (value >> 8) & 0xFF),
                 (byte)( (value >> 16) & 0xFF) };
 
             return vBytes;

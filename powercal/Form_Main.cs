@@ -200,14 +200,10 @@ namespace PowerCalibration
             //calibrationResults_Event(this, e);
 
             // Set the coding method to use;
-            _coding_method = (Coding_Method)Enum.Parse(typeof(Coding_Method),
-                Properties.Settings.Default.Coding_Method);
+            _coding_method = (Coding_Method)Enum.Parse(typeof(Coding_Method), Properties.Settings.Default.Coding_Method);
             updateOutputStatus("Coding method set to " + _coding_method.ToString());
-            if (_coding_method == Coding_Method.ISA_UTIL)
+            if (_coding_method == Coding_Method.ISA_UTIL || _coding_method == Coding_Method.BATCH_FILE)
                 updateOutputStatus("Coding file set to " + Properties.Settings.Default.Coding_File);
-            else if (_coding_method == Coding_Method.BATCH_FILE)
-                updateOutputStatus("Coding file set to " + "need to set");
-
 
             // Enable the app
             setEnablement(true, false);
@@ -859,6 +855,7 @@ namespace PowerCalibration
                 RelayControler.Device_Types rdevtype = (RelayControler.Device_Types)Enum.Parse(typeof(RelayControler.Device_Types),
                     Properties.Settings.Default.Relay_Controller_Type);
                 _relay_ctrl = new RelayControler(rdevtype);
+                _coding_method = (Coding_Method)Enum.Parse(typeof(Coding_Method), Properties.Settings.Default.Coding_Method);
             }
             else
             {
@@ -1752,6 +1749,7 @@ namespace PowerCalibration
                 calibrate.MultiMeter = _meter;
                 calibrate.RelayController = _relay_ctrl;
                 calibrate.TelnetConnection = _telnet_connection;
+                calibrate.Tokens_Backup_Folder = Properties.Settings.Default.Calibration_Tokens_Backup_Folder;
 
                 _cancel_token_uut = new CancellationTokenSource();
                 _task_uut = new Task(() => calibrate.Run(_cancel_token_uut.Token), _cancel_token_uut.Token);

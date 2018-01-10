@@ -357,5 +357,17 @@ namespace PowerCalibration.Properties {
                 this["AutoSelectBoardByMfgString"] = value;
             }
         }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("\\\\rs01\\Data_Shares\\Logs\\EBLCalTokens")]
+        public string Calibration_Tokens_Backup_Folder {
+            get {
+                return ((string)(this["Calibration_Tokens_Backup_Folder"]));
+            }
+            set {
+                this["Calibration_Tokens_Backup_Folder"] = value;
+            }
+        }
     }
 }

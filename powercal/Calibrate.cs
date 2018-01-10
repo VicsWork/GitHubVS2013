@@ -84,6 +84,10 @@ namespace PowerCalibration
         /// </summary>
         string _ember_batchfile_patch_path = Path.Combine(_app_data_dir, "patchit.bat");
 
+        // Where we save the calibration tokens
+        string _tokens_backup_folder = _app_data_dir;
+        public string Tokens_Backup_Folder { get { return _tokens_backup_folder; } set { _tokens_backup_folder = value; } }
+
         public BoardTypes BoardType
         {
             get { return _board_type; }
@@ -103,15 +107,6 @@ namespace PowerCalibration
         public Ember Ember { get { return _ember; } set { _ember = value; } }
 
         public Calibrate() { }
-
-        public Calibrate(BoardTypes boardtype, RelayControler relay_controller, TelnetConnection telnet_connection, MultiMeter meter)
-        {
-            BoardType = boardtype;
-
-            _relay_ctrl = relay_controller;
-            _telnet_connection = telnet_connection;
-            _meter = meter;
-        }
 
         /// <summary>
         /// Sets values used for calibration for selected board
@@ -547,6 +542,20 @@ namespace PowerCalibration
                     low_limit, cv.Current, high_limit);
                 TraceLogger.Log(msg);
                 throw new Exception(msg);
+            }
+
+            if(_ember != null)
+            {
+                try
+                {
+                    string outfile = Path.Combine(Tokens_Backup_Folder, eui + ".hex");
+                    fire_status("Save tokens...");
+                    _ember.SaveCalibrationTokens(_voltage_gain_adress, outfile);
+                }
+                catch(Exception ex)
+                {
+                    TraceLogger.Log(ex.Message + "\n\n" + ex.StackTrace);
+                }
             }
         }
 

@@ -382,7 +382,10 @@ namespace PowerCalibration
         {
             Properties.Settings.Default.Coding_Method = CodingMethod_domainUpDown.Text;
             Properties.Settings.Default.Save();
-            if (CodingMethod_domainUpDown.Text == Form_Main.Coding_Method.BATCH_FILE.ToString())
+            if (
+                CodingMethod_domainUpDown.Text == Form_Main.Coding_Method.BATCH_FILE.ToString() ||
+                CodingMethod_domainUpDown.Text == Form_Main.Coding_Method.ISA_UTIL.ToString()
+                )
             {
                 CodingMethodPath_label.Visible = true;
                 CodingMethodPath_textBox.Visible = true;
@@ -392,7 +395,6 @@ namespace PowerCalibration
                 CodingMethodPath_label.Visible = false;
                 CodingMethodPath_textBox.Visible = false;
             }
-
         }
 
         private void CondingMethodPath_textBox_TextChanged(object sender, EventArgs e)
