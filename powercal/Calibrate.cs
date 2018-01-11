@@ -548,11 +548,12 @@ namespace PowerCalibration
             {
                 try
                 {
-                    string outfile = Path.Combine(Tokens_Backup_Folder, eui + ".hex");
-                    fire_status("Save tokens...");
-                    _ember.SaveCalibrationTokens(_voltage_gain_adress, outfile);
+                    string filename = eui + ".hex";
+                    string fileurl = Path.Combine(Tokens_Backup_Folder, filename);
+                    _ember.SaveCalibrationTokens(_voltage_gain_adress, fileurl);
+                    fire_status("Saved tokens " + filename);
                 }
-                catch(Exception ex)
+                catch (Exception ex)
                 {
                     TraceLogger.Log(ex.Message + "\n\n" + ex.StackTrace);
                 }

@@ -1548,13 +1548,20 @@ namespace PowerCalibration
 
                 if (next_task == TaskTypes.Test || next_task == TaskTypes.Calibrate)
                 {
-                    openTelnet();
+                    try
+                    {
+                        openTelnet();
+                    }catch(Exception ex)
+                    {
+                        _pretest_error_msg = ex.Message + "\n" + ex.StackTrace;
+                    }
                 }
                 _relay_ctrl.WriteLine(Relay_Lines.Ember, true);
                 _relay_ctrl.WriteLine(Relay_Lines.Power, true);
                 Thread.Sleep(1000);
             }
-            else
+
+            if (_pretest_error_msg != null)
             {
                 closeTelnet();
                 try
