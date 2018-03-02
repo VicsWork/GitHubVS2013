@@ -97,9 +97,9 @@ namespace PowerCalibration
                     }
                     else
                     {
-                        click_Retry();
                         moveToStatus();
                         Thread.Sleep(2000);
+                        click_Retry();
                     }
                 }
                 else if (pixel_color == _cgreen)

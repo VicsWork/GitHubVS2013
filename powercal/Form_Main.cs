@@ -2483,6 +2483,8 @@ namespace PowerCalibration
 
                         if (err_msg == "")
                             calibrate();
+                        else
+                            setEnablement(true, false);
 
                         break;
                     default:
