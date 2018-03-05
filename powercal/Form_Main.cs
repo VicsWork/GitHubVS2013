@@ -2447,9 +2447,37 @@ namespace PowerCalibration
                         {
                             openTelnet();
                             TCLI.Wait_For_Prompt(_telnet_connection);
+
                             Match m = TCLI.Wait_For_Match(_telnet_connection, "cu zm test_node_id",
                                 @"zwaveReadcomplete = TRUE.*zwave receiving status = success.*zwaveReadComplete = \d+ and bytesReadFromZwave = \d+",
                                 regxoption: RegexOptions.Singleline);
+                            if(!m.Success)
+                            {
+                                err_msg = "Unexpected return after \"cu zm test_node_id\" command. Return was: " + m.Value;
+                                throw new Exception(err_msg);
+                            }
+
+                            TCLI.WriteLine(_telnet_connection, "cu zm resetNIFtoken");
+                            TCLI.Wait_For_Prompt(_telnet_connection);
+
+                            m = TCLI.Wait_For_Match(_telnet_connection, "cu zm setNIFonZwave",
+                                @".*Unique callback id =",
+                                regxoption: RegexOptions.Singleline);
+                            if (!m.Success)
+                            {
+                                err_msg = "Unexpected return after \"cu zm setNIFonZwave\" command. Return was: " + m.Value;
+                                throw new Exception(err_msg);
+                            }
+
+                            m = TCLI.Wait_For_Match(_telnet_connection, "cu zm defaultOneTime",
+                                @".*Unique callback id =",
+                                regxoption: RegexOptions.Singleline);
+                            if(!m.Success)
+                            {
+                                err_msg = "Unexpected return after \"cu zm defaultOneTime\" command. Return was: " + m.Value;
+                                throw new Exception(err_msg);
+                            }
+
                         }
                         catch (Exception ex)
                         {
