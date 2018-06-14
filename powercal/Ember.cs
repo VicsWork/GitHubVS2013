@@ -228,6 +228,14 @@ namespace PowerCalibration
             return output;
         }
 
+        public string Run(string args)
+        {
+            Process p = getProcess(args);
+            string output = runProcess(p);
+            return output;
+
+        }
+
         public string SaveCalibrationTokens(int start_addr, string dest_file_name)
         {
             // Save tokens to temp file

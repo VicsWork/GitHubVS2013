@@ -402,8 +402,13 @@ namespace PowerCalibration
             {
                 if (sendEnter)
                 {
-                    telnet_connection.WriteLine("");
-                    Thread.Sleep(500);
+                    for (int i = 0; i < 3; i++)
+                    {
+                        telnet_connection.WriteLine("");
+                        Thread.Sleep(500);
+                        if (telnet_connection.Available > 0)
+                            break;
+                    }
                 }
 
                 // Try to read all data available

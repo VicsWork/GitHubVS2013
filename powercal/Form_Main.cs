@@ -1317,19 +1317,41 @@ namespace PowerCalibration
             closeTelnet();
             openTelnet();
             _relay_ctrl.WriteLine(Relay_Lines.Ember, true);
-            for (int i = 0; i < 3; i++)
+            // Resets the DUT using ISA3 adapter
+            string pout = _ember.Run("");
+            bool promptDetected = false;
+            try
             {
-                _relay_ctrl.WriteLine(Relay_Lines.Power, false);
-                Thread.Sleep(1500);
-                _relay_ctrl.WriteLine(Relay_Lines.Power, true);
-                Thread.Sleep(500);
-                try
-                {
-                    TCLI.Wait_For_Prompt(_telnet_connection, retry_count:20);
-                    break;
-                }
-                catch { }
+                TCLI.Wait_For_Prompt(_telnet_connection, retry_count: 20);
+                promptDetected = true;
             }
+            catch (Exception ex)
+            {
+                string msg = ex.Message;
+            }
+
+            if (!promptDetected)
+            {
+                for (int i = 0; i < 3; i++)
+                {
+                    _relay_ctrl.WriteLine(Relay_Lines.Power, false);
+                    Thread.Sleep(2000);
+                    _relay_ctrl.WriteLine(Relay_Lines.Power, true);
+                    Thread.Sleep(500);
+                    try
+                    {
+                        TCLI.Wait_For_Prompt(_telnet_connection, retry_count: 20);
+                        break;
+                    }
+                    catch (Exception ex)
+                    {
+                        string msg = ex.Message;
+                    }
+                    _relay_ctrl.WriteLine(Relay_Lines.Power, false);
+                    Thread.Sleep(3000);
+                }
+            }
+
             try
             {
                 _mfg_str = getMfgString();
