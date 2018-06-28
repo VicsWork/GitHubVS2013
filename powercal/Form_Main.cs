@@ -1347,8 +1347,6 @@ namespace PowerCalibration
                     {
                         string msg = ex.Message;
                     }
-                    _relay_ctrl.WriteLine(Relay_Lines.Power, false);
-                    Thread.Sleep(3000);
                 }
             }
 
@@ -2373,15 +2371,14 @@ namespace PowerCalibration
             // reactivate the window
             activate();
 
-            // Check whether PASS, Cancelled or FAIL
+            // Check whether PASS, Canceled or FAIL
             if (_cancel_token_uut != null && _cancel_token_uut.IsCancellationRequested)
             {
                 _cancel_token_uut = new CancellationTokenSource();
-                updateRunStatus("Cancelled", Color.Black, Color.Yellow);
+                updateRunStatus("Canceled", Color.Black, Color.Yellow);
             }
             else
             {
-
                 if (_coding_error_msg == null)
                 {
                     if (_running_all)

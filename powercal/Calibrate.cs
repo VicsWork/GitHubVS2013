@@ -320,6 +320,12 @@ namespace PowerCalibration
 
                 if (!error_reading)
                 {
+                    if(cv.Voltage == 0.0 && cv.Current == 0.0)
+                    {
+                        RelayController.WriteLine(Relay_Lines.Power, false);
+                        RelayController.WriteLine(Relay_Lines.Power, true);
+                    }
+
                     power1 = cv.Voltage * cv.Current;
                     double delta1 = 100;
                     if (power1 != 0)
