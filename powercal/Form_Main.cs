@@ -524,7 +524,7 @@ namespace PowerCalibration
         {
             BoardTypes board_type = getSelectedBoardType();
 
-            switch(board_type)
+            switch (board_type)
             {
                 case BoardTypes.Honeycomb:
                 case BoardTypes.Zebrashark:
@@ -1204,17 +1204,13 @@ namespace PowerCalibration
         {
             string msg = "";
             string mfg_str = null;
-            for (int i = 0; i < 2; i++)
+            try
             {
-                try
-                {
-                    mfg_str = TCLI.Get_MFGString(openTelnet());
-                    break;
-                }
-                catch (Exception ex)
-                {
-                    msg = string.Format("Unable to read MFG string: {0}", ex.Message);
-                }
+                mfg_str = TCLI.Get_MFGString(openTelnet());
+            }
+            catch (Exception ex)
+            {
+                msg = string.Format("Unable to read MFG string: {0}", ex.Message);
             }
 
             if (mfg_str == null)
@@ -1223,7 +1219,6 @@ namespace PowerCalibration
             }
 
             return mfg_str;
-
         }
 
         /// <summary>
@@ -1322,7 +1317,7 @@ namespace PowerCalibration
             bool promptDetected = false;
             try
             {
-                TCLI.Wait_For_Prompt(_telnet_connection, retry_count: 20);
+                TCLI.Wait_For_Prompt(_telnet_connection);
                 promptDetected = true;
             }
             catch (Exception ex)
@@ -1332,21 +1327,17 @@ namespace PowerCalibration
 
             if (!promptDetected)
             {
-                for (int i = 0; i < 3; i++)
+                _relay_ctrl.WriteLine(Relay_Lines.Power, false);
+                Thread.Sleep(2000);
+                _relay_ctrl.WriteLine(Relay_Lines.Power, true);
+                Thread.Sleep(500);
+                try
                 {
-                    _relay_ctrl.WriteLine(Relay_Lines.Power, false);
-                    Thread.Sleep(2000);
-                    _relay_ctrl.WriteLine(Relay_Lines.Power, true);
-                    Thread.Sleep(500);
-                    try
-                    {
-                        TCLI.Wait_For_Prompt(_telnet_connection, retry_count: 20);
-                        break;
-                    }
-                    catch (Exception ex)
-                    {
-                        string msg = ex.Message;
-                    }
+                    TCLI.Wait_For_Prompt(_telnet_connection);
+                }
+                catch (Exception ex)
+                {
+                    string msg = ex.Message;
                 }
             }
 
@@ -1571,7 +1562,8 @@ namespace PowerCalibration
                     try
                     {
                         openTelnet();
-                    }catch(Exception ex)
+                    }
+                    catch (Exception ex)
                     {
                         _pretest_error_msg = ex.Message + "\n" + ex.StackTrace;
                     }
@@ -2470,7 +2462,7 @@ namespace PowerCalibration
                             Match m = TCLI.Wait_For_Match(_telnet_connection, "cu zm test_node_id",
                                 @"zwaveReadcomplete = TRUE.*zwave receiving status = success.*zwaveReadComplete = \d+ and bytesReadFromZwave = \d+",
                                 regxoption: RegexOptions.Singleline);
-                            if(!m.Success)
+                            if (!m.Success)
                             {
                                 err_msg = "Unexpected return after \"cu zm test_node_id\" command. Return was: " + m.Value;
                                 throw new Exception(err_msg);
@@ -2491,7 +2483,7 @@ namespace PowerCalibration
                             m = TCLI.Wait_For_Match(_telnet_connection, "cu zm defaultOneTime",
                                 @".*Unique callback id =",
                                 regxoption: RegexOptions.Singleline);
-                            if(!m.Success)
+                            if (!m.Success)
                             {
                                 err_msg = "Unexpected return after \"cu zm defaultOneTime\" command. Return was: " + m.Value;
                                 throw new Exception(err_msg);
@@ -2503,7 +2495,7 @@ namespace PowerCalibration
                             err_msg = ex.Message;
                         }
 
-                        if(err_msg == "")
+                        if (err_msg == "")
                         {
                             updateRunStatus("PASS", Color.White, Color.Green);
                         }

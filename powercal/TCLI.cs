@@ -393,7 +393,7 @@ namespace PowerCalibration
         /// <param name="prompt">The expected prompt.  Default '>'</param>
         /// <param name="sendEnter">Whether to send CR before waiting</param>
         /// <param name="retry_count">The max number of times that we read the session looking for the prompt</param>
-        public static void Wait_For_Prompt(TelnetConnection telnet_connection, string prompt = ">", bool sendEnter = true, int retry_count = 5)
+        public static void Wait_For_Prompt(TelnetConnection telnet_connection, string prompt = ">", bool sendEnter = true, int retry_count = 3)
         {
             telnet_connection.Read();
             int n = 0;
