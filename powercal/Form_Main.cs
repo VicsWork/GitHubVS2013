@@ -36,7 +36,7 @@ namespace PowerCalibration
 {
     enum BoardTypes { Mahi, Halibut, Humpback, Honeycomb, Hornshark, Mudshark, Hooktooth, Milkshark, Zebrashark };
 
-    public partial class Form_Main : Form, ICalibrationService
+    public partial class Form_Main : Form
     {
         enum TaskTypes { Pretest, Code, Test, Calibrate, Recode, None };
         public enum Coding_Method { EBL, ISA_UTIL, BATCH_FILE };
@@ -2418,29 +2418,35 @@ namespace PowerCalibration
                 !_cancel_token_uut.IsCancellationRequested)
             {
 
-                updateRunStatus("Reset UUT", Color.Black, Color.White);
-                TraceLogger.Log("Reset UUT");
 
                 _relay_ctrl.WriteLine(Relay_Lines.Ember, true);
-                for (int i = 0; i < 3; i++)
+                _ember.Run("");
+
+                if (_relay_ctrl.Device_Type == RelayControler.Device_Types.Manual)
                 {
-                    try
-                    {
-                        TCLI.Wait_For_Prompt(openTelnet());
-                        break;
-                    }
-                    catch (Exception ex)
-                    {
-                        string msg = ex.Message;
-                    }
+                    updateRunStatus("Reset UUT", Color.Black, Color.White);
+                    TraceLogger.Log("Reset UUT");
 
-                    if (_relay_ctrl.Device_Type == RelayControler.Device_Types.Manual)
-                        showDialogMsg("Reset UUT");
+                    for (int i = 0; i < 3; i++)
+                    {
+                        try
+                        {
+                            TCLI.Wait_For_Prompt(openTelnet());
+                            break;
+                        }
+                        catch (Exception ex)
+                        {
+                            string msg = ex.Message;
+                        }
 
-                    _relay_ctrl.WriteLine(Relay_Lines.Power, false);
-                    Thread.Sleep(1000);
-                    _relay_ctrl.WriteLine(Relay_Lines.Power, true);
-                    Thread.Sleep(2000);
+                        //if (_relay_ctrl.Device_Type == RelayControler.Device_Types.Manual)
+                            showDialogMsg("Reset UUT");
+
+                        _relay_ctrl.WriteLine(Relay_Lines.Power, false);
+                        Thread.Sleep(1000);
+                        _relay_ctrl.WriteLine(Relay_Lines.Power, true);
+                        Thread.Sleep(2000);
+                    }
                 }
 
                 switch (getSelectedBoardType())

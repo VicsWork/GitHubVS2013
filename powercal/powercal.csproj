@@ -27,7 +27,7 @@
     <PublisherName>Centralite</PublisherName>
     <CreateWebPageOnPublish>true</CreateWebPageOnPublish>
     <WebPage>publish.htm</WebPage>
-    <ApplicationRevision>17</ApplicationRevision>
+    <ApplicationRevision>18</ApplicationRevision>
     <ApplicationVersion>1.0.2.%2a</ApplicationVersion>
     <UseApplicationTrust>true</UseApplicationTrust>
     <CreateDesktopShortcut>true</CreateDesktopShortcut>
@@ -79,11 +79,10 @@
     <ApplicationIcon>powercal.ico</ApplicationIcon>
   </PropertyGroup>
   <PropertyGroup>
-    <ManifestCertificateThumbprint>24BC3B5D17BA2CA8FDC1FB914036402C3DA605DB</ManifestCertificateThumbprint>
+    <ManifestCertificateThumbprint>18E4EB3878101A06B80315BCA208A35BEEE3B2B6</ManifestCertificateThumbprint>
   </PropertyGroup>
   <PropertyGroup>
-    <ManifestKeyFile>
-    </ManifestKeyFile>
+    <ManifestKeyFile>CentraliteVictorMartin2019.pfx</ManifestKeyFile>
   </PropertyGroup>
   <PropertyGroup>
     <GenerateManifests>true</GenerateManifests>
@@ -134,7 +133,6 @@
       <DependentUpon>AboutBox1.cs</DependentUpon>
     </Compile>
     <Compile Include="Calibrate.cs" />
-    <Compile Include="CalibrationService.cs" />
     <Compile Include="Coder.cs" />
     <Compile Include="Ember.cs" />
     <Compile Include="Form_Calculator.cs">
@@ -250,6 +248,7 @@
       <DependentUpon>Resources.resx</DependentUpon>
       <DesignTime>True</DesignTime>
     </Compile>
+    <None Include="CentraliteVictorMartin2019.pfx" />
     <None Include="packages.config" />
     <None Include="powercal_TemporaryKey.pfx" />
     <None Include="Properties\DataSources\Form1.datasource" />

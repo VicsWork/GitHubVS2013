@@ -323,7 +323,7 @@ namespace PowerCalibration
                     if(cv.Voltage == 0.0 && cv.Current == 0.0)
                     {
                         RelayController.WriteLine(Relay_Lines.Power, false);
-                        Thread.Sleep(200);
+                        Thread.Sleep(1000);
                         RelayController.WriteLine(Relay_Lines.Power, true);
                     }
 
