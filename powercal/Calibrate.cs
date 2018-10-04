@@ -205,7 +205,7 @@ namespace PowerCalibration
                     TraceLogger.Log("Hard Reset UUT");
                     _relay_ctrl.WriteLine(Relay_Lines.Ember, true);
                     _relay_ctrl.WriteLine(Relay_Lines.Power, false);
-                    Thread.Sleep(500);
+                    Thread.Sleep(1000);
                     _relay_ctrl.WriteLine(Relay_Lines.Power, true);
                     Thread.Sleep(3000);
                     _telnet_connection.Read();
@@ -591,6 +591,11 @@ namespace PowerCalibration
                 }
                 catch
                 {
+                    if(_ember != null)
+                    {
+                        _ember.Run("");
+                        Thread.Sleep(2000);
+                    }
                     trycount++;
                     if (trycount > 3)
                         throw;
