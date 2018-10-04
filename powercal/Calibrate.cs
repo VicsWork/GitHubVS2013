@@ -593,7 +593,7 @@ namespace PowerCalibration
                 {
                     if(_ember != null)
                     {
-                        _ember.Run("");
+                        _ember.PinReset();
                         Thread.Sleep(2000);
                     }
                     trycount++;

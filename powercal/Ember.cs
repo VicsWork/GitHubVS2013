@@ -530,6 +530,10 @@ namespace PowerCalibration
             }
         }
 
+        public void PinReset()
+        {
+            Run("--pinreset");
+        }
 
         /// <summary>
         /// Breaks an int into 3 bytes

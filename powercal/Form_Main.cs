@@ -1312,8 +1312,10 @@ namespace PowerCalibration
             closeTelnet();
             openTelnet();
             _relay_ctrl.WriteLine(Relay_Lines.Ember, true);
+
             // Resets the DUT using ISA3 adapter
-            string pout = _ember.Run("");
+            _ember?.PinReset();
+
             bool promptDetected = false;
             try
             {
