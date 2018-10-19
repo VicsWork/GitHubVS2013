@@ -2551,7 +2551,16 @@ namespace PowerCalibration
             bool canceled = task.IsCanceled;
             var exception = task.Exception;
 
-            coding_done();
+            try
+            {
+                coding_done();
+            }
+            catch(Exception ex)
+            {
+                updateOutputStatus(ex.Message + "\r\n" + ex.StackTrace);
+                updateRunStatus("FAIL", Color.White, Color.Red);
+                setEnablement(true, false);
+            }
         }
 
         void isa_load_done_handler(Task task)
