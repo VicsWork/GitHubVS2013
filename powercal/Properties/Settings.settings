@@ -93,5 +93,8 @@
     <Setting Name="Calibration_Tokens_Backup_Folder" Type="System.String" Scope="User">
       <Value Profile="(Default)">\\rs01\Data_Shares\Logs\EBLCalTokens</Value>
     </Setting>
+    <Setting Name="Calibration_Check_Relay_Can_Turn_Off" Type="System.Boolean" Scope="User">
+      <Value Profile="(Default)">True</Value>
+    </Setting>
   </Settings>
 </SettingsFile>

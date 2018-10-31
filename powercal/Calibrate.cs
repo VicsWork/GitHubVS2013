@@ -565,6 +565,31 @@ namespace PowerCalibration
                     TraceLogger.Log(ex.Message + "\n\n" + ex.StackTrace);
                 }
             }
+
+            // Check releay can be turned off
+            if (Properties.Settings.Default.Calibration_Check_Relay_Can_Turn_Off)
+            {
+                fire_status("Open Relay Check");
+                int try_count = 0;
+                while (true)
+                {
+                    Set_board_relay(false);
+                    cv = new TCLI.Current_Voltage();
+                    if (cv.Current == 0)
+                    {
+                        fire_status("Relay Off");
+                        break;
+                    }
+                    Thread.Sleep(250);
+                    if(try_count++ > 5)
+                    {
+                        msg = string.Format(
+                            "Current after relay opened command not zero: Ci={0:F2}, Cv={1:F2}", cv.Current, cv.Voltage);
+                        TraceLogger.Log(msg);
+                        throw new Exception(msg);
+                    }
+                }
+            }
         }
 
         /// <summary>
