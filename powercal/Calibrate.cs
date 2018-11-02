@@ -228,7 +228,6 @@ namespace PowerCalibration
             {
 
                 // These boards have relays
-                case BoardTypes.Hooktooth:
                 case BoardTypes.Hornshark:
                 case BoardTypes.Humpback:
                 case BoardTypes.Zebrashark:
@@ -242,7 +241,10 @@ namespace PowerCalibration
                         TraceLogger.Log("Set relay Off");
                         _telnet_connection.WriteLine("write 1 6 0 1 0x10 {00}");
                     }
-                    break;
+                break;
+
+                case BoardTypes.Hooktooth:
+                case BoardTypes.Milkshark:
                 case BoardTypes.Halibut:
                 case BoardTypes.Mahi:
                     if (value)
@@ -255,7 +257,7 @@ namespace PowerCalibration
                         TraceLogger.Log("Set load off");
                         _telnet_connection.WriteLine("cu load_off");
                     }
-                    break;
+                break;
             }
 
             TCLI.Wait_For_Prompt(_telnet_connection);
@@ -569,7 +571,7 @@ namespace PowerCalibration
             // Check releay can be turned off
             if (Properties.Settings.Default.Calibration_Check_Relay_Can_Turn_Off)
             {
-                fire_status("Open Relay Check");
+                fire_status("Load Off Command Check");
                 int try_count = 0;
                 while (true)
                 {
@@ -577,14 +579,14 @@ namespace PowerCalibration
                     cv = new TCLI.Current_Voltage();
                     if (cv.Current == 0)
                     {
-                        fire_status("Relay Off");
+                        fire_status("Current off detected after Load Off command");
                         break;
                     }
                     Thread.Sleep(250);
                     if(try_count++ > 5)
                     {
                         msg = string.Format(
-                            "Current after relay opened command not zero: Ci={0:F2}, Cv={1:F2}", cv.Current, cv.Voltage);
+                            "Current after Load Off command not zero: Ci={0:F2}, Cv={1:F2}", cv.Current, cv.Voltage);
                         TraceLogger.Log(msg);
                         throw new Exception(msg);
                     }

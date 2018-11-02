@@ -1244,6 +1244,10 @@ namespace PowerCalibration
 
             switch (pmfgstr)
             {
+                case "4257050-ZHAC":
+                    controlSetText(comboBoxBoardTypes, BoardTypes.Milkshark.ToString());
+                    autodetected = true;
+                    break;
                 case "4257050-RZHAC":
                     controlSetText(comboBoxBoardTypes, BoardTypes.Hooktooth.ToString());
                     autodetected = true;
