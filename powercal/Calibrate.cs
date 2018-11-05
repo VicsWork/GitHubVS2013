@@ -231,6 +231,7 @@ namespace PowerCalibration
                 case BoardTypes.Hornshark:
                 case BoardTypes.Humpback:
                 case BoardTypes.Zebrashark:
+                case BoardTypes.Hooktooth:  // only 1.6.3 and greater code can use load_on/off
                     if (value)
                     {
                         TraceLogger.Log("Set relay On");
@@ -243,8 +244,7 @@ namespace PowerCalibration
                     }
                 break;
 
-                case BoardTypes.Hooktooth:
-                case BoardTypes.Milkshark:
+                case BoardTypes.Milkshark:  // only 1.6.3 code
                 case BoardTypes.Halibut:
                 case BoardTypes.Mahi:
                     if (value)
