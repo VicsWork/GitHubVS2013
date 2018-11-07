@@ -381,5 +381,17 @@ namespace PowerCalibration.Properties {
                 this["Calibration_Check_Relay_Can_Turn_Off"] = value;
             }
         }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("\\\\rs01\\Data_Shares\\Firmware")]
+        public string Firmware_Path {
+            get {
+                return ((string)(this["Firmware_Path"]));
+            }
+            set {
+                this["Firmware_Path"] = value;
+            }
+        }
     }
 }

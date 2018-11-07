@@ -1797,12 +1797,33 @@ namespace PowerCalibration
         /// </summary>
         void calibration_done()
         {
+            BoardTypes boardType = getSelectedBoardType();
+
             // enable read protection only if enable and this is a complete run
-            if (_running_all && getSelectedBoardType() == BoardTypes.Honeycomb)
+            if (_running_all && boardType == BoardTypes.Honeycomb)
             {
                 updateRunStatus("Clear Sensor Id");
                 Tests_Honeycomb.ClearSensorId(_telnet_connection);
                 Thread.Sleep(500);
+            }
+
+            // Special case for Milkshark
+            if (_running_all &&
+                boardType == BoardTypes.Milkshark &&
+                _calibration_error_msg == null)
+            {
+                updateRunStatus("Downrev to 1.2");
+                try
+                {
+                    string floc = Path.Combine(Properties.Settings.Default.Firmware_Path, "Milkshark", "Milk1_2.ebl");
+                    string strout = _ember.Load(floc);
+                    //updateOutputStatus(strout);
+
+
+                }catch(Exception e)
+                {
+                    _calibration_error_msg = e.Message + e.StackTrace;
+                }
             }
 
             if (_running_all && Properties.Settings.Default.Ember_ReadProtect_Enabled)

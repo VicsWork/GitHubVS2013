@@ -96,5 +96,8 @@
     <Setting Name="Calibration_Check_Relay_Can_Turn_Off" Type="System.Boolean" Scope="User">
       <Value Profile="(Default)">True</Value>
     </Setting>
+    <Setting Name="Firmware_Path" Type="System.String" Scope="User">
+      <Value Profile="(Default)">\\rs01\Data_Shares\Firmware</Value>
+    </Setting>
   </Settings>
 </SettingsFile>

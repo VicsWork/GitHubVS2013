@@ -277,18 +277,20 @@ namespace PowerCalibration
         {
             p.Start();
 
+            string output = "";
             while (!p.StandardOutput.EndOfStream)
             {
                 string line = p.StandardOutput.ReadLine();
+                output += line;
                 Process_Output_Event?.Invoke(this, line);
             }
 
-            string error = "", output = "";
+            string error = "";
             if (!p.WaitForExit(2000))
                 p.Kill();
 
             error = p.StandardError.ReadToEnd();
-            output = p.StandardOutput.ReadToEnd();
+            output += p.StandardOutput.ReadToEnd();
             int rc = p.ExitCode;
             if (rc != 0)
             {
