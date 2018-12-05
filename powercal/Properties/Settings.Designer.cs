@@ -393,5 +393,17 @@ namespace PowerCalibration.Properties {
                 this["Firmware_Path"] = value;
             }
         }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("00:05:00")]
+        public global::System.TimeSpan EBL_Coding_Timeout {
+            get {
+                return ((global::System.TimeSpan)(this["EBL_Coding_Timeout"]));
+            }
+            set {
+                this["EBL_Coding_Timeout"] = value;
+            }
+        }
     }
 }

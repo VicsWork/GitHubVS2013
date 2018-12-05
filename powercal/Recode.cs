@@ -134,7 +134,7 @@ namespace PowerCalibration
             {
                 // Code here
                 fire_run_status("Code");
-                Coder coder = new Coder(new TimeSpan(0, 2, 0));
+                Coder coder = new Coder(Properties.Settings.Default.EBL_Coding_Timeout);
                 coder.Code(cancel);
             }
             catch (Exception)

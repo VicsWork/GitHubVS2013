@@ -99,5 +99,8 @@
     <Setting Name="Firmware_Path" Type="System.String" Scope="User">
       <Value Profile="(Default)">\\rs01\Data_Shares\Firmware</Value>
     </Setting>
+    <Setting Name="EBL_Coding_Timeout" Type="System.TimeSpan" Scope="User">
+      <Value Profile="(Default)">00:05:00</Value>
+    </Setting>
   </Settings>
 </SettingsFile>

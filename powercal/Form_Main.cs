@@ -2291,7 +2291,7 @@ namespace PowerCalibration
                 case Coding_Method.EBL:
 
                     // Init coder
-                    Coder coder = new Coder(new TimeSpan(0, 2, 0));
+                    Coder coder = new Coder(Properties.Settings.Default.EBL_Coding_Timeout);
                     coder.Status_Event += coder_Status_Event;
 
                     // This may only be needed when using USB?  Otherwise using initEmberIF(); may be all we need here
