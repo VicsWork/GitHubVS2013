@@ -1815,8 +1815,14 @@ namespace PowerCalibration
                 updateRunStatus("Downrev to 1.2");
                 try
                 {
-                    string floc = Path.Combine(Properties.Settings.Default.Firmware_Path, "Milkshark", "Milk1_2.ebl");
-                    string strout = _ember.Load(floc);
+                    // Copy file locally
+                    string locfloc = Path.Combine(_app_data_dir, "Milk1_2.ebl");
+                    if(!File.Exists(locfloc))
+                    {
+                        string remfloc = Path.Combine(Properties.Settings.Default.Firmware_Path, "Milkshark", "Milk1_2.ebl");
+                        File.Copy(remfloc, locfloc, true);
+                    }
+                    string strout = _ember.Load(locfloc);
                     //updateOutputStatus(strout);
 
 
