@@ -561,10 +561,19 @@ namespace PowerCalibration
                     string fileurl = Path.Combine(Tokens_Backup_Folder, filename);
                     fire_status("Saved tokens " + filename);
 
-                    Task sttask = new Task(() => _ember.SaveCalibrationTokens(_voltage_gain_adress, fileurl));
-                    sttask.ContinueWith(saveTokensError, TaskContinuationOptions.OnlyOnFaulted);
-                    sttask.Start();
                     //_ember.SaveCalibrationTokens(_voltage_gain_adress, fileurl);
+
+                    //Task sttask = new Task(() => _ember.SaveCalibrationTokens(_voltage_gain_adress, fileurl));
+                    //sttask.ContinueWith(saveTokensError, TaskContinuationOptions.OnlyOnFaulted);
+                    //sttask.Start();
+
+                    Task t = null;
+                    t = Task.Factory.StartNew(
+                        () =>
+                        {
+                            _ember.SaveCalibrationTokens(_voltage_gain_adress, fileurl);
+                            t.ContinueWith(saveTokensError, TaskContinuationOptions.OnlyOnFaulted);
+                        });
                 }
                 catch (Exception ex)
                 {
