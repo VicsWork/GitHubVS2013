@@ -559,8 +559,12 @@ namespace PowerCalibration
                 {
                     string filename = eui + ".hex";
                     string fileurl = Path.Combine(Tokens_Backup_Folder, filename);
-                    _ember.SaveCalibrationTokens(_voltage_gain_adress, fileurl);
                     fire_status("Saved tokens " + filename);
+
+                    Task sttask = new Task(() => _ember.SaveCalibrationTokens(_voltage_gain_adress, fileurl));
+                    sttask.ContinueWith(saveTokensError, TaskContinuationOptions.OnlyOnFaulted);
+                    sttask.Start();
+                    //_ember.SaveCalibrationTokens(_voltage_gain_adress, fileurl);
                 }
                 catch (Exception ex)
                 {
@@ -592,6 +596,18 @@ namespace PowerCalibration
                     }
                 }
             }
+        }
+
+        private void saveTokensError(Task obj)
+        {
+            try
+            {
+                if (obj.Exception.InnerException != null)
+                    fire_status("Error saving tokens\r\n" + obj.Exception.InnerException.Message);
+                else
+                    fire_status("Error saving tokens");
+            }
+            catch { };
         }
 
         /// <summary>
